@@ -23,6 +23,7 @@ import android.view.View;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
@@ -55,11 +56,11 @@ public class MainActivity extends AppCompatActivity {
     private Button button_play_pause;
     private Button button_previous;
     private Button button_next;
-    private Button button_save;
     private TextView track_time;
     private TextView header_text;
     private RelativeLayout top_container;
     private ProgressBar progressBar;
+    private ImageView checkMark;
 
     private GestureDetector gestureDetector;
     private Handler handler_main;
@@ -146,8 +147,21 @@ public class MainActivity extends AppCompatActivity {
         public void onStopTrackingTouch(SeekBar seekBar) {
             Log.i(TAG, "onStopTrackingTouch: PROGRESS: " + seekBar.getProgress());
             trackList.get(trackPointer).setRating(seekBar.getProgress());
+            checkMark.setVisibility(View.VISIBLE);
+            if (ratingManager.getState() == State.STATE_FINISHED) {
+                checkMark.setImageDrawable(getDrawable(R.drawable.ic_done_all_green));
+            } else {
+                checkMark.setImageDrawable(getDrawable(R.drawable.ic_done_green));
+            }
+
             if (ratingManager.isRatingFinished(trackList)) {
+                Log.i(TAG, "onStopTrackingTouch: All recording have been rated!");
                 ratingManager.setState(State.STATE_FINISHED);
+                try {
+                    ratingManager.saveResults(MainActivity.this, trackList);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         }
     };
@@ -202,6 +216,7 @@ public class MainActivity extends AppCompatActivity {
         top_container = findViewById(R.id.top_container);
         header_text = findViewById(R.id.header_text);
         progressBar = findViewById(R.id.progressBar);
+        checkMark = findViewById(R.id.check_mark);
 
         // Assign listeners to all buttons
         button_play_pause.setOnClickListener(playListener);
@@ -215,8 +230,6 @@ public class MainActivity extends AppCompatActivity {
         // Initialize the audio player and rating manager
         player = new Player(this, getPlayerListener());
 
-        // TODO RATING MANAGER SHOULD AUTOMATICALLY LOAD PREVIOUS SESSION ON ITS INITIALIZATION
-        // IT SHOULD ONLY BE RESET WITH NEW SEED WHEN THE RESET BUTTON IN APP IS PRESSED
         ratingManager = new RatingManager(this);
 
         // Get vibrator service for UI vibration feedback
@@ -225,18 +238,6 @@ public class MainActivity extends AppCompatActivity {
 
         accommodateNightMode(); // TODO Check
 
-
-        button_save = findViewById(R.id.button_save);
-        button_save.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                try {
-                    ratingManager.saveResults(MainActivity.this);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        });
 
 
 
@@ -273,9 +274,6 @@ public class MainActivity extends AppCompatActivity {
         // Set first track to play
         changeCurrentTrack(0,0);
         ratingManager.setState(State.STATE_IN_PROGRESS);
-
-
-        // TODO
 
         handler_main.postDelayed(hideToolbar, TOOLBAR_DELAY);
     }
@@ -323,15 +321,24 @@ public class MainActivity extends AppCompatActivity {
             int setTo;
             if (savedRating != Recording.DEFAULT_UNSET_RATING) {
                 setTo = savedRating;
+                checkMark.setVisibility(View.VISIBLE);
             } else if (lastSessionSavedRating != Recording.DEFAULT_UNSET_RATING) {
                 setTo = lastSessionSavedRating;
+                checkMark.setVisibility(View.VISIBLE);
             } else {
                 setTo = 50; // Default middle
+                checkMark.setVisibility(View.INVISIBLE);
             }
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 ratingbar.setProgress(setTo, true);
             } else {
                 ratingbar.setProgress(setTo);
+            }
+
+            if (ratingManager.getState() == State.STATE_FINISHED) {
+                checkMark.setImageDrawable(getDrawable(R.drawable.ic_done_all_green));
+            } else {
+                checkMark.setImageDrawable(getDrawable(R.drawable.ic_done_green));
             }
         }
     }
@@ -347,11 +354,6 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onTrackFinished() {
-                // TODO Allow another playback?
-                // Show something like check mark so user knows it has already rated
-                // Actually turn a flag or something that this track has been listened to and the
-                // rating can be saved (let users move the bar but save only on completion)
-
                 button_play_pause.callOnClick();
                 player.rewind();
             }
@@ -481,13 +483,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-        Log.i(TAG, "onResume: ");
-        // TODO Delet??
-    }
-
-    @Override
     protected void onDestroy() {
         super.onDestroy();
         player.clean();
@@ -521,7 +516,8 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_settings:
-                Toast.makeText(this, "SETTINGS", Toast.LENGTH_SHORT).show();
+                // TODO Change language CS/EN, maybe more?
+                Toast.makeText(this, "Not yet implemented.", Toast.LENGTH_SHORT).show();
                 return true;
             case R.id.action_show_session_info:
                 String message = getString(R.string.session_info_message,
@@ -540,7 +536,36 @@ public class MainActivity extends AppCompatActivity {
                 info_dialog.show();
                 return true;
             case R.id.action_reset_ratings:
-                Toast.makeText(this, "RESET", Toast.LENGTH_SHORT).show();
+                AlertDialog confirm_dialog = new AlertDialog.Builder(MainActivity.this)
+                        .setMessage(getString(R.string.reset_confirm_prompt))
+                        .setTitle(getString(R.string.alert))
+                        .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                initDone = false;
+                                trackPointer = 0;
+                                ratingManager.makeNewSession();
+                                try {
+                                    trackList = getRecordings();
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                                changeCurrentTrack(0,0);
+
+                                ratingManager.setState(State.STATE_IN_PROGRESS);
+
+                                checkMark.setVisibility(View.INVISIBLE);
+                                checkMark.setImageDrawable(getDrawable(R.drawable.ic_done_green));
+                                ratingbar.setProgress(50);
+
+                                handler_main.postDelayed(hideToolbar, TOOLBAR_DELAY);
+                                initDone = true;
+                            }
+                        })
+                        .setNegativeButton(R.string.cancel, null)
+                        .create();
+                confirm_dialog.setIcon(getDrawable(android.R.drawable.stat_sys_warning));
+                confirm_dialog.show();
                 return true;
             case R.id.action_quit:
                 AlertDialog close_dialog = new AlertDialog.Builder(MainActivity.this)

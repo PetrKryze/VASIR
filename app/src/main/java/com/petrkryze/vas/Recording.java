@@ -5,6 +5,7 @@ import android.util.Log;
 import org.apache.commons.io.FilenameUtils;
 
 import java.io.File;
+import java.util.Comparator;
 
 import androidx.annotation.NonNull;
 
@@ -16,11 +17,34 @@ class Recording {
     private final String ID;
     private final GroupType group;
     private final int randomized_number;
-    private int rating = DEFAULT_UNSET_RATING;
+    private int rating;
 
     static final int DEFAULT_UNSET_RATING = -1;
 
     private static final String TAG = "RecordingObject";
+
+    public static Comparator<Recording> recordingComparator = new Comparator<Recording>() {
+        @Override
+        public int compare(Recording o1, Recording o2) {
+            if (o1.getGroupType() == o2.getGroupType()) {
+                String replace = o1.getGroupType().toString().split("_")[0];
+                int id1 = Integer.parseInt(o1.getID().replace(replace,"").split("_")[0]);
+                int id2 = Integer.parseInt(o2.getID().replace(replace,"").split("_")[0]);
+                return Integer.compare(id1, id2);
+            } else if (o1.getGroupType() == GroupType.HC) {
+                return -1;
+            } else if (o2.getGroupType() == GroupType.HC) {
+                return 1;
+            } else if (o1.getGroupType() == GroupType.DBS_OFF) {
+                return -1;
+            } else if (o1.getGroupType() == GroupType.DBS_130) {
+                return 1;
+            } else {
+                Log.e(TAG, "compare: Sorting error - invalid group types.");
+                return 0;
+            }
+        }
+    };
 
     public enum GroupType {
         DBS_OFF, DBS_130, HC;
@@ -71,6 +95,10 @@ class Recording {
 
     public int getRating() {
         return rating;
+    }
+
+    public GroupType getGroupType() {
+        return group;
     }
 
     public void setRating(int rating) {

@@ -38,4 +38,9 @@
         Seed: %s\n\n
         Rated: %s\n\n
     </string>
+    <string name="RATING_FILE_NAME">
+        RATING_%d_%s.txt
+    </string>
+    <string name="checkmark">Checkmark</string>
+    <string name="reset_confirm_prompt">Opravdu chcete vynulovat hodnocení?</string>
 </resources>

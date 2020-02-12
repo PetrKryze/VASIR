@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.media.MediaScannerConnection;
+import android.net.Uri;
 import android.os.Environment;
 import android.util.Log;
 
@@ -16,10 +17,14 @@ import java.io.File;
 import java.io.FileWriter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
 import androidx.core.content.ContextCompat;
+
+import static com.petrkryze.vas.Recording.DEFAULT_UNSET_RATING;
+import static com.petrkryze.vas.Recording.recordingComparator;
 
 
 /**
@@ -43,6 +48,9 @@ public class RatingManager {
     private String KEY_PREFERENCES_GENERATOR_MESSAGE;
     private String KEY_PREFERENCES_RATINGS;
 
+    private static final char separator = ';';
+    private static final char headerTag = '#';
+
     private final String TAG = "RatingManager";
 
     public RatingManager(Activity context) {
@@ -55,6 +63,7 @@ public class RatingManager {
 
         this.preferences = context.getPreferences(Context.MODE_PRIVATE);
 
+        // TODO Delet dis after production version is done
 //        SharedPreferences.Editor editor = preferences.edit();
 //        editor.clear();
 //        editor.commit();
@@ -101,7 +110,7 @@ public class RatingManager {
         }
     }
 
-    private void makeNewSession() {
+    public void makeNewSession() {
         this.session_ID = getNewSessionID(); // Increments last existing session number
         this.seed = System.nanoTime();
         Log.i(TAG, "RatingManager: Newly created seed: " + seed);
@@ -114,7 +123,7 @@ public class RatingManager {
 
     public int getLastSessionRating(int index) {
         if (lastSessionRatings.size() == 0) { // New session without saved previous ratings
-            return Recording.DEFAULT_UNSET_RATING;
+            return DEFAULT_UNSET_RATING;
         } else {
             return lastSessionRatings.get(index);
         }
@@ -153,7 +162,7 @@ public class RatingManager {
 
     public boolean isRatingFinished(List<Recording> recordings) {
         for (Recording rec : recordings) {
-            if (rec.getRating() == Recording.DEFAULT_UNSET_RATING) {
+            if (rec.getRating() == DEFAULT_UNSET_RATING) {
                 return false;
             }
         }
@@ -165,7 +174,7 @@ public class RatingManager {
         int size = recordings.size();
 
         for (Recording rec : recordings) {
-            if (rec.getRating() != Recording.DEFAULT_UNSET_RATING) {
+            if (rec.getRating() != DEFAULT_UNSET_RATING) {
                 cnt++;
             }
         }
@@ -197,38 +206,91 @@ public class RatingManager {
     }
 
 
-    public void saveResults(Context context) throws Exception {
-        // TODO Save ratings to simple text file
+    public void saveResults(Context context, List<Recording> recordings) throws Exception {
+        // Fire this only and only when saving the final results
+        if (state != State.STATE_FINISHED) {
+            Log.e(TAG, "saveResults: Rating manager is not in a finished state!");
+        } else {
+            // Get all available storage (internal, external, mounted, emulated, ...)
+            File[] externalStorageVolumes =
+                    ContextCompat.getExternalFilesDirs(context, null);
 
-        // Get external storage
-        boolean readable = Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED) ||
-                Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED_READ_ONLY);
-        if (!readable) {
-            throw new Exception("External storage could not be read");
-        }
-        File[] externalStorageVolumes =
-                ContextCompat.getExternalFilesDirs(context, null);
-        File primaryExternalStorage = externalStorageVolumes[0];
-        Log.i(TAG, "getRecordings: External Storage root: " + primaryExternalStorage.getPath());
+            File sdcardAppFolder = null;
+            for (int i = 0; i <= externalStorageVolumes.length; i++) {
+                File f = externalStorageVolumes[i];
+                Log.i(TAG, "saveResults: Storage no." + i);
+                Log.i(TAG, "saveResults: External Storage path: " + f.getPath());
+                Log.i(TAG, "saveResults: Is this storage emulated? " +
+                        Environment.isExternalStorageEmulated(f));
+                Log.i(TAG, "saveResults: Is this storage removable? " +
+                        Environment.isExternalStorageRemovable(f));
+                Log.i(TAG, "saveResults: State of this external storage: " +
+                        Environment.getExternalStorageState(f) + "\n");
 
-
-        File directory = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS), "Ratings");
-//        File directory = new File(context.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS), "Ratings");
-        if (!directory.exists()) {
-            Log.i(TAG, "saveResults: Directory <" + directory.getPath() + "> does not exist.");
-            Log.i(TAG, "saveResults: Directory <" + directory.getAbsolutePath() + "> does not exist.");
-            if (!directory.mkdirs()) {
-                Log.i(TAG, "saveResults: Directory could not be created.");
+                if (Environment.isExternalStorageRemovable(f) &&
+                        !Environment.isExternalStorageEmulated(f) &&
+                        Environment.getExternalStorageState(f).equals(Environment.MEDIA_MOUNTED)) {
+                    // This storage is <<probably>> a external SD-card
+                    sdcardAppFolder = f;
+                    // Fuck everything else
+                    break;
+                }
             }
+            if (sdcardAppFolder == null) {
+                throw new Exception("No usable external storage location found!");
+            }
+
+            File directory = new File(sdcardAppFolder, "Ratings");
+            if (!directory.exists()) {
+                Log.i(TAG, "saveResults: Directory <" + directory.getPath() + "> does not exist.");
+                if (!directory.mkdirs()) {
+                    Log.i(TAG, "saveResults: Directory could not be created.");
+                } else {
+                    Log.i(TAG, "saveResults: Directory <" + directory.getPath()
+                            + "> created successfully.");
+                }
+            }
+
+            // Sort the randomized recordings
+            Collections.sort(recordings, recordingComparator);
+
+            Log.i(TAG, "saveResults: Sorted recordings:");
+            for (Recording r : recordings) {
+                Log.i(TAG, "saveResults: " + r.toString());
+            }
+
+            @SuppressLint("SimpleDateFormat") SimpleDateFormat format =
+                    new SimpleDateFormat("dd-MM-yyyy");
+            String date = format.format(new Date(System.currentTimeMillis()));
+            String newRatingsFileName = context.getString(R.string.RATING_FILE_NAME,
+                    session_ID, date);
+
+            File file = new File(directory, newRatingsFileName);
+            FileWriter writer = new FileWriter(file);
+
+            String header = headerTag + "Session ID: " + session_ID + "\n" +
+                    headerTag + "Randomizer Seed: " + seed + "\n" +
+                    headerTag + "Generator Date: " + generatorMessage + "\n";
+            writer.append(header);
+
+            for (Recording recording : recordings) {
+                writer.append(recording.getID()).append(separator)
+                        .append(recording.getGroupType().toString()).append(separator)
+                        .append(String.valueOf(recording.getRandomized_number())).append(separator)
+                        .append(String.valueOf(recording.getRating())).append("\n");
+            }
+            writer.flush();
+            writer.close();
+
+            MediaScannerConnection.scanFile(context, new String[]{file.getPath()}, null,
+                    new MediaScannerConnection.OnScanCompletedListener() {
+                        @Override
+                        public void onScanCompleted(String path, Uri uri) {
+                            Log.i(TAG, "onScanCompleted: SCAN OF FILE <" + path + "> completed!");
+                        }
+                    });
+
+            Log.i(TAG, "saveResults: File: <" + file.getName() + "> written successfully.");
         }
-
-        File file = new File(directory, "test.txt");
-        FileWriter writer = new FileWriter(file);
-        writer.append("Tohle je test.");
-        writer.append("Tohle je další řádek.");
-        writer.flush();
-        writer.close();
-
-        MediaScannerConnection.scanFile(context, new String[]{file.getPath()}, null, null);
     }
 }

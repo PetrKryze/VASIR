@@ -53,6 +53,17 @@
 
     </RelativeLayout>
 
+
+    <ImageView
+        android:id="@+id/check_mark"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_done_green"
+        android:layout_centerHorizontal="true"
+        android:layout_above="@id/track_time"
+        android:contentDescription="@string/checkmark"
+        android:visibility="invisible"/>
+
     <TextView
         android:id="@+id/track_time"
         android:layout_width="wrap_content"
@@ -186,12 +197,5 @@
             android:progress="50"/>
 
     </LinearLayout>
-
-    <Button
-        android:id="@+id/button_save"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Uložit"
-        android:layout_above="@id/track_time"/>
 
 </RelativeLayout>
