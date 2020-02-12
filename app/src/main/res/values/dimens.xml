@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="seek_bar_thickness">10dp</dimen>
+    <dimen name="seek_bar_thumb_size">60dp</dimen>
+    <dimen name="player_button_size">60dp</dimen>
+</resources>

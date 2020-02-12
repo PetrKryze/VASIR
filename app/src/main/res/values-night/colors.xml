@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#BBDEFB</color>
+    <color name="colorPrimaryDark">#1976D2</color>
+    <color name="colorAccent">#FF5722</color>
+    <color name="seek_bar_background">#ababab</color>
+    <color name="seek_bar_progress">#FF7043</color>
+    <color name="seek_bar_secondary_progress">#3399CC</color>
+    <color name="rating_background" >#242424</color>
+</resources>

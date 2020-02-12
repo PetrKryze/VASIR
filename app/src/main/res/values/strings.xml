@@ -1,0 +1,41 @@
+<resources>
+    <string name="app_name">Visual Analog Scale</string>
+    <string name="main_title">Srozumitelnost</string>
+    <string name="placeholder">placeholder</string>
+    <string name="button_play_label">Přehrát</string>
+    <string name="button_pause_label">Pozastavit</string>
+    <string name="button_stop_label">Stop</string>
+    <string name="rating_label_lowest">Zcela nesrozumitelné</string>
+    <string name="rating_label_highest">Dokonale srozumitelné</string>
+    <string name="track_time_placeholder">00:00</string>
+    <string name="previous_track">Další</string>
+    <string name="next_track">Předchozí</string>
+    <string name="toast_connect_headphones">Prosím, připojte k zařízení sluchátka.</string>
+    <string name="toast_increase_volume">Audio výstup vašeho zařízení je ztlumený.</string>
+    <string name="welcome_message">Vítejte v aplikaci pro hodnocení řečových nahrávek pomocí
+        obrazových analogových stupnic.\n\nTato aplikace byla vyvinuta pro potřeby vědy a výzkumu na
+        katedře teorie obvodů, fakulty elektrotechnické, ČVUT v Praze.\n\nPo potvrzení tohoto okna
+        můžete stiskem tlačítka "přehrát" spustit přehrávání první audio-nahrávky.</string>
+    <string name="welcome_title">Vítejte!</string>
+    <string name="ok">OK</string>
+    <string name="track">Nahrávka</string>
+    <string name="track_counter">%s: %d/%d</string>
+    <string name="cancel">Zrušit</string>
+    <string name="close_confirm_prompt">Opravdu si přejete odejít?</string>
+    <string name="alert">Upozornění</string>
+    <string name="KEY_PREFERENCES_SESSION_ID">session_id</string>
+    <string name="action_settings">Nastavení</string>
+    <string name="action_quit">Odejít</string>
+    <string name="action_reset_ratings">Vynulovat hodnocení</string>
+    <string name="KEY_PREFERENCES_SEED">seed</string>
+    <string name="KEY_PREFERENCES_GENERATOR_MESSAGE">generator_message</string>
+    <string name="KEY_PREFERENCES_RATINGS">ratings</string>
+    <string name="action_show_session_info">Informace o relaci</string>
+    <string name="session_info_title">Informace</string>
+    <string name="session_info_message">
+        Session ID: %s\n\n
+        Generated: %s\n\n
+        Seed: %s\n\n
+        Rated: %s\n\n
+    </string>
+</resources>
