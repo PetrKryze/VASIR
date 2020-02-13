@@ -10,7 +10,6 @@ import android.graphics.ColorMatrixColorFilter;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.Vibrator;
 import android.util.Log;
@@ -45,7 +44,6 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.content.ContextCompat;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -244,13 +242,26 @@ public class MainActivity extends AppCompatActivity {
         // Load the tracks from storage
         try {
             trackList = getRecordings();
-            for (Recording r : trackList) { // TODO delet dis
-                Log.i(TAG, "onCreate: " + r.toString());
-            }
+            // Logging only
+//            for (Recording r : trackList) {
+//                Log.i(TAG, "onCreate: " + r.toString());
+//            }
             welcome();
             initDone = true;
         } catch (Exception e) {
             e.printStackTrace();
+            AlertDialog no_files_found_dialog = new AlertDialog.Builder(this)
+                    .setMessage(getString(R.string.no_files_found_message))
+                    .setTitle(getString(R.string.alert))
+                    .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            MainActivity.this.finish();
+                        }
+                    }).create();
+            no_files_found_dialog.setCanceledOnTouchOutside(false);
+            no_files_found_dialog.setIcon(getDrawable(R.drawable.ic_error_red_24dp));
+            no_files_found_dialog.show();
         }
     }
 
@@ -403,18 +414,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private List<Recording> getRecordings() throws Exception {
-        boolean readable = Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED) ||
-                Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED_READ_ONLY);
-        if (!readable) {
-            throw new Exception("External storage could not be read.");
-        }
+        File root = RatingManager.getRootAppDirOnSdCard(getApplicationContext());
 
-        File[] externalStorageVolumes =
-                ContextCompat.getExternalFilesDirs(getApplicationContext(), null);
-        File primaryExternalStorage = externalStorageVolumes[0];
-        Log.i(TAG, "getRecordings: External Storage root: " + primaryExternalStorage.getPath());
-
-        ArrayList<File> raw_audio_list = getAudioRecursive(primaryExternalStorage);
+        // Finds all MP3 audio files in the app root folder on SD card
+        ArrayList<File> raw_audio_list = getAudioRecursive(root);
         Nrec = raw_audio_list.size();
         if (Nrec <= 0) {
             throw new Exception("No audio files found on external storage!");

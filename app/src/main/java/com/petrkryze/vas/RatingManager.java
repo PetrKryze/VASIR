@@ -50,6 +50,7 @@ public class RatingManager {
 
     private static final char separator = ';';
     private static final char headerTag = '#';
+    private static final String RATINGS_FOLDER_NAME = "Ratings";
 
     private final String TAG = "RatingManager";
 
@@ -211,36 +212,12 @@ public class RatingManager {
         if (state != State.STATE_FINISHED) {
             Log.e(TAG, "saveResults: Rating manager is not in a finished state!");
         } else {
-            // Get all available storage (internal, external, mounted, emulated, ...)
-            File[] externalStorageVolumes =
-                    ContextCompat.getExternalFilesDirs(context, null);
-
-            File sdcardAppFolder = null;
-            for (int i = 0; i <= externalStorageVolumes.length; i++) {
-                File f = externalStorageVolumes[i];
-                Log.i(TAG, "saveResults: Storage no." + i);
-                Log.i(TAG, "saveResults: External Storage path: " + f.getPath());
-                Log.i(TAG, "saveResults: Is this storage emulated? " +
-                        Environment.isExternalStorageEmulated(f));
-                Log.i(TAG, "saveResults: Is this storage removable? " +
-                        Environment.isExternalStorageRemovable(f));
-                Log.i(TAG, "saveResults: State of this external storage: " +
-                        Environment.getExternalStorageState(f) + "\n");
-
-                if (Environment.isExternalStorageRemovable(f) &&
-                        !Environment.isExternalStorageEmulated(f) &&
-                        Environment.getExternalStorageState(f).equals(Environment.MEDIA_MOUNTED)) {
-                    // This storage is <<probably>> a external SD-card
-                    sdcardAppFolder = f;
-                    // Fuck everything else
-                    break;
-                }
-            }
+            File sdcardAppFolder = getRootAppDirOnSdCard(context);
             if (sdcardAppFolder == null) {
                 throw new Exception("No usable external storage location found!");
             }
 
-            File directory = new File(sdcardAppFolder, "Ratings");
+            File directory = new File(sdcardAppFolder, RATINGS_FOLDER_NAME);
             if (!directory.exists()) {
                 Log.i(TAG, "saveResults: Directory <" + directory.getPath() + "> does not exist.");
                 if (!directory.mkdirs()) {
@@ -292,5 +269,35 @@ public class RatingManager {
 
             Log.i(TAG, "saveResults: File: <" + file.getName() + "> written successfully.");
         }
+    }
+
+    public static File getRootAppDirOnSdCard(Context context) {
+        final String TAG = "getRootAppDirOnSdCard";
+        // Get all available storage (internal, external, mounted, emulated, ...)
+        File[] externalStorageVolumes =
+                ContextCompat.getExternalFilesDirs(context, null);
+
+        File sdcardAppFolder = null;
+        for (int i = 0; i <= externalStorageVolumes.length; i++) {
+            File f = externalStorageVolumes[i];
+            Log.i(TAG, "saveResults: Storage no." + i);
+            Log.i(TAG, "saveResults: External Storage path: " + f.getPath());
+            Log.i(TAG, "saveResults: Is this storage emulated? " +
+                    Environment.isExternalStorageEmulated(f));
+            Log.i(TAG, "saveResults: Is this storage removable? " +
+                    Environment.isExternalStorageRemovable(f));
+            Log.i(TAG, "saveResults: State of this external storage: " +
+                    Environment.getExternalStorageState(f) + "\n");
+
+            if (Environment.isExternalStorageRemovable(f) &&
+                    !Environment.isExternalStorageEmulated(f) &&
+                    Environment.getExternalStorageState(f).equals(Environment.MEDIA_MOUNTED)) {
+                // This storage is <<probably>> a external SD-card
+                sdcardAppFolder = f;
+                // Fuck everything else
+                break;
+            }
+        }
+        return sdcardAppFolder;
     }
 }

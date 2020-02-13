@@ -1,46 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Visual Analog Scale</string>
-    <string name="main_title">Srozumitelnost</string>
-    <string name="placeholder">placeholder</string>
-    <string name="button_play_label">Přehrát</string>
-    <string name="button_pause_label">Pozastavit</string>
-    <string name="button_stop_label">Stop</string>
-    <string name="rating_label_lowest">Zcela nesrozumitelné</string>
-    <string name="rating_label_highest">Dokonale srozumitelné</string>
-    <string name="track_time_placeholder">00:00</string>
-    <string name="previous_track">Další</string>
-    <string name="next_track">Předchozí</string>
-    <string name="toast_connect_headphones">Prosím, připojte k zařízení sluchátka.</string>
-    <string name="toast_increase_volume">Audio výstup vašeho zařízení je ztlumený.</string>
-    <string name="welcome_message">Vítejte v aplikaci pro hodnocení řečových nahrávek pomocí
-        obrazových analogových stupnic.\n\nTato aplikace byla vyvinuta pro potřeby vědy a výzkumu na
-        katedře teorie obvodů, fakulty elektrotechnické, ČVUT v Praze.\n\nPo potvrzení tohoto okna
-        můžete stiskem tlačítka "přehrát" spustit přehrávání první audio-nahrávky.</string>
-    <string name="welcome_title">Vítejte!</string>
-    <string name="ok">OK</string>
-    <string name="track">Nahrávka</string>
-    <string name="track_counter">%s: %d/%d</string>
-    <string name="cancel">Zrušit</string>
-    <string name="close_confirm_prompt">Opravdu si přejete odejít?</string>
-    <string name="alert">Upozornění</string>
-    <string name="KEY_PREFERENCES_SESSION_ID">session_id</string>
-    <string name="action_settings">Nastavení</string>
-    <string name="action_quit">Odejít</string>
-    <string name="action_reset_ratings">Vynulovat hodnocení</string>
-    <string name="KEY_PREFERENCES_SEED">seed</string>
     <string name="KEY_PREFERENCES_GENERATOR_MESSAGE">generator_message</string>
     <string name="KEY_PREFERENCES_RATINGS">ratings</string>
-    <string name="action_show_session_info">Informace o relaci</string>
-    <string name="session_info_title">Informace</string>
-    <string name="session_info_message">
+    <string name="KEY_PREFERENCES_SEED">seed</string>
+    <string name="KEY_PREFERENCES_SESSION_ID">session_id</string>
+    <string name="action_quit">Quit</string>
+    <string name="action_reset_ratings">Reset ratings</string>
+    <string name="action_settings">Settings</string>
+    <string name="action_show_session_info">Session Info</string>
+    <string name="alert">Alert</string>
+    <string name="button_pause_label">Pause</string>
+    <string name="button_play_label">Play</string>
+    <string name="button_stop_label">Stop</string>
+    <string name="cancel">Cancel</string>
+    <string name="checkmark">Checkmark</string>
+    <string name="close_confirm_prompt">Are you sure you want to quit\?</string>
+    <string name="main_title">Intelligibility</string>
+    <string name="next_track">Next</string>
+    <string name="ok">OK</string>
+    <string name="placeholder">placeholder</string>
+    <string name="previous_track">Previous</string>
+    <string name="rating_label_highest">Perfectly Intelligible</string>
+    <string name="rating_label_lowest">Completely unintelligible</string>
+    <string name="reset_confirm_prompt">Are you sure you want to reset all ratings\?</string>
+    <string name="session_info_title">Info</string>
+    <string name="toast_connect_headphones">Please, plug in headphones.</string>
+    <string name="toast_increase_volume">Audio volume is muted.</string>
+    <string name="track">Recording</string>
+    <string name="welcome_title">Welcome!</string>
+    <string name="welcome_message">
+        Welcome to speech recordings rating using visual analog scales application.\n\n
+        This application was developed for use in research and development in the department of circuit theory, faculty of electrotechnics, CTU in Prague.\n\n
+        You can begin the rating process by listening to the first audio recording, after you confirm this window.\n\n
+    </string>
+    <string name="session_info_message" translatable="false">
         Session ID: %s\n\n
         Generated: %s\n\n
         Seed: %s\n\n
         Rated: %s\n\n
     </string>
-    <string name="RATING_FILE_NAME">
+    <string name="RATING_FILE_NAME" translatable="false">
         RATING_%d_%s.txt
     </string>
-    <string name="checkmark">Checkmark</string>
-    <string name="reset_confirm_prompt">Opravdu chcete vynulovat hodnocení?</string>
+    <string name="track_time_placeholder" translatable="false">00:00</string>
+    <string name="track_counter" translatable="false">%s: %d/%d</string>
+    <string name="no_files_found_message">
+        Error! No audio files found in the designated data folder in the application directory.
+        Place your audio speech recordings saved as MP3-files in the application directory on an
+        external SD card inserted in your device. This is required as internal device storage tends
+        to be limited in capacity.\n\n
+        Folder structure has to be following:\n
+        <tt>\"app-root\"/files/\"group-folder\"/\n</tt>
+        where <tt>\"app-root\"</tt> is the application root directory - typically:\n
+        <tt>\"your-phone\"/Card/Android/data/com.petrkryze.vas/\n</tt>
+        and <tt>\"group-folder\"</tt> has to be <tt>\"HC\"</tt>, <tt>\"DBS_OFF\"</tt> or <tt>\"DBS_130\"</tt>. Then, place the corresponding
+        audio-files into these folders.\n\n
+        <i>Currently</i> supporting only this predefined system, will be
+        upgraded to auto-recognize group names in the future versions.
+    </string>
 </resources>
