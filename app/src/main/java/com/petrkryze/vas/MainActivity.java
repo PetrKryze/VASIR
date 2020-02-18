@@ -18,12 +18,12 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
+import android.view.SoundEffectConstants;
 import android.view.View;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -57,7 +57,7 @@ public class MainActivity extends AppCompatActivity {
     private TextView track_time;
     private TextView header_text;
     private RelativeLayout top_container;
-    private ProgressBar progressBar;
+    private SeekBar progressBar;
     private ImageView checkMark;
 
     private GestureDetector gestureDetector;
@@ -73,6 +73,7 @@ public class MainActivity extends AppCompatActivity {
     private RatingManager ratingManager;
 
     private boolean initDone = false;
+    private boolean isUIseeking = false;
 
     private View.OnClickListener playListener = new View.OnClickListener() {
         @Override
@@ -133,7 +134,7 @@ public class MainActivity extends AppCompatActivity {
     private SeekBar.OnSeekBarChangeListener ratingBarListener = new SeekBar.OnSeekBarChangeListener() {
         @Override
         public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-            vibrator.vibrate(30);
+//            vibrator.vibrate(30);
         }
 
         @Override
@@ -143,8 +144,8 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void onStopTrackingTouch(SeekBar seekBar) {
-            Log.i(TAG, "onStopTrackingTouch: PROGRESS: " + seekBar.getProgress());
             trackList.get(trackPointer).setRating(seekBar.getProgress());
+            progressBar.playSoundEffect(SoundEffectConstants.CLICK);
             checkMark.setVisibility(View.VISIBLE);
             if (ratingManager.getState() == State.STATE_FINISHED) {
                 checkMark.setImageDrawable(getDrawable(R.drawable.ic_done_all_green));
@@ -160,6 +161,28 @@ public class MainActivity extends AppCompatActivity {
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
+            }
+        }
+    };
+
+    private SeekBar.OnSeekBarChangeListener progressBarListener = new SeekBar.OnSeekBarChangeListener() {
+        @Override
+        public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+
+        }
+
+        @Override
+        public void onStartTrackingTouch(SeekBar seekBar) {
+            vibrator.vibrate(VIBRATE_BUTTON_MS);
+            isUIseeking = true;
+        }
+
+        @Override
+        public void onStopTrackingTouch(SeekBar seekBar) {
+            vibrator.vibrate(VIBRATE_BUTTON_MS);
+            progressBar.playSoundEffect(SoundEffectConstants.CLICK);
+            if (initDone && player.isPrepared() && !player.isSeeking()) {
+                player.seekTo(seekBar.getProgress());
             }
         }
     };
@@ -195,6 +218,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         initDone = false;
+        isUIseeking = false;
         trackPointer = 0;
         setContentView(R.layout.activity_main);
         hideSystemUI();
@@ -221,6 +245,7 @@ public class MainActivity extends AppCompatActivity {
         button_previous.setOnClickListener(previousListener);
         button_next.setOnClickListener(nextListener);
         ratingbar.setOnSeekBarChangeListener(ratingBarListener);
+        progressBar.setOnSeekBarChangeListener(progressBarListener);
 
         // Checks for single taps on screen to hide system UI
         gestureDetector = new GestureDetector(this, new MyGestureListener());
@@ -288,8 +313,6 @@ public class MainActivity extends AppCompatActivity {
 
         handler_main.postDelayed(hideToolbar, TOOLBAR_DELAY);
     }
-
-
 
     private void changeCurrentTrack(int current, int changeTo) {
         if (Nrec <= 0) {
@@ -393,7 +416,16 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onUpdateProgress(int current_ms) {
-                progressBar.setProgress(current_ms);
+                if (!isUIseeking) {
+                    progressBar.setProgress(current_ms);
+                }
+            }
+
+            @Override
+            public void onSeekFinished(int current_ms) {
+                if (!progressBar.isInTouchMode()) {
+                    isUIseeking = false;
+                }
             }
         };
     }
@@ -421,6 +453,8 @@ public class MainActivity extends AppCompatActivity {
         Nrec = raw_audio_list.size();
         if (Nrec <= 0) {
             throw new Exception("No audio files found on external storage!");
+        } else {
+            Log.i(TAG, "getRecordings: Found " + Nrec + " audio files.");
         }
 
         Collections.sort(raw_audio_list); // Ensures the same order after loading
@@ -546,6 +580,7 @@ public class MainActivity extends AppCompatActivity {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 initDone = false;
+                                isUIseeking = false;
                                 trackPointer = 0;
                                 ratingManager.makeNewSession();
                                 try {

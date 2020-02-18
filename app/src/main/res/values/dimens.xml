@@ -3,4 +3,6 @@
     <dimen name="seek_bar_thickness">10dp</dimen>
     <dimen name="seek_bar_thumb_size">60dp</dimen>
     <dimen name="player_button_size">60dp</dimen>
+    <dimen name="progress_bar_thumb_size">20dp</dimen>
+    <dimen name="progress_bar_thickness">5dp</dimen>
 </resources>

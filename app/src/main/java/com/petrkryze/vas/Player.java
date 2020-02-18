@@ -14,7 +14,7 @@ import java.io.IOException;
  * Created by Petr on 07.02.2020. Yay!
  */
 
-public class Player {
+class Player {
 
     private MediaPlayer mediaPlayer;
     private AudioManager audioManager;
@@ -46,15 +46,16 @@ public class Player {
     private final String TAG = "Player";
 
     public interface PlayerListener {
-        public void onTrackPrepared(int duration);
-        public void onTrackFinished();
-        public void onHeadphonesMissing();
-        public void onVolumeDown();
-        public void onTimeTick(int tick_ms);
-        public void onUpdateProgress(int current_ms);
+        void onTrackPrepared(int duration);
+        void onTrackFinished();
+        void onHeadphonesMissing();
+        void onVolumeDown();
+        void onTimeTick(int tick_ms);
+        void onUpdateProgress(int current_ms);
+        void onSeekFinished(int current_ms);
     }
 
-    public Player(Context context, final PlayerListener listener) {
+    Player(Context context, final PlayerListener listener) {
         this.listener = listener;
         this.mediaPlayer = new MediaPlayer();
 
@@ -81,6 +82,8 @@ public class Player {
             @Override
             public void onSeekComplete(MediaPlayer mp) {
                 isSeeking = false;
+                listener.onSeekFinished(mediaPlayer.getCurrentPosition());
+                handler.post(tick);
             }
         });
         this.audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
@@ -90,15 +93,15 @@ public class Player {
         this.handler = new Handler(handlerThread.getLooper());
     }
 
-    public boolean isPrepared() {
+    boolean isPrepared() {
         return isPrepared;
     }
 
-    public boolean isSeeking() {
+    boolean isSeeking() {
         return isSeeking;
     }
 
-    public boolean isPlaying() {
+    boolean isPlaying() {
         if (mediaPlayer != null) {
             return mediaPlayer.isPlaying();
         } else {
@@ -106,7 +109,7 @@ public class Player {
         }
     }
 
-    public void setCurrentTrack(Recording recording) throws IOException {
+    void setCurrentTrack(Recording recording) throws IOException {
         this.recording = recording;
         mediaPlayer.reset();
         isPrepared = false;
@@ -114,7 +117,7 @@ public class Player {
         mediaPlayer.prepareAsync();
     }
 
-    public boolean play() {
+    boolean play() {
         if (isHeadphonesIn() && !isVolumeZero() && isPrepared) {
             mediaPlayer.start();
             handler.post(tick);
@@ -125,16 +128,20 @@ public class Player {
         return false;
     }
 
-    public void pause() {
+    void pause() {
         mediaPlayer.pause();
     }
 
-    public void rewind() {
-        isSeeking = true;
-        mediaPlayer.seekTo(0);
+    void rewind() {
+        seekTo(0);
     }
 
-    public void clean() {
+    void seekTo(int target) {
+        isSeeking = true;
+        mediaPlayer.seekTo(target);
+    }
+
+    void clean() {
         this.recording = null;
         isPrepared = false;
 

@@ -72,15 +72,33 @@
         android:layout_height="wrap_content"
         android:src="@drawable/ic_done_green"
         android:layout_centerHorizontal="true"
-        android:layout_above="@id/button_box"
+        android:layout_above="@id/progressBar"
         android:contentDescription="@string/checkmark"
         android:visibility="invisible"/>
+
+    <SeekBar
+        android:id="@+id/progressBar"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/button_box"
+        android:max="@integer/PROGRESS_BAR_MAX"
+        android:minHeight="4dp"
+        android:progress="0"
+        android:paddingLeft="20dp"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp"
+        android:paddingRight="20dp"
+        android:paddingTop="5dp"
+        android:paddingBottom="5dp"
+        android:thumb="@drawable/progress_thumb"
+        android:progressDrawable="@drawable/progress_bar"/>
 
     <LinearLayout
         android:id="@+id/button_box"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_above="@id/progressBar"
+        android:layout_above="@id/rating_box"
         android:orientation="horizontal"
         style="?android:attr/buttonBarStyle">
 
@@ -128,20 +146,6 @@
 
     </LinearLayout>
 
-    <ProgressBar
-        android:id="@+id/progressBar"
-        style="?android:attr/progressBarStyleHorizontal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_above="@id/rating_box"
-        android:layout_marginStart="0dp"
-        android:layout_marginTop="0dp"
-        android:layout_marginEnd="0dp"
-        android:layout_marginBottom="0dp"
-        android:max="@integer/PROGRESS_BAR_MAX"
-        android:minHeight="4dp"
-        android:progress="0" />
-
     <LinearLayout
         android:id="@+id/rating_box"
         android:layout_width="match_parent"
@@ -182,16 +186,21 @@
             android:id="@+id/ratingBar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="20dp"
+            android:layout_marginStart="20dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="20dp"
+            android:layout_marginRight="20dp"
+            android:layout_marginBottom="20dp"
+            android:max="100"
             android:paddingStart="30dp"
             android:paddingLeft="30dp"
             android:paddingEnd="30dp"
             android:paddingRight="30dp"
+            android:progress="50"
             android:progressDrawable="@drawable/seek_bar"
             android:thumb="@drawable/seek_thumb"
-            android:thumbOffset="30dp"
-            android:max="100"
-            android:progress="50"/>
+            android:thumbOffset="30dp" />
 
     </LinearLayout>
 
