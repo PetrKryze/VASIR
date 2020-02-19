@@ -73,7 +73,6 @@ public class MainActivity extends AppCompatActivity {
     private RatingManager ratingManager;
 
     private boolean initDone = false;
-    private boolean isUIseeking = false;
 
     private View.OnClickListener playListener = new View.OnClickListener() {
         @Override
@@ -147,12 +146,6 @@ public class MainActivity extends AppCompatActivity {
             trackList.get(trackPointer).setRating(seekBar.getProgress());
             progressBar.playSoundEffect(SoundEffectConstants.CLICK);
             checkMark.setVisibility(View.VISIBLE);
-            if (ratingManager.getState() == State.STATE_FINISHED) {
-                checkMark.setImageDrawable(getDrawable(R.drawable.ic_done_all_green));
-            } else {
-                checkMark.setImageDrawable(getDrawable(R.drawable.ic_done_green));
-            }
-
             if (ratingManager.isRatingFinished(trackList)) {
                 Log.i(TAG, "onStopTrackingTouch: All recording have been rated!");
                 ratingManager.setState(State.STATE_FINISHED);
@@ -162,9 +155,11 @@ public class MainActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
             }
+            setCheckMark(ratingManager.getState());
         }
     };
 
+    private boolean isTouchingSeekBar = false;
     private SeekBar.OnSeekBarChangeListener progressBarListener = new SeekBar.OnSeekBarChangeListener() {
         @Override
         public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -174,7 +169,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onStartTrackingTouch(SeekBar seekBar) {
             vibrator.vibrate(VIBRATE_BUTTON_MS);
-            isUIseeking = true;
+            isTouchingSeekBar = true;
         }
 
         @Override
@@ -184,6 +179,8 @@ public class MainActivity extends AppCompatActivity {
             if (initDone && player.isPrepared() && !player.isSeeking()) {
                 player.seekTo(seekBar.getProgress());
             }
+            isTouchingSeekBar = false;
+            player.doTick();
         }
     };
 
@@ -214,14 +211,28 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
+    private final String STATE_TRACK_POINTER = "trackPointer";
+    private final String STATE_PROGRESS_BAR = "progressBar";
+    private final String STATE_RATING_MANAGER = "ratingManager";
+    private boolean loadProgressfromSavedInstance = false;
+    private int savedProgress = 0;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         initDone = false;
-        isUIseeking = false;
-        trackPointer = 0;
+        isTouchingSeekBar = false;
+
+        if (savedInstanceState != null) {
+            trackPointer = savedInstanceState.getInt(STATE_TRACK_POINTER);
+            savedProgress = savedInstanceState.getInt(STATE_PROGRESS_BAR);
+            loadProgressfromSavedInstance = true;
+            Log.i(TAG, "onCreate: loaded progress: trackpointer = " + trackPointer + ", progress = " + savedProgress);
+        } else {
+            trackPointer = 0;
+        }
+
         setContentView(R.layout.activity_main);
-        hideSystemUI();
 
         // Toolbar setup
         animationDuration = getResources().getInteger(android.R.integer.config_shortAnimTime);
@@ -230,6 +241,7 @@ public class MainActivity extends AppCompatActivity {
         toolbarHeight = toolbar.getMinimumHeight();
         handler_main = new Handler(getMainLooper());
 
+        // UI Elements setup
         ratingbar = findViewById(R.id.ratingBar);
         button_play_pause = findViewById(R.id.button_play_pause);
         button_previous = findViewById(R.id.button_previous);
@@ -259,10 +271,8 @@ public class MainActivity extends AppCompatActivity {
         vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
         VIBRATE_BUTTON_MS = getResources().getInteger(R.integer.VIBRATE_BUTTON_MS);
 
-        accommodateNightMode(); // TODO Check
-
-
-
+        accommodateNightMode();
+        hideSystemUI();
 
         // Load the tracks from storage
         try {
@@ -271,8 +281,18 @@ public class MainActivity extends AppCompatActivity {
 //            for (Recording r : trackList) {
 //                Log.i(TAG, "onCreate: " + r.toString());
 //            }
-            welcome();
+
             initDone = true;
+            if (savedInstanceState != null) {
+                // Set first track to play
+                changeCurrentTrack(trackPointer, trackPointer);
+                ratingManager.setState(savedInstanceState.getString(STATE_RATING_MANAGER));
+                setCheckMark(ratingManager.getState());
+
+                handler_main.postDelayed(hideToolbar, TOOLBAR_DELAY);
+            } else {
+                welcome();
+            }
         } catch (Exception e) {
             e.printStackTrace();
             AlertDialog no_files_found_dialog = new AlertDialog.Builder(this)
@@ -298,20 +318,16 @@ public class MainActivity extends AppCompatActivity {
                 .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        beginNewRating();
+                        // Set first track to play
+                        changeCurrentTrack(trackPointer, trackPointer);
+                        ratingManager.setState(State.STATE_IN_PROGRESS);
+
+                        handler_main.postDelayed(hideToolbar, TOOLBAR_DELAY);
                     }
                 }).create();
         welcome_dialog.setCanceledOnTouchOutside(false);
         welcome_dialog.setIcon(getDrawable(R.drawable.symbol_cvut_plna_verze));
         welcome_dialog.show();
-    }
-
-    private void beginNewRating() {
-        // Set first track to play
-        changeCurrentTrack(0,0);
-        ratingManager.setState(State.STATE_IN_PROGRESS);
-
-        handler_main.postDelayed(hideToolbar, TOOLBAR_DELAY);
     }
 
     private void changeCurrentTrack(int current, int changeTo) {
@@ -346,7 +362,6 @@ public class MainActivity extends AppCompatActivity {
                     getString(R.string.track),
                     changeTo+1,
                     Nrec));
-            progressBar.setProgress(0);
 
             // Set rating bar position to default or saved
             // Gets the value from current session
@@ -369,11 +384,15 @@ public class MainActivity extends AppCompatActivity {
                 ratingbar.setProgress(setTo);
             }
 
-            if (ratingManager.getState() == State.STATE_FINISHED) {
-                checkMark.setImageDrawable(getDrawable(R.drawable.ic_done_all_green));
-            } else {
-                checkMark.setImageDrawable(getDrawable(R.drawable.ic_done_green));
-            }
+            setCheckMark(ratingManager.getState());
+        }
+    }
+
+    private void setCheckMark(State state) {
+        if (state == State.STATE_FINISHED) {
+            checkMark.setImageDrawable(getDrawable(R.drawable.ic_done_all_green));
+        } else {
+            checkMark.setImageDrawable(getDrawable(R.drawable.ic_done_green));
         }
     }
 
@@ -384,6 +403,14 @@ public class MainActivity extends AppCompatActivity {
                 // Enable play
                 track_time.setText(formatDuration(duration));
                 progressBar.setMax(duration);
+
+                if (loadProgressfromSavedInstance) {
+                    player.seekTo(savedProgress);
+                    loadProgressfromSavedInstance = false;
+                    savedProgress = 0;
+                } else {
+                    player.seekTo(0);
+                }
             }
 
             @Override
@@ -416,15 +443,12 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onUpdateProgress(int current_ms) {
-                if (!isUIseeking) {
-                    progressBar.setProgress(current_ms);
-                }
-            }
-
-            @Override
-            public void onSeekFinished(int current_ms) {
-                if (!progressBar.isInTouchMode()) {
-                    isUIseeking = false;
+                if (!isTouchingSeekBar) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                        progressBar.setProgress(current_ms, true);
+                    } else {
+                        progressBar.setProgress(current_ms);
+                    }
                 }
             }
         };
@@ -554,7 +578,7 @@ public class MainActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case R.id.action_settings:
                 // TODO Change language CS/EN, maybe more?
-                Toast.makeText(this, "Not yet implemented.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, getString(R.string.not_implemented), Toast.LENGTH_SHORT).show();
                 return true;
             case R.id.action_show_session_info:
                 String message = getString(R.string.session_info_message,
@@ -580,7 +604,7 @@ public class MainActivity extends AppCompatActivity {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 initDone = false;
-                                isUIseeking = false;
+                                isTouchingSeekBar = false;
                                 trackPointer = 0;
                                 ratingManager.makeNewSession();
                                 try {
@@ -747,11 +771,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    public void onConfigurationChanged(@NonNull Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-        accommodateNightMode(newConfig);
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        outState.putInt(STATE_TRACK_POINTER, trackPointer);
+        outState.putInt(STATE_PROGRESS_BAR, progressBar.getProgress());
+        outState.putString(STATE_RATING_MANAGER, ratingManager.getState().toString());
 
-        // TODO Something fucky about restarting after change to nightmode
-        // Also something fucky about changing between landscape and portrait
+        Log.i(TAG, "onSaveInstanceState: saving progress: trackpointer = " + trackPointer + ", progress = " + progressBar.getProgress());
+        super.onSaveInstanceState(outState);
     }
 }

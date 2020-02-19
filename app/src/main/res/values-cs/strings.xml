@@ -47,4 +47,5 @@
         <i>Momentálně</i> aplikace podporuje pouze tento předdefinovaný
         formát, v budoucích verzích bude implementováno automatické rozpoznávání názvů skupin.
     </string>
+    <string name="not_implemented">Tato funkce ještě není implementována.</string>
 </resources>

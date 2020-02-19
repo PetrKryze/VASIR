@@ -47,6 +47,7 @@ public class RatingManager {
     private String KEY_PREFERENCES_SEED;
     private String KEY_PREFERENCES_GENERATOR_MESSAGE;
     private String KEY_PREFERENCES_RATINGS;
+    private String KEY_PREFERENCES_STATE;
 
     private static final char separator = ';';
     private static final char headerTag = '#';
@@ -54,13 +55,14 @@ public class RatingManager {
 
     private final String TAG = "RatingManager";
 
-    public RatingManager(Activity context) {
+    RatingManager(Activity context) {
         Resources resources = context.getResources();
         DEFAULT_VALUE_NO_KEY = resources.getInteger(R.integer.DEFAULT_VALUE_NO_KEY);
         KEY_PREFERENCES_SESSION_ID = resources.getString(R.string.KEY_PREFERENCES_SESSION_ID);
         KEY_PREFERENCES_SEED = resources.getString(R.string.KEY_PREFERENCES_SEED);
         KEY_PREFERENCES_GENERATOR_MESSAGE = resources.getString(R.string.KEY_PREFERENCES_GENERATOR_MESSAGE);
         KEY_PREFERENCES_RATINGS = resources.getString(R.string.KEY_PREFERENCES_RATINGS);
+        KEY_PREFERENCES_STATE = resources.getString(R.string.KEY_PREFERENCES_STATE);
 
         this.preferences = context.getPreferences(Context.MODE_PRIVATE);
 
@@ -69,11 +71,11 @@ public class RatingManager {
 //        editor.clear();
 //        editor.commit();
 
-
         int lastSessionID = preferences.getInt(KEY_PREFERENCES_SESSION_ID, DEFAULT_VALUE_NO_KEY);
         if (lastSessionID == DEFAULT_VALUE_NO_KEY) {
             Log.i(TAG, "getNewSessionID: No key for session ID found in preferences.");
             // Make new-first session
+            // TODO FIX ???? makes new instance on finished session load
             makeNewSession();
         } else {
             // Load last saved session
@@ -107,11 +109,17 @@ public class RatingManager {
                 Log.i(TAG, "RatingManager: Retrieved ratings: " + lastRatings.toString());
             }
 
-            this.state = State.STATE_IDLE;
+            String lastState = preferences.getString(KEY_PREFERENCES_STATE, "");
+            if (lastState.equals("")) {
+                throw new IllegalStateException("Error! Session saved without state!");
+            } else {
+                setState(lastState);
+                Log.i(TAG, "RatingManager: Retrieved state: " + state);
+            }
         }
     }
 
-    public void makeNewSession() {
+    void makeNewSession() {
         this.session_ID = getNewSessionID(); // Increments last existing session number
         this.seed = System.nanoTime();
         Log.i(TAG, "RatingManager: Newly created seed: " + seed);
@@ -122,7 +130,7 @@ public class RatingManager {
         this.state = State.STATE_IDLE;
     }
 
-    public int getLastSessionRating(int index) {
+    int getLastSessionRating(int index) {
         if (lastSessionRatings.size() == 0) { // New session without saved previous ratings
             return DEFAULT_UNSET_RATING;
         } else {
@@ -130,23 +138,35 @@ public class RatingManager {
         }
     }
 
-    public State getState() {
+    State getState() {
         return state;
     }
 
-    public void setState(State state) {
+    void setState(State state) {
         this.state = state;
     }
 
-    public int getSession_ID() {
+    void setState(String state) {
+        if (State.STATE_FINISHED.toString().equals(state)) {
+            this.state = State.STATE_FINISHED;
+        } else if (State.STATE_IDLE.toString().equals(state)) {
+            this.state = State.STATE_IDLE;
+        } else if (State.STATE_IN_PROGRESS.toString().equals(state)) {
+            this.state = State.STATE_IN_PROGRESS;
+        } else {
+            this.state = State.STATE_IDLE;
+        }
+    }
+
+    int getSession_ID() {
         return session_ID;
     }
 
-    public long getSeed() {
+    long getSeed() {
         return seed;
     }
 
-    public String getGeneratorMessage() {
+    String getGeneratorMessage() {
         return generatorMessage;
     }
 
@@ -161,7 +181,7 @@ public class RatingManager {
         }
     }
 
-    public boolean isRatingFinished(List<Recording> recordings) {
+    boolean isRatingFinished(List<Recording> recordings) {
         for (Recording rec : recordings) {
             if (rec.getRating() == DEFAULT_UNSET_RATING) {
                 return false;
@@ -170,7 +190,7 @@ public class RatingManager {
         return true;
     }
 
-    public String getRatingFinishedRatio(List<Recording> recordings) {
+    String getRatingFinishedRatio(List<Recording> recordings) {
         int cnt = 0;
         int size = recordings.size();
 
@@ -183,7 +203,7 @@ public class RatingManager {
     }
 
 
-    public void saveSession(List<Recording> recordings) {
+    void saveSession(List<Recording> recordings) {
         // Save seed and compare on load?
         // Preferences - save session ID
         // TODO Save Ratings Progress
@@ -202,12 +222,13 @@ public class RatingManager {
             editor.putLong(KEY_PREFERENCES_SEED, seed);
             editor.putString(KEY_PREFERENCES_GENERATOR_MESSAGE, generatorMessage);
             editor.putString(KEY_PREFERENCES_RATINGS ,gson.toJson(ratings));
+            editor.putString(KEY_PREFERENCES_STATE, state.toString());
             editor.apply();
         }
     }
 
 
-    public void saveResults(Context context, List<Recording> recordings) throws Exception {
+    void saveResults(Context context, List<Recording> recordings) throws Exception {
         // Fire this only and only when saving the final results
         if (state != State.STATE_FINISHED) {
             Log.e(TAG, "saveResults: Rating manager is not in a finished state!");
@@ -271,7 +292,7 @@ public class RatingManager {
         }
     }
 
-    public static File getRootAppDirOnSdCard(Context context) {
+    static File getRootAppDirOnSdCard(Context context) {
         final String TAG = "getRootAppDirOnSdCard";
         // Get all available storage (internal, external, mounted, emulated, ...)
         File[] externalStorageVolumes =

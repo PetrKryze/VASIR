@@ -59,4 +59,6 @@
         <i>Currently</i> supporting only this predefined system, will be
         upgraded to auto-recognize group names in the future versions.
     </string>
+    <string name="not_implemented">This function is not yet implemented.</string>
+    <string name="KEY_PREFERENCES_STATE">state</string>
 </resources>

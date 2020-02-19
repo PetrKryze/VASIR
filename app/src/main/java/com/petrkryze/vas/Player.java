@@ -30,15 +30,17 @@ class Player {
     private final Runnable tick = new Runnable() {
         @Override
         public void run() {
-            int current_ms = mediaPlayer.getCurrentPosition();
-            int current = (int) Math.floor((double) current_ms / 1000);
-            if (lastTick != current) {
-                listener.onTimeTick(mediaPlayer.getDuration() - current_ms);
-                lastTick = current;
-            }
-            listener.onUpdateProgress(current_ms);
-            if (mediaPlayer.isPlaying()) {
-                handler.postDelayed(tick, 250);
+            if (mediaPlayer != null) {
+                int current_ms = mediaPlayer.getCurrentPosition();
+                int current = (int) Math.floor((double) current_ms / 1000);
+                if (lastTick != current) {
+                    listener.onTimeTick(mediaPlayer.getDuration() - current_ms);
+                    lastTick = current;
+                }
+                listener.onUpdateProgress(current_ms);
+                if (mediaPlayer.isPlaying()) {
+                    handler.postDelayed(tick, 250);
+                }
             }
         }
     };
@@ -52,7 +54,6 @@ class Player {
         void onVolumeDown();
         void onTimeTick(int tick_ms);
         void onUpdateProgress(int current_ms);
-        void onSeekFinished(int current_ms);
     }
 
     Player(Context context, final PlayerListener listener) {
@@ -82,8 +83,7 @@ class Player {
             @Override
             public void onSeekComplete(MediaPlayer mp) {
                 isSeeking = false;
-                listener.onSeekFinished(mediaPlayer.getCurrentPosition());
-                handler.post(tick);
+                doTick();
             }
         });
         this.audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
@@ -120,7 +120,7 @@ class Player {
     boolean play() {
         if (isHeadphonesIn() && !isVolumeZero() && isPrepared) {
             mediaPlayer.start();
-            handler.post(tick);
+            doTick();
             return true;
         }
 
@@ -139,6 +139,10 @@ class Player {
     void seekTo(int target) {
         isSeeking = true;
         mediaPlayer.seekTo(target);
+    }
+
+    void doTick() {
+        handler.post(tick);
     }
 
     void clean() {

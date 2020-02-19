@@ -19,8 +19,6 @@
         <activity android:name="com.petrkryze.vas.MainActivity"
             android:label="@string/app_name"
             android:theme="@style/main_app_style">
-<!--            android:screenOrientation="landscape"-->
-<!--            android:configChanges="orientation|keyboardHidden">-->
 
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
