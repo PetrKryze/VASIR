@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Visual Analog Scale</string>
-    <string name="KEY_PREFERENCES_GENERATOR_MESSAGE">generator_message</string>
-    <string name="KEY_PREFERENCES_RATINGS">ratings</string>
-    <string name="KEY_PREFERENCES_SEED">seed</string>
-    <string name="KEY_PREFERENCES_SESSION_ID">session_id</string>
+    <string name="KEY_PREFERENCES_GENERATOR_MESSAGE" translatable="false">generator_message</string>
+    <string name="KEY_PREFERENCES_RATINGS" translatable="false">ratings</string>
+    <string name="KEY_PREFERENCES_SEED" translatable="false">seed</string>
+    <string name="KEY_PREFERENCES_SESSION_ID" translatable="false">session_id</string>
     <string name="action_quit">Quit</string>
     <string name="action_reset_ratings">Reset ratings</string>
     <string name="action_settings">Settings</string>
@@ -23,7 +23,7 @@
     <string name="previous_track">Previous</string>
     <string name="rating_label_highest">Perfectly Intelligible</string>
     <string name="rating_label_lowest">Completely unintelligible</string>
-    <string name="reset_confirm_prompt">Are you sure you want to reset all ratings\?</string>
+    <string name="reset_confirm_prompt">Are you sure you want to reset all current ratings and start a new rating session\\?</string>
     <string name="session_info_title">Info</string>
     <string name="toast_connect_headphones">Please, plug in headphones.</string>
     <string name="toast_increase_volume">Audio volume is muted.</string>
@@ -60,5 +60,6 @@
         upgraded to auto-recognize group names in the future versions.
     </string>
     <string name="not_implemented">This function is not yet implemented.</string>
-    <string name="KEY_PREFERENCES_STATE">state</string>
+    <string name="KEY_PREFERENCES_STATE" translatable="false">state</string>
+    <string name="all_rated">All recordings have been rated!</string>
 </resources>

@@ -23,7 +23,7 @@ class Recording {
 
     private static final String TAG = "RecordingObject";
 
-    public static Comparator<Recording> recordingComparator = new Comparator<Recording>() {
+    static Comparator<Recording> recordingComparator = new Comparator<Recording>() {
         @Override
         public int compare(Recording o1, Recording o2) {
             if (o1.getGroupType() == o2.getGroupType()) {
@@ -61,11 +61,7 @@ class Recording {
         }
     }
 
-    public Recording(String path, int randomized_number) {
-        this(path, randomized_number, DEFAULT_UNSET_RATING);
-    }
-
-    public Recording(String path, int randomized_number, int rating) {
+    Recording(String path, int randomized_number, int rating) {
         this.path = path;
         this.randomized_number = randomized_number;
 
@@ -81,27 +77,27 @@ class Recording {
         this.rating = rating;
     }
 
-    public String getPath() {
+    String getPath() {
         return path;
     }
 
-    public String getID() {
+    String getID() {
         return ID;
     }
 
-    public int getRandomized_number() {
+    int getRandomized_number() {
         return randomized_number;
     }
 
-    public int getRating() {
+    int getRating() {
         return rating;
     }
 
-    public GroupType getGroupType() {
+    GroupType getGroupType() {
         return group;
     }
 
-    public void setRating(int rating) {
+    void setRating(int rating) {
         if (rating < 1 || rating > 100) {
             Log.e(TAG, "setRating: Invalid rating value! Setting aborted.");
         } else {

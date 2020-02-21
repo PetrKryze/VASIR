@@ -64,6 +64,7 @@ public class MainActivity extends AppCompatActivity {
     private Handler handler_main;
     private Vibrator vibrator;
     private int VIBRATE_BUTTON_MS;
+    private int VIBRATE_RATING_START;
 
     private int Nrec = 0;
     private int trackPointer = 0;
@@ -138,32 +139,30 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void onStartTrackingTouch(SeekBar seekBar) {
-            vibrator.vibrate(100);
+            vibrator.vibrate(VIBRATE_RATING_START);
         }
 
         @Override
         public void onStopTrackingTouch(SeekBar seekBar) {
-            trackList.get(trackPointer).setRating(seekBar.getProgress());
             progressBar.playSoundEffect(SoundEffectConstants.CLICK);
-            checkMark.setVisibility(View.VISIBLE);
+
+            trackList.get(trackPointer).setRating(seekBar.getProgress());
+
+            // Checks if all recordings have been rated
             if (ratingManager.isRatingFinished(trackList)) {
                 Log.i(TAG, "onStopTrackingTouch: All recording have been rated!");
+                Toast.makeText(MainActivity.this, getString(R.string.all_rated), Toast.LENGTH_SHORT).show();
                 ratingManager.setState(State.STATE_FINISHED);
-                try {
-                    ratingManager.saveResults(MainActivity.this, trackList);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+                // Ratings will now save automatically on exit or new session
             }
-            setCheckMark(ratingManager.getState());
+            setCheckMarkDrawable(trackList.get(trackPointer), ratingManager.getState());
         }
     };
 
-    private boolean isTouchingSeekBar = false;
+    private boolean isTouchingSeekBar = false; // Prevents automatic seek bar UI change while touching
     private SeekBar.OnSeekBarChangeListener progressBarListener = new SeekBar.OnSeekBarChangeListener() {
         @Override
         public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-
         }
 
         @Override
@@ -187,7 +186,7 @@ public class MainActivity extends AppCompatActivity {
     private int animationDuration;
     private boolean isOverFlowOpen = false;
     private int toolbarHeight;
-    private final int TOOLBAR_DELAY = 2000;
+    private int TOOLBAR_DELAY;
     private Runnable hideToolbar = new Runnable() {
         @Override
         public void run() {
@@ -213,7 +212,6 @@ public class MainActivity extends AppCompatActivity {
 
     private final String STATE_TRACK_POINTER = "trackPointer";
     private final String STATE_PROGRESS_BAR = "progressBar";
-    private final String STATE_RATING_MANAGER = "ratingManager";
     private boolean loadProgressfromSavedInstance = false;
     private int savedProgress = 0;
 
@@ -223,19 +221,22 @@ public class MainActivity extends AppCompatActivity {
         initDone = false;
         isTouchingSeekBar = false;
 
+        // Restore previous UI state (e.g. before configuration change)
         if (savedInstanceState != null) {
             trackPointer = savedInstanceState.getInt(STATE_TRACK_POINTER);
             savedProgress = savedInstanceState.getInt(STATE_PROGRESS_BAR);
             loadProgressfromSavedInstance = true;
-            Log.i(TAG, "onCreate: loaded progress: trackpointer = " + trackPointer + ", progress = " + savedProgress);
         } else {
             trackPointer = 0;
+            savedProgress = 0;
+            loadProgressfromSavedInstance = false;
         }
 
         setContentView(R.layout.activity_main);
 
         // Toolbar setup
         animationDuration = getResources().getInteger(android.R.integer.config_shortAnimTime);
+        TOOLBAR_DELAY = getResources().getInteger(R.integer.TOOLBAR_HIDE_DELAY_MS);
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         toolbarHeight = toolbar.getMinimumHeight();
@@ -264,12 +265,12 @@ public class MainActivity extends AppCompatActivity {
 
         // Initialize the audio player and rating manager
         player = new Player(this, getPlayerListener());
-
         ratingManager = new RatingManager(this);
 
         // Get vibrator service for UI vibration feedback
         vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
         VIBRATE_BUTTON_MS = getResources().getInteger(R.integer.VIBRATE_BUTTON_MS);
+        VIBRATE_RATING_START = getResources().getInteger(R.integer.VIBRATE_RATING_BAR_START_MS);
 
         accommodateNightMode();
         hideSystemUI();
@@ -283,30 +284,17 @@ public class MainActivity extends AppCompatActivity {
 //            }
 
             initDone = true;
+            // If there is no previous UI state, show welcome dialog
+            // Otherwise set active track to the previous one and do nothing
             if (savedInstanceState != null) {
-                // Set first track to play
                 changeCurrentTrack(trackPointer, trackPointer);
-                ratingManager.setState(savedInstanceState.getString(STATE_RATING_MANAGER));
-                setCheckMark(ratingManager.getState());
-
                 handler_main.postDelayed(hideToolbar, TOOLBAR_DELAY);
             } else {
                 welcome();
             }
         } catch (Exception e) {
             e.printStackTrace();
-            AlertDialog no_files_found_dialog = new AlertDialog.Builder(this)
-                    .setMessage(getString(R.string.no_files_found_message))
-                    .setTitle(getString(R.string.alert))
-                    .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            MainActivity.this.finish();
-                        }
-                    }).create();
-            no_files_found_dialog.setCanceledOnTouchOutside(false);
-            no_files_found_dialog.setIcon(getDrawable(R.drawable.ic_error_red_24dp));
-            no_files_found_dialog.show();
+            fireNoFilesFound();
         }
     }
 
@@ -320,14 +308,30 @@ public class MainActivity extends AppCompatActivity {
                     public void onClick(DialogInterface dialog, int which) {
                         // Set first track to play
                         changeCurrentTrack(trackPointer, trackPointer);
-                        ratingManager.setState(State.STATE_IN_PROGRESS);
-
+                        if (ratingManager.getState() == State.STATE_IDLE) {
+                            ratingManager.setState(State.STATE_IN_PROGRESS);
+                        }
                         handler_main.postDelayed(hideToolbar, TOOLBAR_DELAY);
                     }
                 }).create();
         welcome_dialog.setCanceledOnTouchOutside(false);
         welcome_dialog.setIcon(getDrawable(R.drawable.symbol_cvut_plna_verze));
         welcome_dialog.show();
+    }
+
+    private void fireNoFilesFound() {
+        AlertDialog no_files_found_dialog = new AlertDialog.Builder(this)
+                .setMessage(getString(R.string.no_files_found_message))
+                .setTitle(getString(R.string.alert))
+                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        MainActivity.this.finish();
+                    }
+                }).create();
+        no_files_found_dialog.setCanceledOnTouchOutside(false);
+        no_files_found_dialog.setIcon(getDrawable(R.drawable.ic_error_red_24dp));
+        no_files_found_dialog.show();
     }
 
     private void changeCurrentTrack(int current, int changeTo) {
@@ -338,12 +342,14 @@ public class MainActivity extends AppCompatActivity {
                 button_play_pause.callOnClick();
             }
 
+            // Sets active track
             try {
                 player.setCurrentTrack(trackList.get(changeTo));
             } catch (IOException e) {
                 e.printStackTrace();
             }
 
+            // Manages logical button visibility
             if (changeTo == 0) {
                 // Hide previous button
                 button_previous.setVisibility(View.INVISIBLE);
@@ -358,41 +364,42 @@ public class MainActivity extends AppCompatActivity {
                 button_next.setVisibility(View.VISIBLE);
             }
 
+            // Sets track counter text
             header_text.setText(getString(R.string.track_counter,
                     getString(R.string.track),
                     changeTo+1,
                     Nrec));
 
             // Set rating bar position to default or saved
-            // Gets the value from current session
             int savedRating = trackList.get(changeTo).getRating();
-            int lastSessionSavedRating = ratingManager.getLastSessionRating(changeTo);
-            int setTo;
-            if (savedRating != Recording.DEFAULT_UNSET_RATING) {
-                setTo = savedRating;
-                checkMark.setVisibility(View.VISIBLE);
-            } else if (lastSessionSavedRating != Recording.DEFAULT_UNSET_RATING) {
-                setTo = lastSessionSavedRating;
-                checkMark.setVisibility(View.VISIBLE);
-            } else {
-                setTo = 50; // Default middle
-                checkMark.setVisibility(View.INVISIBLE);
-            }
+            int setTo = savedRating != Recording.DEFAULT_UNSET_RATING ?
+                    savedRating : getResources().getInteger(R.integer.DEFAULT_PROGRESS_CENTER);
+
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 ratingbar.setProgress(setTo, true);
             } else {
                 ratingbar.setProgress(setTo);
             }
 
-            setCheckMark(ratingManager.getState());
+            Log.i(TAG, "changeCurrentTrack: current state = " + ratingManager.getState());
+            setCheckMarkDrawable(trackList.get(changeTo), ratingManager.getState());
         }
     }
 
-    private void setCheckMark(State state) {
-        if (state == State.STATE_FINISHED) {
-            checkMark.setImageDrawable(getDrawable(R.drawable.ic_done_all_green));
+    private void setCheckMarkDrawable(Recording recording, State state) {
+        if (checkMark != null) {
+            if (recording.getRating() == Recording.DEFAULT_UNSET_RATING) {
+                checkMark.setVisibility(View.INVISIBLE);
+            } else {
+                if (state == State.STATE_FINISHED) {
+                    checkMark.setImageDrawable(getDrawable(R.drawable.ic_done_all_green));
+                } else {
+                    checkMark.setImageDrawable(getDrawable(R.drawable.ic_done_green));
+                }
+                checkMark.setVisibility(View.VISIBLE);
+            }
         } else {
-            checkMark.setImageDrawable(getDrawable(R.drawable.ic_done_green));
+            Log.e(TAG, "setCheckMarkDrawable: Not able to find checkmark view!");
         }
     }
 
@@ -541,6 +548,13 @@ public class MainActivity extends AppCompatActivity {
         }
 
         ratingManager.saveSession(trackList);
+        if (ratingManager.getState() == State.STATE_FINISHED) {
+            try {
+                ratingManager.saveResults(MainActivity.this, trackList);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     @Override
@@ -577,6 +591,7 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_settings:
+                // TODO Implement settings
                 // TODO Change language CS/EN, maybe more?
                 Toast.makeText(this, getString(R.string.not_implemented), Toast.LENGTH_SHORT).show();
                 return true;
@@ -603,25 +618,32 @@ public class MainActivity extends AppCompatActivity {
                         .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
+                                if (ratingManager.getState() == State.STATE_FINISHED) {
+                                    try {
+                                        ratingManager.saveResults(MainActivity.this, trackList);
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+
                                 initDone = false;
                                 isTouchingSeekBar = false;
                                 trackPointer = 0;
+                                savedProgress = 0;
+                                loadProgressfromSavedInstance = false;
+
                                 ratingManager.makeNewSession();
+                                ratingManager.setState(State.STATE_IN_PROGRESS);
                                 try {
                                     trackList = getRecordings();
                                 } catch (Exception e) {
                                     e.printStackTrace();
+                                    fireNoFilesFound();
                                 }
-                                changeCurrentTrack(0,0);
 
-                                ratingManager.setState(State.STATE_IN_PROGRESS);
-
-                                checkMark.setVisibility(View.INVISIBLE);
-                                checkMark.setImageDrawable(getDrawable(R.drawable.ic_done_green));
-                                ratingbar.setProgress(50);
-
-                                handler_main.postDelayed(hideToolbar, TOOLBAR_DELAY);
                                 initDone = true;
+                                changeCurrentTrack(0,0);
+                                handler_main.postDelayed(hideToolbar, TOOLBAR_DELAY);
                             }
                         })
                         .setNegativeButton(R.string.cancel, null)
@@ -678,10 +700,8 @@ public class MainActivity extends AppCompatActivity {
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
         if (hasFocus) {
-            Log.i(TAG, "onWindowFocusChanged: GOT FOCUS");
             hideSystemUI();
         } else {
-            Log.i(TAG, "onWindowFocusChanged: LOST FOCUS");
             showSystemUI();
         }
     }
@@ -694,17 +714,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
     class MyGestureListener extends GestureDetector.SimpleOnGestureListener {
-        private static final String GESTURE_DETECTOR_TAG = "GestureDetector";
 
         @Override
         public boolean onDown(MotionEvent event) {
-            Log.d(GESTURE_DETECTOR_TAG, "onDown: " + event.toString());
             return true;
         }
 
         @Override
         public boolean onSingleTapUp(MotionEvent event) {
-            Log.d(GESTURE_DETECTOR_TAG, "onSingleTapUp: " + event.toString());
             hideSystemUI();
             return super.onSingleTapUp(event);
         }
@@ -712,7 +729,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
             if (velocityY >= 5000) {
-                Log.i(TAG, "onFling: Showing action bar");
+                Log.i(TAG, "onFling: Showing action bar...");
                 final ActionBar actionBar = getSupportActionBar();
                 if (actionBar != null && !actionBar.isShowing()) {
                     toolbar.setVisibility(View.VISIBLE);
@@ -774,9 +791,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onSaveInstanceState(@NonNull Bundle outState) {
         outState.putInt(STATE_TRACK_POINTER, trackPointer);
         outState.putInt(STATE_PROGRESS_BAR, progressBar.getProgress());
-        outState.putString(STATE_RATING_MANAGER, ratingManager.getState().toString());
-
-        Log.i(TAG, "onSaveInstanceState: saving progress: trackpointer = " + trackPointer + ", progress = " + progressBar.getProgress());
         super.onSaveInstanceState(outState);
     }
 }

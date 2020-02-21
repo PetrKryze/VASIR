@@ -1,9 +1,5 @@
 <resources>
     <string name="app_name">Visual Analog Scale</string>
-    <string name="KEY_PREFERENCES_GENERATOR_MESSAGE">generator_message</string>
-    <string name="KEY_PREFERENCES_RATINGS">ratings</string>
-    <string name="KEY_PREFERENCES_SEED">seed</string>
-    <string name="KEY_PREFERENCES_SESSION_ID">session_id</string>
     <string name="action_quit">Odejít</string>
     <string name="action_reset_ratings">Vynulovat hodnocení</string>
     <string name="action_settings">Nastavení</string>
@@ -22,7 +18,7 @@
     <string name="previous_track">Předchozí</string>
     <string name="rating_label_highest">Dokonale srozumitelné</string>
     <string name="rating_label_lowest">Zcela nesrozumitelné</string>
-    <string name="reset_confirm_prompt">Opravdu chcete vynulovat hodnocení?</string>
+    <string name="reset_confirm_prompt">Opravdu chcete vynulovat veškerá současná hodnocení a vytvořit nové hodnotitelské sezení?</string>
     <string name="session_info_title">Informace</string>
     <string name="toast_connect_headphones">Prosím, připojte k zařízení sluchátka.</string>
     <string name="toast_increase_volume">Audio výstup vašeho zařízení je ztlumený.</string>
@@ -48,4 +44,5 @@
         formát, v budoucích verzích bude implementováno automatické rozpoznávání názvů skupin.
     </string>
     <string name="not_implemented">Tato funkce ještě není implementována.</string>
+    <string name="all_rated">Všechny nahrávky byly ohodnoceny!</string>
 </resources>

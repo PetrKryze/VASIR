@@ -30,16 +30,16 @@ import static com.petrkryze.vas.Recording.recordingComparator;
 /**
  * Created by Petr on 09.02.2020. Yay!
  */
-public class RatingManager {
+class RatingManager {
 
     public enum State {STATE_IN_PROGRESS, STATE_FINISHED, STATE_IDLE}
 
+    private int session_ID;
     private State state;
     private long seed;
     private String generatorMessage;
     private ArrayList<Integer> lastSessionRatings;
 
-    private int session_ID;
     private SharedPreferences preferences;
 
     private int DEFAULT_VALUE_NO_KEY;
@@ -71,51 +71,9 @@ public class RatingManager {
 //        editor.clear();
 //        editor.commit();
 
-        int lastSessionID = preferences.getInt(KEY_PREFERENCES_SESSION_ID, DEFAULT_VALUE_NO_KEY);
-        if (lastSessionID == DEFAULT_VALUE_NO_KEY) {
-            Log.i(TAG, "getNewSessionID: No key for session ID found in preferences.");
-            // Make new-first session
-            // TODO FIX ???? makes new instance on finished session load
+        // If there is no session to load, make a fresh new one
+        if (!loadSession()) {
             makeNewSession();
-        } else {
-            // Load last saved session
-            Log.i(TAG, "RatingManager: Retrieved session ID: " + lastSessionID);
-            this.session_ID = lastSessionID;
-
-            long lastSeed = preferences.getLong(KEY_PREFERENCES_SEED, DEFAULT_VALUE_NO_KEY);
-            if (lastSeed == DEFAULT_VALUE_NO_KEY) {
-                throw new IllegalStateException("Error! Session saved without seed!");
-            } else {
-                this.seed = lastSeed;
-                Log.i(TAG, "RatingManager: Retrieved seed: " + seed);
-            }
-
-            String lastGenMessage = preferences.getString(KEY_PREFERENCES_GENERATOR_MESSAGE, "");
-            if (lastGenMessage.equals("")) {
-                throw new IllegalStateException("Error! Session saved without generator message!");
-            } else {
-                this.generatorMessage = lastGenMessage;
-                Log.i(TAG, "RatingManager: Retrieved generator message: " + generatorMessage);
-            }
-
-            Gson gson = new Gson();
-            String json = preferences.getString(KEY_PREFERENCES_RATINGS, "");
-            if (json.equals("")) {
-                throw new IllegalStateException("Error! Session saved without ratings!");
-            } else {
-                ArrayList<Integer> lastRatings = gson.fromJson(json,
-                        new TypeToken<ArrayList<Integer>>(){}.getType());
-                this.lastSessionRatings = lastRatings;
-                Log.i(TAG, "RatingManager: Retrieved ratings: " + lastRatings.toString());
-            }
-
-            String lastState = preferences.getString(KEY_PREFERENCES_STATE, "");
-            if (lastState.equals("")) {
-                throw new IllegalStateException("Error! Session saved without state!");
-            } else {
-                setState(lastState);
-                Log.i(TAG, "RatingManager: Retrieved state: " + state);
-            }
         }
     }
 
@@ -146,7 +104,7 @@ public class RatingManager {
         this.state = state;
     }
 
-    void setState(String state) {
+    private void setState(String state) {
         if (State.STATE_FINISHED.toString().equals(state)) {
             this.state = State.STATE_FINISHED;
         } else if (State.STATE_IDLE.toString().equals(state)) {
@@ -202,12 +160,7 @@ public class RatingManager {
         return cnt + "/" + size;
     }
 
-
     void saveSession(List<Recording> recordings) {
-        // Save seed and compare on load?
-        // Preferences - save session ID
-        // TODO Save Ratings Progress
-
         if (recordings.size() <= 0) {
             Log.e(TAG, "saveSession: Invalid recordings list size!");
         } else {
@@ -216,6 +169,13 @@ public class RatingManager {
                 ratings.add(rec.getRating());
             }
             Gson gson = new Gson();
+
+            Log.i(TAG, "saveSession: Saving current session data: " +
+                    "Session ID = " + session_ID + "\n" +
+                    "Seed = " + seed + "\n" +
+                    "Generator Message = " + generatorMessage + "\n" +
+                    "State = " + state + "\n" +
+                    "Ratings = " + ratings.toString());
 
             SharedPreferences.Editor editor = preferences.edit();
             editor.putInt(KEY_PREFERENCES_SESSION_ID, session_ID);
@@ -227,6 +187,59 @@ public class RatingManager {
         }
     }
 
+    private boolean loadSession() {
+        // Load last saved session - returns false when no previous session is in memory
+        // Load Session ID
+        int lastSessionID = preferences.getInt(KEY_PREFERENCES_SESSION_ID, DEFAULT_VALUE_NO_KEY);
+        if (lastSessionID == DEFAULT_VALUE_NO_KEY) {
+            Log.i(TAG, "loadSession: No key for session ID found in preferences.");
+            return false;
+        } else {
+            this.session_ID = lastSessionID;
+            Log.i(TAG, "loadSession: Retrieved session ID: " + lastSessionID);
+        }
+
+        // Load last randomizer seed
+        long lastSeed = preferences.getLong(KEY_PREFERENCES_SEED, DEFAULT_VALUE_NO_KEY);
+        if (lastSeed == DEFAULT_VALUE_NO_KEY) {
+            throw new IllegalStateException("Error! Session saved without seed!");
+        } else {
+            this.seed = lastSeed;
+            Log.i(TAG, "RatingManager: Retrieved seed: " + seed);
+        }
+
+        // Load last generator message
+        String lastGenMessage = preferences.getString(KEY_PREFERENCES_GENERATOR_MESSAGE, "");
+        if (lastGenMessage.equals("")) {
+            throw new IllegalStateException("Error! Session saved without generator message!");
+        } else {
+            this.generatorMessage = lastGenMessage;
+            Log.i(TAG, "RatingManager: Retrieved generator message: " + generatorMessage);
+        }
+
+        // Load array list of last ratings
+        Gson gson = new Gson();
+        String json = preferences.getString(KEY_PREFERENCES_RATINGS, "");
+        if (json.equals("")) {
+            throw new IllegalStateException("Error! Session saved without ratings!");
+        } else {
+            ArrayList<Integer> lastRatings = gson.fromJson(json,
+                    new TypeToken<ArrayList<Integer>>(){}.getType());
+            this.lastSessionRatings = lastRatings;
+            Log.i(TAG, "RatingManager: Retrieved ratings: " + lastRatings.toString());
+        }
+
+        // Load last rating state
+        String lastState = preferences.getString(KEY_PREFERENCES_STATE, "");
+        if (lastState.equals("")) {
+            throw new IllegalStateException("Error! Session saved without state!");
+        } else {
+            setState(lastState);
+            Log.i(TAG, "RatingManager: Retrieved state: " + state);
+        }
+
+        return true;
+    }
 
     void saveResults(Context context, List<Recording> recordings) throws Exception {
         // Fire this only and only when saving the final results
@@ -240,9 +253,11 @@ public class RatingManager {
 
             File directory = new File(sdcardAppFolder, RATINGS_FOLDER_NAME);
             if (!directory.exists()) {
-                Log.i(TAG, "saveResults: Directory <" + directory.getPath() + "> does not exist.");
+                Log.i(TAG, "saveResults: Directory <" + directory.getPath() +
+                        "> does not exist.");
                 if (!directory.mkdirs()) {
-                    Log.i(TAG, "saveResults: Directory could not be created.");
+                    Log.i(TAG, "saveResults: Directory " + directory.getName() +
+                            " could not be created.");
                 } else {
                     Log.i(TAG, "saveResults: Directory <" + directory.getPath()
                             + "> created successfully.");
@@ -271,6 +286,7 @@ public class RatingManager {
                     headerTag + "Generator Date: " + generatorMessage + "\n";
             writer.append(header);
 
+            // Row format: id;group;random_number;rating
             for (Recording recording : recordings) {
                 writer.append(recording.getID()).append(separator)
                         .append(recording.getGroupType().toString()).append(separator)

@@ -2,7 +2,9 @@
 <resources>
     <integer name="DEFAULT_VALUE_NO_KEY">-1</integer>
     <integer name="PROGRESS_BAR_MAX">100</integer>
-    <integer name="TOOLBAR_HIDE_DELAY_MS">3000</integer>
+    <integer name="TOOLBAR_HIDE_DELAY_MS">2000</integer>
     <integer name="VIBRATE_BUTTON_MS">70</integer>
+    <integer name="VIBRATE_RATING_BAR_START_MS">100</integer>
     <integer name="FOLDER_PICKER_REQUEST_CODE">1</integer>
+    <integer name="DEFAULT_PROGRESS_CENTER">50</integer>
 </resources>
