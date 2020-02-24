@@ -17,15 +17,15 @@ import java.io.IOException;
 class Player {
 
     private MediaPlayer mediaPlayer;
-    private AudioManager audioManager;
+    private final AudioManager audioManager;
 
     private Recording recording = null;
-    private PlayerListener listener;
+    private final PlayerListener listener;
 
     private boolean isPrepared = false;
     private boolean isSeeking = false;
 
-    private Handler handler;
+    private final Handler handler;
     private int lastTick = 0;
     private final Runnable tick = new Runnable() {
         @Override
@@ -45,7 +45,7 @@ class Player {
         }
     };
 
-    private final String TAG = "Player";
+    // private final String TAG = "Player";
 
     public interface PlayerListener {
         void onTrackPrepared(int duration);

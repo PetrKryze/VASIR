@@ -75,7 +75,7 @@ public class MainActivity extends AppCompatActivity {
 
     private boolean initDone = false;
 
-    private View.OnClickListener playListener = new View.OnClickListener() {
+    private final View.OnClickListener playListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
             Log.i(TAG, "onClick: BUTTON PLAY CLICKED");
@@ -91,7 +91,7 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
-    private View.OnClickListener pauseListener = new View.OnClickListener() {
+    private final View.OnClickListener pauseListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
             Log.i(TAG, "onClick: BUTTON PAUSE CLICKED");
@@ -107,7 +107,7 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
-    private View.OnClickListener previousListener = new View.OnClickListener() {
+    private final View.OnClickListener previousListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
             Log.i(TAG, "onClick: BUTTON PREVIOUS CLICKED");
@@ -119,7 +119,7 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
-    private View.OnClickListener nextListener = new View.OnClickListener() {
+    private final View.OnClickListener nextListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
             Log.i(TAG, "onClick: BUTTON NEXT CLICKED");
@@ -131,7 +131,7 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
-    private SeekBar.OnSeekBarChangeListener ratingBarListener = new SeekBar.OnSeekBarChangeListener() {
+    private final SeekBar.OnSeekBarChangeListener ratingBarListener = new SeekBar.OnSeekBarChangeListener() {
         @Override
         public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
 //            vibrator.vibrate(30);
@@ -160,7 +160,7 @@ public class MainActivity extends AppCompatActivity {
     };
 
     private boolean isTouchingSeekBar = false; // Prevents automatic seek bar UI change while touching
-    private SeekBar.OnSeekBarChangeListener progressBarListener = new SeekBar.OnSeekBarChangeListener() {
+    private final SeekBar.OnSeekBarChangeListener progressBarListener = new SeekBar.OnSeekBarChangeListener() {
         @Override
         public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
         }
@@ -187,7 +187,7 @@ public class MainActivity extends AppCompatActivity {
     private boolean isOverFlowOpen = false;
     private int toolbarHeight;
     private int TOOLBAR_DELAY;
-    private Runnable hideToolbar = new Runnable() {
+    private final Runnable hideToolbar = new Runnable() {
         @Override
         public void run() {
             final ActionBar actionBar = getSupportActionBar();
@@ -315,7 +315,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }).create();
         welcome_dialog.setCanceledOnTouchOutside(false);
-        welcome_dialog.setIcon(getDrawable(R.drawable.symbol_cvut_plna_verze));
+        welcome_dialog.setIcon(getDrawable(R.mipmap.symbol_cvut_plna_verze));
         welcome_dialog.show();
     }
 
@@ -590,10 +590,14 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.action_settings:
-                // TODO Implement settings
-                // TODO Change language CS/EN, maybe more?
-                Toast.makeText(this, getString(R.string.not_implemented), Toast.LENGTH_SHORT).show();
+            case R.id.action_help:
+                AlertDialog help_dialog = new AlertDialog.Builder(MainActivity.this)
+                        .setMessage(getString(R.string.help_message))
+                        .setTitle(getString(R.string.help))
+                        .setPositiveButton(R.string.ok, null)
+                        .create();
+                help_dialog.setIcon(getDrawable(android.R.drawable.ic_menu_help));
+                help_dialog.show();
                 return true;
             case R.id.action_show_session_info:
                 String message = getString(R.string.session_info_message,

@@ -2,11 +2,10 @@
     <string name="app_name">Visual Analog Scale</string>
     <string name="action_quit">Odejít</string>
     <string name="action_reset_ratings">Vynulovat hodnocení</string>
-    <string name="action_settings">Nastavení</string>
+    <string name="action_help">Nápověda</string>
     <string name="action_show_session_info">Informace o relaci</string>
     <string name="alert">Upozornění</string>
     <string name="button_pause_label">Pozastavit</string>
-    <string name="button_stop_label">Stop</string>
     <string name="button_play_label">Přehrát</string>
     <string name="cancel">Zrušit</string>
     <string name="checkmark">Fajfka</string>
@@ -14,7 +13,6 @@
     <string name="main_title">Srozumitelnost</string>
     <string name="next_track">Další</string>
     <string name="ok">OK</string>
-    <string name="placeholder">placeholder</string>
     <string name="previous_track">Předchozí</string>
     <string name="rating_label_highest">Dokonale srozumitelné</string>
     <string name="rating_label_lowest">Zcela nesrozumitelné</string>
@@ -28,6 +26,7 @@
         Vítejte v aplikaci pro hodnocení řečových nahrávek pomocí obrazových analogových stupnic.\n\n
         Tato aplikace byla vyvinuta pro potřeby vědy a výzkumu na katedře teorie obvodů, fakulty elektrotechnické, ČVUT v Praze.\n\n
         Po potvrzení tohoto okna můžete stiskem tlačítka spustit přehrávání první audio-nahrávky.\n\n
+        Aplikační panel s nabídkou zobrazíte rychlým potažením prstem zeshora dolů po obrazovce.
     </string>
     <string name="no_files_found_message">
         Chyba! Nepodařilo se nalézt žádné zvukové soubory v aplikačním adresáři.
@@ -45,4 +44,40 @@
     </string>
     <string name="not_implemented">Tato funkce ještě není implementována.</string>
     <string name="all_rated">Všechny nahrávky byly ohodnoceny!</string>
+    <string name="session_info_message">
+        Informace o sezení (pouze pro vývojářské účely):\n\n
+        ID Sezení: %s\n\n
+        Generováno: %s\n\n
+        Randomizační seed: %s\n\n
+        Ohodnoceno: %s\n\n
+    </string>
+    <string name="help">Nápověda</string>
+    <string name="help_message">
+        Tato aplikace slouží k pohodlnému subjektivnímu poslechovému hodnocení srozumitelnosti
+        řečových nahrávek. Použití aplikace závisí na konkrétním uživatelském experimentu, pro který
+        je vyžadováno zhodnocení nahrávek, nicméně aplikace byla vytvořena s cílem subjektivního zhodnocení
+        degradace řeči u pacientů trpících neurodegenerativními onemocněními.\n\n
+        Za předpokladu, že máte správně umístěná data řečových nahrávek v příslušné složce na
+        paměťové kartě ve vašem telefonu (jak je popsáno v dialogu, který aplikace zobrazí, pokud se
+        jí nepodaří nalézt žádná data), je ovládání aplikace velmi jednoduché.\n\n
+        Aplikace při vytvoření nového (a vynulování aktuálního) hodnotícího sezení automaticky randomizuje
+        (náhodně zamíchá) dodaná data. Nahrávky pak může (instruovaný) hodnotitel přehrávat pomocí
+        tlačítek na obrazovce (\"přehrát\", \"pozastavit\" a přetáčení nahrávky dotykem na posuvníku),
+        mezi nahrávkami se pohybuje tlačítky \"vpřed\" a \"zpět\". Celkový počet
+        nahrávek a číslo aktuální nahrávky je uvedeno v záhlaví.\n\n
+        Nahrávky se hodnotí pomocí obrazové analogové stupnice (Visual Analog Scale) v dolní části
+        obrazovky. Uživatel jednodušše posuvník umístí na zobrazené škále tak, aby jeho pozice
+        reflektovala subjektivně vnímanou srozumitelnost v rozmezí od \"zcela nesrozumitelné\" (nelze
+        rozumět ničemu v nahrávce) po \"dokonale srozumitelné\" (ekvivalent \"televizního hlasatele\").
+        Počet hodnocení ani zpětná úprava hodnocení není omezena, nicméně hodnotitelé by měli být
+        upozorněni, aby nahrávky neposlouchali více než dvakrát. Po úspěšném zhodnocení nahrávky
+        se objeví zelený symbol fajfky.\n\n
+        Po úspěšném zhodnocení všech nahrávek se zobrazí zpráva a symbol zelené dvojité fajfky.
+        Hodnocení se pak při odchodu z aplikace nebo vytvoření nového sezení automaticky uloží do
+        paměti telefonu v příslušné aplikační složce. Průběh hodnocení v rámci jednoho sezení aplikace
+        vždy ukládá do paměti při odchodu z ní i při jejím úplném vypnutí, do chvíle než se vytvoří
+        nové sezení, nebo bude aplikace přeinstalována.\n\n
+        Při problémech s použitím aplikace či jiných dotazech pošlete mail na adresu:\n
+        kryzepet@fel.cvut.cz
+    </string>
 </resources>
