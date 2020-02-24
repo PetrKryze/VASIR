@@ -23,7 +23,7 @@ class Recording {
 
     private static final String TAG = "RecordingObject";
 
-    static Comparator<Recording> recordingComparator = new Comparator<Recording>() {
+    static final Comparator<Recording> recordingComparator = new Comparator<Recording>() {
         @Override
         public int compare(Recording o1, Recording o2) {
             if (o1.getGroupType() == o2.getGroupType()) {
@@ -49,7 +49,7 @@ class Recording {
     public enum GroupType {
         DBS_OFF, DBS_130, HC;
 
-        public static GroupType getGroupFromString(String str) {
+        static GroupType getGroupFromString(String str) {
             switch (str) {
                 case "DBS_OFF": return DBS_OFF;
                 case "DBS_130": return DBS_130;

@@ -40,14 +40,14 @@ class RatingManager {
     private String generatorMessage;
     private ArrayList<Integer> lastSessionRatings;
 
-    private SharedPreferences preferences;
+    private final SharedPreferences preferences;
 
-    private int DEFAULT_VALUE_NO_KEY;
-    private String KEY_PREFERENCES_SESSION_ID;
-    private String KEY_PREFERENCES_SEED;
-    private String KEY_PREFERENCES_GENERATOR_MESSAGE;
-    private String KEY_PREFERENCES_RATINGS;
-    private String KEY_PREFERENCES_STATE;
+    private final int DEFAULT_VALUE_NO_KEY;
+    private final String KEY_PREFERENCES_SESSION_ID;
+    private final String KEY_PREFERENCES_SEED;
+    private final String KEY_PREFERENCES_GENERATOR_MESSAGE;
+    private final String KEY_PREFERENCES_RATINGS;
+    private final String KEY_PREFERENCES_STATE;
 
     private static final char separator = ';';
     private static final char headerTag = '#';
