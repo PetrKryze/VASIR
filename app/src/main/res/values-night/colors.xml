@@ -5,6 +5,8 @@
     <color name="colorAccent">#FF5722</color>
     <color name="seek_bar_background">#ababab</color>
     <color name="seek_bar_progress">#FF7043</color>
+    <color name="seek_bar_progress_inner">#272727</color>
     <color name="seek_bar_secondary_progress">#3399CC</color>
     <color name="rating_background" >#242424</color>
+    <color name="progress_bar_background">#E9E9E9</color>
 </resources>
