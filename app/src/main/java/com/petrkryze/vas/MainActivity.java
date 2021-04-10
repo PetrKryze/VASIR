@@ -5,10 +5,10 @@ import android.animation.AnimatorListenerAdapter;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.ColorMatrixColorFilter;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Vibrator;
@@ -29,9 +29,9 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.petrkryze.vas.RatingManager.DirectoryCheckError;
+import com.petrkryze.vas.RatingManager.RecordingsFoundListener;
 import com.petrkryze.vas.RatingManager.State;
-
-import org.apache.commons.io.FilenameUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -41,9 +41,18 @@ import java.util.List;
 import java.util.Random;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
+
+import static com.petrkryze.vas.DocumentUtils.getFullPathFromTreeUri;
+import static com.petrkryze.vas.RatingManager.DIRCHECK_RESULT_DIRECTORY;
+import static com.petrkryze.vas.RatingManager.DIRCHECK_RESULT_ERROR_TYPE;
+import static com.petrkryze.vas.RatingManager.DIRCHECK_RESULT_IS_OK;
+import static com.petrkryze.vas.RatingManager.DIRCHECK_RESULT_MISSING_CNT;
+import static com.petrkryze.vas.RatingManager.DIRCHECK_RESULT_MISSING_LIST;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -84,7 +93,8 @@ public class MainActivity extends AppCompatActivity {
                 if (player.play()) {
                     button_play_pause.setText(getString(R.string.button_pause_label));
                     button_play_pause.setCompoundDrawablesWithIntrinsicBounds(null,
-                            getDrawable(R.drawable.pause_larger), null, null);
+                            ContextCompat.getDrawable(MainActivity.this,
+                                    R.drawable.pause_larger), null, null);
                     button_play_pause.setOnClickListener(pauseListener);
                 }
             }
@@ -101,7 +111,8 @@ public class MainActivity extends AppCompatActivity {
 
                 button_play_pause.setText(getString(R.string.button_play_label));
                 button_play_pause.setCompoundDrawablesWithIntrinsicBounds(null,
-                        getDrawable(R.drawable.play_larger), null, null);
+                        ContextCompat.getDrawable(MainActivity.this,
+                                R.drawable.play_larger), null, null);
                 button_play_pause.setOnClickListener(playListener);
             }
         }
@@ -112,7 +123,7 @@ public class MainActivity extends AppCompatActivity {
         public void onClick(View v) {
             Log.i(TAG, "onClick: BUTTON PREVIOUS CLICKED");
             vibrator.vibrate(VIBRATE_BUTTON_MS);
-            if (trackPointer > 0) {
+            if (initDone && trackPointer > 0) {
                 changeCurrentTrack(trackPointer, trackPointer-1);
                 trackPointer--;
             }
@@ -124,7 +135,7 @@ public class MainActivity extends AppCompatActivity {
         public void onClick(View v) {
             Log.i(TAG, "onClick: BUTTON NEXT CLICKED");
             vibrator.vibrate(VIBRATE_BUTTON_MS);
-            if (trackPointer < Nrec-1) {
+            if (initDone && trackPointer < Nrec-1) {
                 changeCurrentTrack(trackPointer, trackPointer+1);
                 trackPointer++;
             }
@@ -146,16 +157,18 @@ public class MainActivity extends AppCompatActivity {
         public void onStopTrackingTouch(SeekBar seekBar) {
             progressBar.playSoundEffect(SoundEffectConstants.CLICK);
 
-            trackList.get(trackPointer).setRating(seekBar.getProgress());
+            if (initDone) {
+                trackList.get(trackPointer).setRating(seekBar.getProgress());
 
-            // Checks if all recordings have been rated
-            if (ratingManager.isRatingFinished(trackList)) {
-                Log.i(TAG, "onStopTrackingTouch: All recording have been rated!");
-                Toast.makeText(MainActivity.this, getString(R.string.all_rated), Toast.LENGTH_SHORT).show();
-                ratingManager.setState(State.STATE_FINISHED);
-                // Ratings will now save automatically on exit or new session
+                // Checks if all recordings have been rated
+                if (ratingManager.isRatingFinished(trackList)) {
+                    Log.i(TAG, "onStopTrackingTouch: All recording have been rated!");
+                    Toast.makeText(MainActivity.this, getString(R.string.all_rated), Toast.LENGTH_SHORT).show();
+                    ratingManager.setState(State.STATE_FINISHED);
+                    // Ratings will now save automatically on exit or new session
+                }
+                setCheckMarkDrawable(trackList.get(trackPointer), ratingManager.getState());
             }
-            setCheckMarkDrawable(trackList.get(trackPointer), ratingManager.getState());
         }
     };
 
@@ -215,6 +228,30 @@ public class MainActivity extends AppCompatActivity {
     private boolean loadProgressfromSavedInstance = false;
     private int savedProgress = 0;
 
+    private final int REQUEST_SELECT_DIRECTORY = 25;
+
+    private final RecordingsFoundListener recordingsFoundListener = new RecordingsFoundListener() {
+        @Override
+        public void onFoundRecordings(ArrayList<File> raw_audio_files) {
+            Nrec = raw_audio_files.size();
+
+            Collections.sort(raw_audio_files); // Ensures the same order after loading
+            // Shuffle the loaded paths randomly using the generated seed
+            Collections.shuffle(raw_audio_files, new Random(ratingManager.getSeed()));
+            List<Integer> rnums = linspace(1,Nrec);
+
+            List<Recording> recordings= new ArrayList<>();
+            for (int n = 0; n < Nrec; n++) {
+                recordings.add(new Recording(
+                        raw_audio_files.get(n).getPath(),
+                        rnums.get(n),
+                        ratingManager.getLastSessionRating(n))
+                );
+            }
+            trackList = recordings;
+        }
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -265,7 +302,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Initialize the audio player and rating manager
         player = new Player(this, getPlayerListener());
-        ratingManager = new RatingManager(this);
+        ratingManager = new RatingManager(this, recordingsFoundListener);
 
         // Get vibrator service for UI vibration feedback
         vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
@@ -275,62 +312,142 @@ public class MainActivity extends AppCompatActivity {
         accommodateNightMode();
         hideSystemUI();
 
-        // Load the tracks from storage
-        try {
-            trackList = getRecordings();
-            // Logging only
-//            for (Recording r : trackList) {
-//                Log.i(TAG, "onCreate: " + r.toString());
-//            }
-
-            initDone = true;
-            // If there is no previous UI state, show welcome dialog
-            // Otherwise set active track to the previous one and do nothing
-            if (savedInstanceState != null) {
-                changeCurrentTrack(trackPointer, trackPointer);
-                handler_main.postDelayed(hideToolbar, TOOLBAR_DELAY);
-            } else {
-                welcome();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            fireNoFilesFound();
+        // If there is no previous UI state, show welcome dialog
+        // Otherwise set active track to the previous one and do nothing
+        if (savedInstanceState == null) {
+            // First startup
+            welcome();
+        } else {
+            // Normal startup
+            manageLoading();
         }
     }
 
     private void welcome() {
         // Shows welcome info dialog
+        // TODO Upravite tenhle text dialogu aby odpovídal tomu že se vybírá adresář
         AlertDialog welcome_dialog = new AlertDialog.Builder(this)
                 .setMessage(getString(R.string.welcome_message))
                 .setTitle(getString(R.string.welcome_title))
                 .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        // Set first track to play
-                        changeCurrentTrack(trackPointer, trackPointer);
-                        if (ratingManager.getState() == State.STATE_IDLE) {
-                            ratingManager.setState(State.STATE_IN_PROGRESS);
-                        }
-                        handler_main.postDelayed(hideToolbar, TOOLBAR_DELAY);
+                        manageLoading();
                     }
                 }).create();
         welcome_dialog.setCanceledOnTouchOutside(false);
-        welcome_dialog.setIcon(getDrawable(R.mipmap.symbol_cvut_plna_verze));
+        welcome_dialog.setIcon(ContextCompat.getDrawable(this, R.mipmap.symbol_cvut_plna_verze));
         welcome_dialog.show();
     }
 
-    private void fireNoFilesFound() {
-        AlertDialog no_files_found_dialog = new AlertDialog.Builder(this)
-                .setMessage(getString(R.string.no_files_found_message))
-                .setTitle(getString(R.string.alert))
-                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+    private void manageLoading() {
+        String message = "";
+        String title = "";
+        Drawable icon = null;
+
+        switch (ratingManager.loadSession()) {
+            case OK:
+                manageDirectory(null);
+                return;
+            case NO_SESSION:
+                message = getString(R.string.no_session_found);
+                title = getString(R.string.info);
+                icon = ContextCompat.getDrawable(this, R.drawable.ic_info);
+                break;
+            case CORRUPTED_SESSION:
+                message = getString(R.string.corrupted_session);
+                title = getString(R.string.alert);
+                icon = ContextCompat.getDrawable(this, R.drawable.ic_error_red_24dp);
+                break;
+        }
+
+        AlertDialog loading_failed_dialog = new AlertDialog.Builder(this)
+                .setMessage(message)
+                .setTitle(title)
+                .setPositiveButton(R.string.create_new_session, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        // Go select directory and check it afterwards
+                        fireSelectDirectory();
+                    }
+                })
+                .setNegativeButton(R.string.action_quit, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         MainActivity.this.finish();
                     }
-                }).create();
+                })
+                .create();
+        loading_failed_dialog.setCanceledOnTouchOutside(false);
+        loading_failed_dialog.setIcon(icon);
+        loading_failed_dialog.show();
+    }
+
+    private void fireSelectDirectory() {
+        // Fire up dialog to choose the data directory
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
+        startActivityForResult(intent, REQUEST_SELECT_DIRECTORY);
+    }
+
+    private void manageDirectory(File selected_dir) {
+        Bundle checkResult;
+        if (selected_dir == null) {
+            checkResult = ratingManager.checkDataDirectoryPath();
+        } else {
+            checkResult = ratingManager.checkDataDirectoryPath(selected_dir);
+        }
+
+        if (checkResult.getBoolean(DIRCHECK_RESULT_IS_OK)) {
+            ratingManager.setState(State.STATE_IN_PROGRESS);
+            changeCurrentTrack(0, 0);
+            handler_main.postDelayed(hideToolbar, TOOLBAR_DELAY);
+
+            initDone = true;
+        } else { // Directory check was not ok
+            String message = "";
+            DirectoryCheckError err = DirectoryCheckError.valueOf(
+                    checkResult.getString(DIRCHECK_RESULT_ERROR_TYPE));
+            String dirname = checkResult.getString(DIRCHECK_RESULT_DIRECTORY, "???");
+            switch (err) {
+                case NOT_EXIST:
+                    message = getString(R.string.directory_not_exist, dirname); break;
+                case NOT_DIRECTORY:
+                    message = getString(R.string.directory_not_directory, dirname); break;
+                case NOT_READABLE:
+                    message = getString(R.string.directory_not_readable, dirname); break;
+                case NO_FILES:
+                    message = getString(R.string.directory_no_files); break;
+                case MISSING_FILES:
+                    int cnt_missing = checkResult.getInt(DIRCHECK_RESULT_MISSING_CNT);
+                    String list_missing = checkResult.getString(DIRCHECK_RESULT_MISSING_LIST);
+                    message = getString(R.string.directory_missing_files,
+                            cnt_missing, dirname, list_missing);
+                    break;
+            }
+
+            fireInvalidDirectory(message);
+        }
+    }
+
+    private void fireInvalidDirectory(String message) {
+        AlertDialog no_files_found_dialog = new AlertDialog.Builder(this)
+                .setMessage(message)
+                .setTitle(getString(R.string.alert))
+                .setPositiveButton(R.string.choose_valid_data_dir, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        fireSelectDirectory();
+                    }
+                })
+                .setNegativeButton(R.string.action_quit, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        MainActivity.this.finish();
+                    }
+                })
+                .create();
         no_files_found_dialog.setCanceledOnTouchOutside(false);
-        no_files_found_dialog.setIcon(getDrawable(R.drawable.ic_error_red_24dp));
+        no_files_found_dialog.setIcon(ContextCompat.getDrawable(this, R.drawable.ic_error_red_24dp));
         no_files_found_dialog.show();
     }
 
@@ -375,11 +492,7 @@ public class MainActivity extends AppCompatActivity {
             int setTo = savedRating != Recording.DEFAULT_UNSET_RATING ?
                     savedRating : getResources().getInteger(R.integer.DEFAULT_PROGRESS_CENTER);
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                ratingbar.setProgress(setTo, true);
-            } else {
-                ratingbar.setProgress(setTo);
-            }
+            ratingbar.setProgress(setTo, true);
 
             Log.i(TAG, "changeCurrentTrack: current state = " + ratingManager.getState());
             setCheckMarkDrawable(trackList.get(changeTo), ratingManager.getState());
@@ -392,9 +505,11 @@ public class MainActivity extends AppCompatActivity {
                 checkMark.setVisibility(View.INVISIBLE);
             } else {
                 if (state == State.STATE_FINISHED) {
-                    checkMark.setImageDrawable(getDrawable(R.drawable.ic_done_all_green));
+                    checkMark.setImageDrawable(ContextCompat.getDrawable(this,
+                            R.drawable.ic_done_all_green));
                 } else {
-                    checkMark.setImageDrawable(getDrawable(R.drawable.ic_done_green));
+                    checkMark.setImageDrawable(ContextCompat.getDrawable(this,
+                            R.drawable.ic_done_green));
                 }
                 checkMark.setVisibility(View.VISIBLE);
             }
@@ -451,11 +566,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onUpdateProgress(int current_ms) {
                 if (!isTouchingSeekBar) {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                        progressBar.setProgress(current_ms, true);
-                    } else {
-                        progressBar.setProgress(current_ms);
-                    }
+                    progressBar.setProgress(current_ms, true);
                 }
             }
         };
@@ -476,34 +587,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private List<Recording> getRecordings() throws Exception {
-        File root = RatingManager.getRootAppDirOnSdCard(getApplicationContext());
-
-        // Finds all MP3 audio files in the app root folder on SD card
-        ArrayList<File> raw_audio_list = getAudioRecursive(root);
-        Nrec = raw_audio_list.size();
-        if (Nrec <= 0) {
-            throw new Exception("No audio files found on external storage!");
-        } else {
-            Log.i(TAG, "getRecordings: Found " + Nrec + " audio files.");
-        }
-
-        Collections.sort(raw_audio_list); // Ensures the same order after loading
-        // Shuffle the loaded paths randomly using the generated seed
-        Collections.shuffle(raw_audio_list, new Random(ratingManager.getSeed()));
-        List<Integer> rnums = linspace(1,Nrec);
-
-        List<Recording> recordings= new ArrayList<>();
-        for (int n = 0; n < Nrec; n++) {
-            recordings.add(new Recording(
-                    raw_audio_list.get(n).getPath(),
-                    rnums.get(n),
-                    ratingManager.getLastSessionRating(n))
-            );
-        }
-        return recordings;
-    }
-
     private List<Integer> linspace(int start, int end) {
         if (end < start) {
             Log.e(TAG, "linspace: Invalid input parameters!");
@@ -515,30 +598,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private ArrayList<File> getAudioRecursive(File path) {
-        ArrayList<File> output = new ArrayList<>();
-
-        if (path.exists()) {
-            if (path.isFile()) {
-                // Only add wav-files
-                String ext = FilenameUtils.getExtension(path.getPath());
-                if (ext.toLowerCase().equals("mp3")) {
-                    output.add(path);
-                }
-            } else if (path.isDirectory()) {
-                File[] files = path.listFiles();
-                if (files != null && files.length > 0) {
-                    for (File file : files) {
-                        output.addAll(getAudioRecursive(file));
-                    }
-                }
-            }
-        } else {
-            Log.e(TAG, "getAudioRecursive: Path <" + path + "> does not exist.");
-        }
-        return output;
-    }
-
     @Override
     protected void onPause() {
         super.onPause();
@@ -547,7 +606,9 @@ public class MainActivity extends AppCompatActivity {
             button_play_pause.callOnClick();
         }
 
-        ratingManager.saveSession(trackList);
+        if (initDone) {
+            ratingManager.saveSession(trackList);
+        }
         if (ratingManager.getState() == State.STATE_FINISHED) {
             try {
                 ratingManager.saveResults(MainActivity.this, trackList);
@@ -589,89 +650,82 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.action_help:
-                AlertDialog help_dialog = new AlertDialog.Builder(MainActivity.this)
-                        .setMessage(getString(R.string.help_message))
-                        .setTitle(getString(R.string.help))
-                        .setPositiveButton(R.string.ok, null)
-                        .create();
-                help_dialog.setIcon(getDrawable(android.R.drawable.ic_menu_help));
-                help_dialog.show();
-                return true;
-            case R.id.action_show_session_info:
-                String message = getString(R.string.session_info_message,
-                        String.valueOf(ratingManager.getSession_ID()),
-                        ratingManager.getGeneratorMessage(),
-                        String.valueOf(ratingManager.getSeed()),
-                        ratingManager.getRatingFinishedRatio(trackList)
-                        );
+        int itemID = item.getItemId();
+        if (itemID == R.id.action_help) {
+            AlertDialog help_dialog = new AlertDialog.Builder(MainActivity.this)
+                    .setMessage(getString(R.string.help_message))
+                    .setTitle(getString(R.string.help))
+                    .setPositiveButton(R.string.ok, null)
+                    .create();
+            help_dialog.setIcon(ContextCompat.getDrawable(this,
+                    android.R.drawable.ic_menu_help));
+            help_dialog.show();
+            return true;
+        } else if (itemID == R.id.action_show_session_info && initDone) {
+            String message = getString(R.string.session_info_message,
+                    String.valueOf(ratingManager.getSession_ID()),
+                    ratingManager.getGeneratorMessage(),
+                    String.valueOf(ratingManager.getSeed()),
+                    ratingManager.getRatingFinishedRatio(trackList)
+            );
 
-                AlertDialog info_dialog = new AlertDialog.Builder(MainActivity.this)
-                        .setMessage(message)
-                        .setTitle(getString(R.string.session_info_title))
-                        .setPositiveButton(getString(R.string.ok), null)
-                        .create();
-                info_dialog.setIcon(getDrawable(android.R.drawable.ic_dialog_info));
-                info_dialog.show();
-                return true;
-            case R.id.action_reset_ratings:
-                AlertDialog confirm_dialog = new AlertDialog.Builder(MainActivity.this)
-                        .setMessage(getString(R.string.reset_confirm_prompt))
-                        .setTitle(getString(R.string.alert))
-                        .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                if (ratingManager.getState() == State.STATE_FINISHED) {
-                                    try {
-                                        ratingManager.saveResults(MainActivity.this, trackList);
-                                    } catch (Exception e) {
-                                        e.printStackTrace();
-                                    }
-                                }
-
-                                initDone = false;
-                                isTouchingSeekBar = false;
-                                trackPointer = 0;
-                                savedProgress = 0;
-                                loadProgressfromSavedInstance = false;
-
-                                ratingManager.makeNewSession();
-                                ratingManager.setState(State.STATE_IN_PROGRESS);
+            AlertDialog info_dialog = new AlertDialog.Builder(MainActivity.this)
+                    .setMessage(message)
+                    .setTitle(getString(R.string.session_info_title))
+                    .setPositiveButton(getString(R.string.ok), null)
+                    .create();
+            info_dialog.setIcon(ContextCompat.getDrawable(this,
+                    android.R.drawable.ic_dialog_info));
+            info_dialog.show();
+            return true;
+        } else if (itemID == R.id.action_reset_ratings && initDone) {
+            AlertDialog confirm_dialog = new AlertDialog.Builder(MainActivity.this)
+                    .setMessage(getString(R.string.reset_confirm_prompt))
+                    .setTitle(getString(R.string.alert))
+                    .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            if (ratingManager.getState() == State.STATE_FINISHED) {
                                 try {
-                                    trackList = getRecordings();
+                                    ratingManager.saveResults(MainActivity.this, trackList);
                                 } catch (Exception e) {
                                     e.printStackTrace();
-                                    fireNoFilesFound();
                                 }
+                            }
 
-                                initDone = true;
-                                changeCurrentTrack(0,0);
-                                handler_main.postDelayed(hideToolbar, TOOLBAR_DELAY);
-                            }
-                        })
-                        .setNegativeButton(R.string.cancel, null)
-                        .create();
-                confirm_dialog.setIcon(getDrawable(android.R.drawable.stat_sys_warning));
-                confirm_dialog.show();
-                return true;
-            case R.id.action_quit:
-                AlertDialog close_dialog = new AlertDialog.Builder(MainActivity.this)
-                        .setMessage(getString(R.string.close_confirm_prompt))
-                        .setTitle(getString(R.string.alert))
-                        .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                MainActivity.this.finish();
-                            }
-                        })
-                        .setNegativeButton(R.string.cancel, null)
-                        .create();
-                close_dialog.setIcon(getDrawable(android.R.drawable.ic_menu_close_clear_cancel));
-                close_dialog.show();
-                return true;
-            default: return super.onOptionsItemSelected(item);
+                            initDone = false;
+                            isTouchingSeekBar = false;
+                            trackPointer = 0;
+                            savedProgress = 0;
+                            loadProgressfromSavedInstance = false;
+
+                            fireSelectDirectory();
+                        }
+                    })
+                    .setNegativeButton(R.string.cancel, null)
+                    .create();
+            confirm_dialog.setIcon(ContextCompat.getDrawable(this,
+                    android.R.drawable.stat_sys_warning));
+            confirm_dialog.show();
+            return true;
+        } else if (itemID == R.id.action_quit) {
+            AlertDialog close_dialog = new AlertDialog.Builder(MainActivity.this)
+                    .setMessage(getString(R.string.close_confirm_prompt))
+                    .setTitle(getString(R.string.alert))
+                    .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            MainActivity.this.finish();
+                        }
+                    })
+                    .setNegativeButton(R.string.cancel, null)
+                    .create();
+            close_dialog.setIcon(ContextCompat.getDrawable(this,
+                    android.R.drawable.ic_menu_close_clear_cancel));
+            close_dialog.show();
+            return true;
         }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -742,11 +796,11 @@ public class MainActivity extends AppCompatActivity {
                             .translationY(0)
                             .setInterpolator(new AccelerateInterpolator())
                             .setListener(new AnimatorListenerAdapter() {
-                        @Override
-                        public void onAnimationEnd(Animator animation) {
-                            handler_main.postDelayed(hideToolbar, TOOLBAR_DELAY);
-                        }
-                    });
+                                @Override
+                                public void onAnimationEnd(Animator animation) {
+                                    handler_main.postDelayed(hideToolbar, TOOLBAR_DELAY);
+                                }
+                            });
                     top_container.animate()
                             .translationY(0).setDuration(animationDuration)
                             .setInterpolator(new AccelerateInterpolator());
@@ -778,10 +832,10 @@ public class MainActivity extends AppCompatActivity {
                     0,     0,     0, 1.0f,   0  // alpha
             };
 
-            Drawable[] d = {getDrawable(R.drawable.previous_larger),
-                    getDrawable(R.drawable.play_larger),
-                    getDrawable(R.drawable.pause_larger),
-                    getDrawable(R.drawable.next_larger)};
+            Drawable[] d = {ContextCompat.getDrawable(this, R.drawable.previous_larger),
+                    ContextCompat.getDrawable(this, R.drawable.play_larger),
+                    ContextCompat.getDrawable(this, R.drawable.pause_larger),
+                    ContextCompat.getDrawable(this, R.drawable.next_larger)};
 
             for (Drawable drawable : d) {
                 if (drawable != null) {
@@ -797,4 +851,17 @@ public class MainActivity extends AppCompatActivity {
         outState.putInt(STATE_PROGRESS_BAR, progressBar.getProgress());
         super.onSaveInstanceState(outState);
     }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (resultCode == RESULT_OK && requestCode == REQUEST_SELECT_DIRECTORY) {
+            File datadir = new File(getFullPathFromTreeUri(data.getData(), this));
+            Log.i(TAG, "onActivityResult: pickedDir == " + datadir.getAbsolutePath());
+
+            manageDirectory(datadir);
+        }
+    }
+
 }

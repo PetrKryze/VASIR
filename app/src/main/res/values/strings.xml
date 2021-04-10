@@ -45,18 +45,14 @@
     </string>
     <string name="track_time_placeholder" translatable="false">00:00</string>
     <string name="track_counter" translatable="false">%s: %d/%d</string>
-    <string name="no_files_found_message">
-        Error! No audio files found in the designated data folder in the application directory.
-        Place your audio speech recordings saved as MP3-files in the application directory on an
-        external SD card inserted in your device. This is required as internal device storage tends
-        to be limited in capacity.\n\n
-        Folder structure has to be following:\n
-        <tt>\"app-root\"/files/\"group-folder\"/\n</tt>
-        where <tt>\"app-root\"</tt> is the application root directory - typically:\n
-        <tt>\"your-phone\"/Card/Android/data/com.petrkryze.vas/\n</tt>
-        and <tt>\"group-folder\"</tt> has to be <tt>\"HC\"</tt>, <tt>\"DBS_OFF\"</tt> or <tt>\"DBS_130\"</tt>. Then, place the corresponding
-        audio-files into these folders.\n\n
-        <i>Currently</i> supporting only this predefined system, will be
+    <string name="directory_selection_instructions">
+        Audio file placement instructions:\n
+        Place your audio speech recordings saved as WAV or MP3-files in an accessible directory
+        (e.g. <i>Documents</i>) on internal memory or SD-card.\n\n
+        There have to be following folders in the selected directory:\n
+        <tt>\"HC\"</tt>, <tt>\"DBS_OFF\"</tt> and <tt>\"DBS_130\"</tt>\n
+        With audio files belonging to the groups placed within, accordingly.\n\n
+        This app <i>currently</i> only supports this predefined system, and will be
         upgraded to auto-recognize group names in the future versions.
     </string>
     <string name="not_implemented">This function is not yet implemented.</string>
@@ -92,4 +88,17 @@
         If you encounter any problems using the app, please send a mail to:\n
         kryzepet@fel.cvut.cz
     </string>
+    <string name="choose_data_dir">Choose the data directory</string>
+    <string name="KEY_PREFERENCES_DATADIR" translatable="false">datadir</string>
+    <string name="KEY_PREFERENCES_FILELIST" translatable="false">filelist</string>
+    <string name="no_session_found">No previous rating session was found. Please create a new session.</string>
+    <string name="corrupted_session">Previous session is corrupted. Please create a new session.</string>
+    <string name="info">Info</string>
+    <string name="create_new_session">Create new session</string>
+    <string name="directory_not_exist">Directory <i>%1$s</i> does not exist.</string>
+    <string name="directory_not_directory">Selection <i>%1$s</i> is not a directory.</string>
+    <string name="directory_not_readable">Directory <i>%1$s</i> is not readable.</string>
+    <string name="directory_no_files">No usable audio files were found in the <i>%1$s</i> directory.</string>
+    <string name="directory_missing_files">The loaded session is missing the following files (total %1$d) in the directory %2$s:\n%3$s</string>
+    <string name="choose_valid_data_dir">Choose valid data directory</string>
 </resources>

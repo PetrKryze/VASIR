@@ -28,19 +28,15 @@
         Po potvrzení tohoto okna můžete stiskem tlačítka spustit přehrávání první audio-nahrávky.\n\n
         Aplikační panel s nabídkou zobrazíte rychlým potažením prstem zeshora dolů po obrazovce.
     </string>
-    <string name="no_files_found_message">
-        Chyba! Nepodařilo se nalézt žádné zvukové soubory v aplikačním adresáři.
-        Vložte své řečové nahrávky, uložené ve formátu MP3, do aplikačního adresáře na externí SD
-        kartě vložené ve vašem zařízení. Použití SD karty je vyžadováno s ohledem na omezené kapacitní
-        možnosti mnohých interních uložišť.\n\n
-        Adresářová struktura musí být následující:\n
-        <tt>\"kořenový-adresář-aplikace\"/files/\"adresář-skupiny\"/\n</tt>
-        kde <tt>\"kořenový-adresář-aplikace\"</tt> je typicky:\n
-        <tt>\"váš-telefon\"/Card/Android/data/com.petrkryze.vas/\n</tt>
-        a <tt>\"adresář-skupiny\"</tt> musí být buď <tt>\"HC\"</tt>, <tt>\"DBS_OFF\"</tt> nebo <tt>\"DBS_130\"</tt>. Poté vložte nahrávky do jejich
-        příslušných adresářů (dle jejich skupiny).\n\n
-        <i>Momentálně</i> aplikace podporuje pouze tento předdefinovaný
-        formát, v budoucích verzích bude implementováno automatické rozpoznávání názvů skupin.
+    <string name="directory_selection_instructions">
+        Instrukce pro umístění audio souborů:\n
+        Umístěte soubory s audio nahrávkami ve formátu WAV nebo MP3 do přístupného adresáře
+        (například <i>Documents</i>) v interní paměti telefonu nebo na SD kartě.\n\n
+        Ve zvoleném adresáři musí být dodržena následující struktura složek:
+        <tt>\"HC\"</tt>, <tt>\"DBS_OFF\"</tt> a <tt>\"DBS_130\"</tt>\n
+        S audio soubory vloženými do příslušných adresářů.\n\n
+        Tato aplikace v současnosti podporuje pouze výše uvedené skupiny a pevnou strukturu adresářů,
+        nicméně bude v budoucnu implementovaná podpora automatického rozpoznávání skupin.
     </string>
     <string name="not_implemented">Tato funkce ještě není implementována.</string>
     <string name="all_rated">Všechny nahrávky byly ohodnoceny!</string>
@@ -80,4 +76,15 @@
         Při problémech s použitím aplikace či jiných dotazech pošlete mail na adresu:\n
         kryzepet@fel.cvut.cz
     </string>
+    <string name="choose_data_dir">Zvolte datový adresář</string>
+    <string name="no_session_found">Nebylo nalezeno žádné předešelé hodnocení. Vytvořte prosím nové sezení.</string>
+    <string name="corrupted_session">Data předešelého hodnocení jsou porušena. Vytvořte prosím nové sezení.</string>
+    <string name="info">Info</string>
+    <string name="create_new_session">Vytvořit nové sezení</string>
+    <string name="directory_not_exist">Adresář <i>%1$s</i> neexistuje.</string>
+    <string name="directory_not_directory">Vybraná položka <i>%1$s</i> není adresář.</string>
+    <string name="directory_not_readable">Adresář <i>%1$s</i> nelze přečíst.</string>
+    <string name="directory_no_files">V adresáři <i>%1$s</i> nebyly nalezeny žádné použitelné audio soubory.</string>
+    <string name="directory_missing_files">Nelze nalézt soubory (celkem %1$d) z uloženého sezení v adresáři %2$s:\n%3$s</string>
+    <string name="choose_valid_data_dir">Vyberte platný adresář</string>
 </resources>
