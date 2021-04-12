@@ -6,7 +6,7 @@
     <string name="KEY_PREFERENCES_SEED" translatable="false">seed</string>
     <string name="KEY_PREFERENCES_SESSION_ID" translatable="false">session_id</string>
     <string name="action_quit">Quit</string>
-    <string name="action_reset_ratings">Reset ratings</string>
+    <string name="action_reset_ratings">Create a new session</string>
     <string name="action_help">Help</string>
     <string name="action_show_session_info">Session Info</string>
     <string name="alert">Alert</string>
@@ -101,4 +101,6 @@
     <string name="directory_no_files">No usable audio files were found in the <i>%1$s</i> directory.</string>
     <string name="directory_missing_files">The loaded session is missing the following files (total %1$d) in the directory %2$s:\n%3$s</string>
     <string name="choose_valid_data_dir">Choose valid data directory</string>
+    <string name="internal_error_URI_extract_failed">Internal error!\nError message: Extracting full path from document selection URI failed!</string>
+    <string name="error">Error</string>
 </resources>

@@ -204,6 +204,18 @@ class RatingManager {
         this.state = State.STATE_IDLE;
     }
 
+    void wipeCurrentSession() {
+        Log.i(TAG, "wipeCurrentSession: Wiping session " + this.session_ID +
+                ", (seed: )" + this.seed);
+        this.session_ID = -1;
+        this.seed = -1;
+        this.generatorMessage = null;
+        this.lastSessionRatings = null;
+        this.datadir_path = null;
+        this.filelist = null;
+        this.state = null;
+    }
+
     int getLastSessionRating(int index) {
         if (lastSessionRatings.size() == 0) { // New session without saved previous ratings
             return DEFAULT_UNSET_RATING;

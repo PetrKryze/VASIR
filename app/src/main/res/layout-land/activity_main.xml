@@ -41,7 +41,8 @@
                 android:layout_alignParentStart="true"
                 android:layout_centerVertical="true"
                 android:layout_marginStart="5dp"
-                android:layout_marginEnd="10dp"/>
+                android:layout_marginEnd="10dp"
+                android:textColor="@color/header_text_color" />
 
             <ImageView
                 android:id="@+id/check_mark"
@@ -62,7 +63,8 @@
                 android:textSize="25sp"
                 android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
-                android:layout_marginEnd="5dp" />
+                android:layout_marginEnd="5dp"
+                android:textColor="@color/player_buttons_text" />
 
         </RelativeLayout>
 
@@ -113,8 +115,8 @@
             android:paddingStart="10dp"
             android:paddingEnd="5dp"
             android:text="@string/previous_track"
-            android:drawableTop="@drawable/previous_larger"
-            android:textColor="@color/colorPrimary"/>
+            android:drawableTop="@drawable/ic_previous"
+            android:textColor="@color/player_buttons_text" />
 
         <Button
             android:id="@+id/button_play_pause"
@@ -127,8 +129,8 @@
             android:paddingLeft="5dp"
             android:paddingRight="5dp"
             android:text="@string/button_play_label"
-            android:drawableTop="@drawable/play_larger"
-            android:textColor="@color/colorPrimary"/>
+            android:drawableTop="@drawable/ic_play"
+            android:textColor="@color/player_buttons_text" />
 
         <Button
             android:id="@+id/button_next"
@@ -141,8 +143,8 @@
             android:paddingStart="5dp"
             android:paddingEnd="10dp"
             android:text="@string/next_track"
-            android:drawableTop="@drawable/next_larger"
-            android:textColor="@color/colorPrimary"/>
+            android:drawableTop="@drawable/ic_next"
+            android:textColor="@color/player_buttons_text" />
 
     </LinearLayout>
 
@@ -168,7 +170,8 @@
                 android:layout_weight="1"
                 android:gravity="start"
                 android:text="@string/rating_label_lowest"
-                android:textAlignment="viewStart" />
+                android:textAlignment="viewStart"
+                android:textColor="@color/player_rating_label" />
 
             <TextView
                 android:id="@+id/rating_label_highest"
@@ -178,7 +181,8 @@
                 android:layout_weight="1"
                 android:gravity="end"
                 android:text="@string/rating_label_highest"
-                android:textAlignment="viewEnd" />
+                android:textAlignment="viewEnd"
+                android:textColor="@color/player_rating_label" />
 
         </LinearLayout>
 
@@ -200,7 +204,8 @@
             android:progress="50"
             android:progressDrawable="@drawable/seek_bar"
             android:thumb="@drawable/seek_thumb"
-            android:thumbOffset="30dp" />
+            android:thumbOffset="25dp"
+            android:splitTrack="false"/>
 
     </LinearLayout>
 

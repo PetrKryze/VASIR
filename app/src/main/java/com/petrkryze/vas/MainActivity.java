@@ -6,11 +6,10 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.res.Configuration;
-import android.graphics.ColorMatrixColorFilter;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.VibrationEffect;
 import android.os.Vibrator;
 import android.util.Log;
 import android.view.GestureDetector;
@@ -88,13 +87,13 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onClick(View v) {
             Log.i(TAG, "onClick: BUTTON PLAY CLICKED");
-            vibrator.vibrate(VIBRATE_BUTTON_MS);
+            vibrator.vibrate(VibrationEffect.createOneShot(VIBRATE_BUTTON_MS,VibrationEffect.DEFAULT_AMPLITUDE));
             if (initDone && player.isPrepared() && !player.isSeeking()) {
                 if (player.play()) {
                     button_play_pause.setText(getString(R.string.button_pause_label));
                     button_play_pause.setCompoundDrawablesWithIntrinsicBounds(null,
                             ContextCompat.getDrawable(MainActivity.this,
-                                    R.drawable.pause_larger), null, null);
+                                    R.drawable.ic_pause), null, null);
                     button_play_pause.setOnClickListener(pauseListener);
                 }
             }
@@ -105,14 +104,14 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onClick(View v) {
             Log.i(TAG, "onClick: BUTTON PAUSE CLICKED");
-            vibrator.vibrate(VIBRATE_BUTTON_MS);
+            vibrator.vibrate(VibrationEffect.createOneShot(VIBRATE_BUTTON_MS,VibrationEffect.DEFAULT_AMPLITUDE));
             if (initDone && player.isPrepared() && !player.isSeeking()) {
                 player.pause();
 
                 button_play_pause.setText(getString(R.string.button_play_label));
                 button_play_pause.setCompoundDrawablesWithIntrinsicBounds(null,
                         ContextCompat.getDrawable(MainActivity.this,
-                                R.drawable.play_larger), null, null);
+                                R.drawable.ic_play), null, null);
                 button_play_pause.setOnClickListener(playListener);
             }
         }
@@ -122,7 +121,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onClick(View v) {
             Log.i(TAG, "onClick: BUTTON PREVIOUS CLICKED");
-            vibrator.vibrate(VIBRATE_BUTTON_MS);
+            vibrator.vibrate(VibrationEffect.createOneShot(VIBRATE_BUTTON_MS,VibrationEffect.DEFAULT_AMPLITUDE));
             if (initDone && trackPointer > 0) {
                 changeCurrentTrack(trackPointer, trackPointer-1);
                 trackPointer--;
@@ -134,7 +133,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onClick(View v) {
             Log.i(TAG, "onClick: BUTTON NEXT CLICKED");
-            vibrator.vibrate(VIBRATE_BUTTON_MS);
+            vibrator.vibrate(VibrationEffect.createOneShot(VIBRATE_BUTTON_MS,VibrationEffect.DEFAULT_AMPLITUDE));
             if (initDone && trackPointer < Nrec-1) {
                 changeCurrentTrack(trackPointer, trackPointer+1);
                 trackPointer++;
@@ -150,7 +149,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void onStartTrackingTouch(SeekBar seekBar) {
-            vibrator.vibrate(VIBRATE_RATING_START);
+            vibrator.vibrate(VibrationEffect.createOneShot(VIBRATE_RATING_START,VibrationEffect.DEFAULT_AMPLITUDE));
         }
 
         @Override
@@ -180,13 +179,13 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void onStartTrackingTouch(SeekBar seekBar) {
-            vibrator.vibrate(VIBRATE_BUTTON_MS);
+            vibrator.vibrate(VibrationEffect.createOneShot(VIBRATE_BUTTON_MS,VibrationEffect.DEFAULT_AMPLITUDE));
             isTouchingSeekBar = true;
         }
 
         @Override
         public void onStopTrackingTouch(SeekBar seekBar) {
-            vibrator.vibrate(VIBRATE_BUTTON_MS);
+            vibrator.vibrate(VibrationEffect.createOneShot(VIBRATE_BUTTON_MS,VibrationEffect.DEFAULT_AMPLITUDE));
             progressBar.playSoundEffect(SoundEffectConstants.CLICK);
             if (initDone && player.isPrepared() && !player.isSeeking()) {
                 player.seekTo(seekBar.getProgress());
@@ -309,7 +308,6 @@ public class MainActivity extends AppCompatActivity {
         VIBRATE_BUTTON_MS = getResources().getInteger(R.integer.VIBRATE_BUTTON_MS);
         VIBRATE_RATING_START = getResources().getInteger(R.integer.VIBRATE_RATING_BAR_START_MS);
 
-        accommodateNightMode();
         hideSystemUI();
 
         // If there is no previous UI state, show welcome dialog
@@ -386,6 +384,8 @@ public class MainActivity extends AppCompatActivity {
     private void fireSelectDirectory() {
         // Fire up dialog to choose the data directory
         Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
+        intent.addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         startActivityForResult(intent, REQUEST_SELECT_DIRECTORY);
     }
 
@@ -587,6 +587,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    @SuppressWarnings("SameParameterValue")
     private List<Integer> linspace(int start, int end) {
         if (end < start) {
             Log.e(TAG, "linspace: Invalid input parameters!");
@@ -698,7 +699,7 @@ public class MainActivity extends AppCompatActivity {
                             trackPointer = 0;
                             savedProgress = 0;
                             loadProgressfromSavedInstance = false;
-
+                            ratingManager.wipeCurrentSession();
                             fireSelectDirectory();
                         }
                     })
@@ -810,41 +811,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void accommodateNightMode() {
-        accommodateNightMode(null);
-    }
-
-    private void accommodateNightMode(Configuration cnf) {
-        int currentNightMode;
-        if (cnf != null) {
-            currentNightMode = cnf.uiMode;
-        } else {
-            currentNightMode = getApplicationContext().getResources().getConfiguration().uiMode
-                    & Configuration.UI_MODE_NIGHT_MASK;
-        }
-
-        if (currentNightMode != Configuration.UI_MODE_NIGHT_YES) {
-            // Night mode is not active, invert icons so they're black
-            final float[] NEGATIVE = {
-                    -1.0f,     0,     0,    0, 255, // red
-                    0, -1.0f,     0,    0, 255, // green
-                    0,     0, -1.0f,    0, 255, // blue
-                    0,     0,     0, 1.0f,   0  // alpha
-            };
-
-            Drawable[] d = {ContextCompat.getDrawable(this, R.drawable.previous_larger),
-                    ContextCompat.getDrawable(this, R.drawable.play_larger),
-                    ContextCompat.getDrawable(this, R.drawable.pause_larger),
-                    ContextCompat.getDrawable(this, R.drawable.next_larger)};
-
-            for (Drawable drawable : d) {
-                if (drawable != null) {
-                    drawable.setColorFilter(new ColorMatrixColorFilter(NEGATIVE));
-                }
-            }
-        }
-    }
-
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {
         outState.putInt(STATE_TRACK_POINTER, trackPointer);
@@ -856,11 +822,33 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (resultCode == RESULT_OK && requestCode == REQUEST_SELECT_DIRECTORY) {
-            File datadir = new File(getFullPathFromTreeUri(data.getData(), this));
-            Log.i(TAG, "onActivityResult: pickedDir == " + datadir.getAbsolutePath());
+        if (resultCode == RESULT_OK && requestCode == REQUEST_SELECT_DIRECTORY && data != null) {
+            String fullpath = getFullPathFromTreeUri(data.getData(), this);
 
-            manageDirectory(datadir);
+            if (fullpath == null || fullpath.equals("")) {
+                AlertDialog failed_dialog = new AlertDialog.Builder(MainActivity.this)
+                        .setMessage(getString(R.string.internal_error_URI_extract_failed))
+                        .setTitle(getString(R.string.error))
+                        .setPositiveButton(R.string.action_quit, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                MainActivity.this.finish();
+                            }
+                        })
+                        .create();
+                failed_dialog.setIcon(ContextCompat.getDrawable(this,
+                        android.R.drawable.ic_menu_close_clear_cancel));
+                failed_dialog.setCanceledOnTouchOutside(false);
+                failed_dialog.setCancelable(false);
+                failed_dialog.show();
+            } else {
+                getContentResolver().takePersistableUriPermission(data.getData(),
+                        Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                File datadir = new File(fullpath);
+                Log.i(TAG, "onActivityResult: pickedDir == " + datadir.getAbsolutePath());
+
+                manageDirectory(datadir);
+            }
         }
     }
 

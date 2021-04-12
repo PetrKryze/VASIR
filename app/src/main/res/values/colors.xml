@@ -1,12 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#42A5F5</color>
-    <color name="colorPrimaryDark">#0D47A1</color>
-    <color name="colorAccent">#E64A19</color>
-    <color name="seek_bar_background">#ababab</color>
-    <color name="seek_bar_progress">#FF7043</color>
-    <color name="seek_bar_progress_inner">#272727</color>
-    <color name="seek_bar_secondary_progress">#3399CC</color>
-    <color name="rating_background" >#DBDBDB</color>
-    <color name="progress_bar_background">#E9E9E9</color>
+    <color name="colorPrimary">#0ACDFF</color>
+    <color name="colorPrimaryDark">#00A1E4</color>
+    <color name="colorAccent">#FFB59E</color>
+    <color name="main_background">#CCCCCC</color>
+    <color name="rating_background">#77797A</color>
+    <color name="header_text_color">#E6E6E6</color>
+    <color name="seek_bar_background">#CCCCCC</color>
+    <color name="seek_bar_progress">#2196F3</color>
+    <color name="seek_bar_thumb_outer">#F57F17</color>
+    <color name="seek_bar_thumb_inner">#FFF8E1</color>
+    <color name="seek_bar_secondary_progress">#0ACDFF</color>
+    <color name="progress_bar_background">#959595</color>
+    <color name="progress_bar_progress">#F57F17</color>
+    <color name="progress_bar_thumb">#F57F17</color>
+    <color name="player_buttons_tint">#4E4E4E</color>
+    <color name="player_buttons_text">#373737</color>
+    <color name="player_rating_label">#FFFFFF</color>
+    <color name="checkmark">#2196F3</color>
 </resources>

@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">Visual Analog Scale</string>
     <string name="action_quit">Odejít</string>
-    <string name="action_reset_ratings">Vynulovat hodnocení</string>
+    <string name="action_reset_ratings">Vytvořit nové sezení</string>
     <string name="action_help">Nápověda</string>
     <string name="action_show_session_info">Informace o relaci</string>
     <string name="alert">Upozornění</string>
@@ -87,4 +87,6 @@
     <string name="directory_no_files">V adresáři <i>%1$s</i> nebyly nalezeny žádné použitelné audio soubory.</string>
     <string name="directory_missing_files">Nelze nalézt soubory (celkem %1$d) z uloženého sezení v adresáři %2$s:\n%3$s</string>
     <string name="choose_valid_data_dir">Vyberte platný adresář</string>
+    <string name="internal_error_URI_extract_failed">Internal error!\nError message: Extracting full path from document selection URI failed!</string>
+    <string name="error">Error</string>
 </resources>
