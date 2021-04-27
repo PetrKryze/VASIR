@@ -62,7 +62,6 @@ class RatingManager {
 
     private static final char separator = ';';
     private static final char headerTag = '#';
-    private static final String RATINGS_FOLDER_NAME = "Ratings";
     private static final String[] SUPPORTED_EXTENSIONS = {"wav","mp3"};
     public static final String DIRCHECK_RESULT_IS_OK = "dircheck_result_is_ok";
     public static final String DIRCHECK_RESULT_ERROR_TYPE = "dircheck_result_error_type";
@@ -389,9 +388,8 @@ class RatingManager {
             Log.e(TAG, "loadSession: Error! Session saved without file list!");
             return LoadResult.CORRUPTED_SESSION;
         } else {
-            ArrayList<String> lastFilelist = gson.fromJson(json,
+            this.filelist = gson.fromJson(json,
                     new TypeToken<ArrayList<String>>(){}.getType());
-            this.filelist = lastFilelist;
             Log.i(TAG, "loadSession: Retrieved file list: " + filelist.toString());
         }
 
@@ -400,70 +398,106 @@ class RatingManager {
     }
 
     void saveResults(Context context, List<Recording> recordings) throws Exception {
-        // TODO UPDATE THIS
-        // Fire this only and only when saving the final results
-        if (state != State.STATE_FINISHED) {
-            Log.e(TAG, "saveResults: Rating manager is not in a finished state!");
-        } else {
-            File sdcardAppFolder = getRootAppDirOnSdCard(context);
-            if (sdcardAppFolder == null) {
-                throw new Exception("No usable external storage location found!");
-            }
+        File resultsDir = new File(context.getFilesDir(), context.getString(R.string.DIRECTORY_NAME_RESULTS));
 
-            File directory = new File(sdcardAppFolder, RATINGS_FOLDER_NAME);
-            if (!directory.exists()) {
-                Log.i(TAG, "saveResults: Directory <" + directory.getPath() +
-                        "> does not exist.");
-                if (!directory.mkdirs()) {
-                    Log.i(TAG, "saveResults: Directory " + directory.getName() +
-                            " could not be created.");
-                } else {
-                    Log.i(TAG, "saveResults: Directory <" + directory.getPath()
-                            + "> created successfully.");
+        if (resultsDir.exists()) {
+            Log.i(TAG, "saveResults: Results directory <" + resultsDir.getAbsolutePath() +
+                    "> exists");
+        } else {
+            Log.i(TAG, "saveResults: Results directory <" + resultsDir.getAbsolutePath() +
+                    "> does not exist - creating");
+            if (!resultsDir.mkdirs()) {
+                Log.e(TAG, "saveResults: Creating of results directory <" + resultsDir.getAbsolutePath() +
+                        "> failed!");
+                throw new Exception("Cannot create results directory");
+            }
+        }
+
+        // Find any previous save files for this session ID
+        File[] resultFiles = resultsDir.listFiles();
+        ArrayList<File> existingSaveFiles = new ArrayList<>();
+        if (resultFiles == null) {
+            throw new Exception("Results directory is invalid!");
+        } else {
+            Log.i(TAG, "saveResults: FILE LIST:");
+            for (File file : resultFiles) {
+                Log.i(TAG, "saveResults: FILE: " + file.getAbsolutePath());
+                if (file.isFile() && file.exists() &&
+                        FilenameUtils.getExtension(file.getName()).equalsIgnoreCase("txt")) {
+
+                    String[] split = file.getName().split("_");
+                    if (split.length > 2) {
+                        String foundSessionId = split[1];
+                        if (Integer.parseInt(foundSessionId) == session_ID) {
+                            existingSaveFiles.add(file);
+                        }
+                    }
                 }
             }
+        }
+        Log.i(TAG, "saveResults: Found " + existingSaveFiles.size() +
+                " existing save files for session ID " + session_ID);
 
-            // Sort the randomized recordings
-            Collections.sort(recordings, recordingComparator);
+        // Sort and log the randomized recordings
+        Collections.sort(recordings, recordingComparator);
+        Log.i(TAG, "saveResults: Sorted recordings:");
+        for (Recording r : recordings) {
+            Log.i(TAG, "saveResults: " + r.toString());
+        }
 
-            Log.i(TAG, "saveResults: Sorted recordings:");
-            for (Recording r : recordings) {
-                Log.i(TAG, "saveResults: " + r.toString());
+        // Create new file name for the new save
+        @SuppressLint("SimpleDateFormat") SimpleDateFormat format =
+                new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss");
+        String saveDate = format.format(new Date(System.currentTimeMillis()));
+        String newRatingsFileName = context.getString(R.string.RATING_FILE_NAME,
+                session_ID, saveDate);
+
+        File newRatingsFile = new File(resultsDir, newRatingsFileName);
+        FileWriter writer = new FileWriter(newRatingsFile);
+
+        // Write file header
+        String header = headerTag + "Session ID: " + session_ID + "\n" +
+                headerTag + "Randomizer Seed: " + seed + "\n" +
+                headerTag + "Generator Date: " + generatorMessage + "\n" +
+                headerTag + "Save Date: " + saveDate;
+        writer.append(header);
+
+        // Row format: id;group;random_number;rating
+        for (Recording recording : recordings) {
+            // TODO Generalize check? ID and group type
+            writer.append(recording.getID()).append(separator)
+                    .append(recording.getGroupType().toString()).append(separator)
+                    .append(String.valueOf(recording.getRandomized_number())).append(separator)
+                    .append(String.valueOf(recording.getRating())).append("\n");
+        }
+        writer.flush();
+        writer.close();
+
+        MediaScannerConnection.scanFile(context, new String[]{newRatingsFile.getPath()}, null,
+                new MediaScannerConnection.OnScanCompletedListener() {
+                    @Override
+                    public void onScanCompleted(String path, Uri uri) {
+                        Log.i(TAG, "onScanCompleted: SCAN OF FILE <" + path + "> completed!");
+                    }
+                });
+        Log.i(TAG, "saveResults: File: <" + newRatingsFile.getName() + "> written successfully.");
+
+        // Remove old save files for this session ID
+        int backupsNumber = context.getResources().getInteger(R.integer.SAVE_FILE_BACKUPS_NUMBER);
+        if (existingSaveFiles.size() > backupsNumber) {
+            Collections.sort(existingSaveFiles); // Sorts ascending - oldest files are first
+
+            for (int i = 0; i < (existingSaveFiles.size() - backupsNumber); i++) {
+                File oldBackup = existingSaveFiles.get(i);
+
+                if (oldBackup.delete()) {
+                    Log.i(TAG, "saveResults: Old save file <" + oldBackup.getAbsolutePath() +
+                            "> was successfully deleted.");
+                } else {
+                    Log.e(TAG, "saveResults: Old save file <" + oldBackup.getAbsolutePath() +
+                            "> could not be deleted.");
+                }
             }
-
-            @SuppressLint("SimpleDateFormat") SimpleDateFormat format =
-                    new SimpleDateFormat("dd-MM-yyyy");
-            String date = format.format(new Date(System.currentTimeMillis()));
-            String newRatingsFileName = context.getString(R.string.RATING_FILE_NAME,
-                    session_ID, date);
-
-            File file = new File(directory, newRatingsFileName);
-            FileWriter writer = new FileWriter(file);
-
-            String header = headerTag + "Session ID: " + session_ID + "\n" +
-                    headerTag + "Randomizer Seed: " + seed + "\n" +
-                    headerTag + "Generator Date: " + generatorMessage + "\n";
-            writer.append(header);
-
-            // Row format: id;group;random_number;rating
-            for (Recording recording : recordings) {
-                writer.append(recording.getID()).append(separator)
-                        .append(recording.getGroupType().toString()).append(separator)
-                        .append(String.valueOf(recording.getRandomized_number())).append(separator)
-                        .append(String.valueOf(recording.getRating())).append("\n");
-            }
-            writer.flush();
-            writer.close();
-
-            MediaScannerConnection.scanFile(context, new String[]{file.getPath()}, null,
-                    new MediaScannerConnection.OnScanCompletedListener() {
-                        @Override
-                        public void onScanCompleted(String path, Uri uri) {
-                            Log.i(TAG, "onScanCompleted: SCAN OF FILE <" + path + "> completed!");
-                        }
-                    });
-
-            Log.i(TAG, "saveResults: File: <" + file.getName() + "> written successfully.");
         }
     }
 

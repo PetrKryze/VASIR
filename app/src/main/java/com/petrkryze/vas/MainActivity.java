@@ -227,8 +227,6 @@ public class MainActivity extends AppCompatActivity {
     private boolean loadProgressfromSavedInstance = false;
     private int savedProgress = 0;
 
-    private final int REQUEST_SELECT_DIRECTORY = 25;
-
     private final RecordingsFoundListener recordingsFoundListener = new RecordingsFoundListener() {
         @Override
         public void onFoundRecordings(ArrayList<File> raw_audio_files) {
@@ -386,7 +384,7 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
         intent.addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);
         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        startActivityForResult(intent, REQUEST_SELECT_DIRECTORY);
+        startActivityForResult(intent, getResources().getInteger(R.integer.REQUEST_CODE_FOLDER_PICKER));
     }
 
     private void manageDirectory(File selected_dir) {
@@ -662,6 +660,19 @@ public class MainActivity extends AppCompatActivity {
                     android.R.drawable.ic_menu_help));
             help_dialog.show();
             return true;
+        } else if (itemID == R.id.action_save && initDone) {
+            try {
+                ratingManager.saveResults(MainActivity.this, trackList);
+
+                Toast.makeText(MainActivity.this, getString(R.string.save_success),
+                        Toast.LENGTH_SHORT).show();
+            } catch (Exception e) {
+                e.printStackTrace();
+                Toast.makeText(MainActivity.this, getString(R.string.save_failed, e.getMessage()),
+                        Toast.LENGTH_SHORT).show();
+            }
+
+            return true;
         } else if (itemID == R.id.action_show_session_info && initDone) {
             String message = getString(R.string.session_info_message,
                     String.valueOf(ratingManager.getSession_ID()),
@@ -689,8 +700,32 @@ public class MainActivity extends AppCompatActivity {
                             if (ratingManager.getState() == State.STATE_FINISHED) {
                                 try {
                                     ratingManager.saveResults(MainActivity.this, trackList);
+
+                                    Toast.makeText(MainActivity.this, getString(R.string.save_success),
+                                            Toast.LENGTH_SHORT).show();
                                 } catch (Exception e) {
                                     e.printStackTrace();
+
+                                    AlertDialog saveFailDialog = new AlertDialog.Builder(MainActivity.this)
+                                            .setMessage(getString(R.string.save_failed_continue_question))
+                                            .setTitle(getString(R.string.save_failed_continue_title))
+                                            .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                                                @Override
+                                                public void onClick(DialogInterface dialog, int which) {
+                                                    initDone = false;
+                                                    isTouchingSeekBar = false;
+                                                    trackPointer = 0;
+                                                    savedProgress = 0;
+                                                    loadProgressfromSavedInstance = false;
+                                                    ratingManager.wipeCurrentSession();
+                                                    fireSelectDirectory();
+                                                }
+                                            })
+                                            .setNegativeButton(R.string.cancel, null)
+                                            .create();
+                                    saveFailDialog.setIcon(ContextCompat.getDrawable(MainActivity.this,
+                                            android.R.drawable.stat_sys_warning));
+                                    saveFailDialog.show();
                                 }
                             }
 
@@ -822,7 +857,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (resultCode == RESULT_OK && requestCode == REQUEST_SELECT_DIRECTORY && data != null) {
+        if (resultCode == RESULT_OK && requestCode == getResources().getInteger(R.integer.REQUEST_CODE_FOLDER_PICKER) && data != null) {
             String fullpath = getFullPathFromTreeUri(data.getData(), this);
 
             if (fullpath == null || fullpath.equals("")) {

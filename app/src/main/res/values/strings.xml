@@ -5,6 +5,7 @@
     <string name="KEY_PREFERENCES_RATINGS" translatable="false">ratings</string>
     <string name="KEY_PREFERENCES_SEED" translatable="false">seed</string>
     <string name="KEY_PREFERENCES_SESSION_ID" translatable="false">session_id</string>
+    <string name="DIRECTORY_NAME_RESULTS" translatable="false">Results</string>
     <string name="action_quit">Quit</string>
     <string name="action_reset_ratings">Create a new session</string>
     <string name="action_help">Help</string>
@@ -103,4 +104,9 @@
     <string name="choose_valid_data_dir">Choose valid data directory</string>
     <string name="internal_error_URI_extract_failed">Internal error!\nError message: Extracting full path from document selection URI failed!</string>
     <string name="error">Error</string>
+    <string name="action_save">Save</string>
+    <string name="save_success">Saving successful!</string>
+    <string name="save_failed">Saving failed!\nReason: %1$s</string>
+    <string name="save_failed_continue_question">Saving failed!\nReason: %1$s \nDo you want to continue with creating a new session? Current ratings will be lost.</string>
+    <string name="save_failed_continue_title">Warning</string>
 </resources>

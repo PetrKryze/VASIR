@@ -87,6 +87,11 @@
     <string name="directory_no_files">V adresáři <i>%1$s</i> nebyly nalezeny žádné použitelné audio soubory.</string>
     <string name="directory_missing_files">Nelze nalézt soubory (celkem %1$d) z uloženého sezení v adresáři %2$s:\n%3$s</string>
     <string name="choose_valid_data_dir">Vyberte platný adresář</string>
-    <string name="internal_error_URI_extract_failed">Internal error!\nError message: Extracting full path from document selection URI failed!</string>
-    <string name="error">Error</string>
+    <string name="internal_error_URI_extract_failed">Interní chyba!\nChybová zpráva: Extracting full path from document selection URI failed!</string>
+    <string name="error">Chyba</string>
+    <string name="action_save">Uložit</string>
+    <string name="save_success">Uložení úspěšné!</string>
+    <string name="save_failed">Uložení nebylo úspěšné!\nPříčina: %1$s</string>
+    <string name="save_failed_continue_question">Uložení nebylo úspěšné!\nPříčina: %1$s \nChcete pokračovat ve vytvoření nového sezení? Současná hodnocení budou ztracena.</string>
+    <string name="save_failed_continue_title">Varování</string>
 </resources>
