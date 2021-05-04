@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/result_list_row"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:layout_marginHorizontal="10dp"
+    android:layout_marginVertical="5dp">
+
+    <TextView
+        android:id="@+id/result_list_row_number"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:text="@string/placeholder_number"
+        android:textSize="20sp"
+        android:textColor="@color/result_list_text_color"
+        />
+
+    <View
+        android:id="@+id/result_list_row_divider"
+        android:layout_width="1dp"
+        android:layout_height="45dp"
+        android:layout_toEndOf="@id/result_list_row_number"
+        android:layout_marginHorizontal="10dp"
+        android:background="@color/result_list_text_color"
+        android:layout_centerVertical="true"
+        />
+
+    <RelativeLayout
+        android:id="@+id/result_list_row_text_container"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toEndOf="@id/result_list_row_divider"
+        android:layout_toStartOf="@id/shareButton"
+        android:layout_marginEnd="10dp">
+
+        <TextView
+            android:id="@+id/result_list_row_sessionid"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/placeholder"
+            android:textSize="18sp"
+            android:textColor="@color/result_list_text_color"
+            android:layout_marginBottom="3dp"
+            />
+
+        <TextView
+            android:id="@+id/result_list_row_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/result_list_row_sessionid"
+            android:text="@string/placeholder"
+            android:textSize="18sp"
+            android:textColor="@color/result_list_text_color"
+            />
+    </RelativeLayout>
+
+    <ImageButton
+        android:id="@+id/shareButton"
+        android:layout_width="45dp"
+        android:layout_height="45dp"
+        android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true"
+        app:srcCompat="@android:drawable/ic_menu_share"
+        android:background="@drawable/share_button_background"
+        android:contentDescription="@string/share_button_description"
+        android:elevation="2dp"/>
+
+</RelativeLayout>

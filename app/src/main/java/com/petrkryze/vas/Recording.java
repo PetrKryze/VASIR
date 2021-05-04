@@ -77,6 +77,14 @@ class Recording {
         this.rating = rating;
     }
 
+    Recording(String ID, String group_string, int randomized_number, int rating) {
+        this.path = null;
+        this.ID = ID;
+        this.group = GroupType.getGroupFromString(group_string);
+        this.randomized_number = randomized_number;
+        this.rating = rating;
+    }
+
     String getPath() {
         return path;
     }

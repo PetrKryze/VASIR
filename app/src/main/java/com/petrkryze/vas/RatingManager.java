@@ -16,8 +16,13 @@ import com.google.gson.reflect.TypeToken;
 
 import org.apache.commons.io.FilenameUtils;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,6 +32,10 @@ import java.util.List;
 
 import androidx.core.content.ContextCompat;
 
+import static com.petrkryze.vas.RatingManager.RatingResult.LABEL_GENERATOR_MESSAGE;
+import static com.petrkryze.vas.RatingManager.RatingResult.LABEL_SAVE_DATE;
+import static com.petrkryze.vas.RatingManager.RatingResult.LABEL_SEED;
+import static com.petrkryze.vas.RatingManager.RatingResult.LABEL_SESSION_ID;
 import static com.petrkryze.vas.Recording.DEFAULT_UNSET_RATING;
 import static com.petrkryze.vas.Recording.recordingComparator;
 
@@ -397,21 +406,73 @@ class RatingManager {
         return LoadResult.OK;
     }
 
-    void saveResults(Context context, List<Recording> recordings) throws Exception {
-        File resultsDir = new File(context.getFilesDir(), context.getString(R.string.DIRECTORY_NAME_RESULTS));
+    void checkResultsDirectory(File resultsDirectory) throws IOException {
+        String path = resultsDirectory.getAbsolutePath();
+        if (resultsDirectory.exists()) {
+            Log.i(TAG, "saveResults: Results directory <" + path + "> exists.");
 
-        if (resultsDir.exists()) {
-            Log.i(TAG, "saveResults: Results directory <" + resultsDir.getAbsolutePath() +
-                    "> exists");
+            if (resultsDirectory.isDirectory()) {
+                Log.i(TAG, "checkResultsDirectory: Results directory <" +
+                        path + "> is a directory.");
+                if (resultsDirectory.canRead()) {
+                    Log.i(TAG, "checkResultsDirectory: Results directory <" +
+                            path + "> is readable.");
+                    if (resultsDirectory.canWrite()) {
+                        Log.i(TAG, "checkResultsDirectory: Results directory <" +
+                                path + "> is writable.");
+                    } else {
+                        throw new IOException("Results directory <" + path + "> cannot be written to!");
+                    }
+                } else {
+                    throw new IOException("Results directory <" + path + "> cannot be read!");
+                }
+            } else {
+                throw new IOException("Results directory <" + path + "> is not a directory!");
+            }
         } else {
-            Log.i(TAG, "saveResults: Results directory <" + resultsDir.getAbsolutePath() +
-                    "> does not exist - creating");
-            if (!resultsDir.mkdirs()) {
-                Log.e(TAG, "saveResults: Creating of results directory <" + resultsDir.getAbsolutePath() +
-                        "> failed!");
-                throw new Exception("Cannot create results directory");
+            Log.i(TAG, "saveResults: Results directory <" + path + "> does not exist - creating");
+            if (!resultsDirectory.mkdirs()) {
+                throw new IOException("Results directory <" + path + "> could not be created!");
+            } else {
+                checkResultsDirectory(resultsDirectory);
             }
         }
+    }
+
+    ArrayList<RatingResult> loadResults(Context context) throws Exception {
+        // TODO
+        File resultsDir = new File(context.getFilesDir(), context.getString(R.string.DIRECTORY_NAME_RESULTS));
+        checkResultsDirectory(resultsDir);
+
+        ArrayList<RatingResult> foundResults = new ArrayList<>();
+
+        // Find any previous save files for this session ID
+        File[] resultFiles = resultsDir.listFiles();
+        if (resultFiles == null) {
+            throw new Exception("Results directory is invalid!");
+        } else {
+            if (resultFiles.length == 0) {
+                Log.i(TAG, "saveResults: No result files found in the result directory.");
+            } else {
+                Log.i(TAG, "saveResults: FILE LIST:");
+                for (File foundResultFile : resultFiles) {
+                    Log.i(TAG, "saveResults: FILE: " + foundResultFile.getAbsolutePath());
+                    if (foundResultFile.isFile() && foundResultFile.exists() &&
+                            FilenameUtils.getExtension(foundResultFile.getName()).equalsIgnoreCase("txt")) {
+
+                        foundResults.add(new RatingResult(foundResultFile));
+                    }
+                }
+                Log.i(TAG, "saveResults: Found " + foundResults.size() + " save files.");
+            }
+        }
+
+        return foundResults;
+    }
+
+    void saveResults(Context context, List<Recording> recordings) throws Exception {
+        File resultsDir = new File(context.getFilesDir(), context.getString(R.string.DIRECTORY_NAME_RESULTS));
+        checkResultsDirectory(resultsDir);
 
         // Find any previous save files for this session ID
         File[] resultFiles = resultsDir.listFiles();
@@ -419,24 +480,28 @@ class RatingManager {
         if (resultFiles == null) {
             throw new Exception("Results directory is invalid!");
         } else {
-            Log.i(TAG, "saveResults: FILE LIST:");
-            for (File file : resultFiles) {
-                Log.i(TAG, "saveResults: FILE: " + file.getAbsolutePath());
-                if (file.isFile() && file.exists() &&
-                        FilenameUtils.getExtension(file.getName()).equalsIgnoreCase("txt")) {
+            if (resultFiles.length == 0) {
+                Log.i(TAG, "saveResults: No result files found in the result directory.");
+            } else {
+                Log.i(TAG, "saveResults: FILE LIST:");
+                for (File file : resultFiles) {
+                    Log.i(TAG, "saveResults: FILE: " + file.getAbsolutePath());
+                    if (file.isFile() && file.exists() &&
+                            FilenameUtils.getExtension(file.getName()).equalsIgnoreCase("txt")) {
 
-                    String[] split = file.getName().split("_");
-                    if (split.length > 2) {
-                        String foundSessionId = split[1];
-                        if (Integer.parseInt(foundSessionId) == session_ID) {
-                            existingSaveFiles.add(file);
+                        String[] split = file.getName().split("_");
+                        if (split.length > 2) {
+                            String foundSessionId = split[1];
+                            if (Integer.parseInt(foundSessionId) == session_ID) {
+                                existingSaveFiles.add(file);
+                            }
                         }
                     }
                 }
+                Log.i(TAG, "saveResults: Found " + existingSaveFiles.size() +
+                        " existing save files for session ID " + session_ID);
             }
         }
-        Log.i(TAG, "saveResults: Found " + existingSaveFiles.size() +
-                " existing save files for session ID " + session_ID);
 
         // Sort and log the randomized recordings
         Collections.sort(recordings, recordingComparator);
@@ -456,10 +521,10 @@ class RatingManager {
         FileWriter writer = new FileWriter(newRatingsFile);
 
         // Write file header
-        String header = headerTag + "Session ID: " + session_ID + "\n" +
-                headerTag + "Randomizer Seed: " + seed + "\n" +
-                headerTag + "Generator Date: " + generatorMessage + "\n" +
-                headerTag + "Save Date: " + saveDate;
+        String header = headerTag + LABEL_SESSION_ID + separator + session_ID + "\n" +
+                headerTag + LABEL_SEED + separator + seed + "\n" +
+                headerTag + LABEL_GENERATOR_MESSAGE + separator + generatorMessage + "\n" +
+                headerTag + LABEL_SAVE_DATE + separator + saveDate + "\n";
         writer.append(header);
 
         // Row format: id;group;random_number;rating
@@ -530,5 +595,107 @@ class RatingManager {
             }
         }
         return sdcardAppFolder;
+    }
+
+    class RatingResult implements Serializable {
+        private int session_ID;
+        private long seed;
+        private String generatorMessage;
+        private String saveDate;
+
+        private final List<Recording> recordings;
+
+        private final String path;
+        private final String rawContent;
+
+        static final String LABEL_SESSION_ID = "Session ID";
+        static final String LABEL_SEED = "Randomizer Seed";
+        static final String LABEL_GENERATOR_MESSAGE = "Generator Date";
+        static final String LABEL_SAVE_DATE = "Save Date";
+
+        public RatingResult(File resultsTextFile) throws Exception {
+            // Takes the already found file on a path in storage and parses its contents for data
+
+            // Sanity checks
+            if (!resultsTextFile.exists()) {
+                throw new FileNotFoundException("Result text file " + resultsTextFile.getAbsolutePath() +
+                        " does not exist!");
+            } else if (!resultsTextFile.isFile()) {
+                throw new Exception("Result text file " + resultsTextFile.getAbsolutePath() +
+                        " is not a file!");
+            } else if (!resultsTextFile.canRead()) {
+                throw new Exception("Result text file " + resultsTextFile.getAbsolutePath() +
+                        " cannot be read!");
+            }
+
+            ArrayList<Recording> loadedRecordings = new ArrayList<>();
+            StringBuilder sb = new StringBuilder();
+
+            BufferedReader br = new BufferedReader(new FileReader(resultsTextFile));
+            String line;
+
+            while ((line = br.readLine()) != null && line.length() > 0) {
+                sb.append(line).append("\n");
+                String[] split = line.split(String.valueOf(separator));
+                if (line.charAt(0) == headerTag) { // Header row
+                    if (split.length < 2) {
+                        throw new IOException("Invalid header formatting!");
+                    }
+
+                    if (line.contains(LABEL_SESSION_ID)) {
+                        this.session_ID = Integer.parseInt(split[1]);
+                    } else if (line.contains(LABEL_SEED)) {
+                        this.seed = Long.parseLong(split[1]);
+                    } else if (line.contains(LABEL_GENERATOR_MESSAGE)) {
+                        this.generatorMessage = split[1];
+                    } else if (line.contains(LABEL_SAVE_DATE)) {
+                        this.saveDate = split[1];
+                    } else {
+                        throw new IOException("Invalid header line!");
+                    }
+                } else { // Data row
+                    // TODO Generalize check? ID and group type
+                    if (split.length < 4) {
+                        throw new IOException("Invalid row formatting!");
+                    }
+
+                    loadedRecordings.add(new Recording(split[0], split[1],
+                            Integer.parseInt(split[2]), Integer.parseInt(split[3])));
+                }
+            }
+            br.close();
+
+            this.recordings = loadedRecordings;
+            this.path = resultsTextFile.getPath();
+            this.rawContent = sb.toString();
+        }
+
+        public int getSession_ID() {
+            return session_ID;
+        }
+
+        public long getSeed() {
+            return seed;
+        }
+
+        public String getGeneratorMessage() {
+            return generatorMessage;
+        }
+
+        public String getSaveDate() {
+            return saveDate;
+        }
+
+        public List<Recording> getRecordings() {
+            return recordings;
+        }
+
+        public String getPath() {
+            return path;
+        }
+
+        public String getRawContent() {
+            return rawContent;
+        }
     }
 }

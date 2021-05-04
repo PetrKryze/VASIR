@@ -13,6 +13,7 @@ import android.os.VibrationEffect;
 import android.os.Vibrator;
 import android.util.Log;
 import android.view.GestureDetector;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -22,13 +23,14 @@ import android.view.View;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.petrkryze.vas.RatingManager.DirectoryCheckError;
+import com.petrkryze.vas.RatingManager.RatingResult;
 import com.petrkryze.vas.RatingManager.RecordingsFoundListener;
 import com.petrkryze.vas.RatingManager.State;
 
@@ -45,6 +47,8 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 import static com.petrkryze.vas.DocumentUtils.getFullPathFromTreeUri;
 import static com.petrkryze.vas.RatingManager.DIRCHECK_RESULT_DIRECTORY;
@@ -64,15 +68,15 @@ public class MainActivity extends AppCompatActivity {
     private Button button_next;
     private TextView track_time;
     private TextView header_text;
-    private RelativeLayout top_container;
     private SeekBar progressBar;
     private ImageView checkMark;
+    private FrameLayout windowInsertPoint;
 
     private GestureDetector gestureDetector;
     private Handler handler_main;
     private Vibrator vibrator;
-    private int VIBRATE_BUTTON_MS;
-    private int VIBRATE_RATING_START;
+    public static int VIBRATE_BUTTON_MS;
+    public static int VIBRATE_RATING_START;
 
     private int Nrec = 0;
     private int trackPointer = 0;
@@ -140,6 +144,9 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     };
+
+    ResultFragment resultListFragment = null;
+    public static final String ResultListSerializedKey = "resultsList";
 
     private final SeekBar.OnSeekBarChangeListener ratingBarListener = new SeekBar.OnSeekBarChangeListener() {
         @Override
@@ -215,7 +222,7 @@ public class MainActivity extends AppCompatActivity {
                                 toolbar.setVisibility(View.INVISIBLE);
                             }
                         });
-                top_container.animate()
+                header_text.animate()
                         .translationY(-toolbarHeight).setDuration(animationDuration)
                         .setInterpolator(new DecelerateInterpolator());
             }
@@ -282,10 +289,10 @@ public class MainActivity extends AppCompatActivity {
         button_previous = findViewById(R.id.button_previous);
         button_next = findViewById(R.id.button_next);
         track_time = findViewById(R.id.track_time);
-        top_container = findViewById(R.id.top_container);
         header_text = findViewById(R.id.header_text);
         progressBar = findViewById(R.id.progressBar);
         checkMark = findViewById(R.id.check_mark);
+        windowInsertPoint = findViewById(R.id.window_insert_point);
 
         // Assign listeners to all buttons
         button_play_pause.setOnClickListener(playListener);
@@ -671,7 +678,43 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(MainActivity.this, getString(R.string.save_failed, e.getMessage()),
                         Toast.LENGTH_SHORT).show();
             }
+            return true;
+        } else if (itemID == R.id.action_show_saved_results && initDone) {
+            // TODO check
+            FragmentManager fm = getSupportFragmentManager();
+            FragmentTransaction ft = fm.beginTransaction();
 
+            Log.i(TAG, "onOptionsItemSelected: Window insert point children count == " + windowInsertPoint.getChildCount());
+            if (windowInsertPoint.getChildCount() == 0) {
+                LayoutInflater inflater = getLayoutInflater();
+                View resultsWindow = inflater.inflate(R.layout.results_window, windowInsertPoint);
+//                windowInsertPoint.addView(resultsWindow); // TODO Check if necessary
+
+                try {
+                    ArrayList<RatingResult> ratings = ratingManager.loadResults(MainActivity.this);
+
+                    if (resultListFragment == null) {
+                        resultListFragment = ResultFragment.newInstance(1, ratings);
+                        ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+                        ft.add(R.id.window_insert_point, resultListFragment);
+                    } else if (resultListFragment.isAdded()) {
+                        ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_CLOSE);
+                        ft.remove(resultListFragment);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    Toast.makeText(this, getString(R.string.ratings_loading_failed, e.getMessage()),
+                            Toast.LENGTH_LONG).show();
+                }
+            } else {
+                if (resultListFragment != null && resultListFragment.isAdded()) {
+                    ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_CLOSE);
+                    ft.remove(resultListFragment);
+                }
+                windowInsertPoint.removeAllViews();
+            }
+
+            ft.commit();
             return true;
         } else if (itemID == R.id.action_show_session_info && initDone) {
             String message = getString(R.string.session_info_message,
@@ -837,7 +880,7 @@ public class MainActivity extends AppCompatActivity {
                                     handler_main.postDelayed(hideToolbar, TOOLBAR_DELAY);
                                 }
                             });
-                    top_container.animate()
+                    header_text.animate()
                             .translationY(0).setDuration(animationDuration)
                             .setInterpolator(new AccelerateInterpolator());
                 }

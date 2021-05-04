@@ -15,6 +15,12 @@
         android:theme="@style/ThemeOverlay.AppCompat.DayNight.ActionBar"
         />
 
+    <FrameLayout
+        android:id="@+id/result_list_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/toolbar"/>
+
     <RelativeLayout
         android:id="@+id/top_container"
         android:layout_width="match_parent"
@@ -35,7 +41,7 @@
                 android:id="@+id/header_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/main_title"
+                android:text="@string/main_title_placeholder"
                 android:textSize="25sp"
                 android:textAlignment="viewStart"
                 android:layout_alignParentStart="true"

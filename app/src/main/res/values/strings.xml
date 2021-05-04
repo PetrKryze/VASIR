@@ -7,7 +7,7 @@
     <string name="KEY_PREFERENCES_SESSION_ID" translatable="false">session_id</string>
     <string name="DIRECTORY_NAME_RESULTS" translatable="false">Results</string>
     <string name="action_quit">Quit</string>
-    <string name="action_reset_ratings">Create a new session</string>
+    <string name="action_reset_ratings">Create a New Session</string>
     <string name="action_help">Help</string>
     <string name="action_show_session_info">Session Info</string>
     <string name="alert">Alert</string>
@@ -16,7 +16,7 @@
     <string name="cancel">Cancel</string>
     <string name="checkmark">Checkmark</string>
     <string name="close_confirm_prompt">Are you sure you want to quit\?</string>
-    <string name="main_title">Intelligibility</string>
+    <string name="main_title_placeholder">Intelligibility</string>
     <string name="next_track">Next</string>
     <string name="ok">OK</string>
     <string name="previous_track">Previous</string>
@@ -96,17 +96,27 @@
     <string name="corrupted_session">Previous session is corrupted. Please create a new session.</string>
     <string name="info">Info</string>
     <string name="create_new_session">Create new session</string>
-    <string name="directory_not_exist">Directory <i>%1$s</i> does not exist.</string>
-    <string name="directory_not_directory">Selection <i>%1$s</i> is not a directory.</string>
-    <string name="directory_not_readable">Directory <i>%1$s</i> is not readable.</string>
-    <string name="directory_no_files">No usable audio files were found in the <i>%1$s</i> directory.</string>
+    <string name="directory_not_exist">Directory <i>%s</i> does not exist.</string>
+    <string name="directory_not_directory">Selection <i>%s</i> is not a directory.</string>
+    <string name="directory_not_readable">Directory <i>%s</i> is not readable.</string>
+    <string name="directory_no_files">No usable audio files were found in the <i>%s</i> directory.</string>
     <string name="directory_missing_files">The loaded session is missing the following files (total %1$d) in the directory %2$s:\n%3$s</string>
     <string name="choose_valid_data_dir">Choose valid data directory</string>
     <string name="internal_error_URI_extract_failed">Internal error!\nError message: Extracting full path from document selection URI failed!</string>
     <string name="error">Error</string>
     <string name="action_save">Save</string>
     <string name="save_success">Saving successful!</string>
-    <string name="save_failed">Saving failed!\nReason: %1$s</string>
-    <string name="save_failed_continue_question">Saving failed!\nReason: %1$s \nDo you want to continue with creating a new session? Current ratings will be lost.</string>
+    <string name="save_failed">Saving failed!\nReason: %s</string>
+    <string name="save_failed_continue_question">Saving failed!\nReason: %s \nDo you want to continue with creating a new session? Current ratings will be lost.</string>
     <string name="save_failed_continue_title">Warning</string>
+    <string name="action_show_saved_results">Show Saved Results</string>
+    <string name="placeholder" translatable="false">placeholder</string>
+    <string name="header_saved_ratings_label">Saved ratings</string>
+    <string name="button_close_label">Close</string>
+    <string name="rating_list_row_sessionID">Session: %d</string>
+    <string name="ratings_loading_failed">Loading of saved rating files failed!\nReason: %s</string>
+    <string name="placeholder_number" translatable="false">##</string>
+    <string name="share_button_description">Share</string>
+    <string name="share_subject">Rating results for session %d</string>
+    <string name="share_using">Share to</string>
 </resources>

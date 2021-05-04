@@ -5,7 +5,7 @@
     <color name="colorAccent">#FFB59E</color>
     <color name="main_background">#CCCCCC</color>
     <color name="rating_background">#77797A</color>
-    <color name="header_text_color">#E6E6E6</color>
+    <color name="header_text_color">#373737</color>
     <color name="seek_bar_background">#CCCCCC</color>
     <color name="seek_bar_progress">#2196F3</color>
     <color name="seek_bar_thumb_outer">#F57F17</color>
@@ -18,4 +18,13 @@
     <color name="player_buttons_text">#373737</color>
     <color name="player_rating_label">#FFFFFF</color>
     <color name="checkmark">#2196F3</color>
+    <color name="list_container_background">#D8D8D8</color>
+    <color name="list_container_edge">#EDEDED</color>
+    <color name="list_window_button_background">#FFCC80</color>
+    <color name="list_window_button_text">#4A4A4A</color>
+    <color name="list_window_header_text">#4A4A4A</color>
+    <color name="result_list_text_color">#000000</color>
+    <color name="share_button_normal">#2196F3</color>
+    <color name="share_button_focused">#2C84CA</color>
+    <color name="share_button_pressed">#60AAE4</color>
 </resources>
