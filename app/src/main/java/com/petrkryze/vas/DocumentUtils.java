@@ -45,8 +45,6 @@ class DocumentUtils {
 
 
     private static String getVolumePath(final String volumeId, Context context) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP)
-            return null;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
             return getVolumePathForAndroid11AndAbove(volumeId, context);
         else

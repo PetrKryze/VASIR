@@ -119,4 +119,22 @@
     <string name="share_button_description">Share</string>
     <string name="share_subject">Rating results for session %d</string>
     <string name="share_using">Share to</string>
+    <string name="result_share_title">Results (%d)</string>
+    <string name="button_share_all_label">Share all</string>
+    <string name="result_detail_sessionID">Session %d</string>
+    <string name="result_detail_save_date_placeholder" translatable="false">Save date placeholder</string>
+    <string name="result_detail_seed_placeholder" translatable="false">Seed placeholder</string>
+    <string name="result_detail_generator_date_placeholder" translatable="false">Generator date placeholder</string>
+    <string name="result_detail_save_date_label">Save date:</string>
+    <string name="result_detail_seed_label">Seed:</string>
+    <string name="result_detail_generator_date_label">Session created:</string>
+    <string name="result_detail_recording_list_row_id_placeholder" translatable="false">ID</string>
+    <string name="result_detail_recording_list_row_group_placeholder" translatable="false">group</string>
+    <string name="result_detail_recording_list_row_index_placeholder" translatable="false">index</string>
+    <string name="result_detail_recording_list_row_rating_placeholder" translatable="false">rating</string>
+    <string name="result_detail_recording_list_column_id_label">ID</string>
+    <string name="result_detail_recording_list_column_group_label">Group</string>
+    <string name="result_detail_recording_list_column_index_label">Index</string>
+    <string name="result_detail_recording_list_column_rating_label">Rating</string>
+    <string name="header_rating_detail">Rating detail</string>
 </resources>

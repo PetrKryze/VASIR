@@ -102,4 +102,15 @@
     <string name="share_button_description">Share</string>
     <string name="share_subject">Výsledky hodnocení pro sezení %d</string>
     <string name="share_using">Sdílet na</string>
+    <string name="result_share_title">Výsledky (%d)</string>
+    <string name="button_share_all_label">Sdílet vše</string>
+    <string name="result_detail_sessionID">Sezení %d</string>
+    <string name="result_detail_save_date_label">Datum uložení:</string>
+    <string name="result_detail_seed_label">Seed:</string>
+    <string name="result_detail_generator_date_label">Sezení vytvořeno:</string>
+    <string name="result_detail_recording_list_column_id_label">ID</string>
+    <string name="result_detail_recording_list_column_group_label">Skupina</string>
+    <string name="result_detail_recording_list_column_index_label">Index</string>
+    <string name="result_detail_recording_list_column_rating_label">Hodnocení</string>
+    <string name="header_rating_detail">Detail hodnocení</string>
 </resources>

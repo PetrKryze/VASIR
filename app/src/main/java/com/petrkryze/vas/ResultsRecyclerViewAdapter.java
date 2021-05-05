@@ -11,29 +11,36 @@ import android.widget.TextView;
 
 import com.petrkryze.vas.RatingManager.RatingResult;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 /**
  * {@link RecyclerView.Adapter} that can display a {@link RatingResult}.
  */
-public class MyResultRecyclerViewAdapter extends RecyclerView.Adapter<MyResultRecyclerViewAdapter.ViewHolder> {
+public class ResultsRecyclerViewAdapter extends RecyclerView.Adapter<ResultsRecyclerViewAdapter.ViewHolder> {
 
     private final Context context;
     private final List<RatingResult> ratingResults;
+    private final ResultsFragment.OnItemDetailListener onItemDetailListener;
 
-    public MyResultRecyclerViewAdapter(Context context, List<RatingResult> items) {
+    public ResultsRecyclerViewAdapter(Context context, List<RatingResult> items,
+                                      ResultsFragment.OnItemDetailListener onItemDetailListener) {
         this.context = context;
         this.ratingResults = items;
+        this.onItemDetailListener = onItemDetailListener;
     }
 
+    @NotNull
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.fragment_result_list_row, parent, false);
+                .inflate(R.layout.result_fragment_result_list_row, parent, false);
         return new ViewHolder(view);
     }
 
@@ -56,6 +63,13 @@ public class MyResultRecyclerViewAdapter extends RecyclerView.Adapter<MyResultRe
                 sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, currentResult.getRawContent());
 
                 context.startActivity(Intent.createChooser(sharingIntent, context.getString(R.string.share_using)));
+            }
+        });
+
+        holder.mView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onItemDetailListener.onItemClick(currentResult);
             }
         });
     }
@@ -83,7 +97,7 @@ public class MyResultRecyclerViewAdapter extends RecyclerView.Adapter<MyResultRe
         public final ImageButton shareButton;
         public RatingResult mItem;
 
-        public ViewHolder(View view) {
+        public ViewHolder(@NonNull View view) {
             super(view);
             mView = view;
             viewRowNumber = view.findViewById(R.id.result_list_row_number);
@@ -92,6 +106,7 @@ public class MyResultRecyclerViewAdapter extends RecyclerView.Adapter<MyResultRe
             shareButton = view.findViewById(R.id.shareButton);
         }
 
+        @NotNull
         @Override
         public String toString() {
             return super.toString() + " Row number: " + viewRowNumber.getText() + ", " +

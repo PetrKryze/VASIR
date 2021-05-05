@@ -5,6 +5,7 @@ import android.util.Log;
 import org.apache.commons.io.FilenameUtils;
 
 import java.io.File;
+import java.io.Serializable;
 import java.util.Comparator;
 
 import androidx.annotation.NonNull;
@@ -12,7 +13,7 @@ import androidx.annotation.NonNull;
 /**
  * Created by Petr on 07.02.2020. Yay!
  */
-class Recording {
+class Recording implements Serializable {
     private final String path;
     private final String ID;
     private final GroupType group;

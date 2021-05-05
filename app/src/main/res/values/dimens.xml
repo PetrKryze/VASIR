@@ -11,5 +11,6 @@
     <dimen name="checkmark_landscape_size">35dp</dimen>
     <dimen name="text_margin">16dp</dimen>
     <dimen name="list_container_stroke_width">10dp</dimen>
-    <dimen name="main_text_size">28sp</dimen>
+    <dimen name="main_heading">28sp</dimen>
+    <dimen name="result_detail_subheading">22sp</dimen>
 </resources>

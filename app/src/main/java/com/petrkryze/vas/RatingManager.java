@@ -597,7 +597,7 @@ class RatingManager {
         return sdcardAppFolder;
     }
 
-    class RatingResult implements Serializable {
+    public static class RatingResult implements Serializable {
         private int session_ID;
         private long seed;
         private String generatorMessage;

@@ -18,4 +18,5 @@
     <color name="player_buttons_text">#FFFFFF</color>
     <color name="player_rating_label">#FFFFFF</color>
     <color name="checkmark">#2196F3</color>
+    <color name="result_list_text_color">#F6F6F6</color>
 </resources>

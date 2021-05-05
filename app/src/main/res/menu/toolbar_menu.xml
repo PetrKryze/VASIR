@@ -8,7 +8,7 @@
     <item android:id="@+id/action_save"
         android:title="@string/action_save"
         android:icon="@drawable/ic_save"
-        app:showAsAction="ifRoom"/>
+        app:showAsAction="never"/>
     <item android:id="@+id/action_show_saved_results"
         android:title="@string/action_show_saved_results"
         android:icon="@drawable/ic_folder_open"
@@ -16,7 +16,7 @@
     <item android:id="@+id/action_help"
         android:title="@string/action_help"
         android:icon="@drawable/ic_help"
-        app:showAsAction="ifRoom"/>
+        app:showAsAction="never"/>
     <item android:id="@+id/action_show_session_info"
         android:title="@string/action_show_session_info"
         android:icon="@drawable/ic_info"

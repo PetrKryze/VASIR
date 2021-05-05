@@ -3,18 +3,42 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/mainActivity">
-
-    <activity
-        android:id="@+id/mainActivity"
-        android:name="com.petrkryze.vas.MainActivity"
-        android:label="activity_main"
-        tools:layout="@layout/activity_main" />
+    android:label="initial_fragment"
+    app:startDestination="@id/rating_fragment">
 
     <fragment
-        android:id="@+id/resultFragment"
-        android:name="com.petrkryze.vas.ResultFragment"
-        android:label="results_window"
-        tools:layout="@layout/results_window" />
+        android:id="@+id/rating_fragment"
+        android:name="com.petrkryze.vas.RatingFragment"
+        android:label="@string/main_title_placeholder"
+        tools:layout="@layout/rating_fragment">
 
+        <action
+            android:id="@+id/action_rating_fragment_to_result_fragment"
+            app:destination="@id/result_fragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/result_fragment"
+        android:name="com.petrkryze.vas.ResultsFragment"
+        android:label="@string/header_saved_ratings_label"
+        tools:layout="@layout/result_fragment">
+
+        <argument
+            android:name="ratings"
+            app:argType="java.util.ArrayList" />
+        <action
+            android:id="@+id/action_result_fragment_to_resultDetailFragment"
+            app:destination="@id/result_detail_fragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/result_detail_fragment"
+        android:name="com.petrkryze.vas.ResultDetailFragment"
+        android:label="@string/header_rating_detail"
+        tools:layout="@layout/result_detail_fragment" >
+
+        <argument
+            android:name="rating_result"
+            app:argType="com.petrkryze.vas.RatingManager$RatingResult" />
+    </fragment>
 </navigation>

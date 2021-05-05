@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+
+    android:id="@+id/result_detail_fragment_layout"
+    android:name="com.petrkryze.vas.ResultDetailFragment"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/main_background"
+    android:orientation="vertical"
+    android:padding="10dp"
+    tools:context=".ResultDetailFragment">
+
+    <TextView
+        android:id="@+id/result_detail_recording_list_column_index"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:maxLines="1"
+        android:text="@string/result_detail_recording_list_column_index_label"
+        android:textSize="18sp"
+        app:layout_constraintEnd_toStartOf="@+id/result_detail_recording_list_column_rating"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/result_detail_recording_list_column_group"
+        app:layout_constraintTop_toTopOf="@id/barrier" />
+
+    <TextView
+        android:id="@+id/result_detail_recording_list_column_id"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="5dp"
+        android:layout_marginTop="8dp"
+        android:maxLines="1"
+        android:text="@string/result_detail_recording_list_column_id_label"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toStartOf="@+id/result_detail_recording_list_column_group"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintHorizontal_chainStyle="spread_inside"
+        app:layout_constraintStart_toStartOf="@id/result_detail_recordings_list"
+        app:layout_constraintTop_toTopOf="@id/barrier" />
+
+    <TextView
+        android:id="@+id/result_detail_recording_list_column_rating"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="5dp"
+        android:maxLines="1"
+        android:text="@string/result_detail_recording_list_column_rating_label"
+        android:textSize="18sp"
+        app:layout_constraintEnd_toEndOf="@id/result_detail_recordings_list"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/result_detail_recording_list_column_index"
+        app:layout_constraintTop_toTopOf="@id/barrier" />
+
+    <TextView
+        android:id="@+id/result_detail_recording_list_column_group"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:maxLines="1"
+        android:text="@string/result_detail_recording_list_column_group_label"
+        android:textSize="18sp"
+        app:layout_constraintEnd_toStartOf="@+id/result_detail_recording_list_column_index"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/result_detail_recording_list_column_id"
+        app:layout_constraintTop_toTopOf="@id/barrier" />
+
+    <TextView
+        android:id="@+id/result_detail_sessionID"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="@string/result_detail_sessionID"
+        android:textColor="@color/header_text_color"
+        android:textSize="@dimen/main_heading"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/result_detail_save_date"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:gravity="end"
+        android:text="@string/result_detail_save_date_placeholder"
+        android:textColor="@color/header_text_color"
+        android:textSize="@dimen/result_detail_subheading"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/result_detail_save_date_label"
+        app:layout_constraintTop_toTopOf="@+id/result_detail_save_date_label" />
+
+    <TextView
+        android:id="@+id/result_detail_seed"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:gravity="end"
+        android:text="@string/result_detail_seed_placeholder"
+        android:textColor="@color/header_text_color"
+        android:textSize="@dimen/result_detail_subheading"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/result_detail_seed_label"
+        app:layout_constraintTop_toTopOf="@+id/result_detail_seed_label" />
+
+    <TextView
+        android:id="@+id/result_detail_generator_date"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginBottom="8dp"
+        android:gravity="end"
+        android:text="@string/result_detail_generator_date_placeholder"
+        android:textColor="@color/header_text_color"
+        android:textSize="@dimen/result_detail_subheading"
+        app:layout_constraintBottom_toTopOf="@id/barrier"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/result_detail_generator_date_label"
+        app:layout_constraintTop_toTopOf="@+id/result_detail_generator_date_label" />
+
+    <TextView
+        android:id="@+id/result_detail_save_date_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="@string/result_detail_save_date_label"
+        android:textColor="@color/header_text_color"
+        android:textSize="@dimen/result_detail_subheading"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/result_detail_sessionID" />
+
+    <TextView
+        android:id="@+id/result_detail_seed_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="@string/result_detail_seed_label"
+        android:textColor="@color/header_text_color"
+        android:textSize="@dimen/result_detail_subheading"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/barrierSaveDate" />
+
+    <TextView
+        android:id="@+id/result_detail_generator_date_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="@string/result_detail_generator_date_label"
+        android:textColor="@color/header_text_color"
+        android:textSize="@dimen/result_detail_subheading"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/barrierSeed" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/result_detail_recordings_list"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="8dp"
+        android:fadingEdgeLength="40dp"
+        android:requiresFadingEdge="vertical"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        app:layout_constraintBottom_toBottomOf="parent"
+
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/barrier2"
+        tools:listitem="@layout/result_detail_recordings_list_row" />
+
+    <androidx.constraintlayout.widget.Barrier
+        android:id="@+id/barrier"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:barrierDirection="bottom"
+        app:constraint_referenced_ids="result_detail_generator_date,result_detail_generator_date_label"
+        tools:layout_editor_absoluteX="10dp"
+        tools:layout_editor_absoluteY="721dp" />
+
+    <androidx.constraintlayout.widget.Barrier
+        android:id="@+id/barrier2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:barrierDirection="bottom"
+        app:constraint_referenced_ids="result_detail_recording_list_column_index,result_detail_recording_list_column_id,result_detail_recording_list_column_rating,result_detail_recording_list_column_group"
+        tools:layout_editor_absoluteX="10dp"
+        tools:layout_editor_absoluteY="201dp" />
+
+    <androidx.constraintlayout.widget.Barrier
+        android:id="@+id/barrierSeed"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:barrierDirection="bottom"
+        app:constraint_referenced_ids="result_detail_seed,result_detail_seed_label"
+        tools:layout_editor_absoluteX="10dp"
+        tools:layout_editor_absoluteY="93dp" />
+
+    <androidx.constraintlayout.widget.Barrier
+        android:id="@+id/barrierSaveDate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:barrierDirection="bottom"
+        app:constraint_referenced_ids="result_detail_save_date_label,result_detail_save_date"
+        tools:layout_editor_absoluteX="10dp"
+        tools:layout_editor_absoluteY="55dp" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
