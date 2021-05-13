@@ -23,10 +23,21 @@
     <string name="track">Nahrávka</string>
     <string name="welcome_title">Vítejte!</string>
     <string name="welcome_message">
-        Vítejte v aplikaci pro hodnocení řečových nahrávek pomocí obrazových analogových stupnic.\n\n
-        Tato aplikace byla vyvinuta pro potřeby vědy a výzkumu na katedře teorie obvodů, fakulty elektrotechnické, ČVUT v Praze.\n\n
-        Po potvrzení tohoto okna můžete stiskem tlačítka spustit přehrávání první audio-nahrávky.\n\n
-        Aplikační panel s nabídkou zobrazíte rychlým potažením prstem zeshora dolů po obrazovce.
+        <i><b>VASIR</b></i> je aplikace, která používá <i>visual analog scales</i> (analogové obrazové stupnice) pro subjektivní hodnocení srozumitelnosti řeči.\n
+        \tPokud již umíte s aplikací pracovat, pokračujte k hodnocení stiskem tlačítka.
+        Pro více informací o této aplikaci a jejím použití prosím sjeďte dolů na tomto panelu.
+    </string>
+    <string name="welcome_message_further_info">
+        \tPři pokračování dále vás aplikace vyzve k vybrání adresáře s uloženými audio soubory obsahující řeč k zhodnocení.
+        Místo uložení souborů je libovolné, nicméně <i>doporučujeme</i> umístit soubory do standardního adresáře v interní paměti telefonu (např. adresář <i>Documents</i>).\n\n
+        \tAplikace dále provede automatickou randomizaci nalezených souborů a připraví je k hodnocení.
+        Použitím vestavěného přehrávače můžete procházet nalezené soubory a přehrávat jejich obsah za pomocí sluchátek.
+        Ve spodní části obrazovky se pak nachází spojitá analogová lišta pro hodnocení.\n\n
+        \tPoté, co byly všechny nahrávky ohodnoceny, se zobrazí ikonka dvojité zelené fajfky.
+        Aktuální sezení bude vždy automaticky ukládáno při odchodu z aplikace a může být také uloženo manuálně ve vysouvací nabídce v pravém horním rohu.
+        Tato nabídka také umožňuje zobrazit si uložená sezení a sdílet je pomocí Cloudu, emailu, atd.
+        \n\n
+        Tato aplikace byla vyvinuta pro potřeby výzkumu a vývoje na katedře teorie obvodů, Fakultě elektrotechnické, ČVUT v Praze.
     </string>
     <string name="directory_selection_instructions">
         Instrukce pro umístění audio souborů:\n
@@ -113,4 +124,7 @@
     <string name="result_detail_recording_list_column_index_label">Index</string>
     <string name="result_detail_recording_list_column_rating_label">Hodnocení</string>
     <string name="header_rating_detail">Detail hodnocení</string>
+    <string name="welcome_checkbox_do_not_show_again">Tuto obrazovku již nezobrazovat</string>
+    <string name="welcome_button_continue_label">Pokračovat k hodnocení</string>
+    <string name="welcome_title_image_desc">Logo aplikace VASIR, icony osoby hovořící do ucha</string>
 </resources>

@@ -1,30 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#0ACDFF</color>
-    <color name="colorPrimaryDark">#00A1E4</color>
-    <color name="colorAccent">#FFB59E</color>
-    <color name="main_background">#CCCCCC</color>
-    <color name="rating_background">#77797A</color>
-    <color name="header_text_color">#373737</color>
-    <color name="seek_bar_background">#CCCCCC</color>
-    <color name="seek_bar_progress">#2196F3</color>
-    <color name="seek_bar_thumb_outer">#F57F17</color>
-    <color name="seek_bar_thumb_inner">#FFF8E1</color>
-    <color name="seek_bar_secondary_progress">#0ACDFF</color>
-    <color name="progress_bar_background">#959595</color>
-    <color name="progress_bar_progress">#F57F17</color>
-    <color name="progress_bar_thumb">#F57F17</color>
-    <color name="player_buttons_tint">#4E4E4E</color>
-    <color name="player_buttons_text">#373737</color>
-    <color name="player_rating_label">#FFFFFF</color>
-    <color name="checkmark">#2196F3</color>
-    <color name="list_container_background">#D8D8D8</color>
-    <color name="list_container_edge">#EDEDED</color>
-    <color name="list_window_button_background">#FFCC80</color>
-    <color name="list_window_button_text">#4A4A4A</color>
-    <color name="list_window_header_text">#4A4A4A</color>
-    <color name="result_list_text_color">#000000</color>
-    <color name="share_button_normal">#2196F3</color>
-    <color name="share_button_focused">#2C84CA</color>
-    <color name="share_button_pressed">#60AAE4</color>
+    <color name="primaryColor">#2196f3</color>
+    <color name="primaryLightColor">#6ec6ff</color>
+    <color name="primaryDarkColor">#0069c0</color>
+    <color name="secondaryColor">#fbc02d</color>
+    <color name="secondaryLightColor">#fff263</color>
+    <color name="secondaryDarkColor">#c49000</color>
+    <color name="primaryTextColor">#000000</color>
+    <color name="secondaryTextColor">#000000</color>
+
+    <color name="main_background">#FFFFFF</color>
+
+    <color name="player_buttons_tint">@color/primaryColor</color>
+    <color name="player_buttons_text">@color/primaryTextColor</color>
+
+    <color name="checkmark">@color/secondaryColor</color>
+    
+    <color name="titleLogoTransition">#f32194</color>
+    <color name="primaryTextOnPrimary">#FFFFFF</color>
 </resources>

@@ -29,12 +29,12 @@
         android:id="@+id/button_results_share_all"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/button_share_all_label"
-        android:textSize="20sp"
-        android:textColor="@color/list_window_button_text"
         android:layout_alignParentBottom="true"
         android:layout_marginHorizontal="5dp"
+        android:backgroundTint="@color/secondaryColor"
+        android:text="@string/button_share_all_label"
 
-        android:backgroundTint="@color/list_window_button_background"
-        />
+        android:textAppearance="@style/TextAppearance.MdcTypographyStyles.Button"
+        android:textColor="@color/primaryTextColor"
+        android:textSize="18sp" />
 </RelativeLayout>

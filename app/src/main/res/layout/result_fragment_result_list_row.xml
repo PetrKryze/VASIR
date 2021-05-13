@@ -14,19 +14,18 @@
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
         android:text="@string/placeholder_number"
-        android:textSize="20sp"
-        android:textColor="@color/result_list_text_color"
+        style="@style/TextAppearance.MdcTypographyStyles.Subtitle1"
+        android:textColor="@color/primaryTextColor"
         />
 
     <View
         android:id="@+id/result_list_row_divider"
         android:layout_width="1dp"
-        android:layout_height="45dp"
-        android:layout_toEndOf="@id/result_list_row_number"
-        android:layout_marginHorizontal="10dp"
-        android:background="@color/result_list_text_color"
+        android:layout_height="40dp"
         android:layout_centerVertical="true"
-        />
+        android:layout_marginHorizontal="10dp"
+        android:layout_toEndOf="@id/result_list_row_number"
+        android:background="@color/primaryTextColor" />
 
     <RelativeLayout
         android:id="@+id/result_list_row_text_container"
@@ -41,8 +40,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/placeholder"
-            android:textSize="18sp"
-            android:textColor="@color/result_list_text_color"
+            style="@style/TextAppearance.MdcTypographyStyles.Subtitle1"
+            android:textColor="@color/primaryTextColor"
             android:layout_marginBottom="3dp"
             />
 
@@ -52,8 +51,8 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/result_list_row_sessionid"
             android:text="@string/placeholder"
-            android:textSize="18sp"
-            android:textColor="@color/result_list_text_color"
+            style="@style/TextAppearance.MdcTypographyStyles.Subtitle2"
+            android:textColor="@color/primaryTextColor"
             />
     </RelativeLayout>
 

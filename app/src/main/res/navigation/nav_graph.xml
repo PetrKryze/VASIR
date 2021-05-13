@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
     android:label="initial_fragment"
-    app:startDestination="@id/rating_fragment">
+    app:startDestination="@id/welcome_fragment">
 
     <fragment
         android:id="@+id/rating_fragment"
@@ -14,7 +14,11 @@
 
         <action
             android:id="@+id/action_rating_fragment_to_result_fragment"
-            app:destination="@id/result_fragment" />
+            app:destination="@id/result_fragment"
+            app:enterAnim="@anim/slide_in"
+            app:exitAnim="@anim/slide_out"
+            app:popEnterAnim="@anim/slide_in"
+            app:popExitAnim="@anim/slide_out" />
     </fragment>
 
     <fragment
@@ -28,7 +32,11 @@
             app:argType="java.util.ArrayList" />
         <action
             android:id="@+id/action_result_fragment_to_resultDetailFragment"
-            app:destination="@id/result_detail_fragment" />
+            app:destination="@id/result_detail_fragment"
+            app:enterAnim="@anim/slide_sideways"
+            app:exitAnim="@anim/slide_back_sideways"
+            app:popEnterAnim="@anim/slide_sideways"
+            app:popExitAnim="@anim/slide_back_sideways" />
     </fragment>
 
     <fragment
@@ -40,5 +48,19 @@
         <argument
             android:name="rating_result"
             app:argType="com.petrkryze.vas.RatingManager$RatingResult" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/welcome_fragment"
+        android:name="com.petrkryze.vas.WelcomeFragment"
+        android:label="@string/VASIR"
+        tools:layout="@layout/welcome_fragment" >
+        <action
+            android:id="@+id/action_welcomeFragment_to_rating_fragment"
+            app:destination="@id/rating_fragment"
+            app:enterAnim="@anim/fadein"
+            app:exitAnim="@anim/fadeout"
+            app:popEnterAnim="@anim/fadein"
+            app:popExitAnim="@anim/fadeout" />
     </fragment>
 </navigation>

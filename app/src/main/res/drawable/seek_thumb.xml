@@ -1,39 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-
-<!--    <item android:gravity="center">-->
-<!--        <shape android:shape="oval">-->
-<!--            <size android:width="64dp"-->
-<!--                android:height="64dp"/>-->
-<!--            <stroke android:color="@color/seek_bar_thumb_inner"-->
-<!--                android:width="@dimen/progress_bar_thumb_ring_thickness"/>-->
-<!--        </shape>-->
-<!--    </item>-->
-
-<!--    <item android:gravity="center">-->
-<!--        <shape android:shape="oval">-->
-<!--            <size android:width="56dp"-->
-<!--                android:height="56dp"/>-->
-<!--            <stroke android:color="@color/seek_bar_thumb_inner"-->
-<!--                android:width="@dimen/progress_bar_thumb_ring_thickness"/>-->
-<!--        </shape>-->
-<!--    </item>-->
-
     <item android:gravity="center">
         <shape android:shape="oval">
             <size android:width="@dimen/progress_bar_thumb_ring_size"
                 android:height="@dimen/progress_bar_thumb_ring_size"/>
-            <stroke android:color="@color/seek_bar_thumb_outer"
+            <stroke android:color="@color/secondaryColor"
                 android:width="@dimen/progress_bar_thumb_ring_thickness"/>
         </shape>
     </item>
 
-    <item android:gravity="center">
-        <shape android:shape="rectangle">
-            <corners android:radius="2dp"/>
-            <size android:width="@dimen/progress_bar_thumb_line_width"
-                android:height="@dimen/progress_bar_thumb_line_height"/>
-            <solid android:color="@color/seek_bar_thumb_inner"/>
-        </shape>
-    </item>
+<!--    <item android:gravity="center">-->
+<!--        <shape android:shape="oval">-->
+<!--            <size android:width="13dp"-->
+<!--                android:height="13dp"/>-->
+<!--            <solid android:color="@color/secondaryDarkColor"/>-->
+<!--        </shape>-->
+<!--    </item>-->
 </layer-list>

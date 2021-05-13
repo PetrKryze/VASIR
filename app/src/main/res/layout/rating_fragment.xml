@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
 
     android:id="@+id/rating_fragment_layout"
@@ -22,8 +23,8 @@
 
         android:text="@string/main_title_placeholder"
         android:textAlignment="center"
-        android:textColor="@color/header_text_color"
-        android:textSize="@dimen/main_heading" />
+        android:textColor="@color/primaryTextColor"
+        style="@style/TextAppearance.MdcTypographyStyles.Headline4"/>
 
     <ImageView
         android:id="@+id/check_mark"
@@ -49,7 +50,7 @@
         android:text="@string/track_time_placeholder"
         android:textAlignment="center"
         android:textColor="@color/player_buttons_text"
-        android:textSize="@dimen/main_heading" />
+        style="@style/TextAppearance.MdcTypographyStyles.Headline4" />
 
     <SeekBar
         android:id="@+id/progressBar"
@@ -88,7 +89,8 @@
             android:paddingEnd="5dp"
             android:paddingBottom="10dp"
             android:text="@string/previous_track"
-            android:textColor="@color/player_buttons_text" />
+            android:textColor="@color/player_buttons_text"
+            android:textAppearance="@style/TextAppearance.MdcTypographyStyles.Button"/>
 
         <Button
             android:id="@+id/button_play_pause"
@@ -102,7 +104,8 @@
             android:paddingRight="5dp"
             android:paddingBottom="10dp"
             android:text="@string/button_play_label"
-            android:textColor="@color/player_buttons_text" />
+            android:textColor="@color/player_buttons_text"
+            android:textAppearance="@style/TextAppearance.MdcTypographyStyles.Button"/>
 
         <Button
             android:id="@+id/button_next"
@@ -116,7 +119,8 @@
             android:paddingEnd="10dp"
             android:paddingBottom="10dp"
             android:text="@string/next_track"
-            android:textColor="@color/player_buttons_text" />
+            android:textColor="@color/player_buttons_text"
+            android:textAppearance="@style/TextAppearance.MdcTypographyStyles.Button"/>
 
     </LinearLayout>
 
@@ -128,49 +132,55 @@
         android:layout_marginTop="10dp"
         android:background="?android:attr/listDivider" />
 
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/rating_box"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:background="@color/rating_background"
+        android:background="@color/primaryColor"
         android:orientation="vertical">
 
-        <LinearLayout
-            android:id="@+id/rating_labels"
-            android:layout_width="match_parent"
+        <TextView
+            android:id="@+id/rating_label_highest"
+            style="@style/TextAppearance.MdcTypographyStyles.Body2"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp">
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="8dp"
+            android:gravity="end"
+            android:maxEms="8"
+            android:text="@string/rating_label_highest"
+            android:textAlignment="viewEnd"
+            android:textColor="@color/primaryTextColor"
+            app:layout_constraintBottom_toTopOf="@id/ratingBar"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-            <TextView
-                android:id="@+id/rating_label_lowest"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="10dp"
-                android:layout_weight="1"
-                android:gravity="start"
-                android:text="@string/rating_label_lowest"
-                android:textAlignment="viewStart"
-                android:textColor="@color/player_rating_label" />
-
-            <TextView
-                android:id="@+id/rating_label_highest"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="10dp"
-                android:layout_weight="1"
-                android:gravity="end"
-                android:text="@string/rating_label_highest"
-                android:textAlignment="viewEnd"
-                android:textColor="@color/player_rating_label" />
-
-        </LinearLayout>
+        <TextView
+            android:id="@+id/rating_label_lowest"
+            style="@style/TextAppearance.MdcTypographyStyles.Body2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            android:gravity="start"
+            android:maxEms="8"
+            android:text="@string/rating_label_lowest"
+            android:textAlignment="viewStart"
+            android:textColor="@color/primaryTextColor"
+            app:layout_constraintBottom_toTopOf="@+id/ratingBar"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <SeekBar
             android:id="@+id/ratingBar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="20dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="8dp"
             android:max="100"
             android:paddingStart="30dp"
             android:paddingLeft="30dp"
@@ -180,8 +190,19 @@
             android:progressDrawable="@drawable/seek_bar"
             android:splitTrack="false"
             android:thumb="@drawable/seek_thumb"
-            android:thumbOffset="25dp" />
+            android:thumbOffset="25dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/barrier3" />
 
-    </LinearLayout>
+        <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/barrier3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:barrierDirection="bottom"
+            app:constraint_referenced_ids="rating_label_lowest,rating_label_highest" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </RelativeLayout>

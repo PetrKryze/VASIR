@@ -5,5 +5,5 @@
         android:height="@dimen/progress_bar_thumb_size"
         android:width="@dimen/progress_bar_thumb_size"
         />
-    <solid android:color="@color/progress_bar_thumb"/>
+    <solid android:color="@color/secondaryColor"/>
 </shape>

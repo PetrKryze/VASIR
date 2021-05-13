@@ -225,6 +225,7 @@ public class RatingFragment extends Fragment {
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
+        Log.i(TAG, "onCreate: Creating");
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
         initDone = false;
@@ -232,6 +233,8 @@ public class RatingFragment extends Fragment {
 
         // Restore previous UI state (e.g. before configuration change)
         if (savedInstanceState != null) {
+            Log.i(TAG, "onCreate: Loading instance state");
+            // Mainly for configuration changes - portrait to landscape
             trackPointer = savedInstanceState.getInt(STATE_TRACK_POINTER);
             savedProgress = savedInstanceState.getInt(STATE_PROGRESS_BAR);
             loadProgressfromSavedInstance = true;
@@ -279,32 +282,8 @@ public class RatingFragment extends Fragment {
         player = new Player(requireContext(), getPlayerListener());
         ratingManager = new RatingManager(requireActivity(), recordingsFoundListener);
 
-        // If there is no previous UI state, show welcome dialog
-        // Otherwise set active track to the previous one and do nothing
-        if (savedInstanceState == null) {
-            // First startup
-            welcome();
-        } else {
-            // Normal startup
-            manageLoading();
-        }
-    }
-
-    private void welcome() {
-        // Shows welcome info dialog
-        // TODO Upravite tenhle text dialogu aby odpovídal tomu že se vybírá adresář
-        AlertDialog welcome_dialog = new AlertDialog.Builder(requireContext())
-                .setMessage(getString(R.string.welcome_message))
-                .setTitle(getString(R.string.welcome_title))
-                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        manageLoading();
-                    }
-                }).create();
-        welcome_dialog.setCanceledOnTouchOutside(false);
-        welcome_dialog.setIcon(ContextCompat.getDrawable(requireContext(), R.mipmap.symbol_cvut_plna_verze));
-        welcome_dialog.show();
+        // Normal startup
+        manageLoading();
     }
 
     private void manageLoading() {
@@ -569,7 +548,7 @@ public class RatingFragment extends Fragment {
     @Override
     public void onPause() {
         super.onPause();
-        Log.i(TAG, "onPause: ");
+        Log.i(TAG, "onPause: Pausing");
         if (player != null && player.isPlaying()) {
             button_play_pause.callOnClick();
         }
@@ -588,6 +567,7 @@ public class RatingFragment extends Fragment {
 
     @Override
     public void onDestroy() {
+        Log.i(TAG, "onDestroy: Destroying");
         super.onDestroy();
         player.clean();
         player = null;
@@ -749,8 +729,11 @@ public class RatingFragment extends Fragment {
 
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
+        Log.i(TAG, "onSaveInstanceState: Saving instance state.");
+        // Mainly for configuration changes - portrait to landscape
         outState.putInt(STATE_TRACK_POINTER, trackPointer);
         outState.putInt(STATE_PROGRESS_BAR, progressBar.getProgress());
         super.onSaveInstanceState(outState);
     }
+
 }

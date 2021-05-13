@@ -4,7 +4,7 @@
         <shape
             android:shape="line">
             <stroke
-                android:color="@color/progress_bar_background"
+                android:color="@color/secondaryLightColor"
                 android:width="@dimen/progress_bar_thickness"/>
         </shape>
     </item>
@@ -14,7 +14,7 @@
             <shape
                 android:shape="line">
                 <stroke
-                    android:color="@color/progress_bar_progress"
+                    android:color="@color/secondaryColor"
                     android:width="@dimen/progress_bar_thickness"/>
             </shape>
         </clip>
@@ -25,7 +25,7 @@
             <shape
                 android:shape="line">
                 <stroke
-                    android:color="@color/colorAccent"
+                    android:color="@color/secondaryDarkColor"
                     android:width="@dimen/progress_bar_thickness"/>
             </shape>
         </clip>

@@ -20,7 +20,7 @@
     <string name="next_track">Next</string>
     <string name="ok">OK</string>
     <string name="previous_track">Previous</string>
-    <string name="rating_label_highest">Perfectly Intelligible</string>
+    <string name="rating_label_highest">Perfectly intelligible</string>
     <string name="rating_label_lowest">Completely unintelligible</string>
     <string name="reset_confirm_prompt">Are you sure you want to reset all current ratings and start a new rating session\\?</string>
     <string name="session_info_title">Info</string>
@@ -29,10 +29,22 @@
     <string name="track">Recording</string>
     <string name="welcome_title">Welcome!</string>
     <string name="welcome_message">
-        Welcome to speech recordings rating using visual analog scales application.\n\n
-        This application was developed for use in research and development in the department of circuit theory, faculty of electrotechnics, CTU in Prague.\n\n
-        You can begin the rating process by listening to the first audio recording, after you confirm this window.\n\n
-        You can display the application toolbar by swiping down from the top of the screen.
+        \t<i><b>VASIR</b></i> is an application that utilizes visual analog scales for subjective speech intelligibility rating.\n
+        \tIf you\'re already familiar with this application, feel free to continue below and start rating.
+        To find out more info about how to use this app, scroll down in this panel.
+    </string>
+    <string name="welcome_message_further_info">
+        \tAfter proceeding, the app will ask you to select a directory containing the audio files of speech recordings to be rated.
+        The location of the files is arbitrary, but we <i>recommend</i> saving them to a standard directory
+        on your phone\'s internal storage (e.g. the <i>Documents</i> folder).\n\n
+        \tAfterwards, the app performs a randomization on the found audio files and prepares them for rating. You can browse through
+        the available files using the build-in player, listen to their contents through headphones,
+        and finally, rate them on the continuous analog scale located to the bottom of the rating screen.
+        When all available files have been rated, a double checkmark icon will appear.
+        The current session is saved automatically on app exit, but can be also saved manually using the dropdown menu in the top-right corner.
+        This menu also allows you to see the saved recordings and share them via Cloud, email, etc.
+        \n\n
+        This application was developed for use in research and development in the department of circuit theory, faculty of electrotechnics, CTU in Prague.\n
     </string>
     <string name="session_info_message">
         Session information (debug purpose only):\n\n
@@ -137,4 +149,10 @@
     <string name="result_detail_recording_list_column_index_label">Index</string>
     <string name="result_detail_recording_list_column_rating_label">Rating</string>
     <string name="header_rating_detail">Rating detail</string>
+    <string name="VASIR" translatable="false">VASIR</string>
+    <string name="welcome_checkbox_do_not_show_again">Do not show this screen again</string>
+    <string name="welcome_button_continue_label">Continue to rating</string>
+    <string name="welcome_title_image_desc">VASIR application logo, icons of a person speaking to an ear</string>
+    <string name="PREFERENCES_SETTINGS" translatable="false">settings</string>
+    <string name="KEY_PREFERENCES_SETTINGS_WELCOME_SHOW">welcome_screen_show</string>
 </resources>
