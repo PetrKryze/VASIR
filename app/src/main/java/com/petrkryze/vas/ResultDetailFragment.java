@@ -8,8 +8,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.petrkryze.vas.RatingManager.RatingResult;
-
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;

@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -24,6 +25,8 @@ import androidx.navigation.fragment.NavHostFragment;
  * create an instance of this fragment.
  */
 public class WelcomeFragment extends Fragment {
+    private static final String TAG = "WelcomeFragment";
+
     // TODO Upravite tenhle text dialogu aby odpovídal tomu že se vybírá adresář
     private ImageView titleImage;
     private Button startButton;
@@ -35,7 +38,7 @@ public class WelcomeFragment extends Fragment {
         // Required empty public constructor
     }
 
-    public static WelcomeFragment newInstance(String param1, String param2) {
+    public static WelcomeFragment newInstance() {
         WelcomeFragment fragment = new WelcomeFragment();
         Bundle args = new Bundle();
         fragment.setArguments(args);
@@ -55,6 +58,7 @@ public class WelcomeFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        setHasOptionsMenu(true);
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.welcome_fragment, container, false);
     }
@@ -62,6 +66,7 @@ public class WelcomeFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        requireActivity().invalidateOptionsMenu();
 
         titleImage = view.findViewById(R.id.welcome_title_image);
         startButton = view.findViewById(R.id.welcome_start_button);
@@ -74,25 +79,26 @@ public class WelcomeFragment extends Fragment {
         colorAnimation.setRepeatCount(ValueAnimator.INFINITE);
         colorAnimation.setRepeatMode(ValueAnimator.REVERSE);
         colorAnimation.setDuration(3000);
-        colorAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            @Override
-            public void onAnimationUpdate(ValueAnimator animation) {
-                titleImage.setBackgroundColor((int) animation.getAnimatedValue());
-            }
-        });
-
+        colorAnimation.addUpdateListener(animation -> titleImage.setBackgroundColor((int) animation.getAnimatedValue()));
         colorAnimation.start();
 
-        startButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                SharedPreferences.Editor editor = preferences.edit();
-                editor.putBoolean(getString(R.string.KEY_PREFERENCES_SETTINGS_WELCOME_SHOW), !checkBox.isChecked());
-                editor.apply();
+        startButton.setOnClickListener(v -> {
+            SharedPreferences.Editor editor = preferences.edit();
+            editor.putBoolean(getString(R.string.KEY_PREFERENCES_SETTINGS_WELCOME_SHOW), !checkBox.isChecked());
+            editor.apply();
 
-                NavDirections directions = WelcomeFragmentDirections.actionWelcomeFragmentToRatingFragment();
-                NavHostFragment.findNavController(WelcomeFragment.this).navigate(directions);
-            }
+            NavDirections directions = WelcomeFragmentDirections.actionWelcomeFragmentToRatingFragment();
+            NavHostFragment.findNavController(WelcomeFragment.this).navigate(directions);
         });
+    }
+
+    @Override
+    public void onPrepareOptionsMenu(@NonNull Menu menu) {
+        super.onPrepareOptionsMenu(menu);
+        int alphaDisabled = requireContext().getResources().getInteger(R.integer.DISABLED_ICON_ALPHA);
+
+        menu.findItem(R.id.action_save).setEnabled(false).getIcon().setAlpha(alphaDisabled);
+        menu.findItem(R.id.action_show_session_info).setEnabled(false).getIcon().setAlpha(alphaDisabled);
+        menu.findItem(R.id.action_reset_ratings).setEnabled(false).getIcon().setAlpha(alphaDisabled);
     }
 }

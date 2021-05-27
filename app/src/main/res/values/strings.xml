@@ -154,5 +154,7 @@
     <string name="welcome_button_continue_label">Continue to rating</string>
     <string name="welcome_title_image_desc">VASIR application logo, icons of a person speaking to an ear</string>
     <string name="PREFERENCES_SETTINGS" translatable="false">settings</string>
-    <string name="KEY_PREFERENCES_SETTINGS_WELCOME_SHOW">welcome_screen_show</string>
+    <string name="KEY_PREFERENCES_SETTINGS_WELCOME_SHOW" translatable="false">welcome_screen_show</string>
+    <string name="help_message1">\t<i><b>VASIR</b></i> is an application that utilizes visual analog scales for subjective speech intelligibility rating.\n</string>
+    <string name="help_message2">TODO</string>
 </resources>

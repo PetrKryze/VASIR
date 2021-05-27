@@ -8,4 +8,5 @@
     <integer name="REQUEST_CODE_FOLDER_PICKER">25</integer>
     <integer name="DEFAULT_PROGRESS_CENTER">50</integer>
     <integer name="SAVE_FILE_BACKUPS_NUMBER">2</integer>
+    <integer name="DISABLED_ICON_ALPHA">50</integer>
 </resources>

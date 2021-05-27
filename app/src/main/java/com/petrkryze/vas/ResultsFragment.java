@@ -12,8 +12,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
-import com.petrkryze.vas.RatingManager.RatingResult;
-
 import java.io.File;
 import java.util.ArrayList;
 
@@ -80,13 +78,11 @@ public class ResultsFragment extends Fragment {
         }
     };
 
-    private final OnItemDetailListener onItemDetailListener = new OnItemDetailListener() {
-        @Override
-        public void onItemClick(RatingResult selectedResult) {
-            NavDirections directions =
-                    ResultsFragmentDirections.actionResultFragmentToResultDetailFragment(selectedResult);
-            NavHostFragment.findNavController(ResultsFragment.this).navigate(directions);
-        }
+
+    private final OnItemDetailListener onItemDetailListener = selectedResult -> {
+        NavDirections directions =
+                ResultsFragmentDirections.actionResultFragmentToResultDetailFragment(selectedResult);
+        NavHostFragment.findNavController(ResultsFragment.this).navigate(directions);
     };
 
     /**

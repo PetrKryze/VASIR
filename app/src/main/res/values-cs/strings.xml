@@ -126,5 +126,7 @@
     <string name="header_rating_detail">Detail hodnocení</string>
     <string name="welcome_checkbox_do_not_show_again">Tuto obrazovku již nezobrazovat</string>
     <string name="welcome_button_continue_label">Pokračovat k hodnocení</string>
-    <string name="welcome_title_image_desc">Logo aplikace VASIR, icony osoby hovořící do ucha</string>
+    <string name="welcome_title_image_desc">Logo aplikace VASIR, ikony osoby hovořící do ucha</string>
+    <string name="help_message1"><i><b>VASIR</b></i> je aplikace, která používá <i>visual analog scales</i> (analogové obrazové stupnice) pro subjektivní hodnocení srozumitelnosti řeči.\n</string>
+    <string name="help_message2">TODO</string>
 </resources>

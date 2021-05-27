@@ -9,20 +9,6 @@
     android:theme="@style/AppTheme"
     android:fitsSystemWindows="true">
 
-    <!--    <androidx.appcompat.widget.Toolbar-->
-    <!--        android:id="@+id/toolbar"-->
-    <!--        android:layout_width="match_parent"-->
-    <!--        android:layout_height="?attr/actionBarSize"-->
-    <!--        android:layout_alignParentTop="true"-->
-    <!--        android:layout_centerHorizontal="true"-->
-    <!--        android:elevation="4dp"-->
-    <!--        android:background="@color/primaryColor"-->
-
-    <!--        android:theme="@style/ThemeOverlay.AppCompat.DayNight.ActionBar"-->
-    <!--        app:popupTheme="@style/ThemeOverlay.AppCompat.DayNight"-->
-    <!--        android:animateLayoutChanges="true"-->
-    <!--        />-->
-
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/toolbar_container"
         android:layout_width="match_parent"
@@ -47,7 +33,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@id/toolbar_container"
-        app:defaultNavHost="true"
-        app:navGraph="@navigation/nav_graph" />
+        app:defaultNavHost="true" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -9,8 +9,6 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
-import com.petrkryze.vas.RatingManager.RatingResult;
-
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;

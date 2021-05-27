@@ -43,6 +43,7 @@
                 android:background="@drawable/horizontal_divider"
                 android:alpha="0.3"
                 android:layout_marginVertical="10dp"
+                android:orientation="vertical"
                 />
 
             <TextView
@@ -78,6 +79,7 @@
                 android:background="@drawable/horizontal_divider"
                 android:alpha="0.3"
                 android:layout_marginVertical="10dp"
+                android:orientation="vertical"
                 />
 
             <TextView

@@ -19,6 +19,13 @@
             app:exitAnim="@anim/slide_out"
             app:popEnterAnim="@anim/slide_in"
             app:popExitAnim="@anim/slide_out" />
+        <action
+            android:id="@+id/action_rating_fragment_to_helpFragment"
+            app:destination="@id/helpFragment"
+            app:enterAnim="@anim/fadein"
+            app:exitAnim="@anim/fadeout"
+            app:popEnterAnim="@anim/fadein"
+            app:popExitAnim="@anim/fadeout" />
     </fragment>
 
     <fragment
@@ -37,6 +44,13 @@
             app:exitAnim="@anim/slide_back_sideways"
             app:popEnterAnim="@anim/slide_sideways"
             app:popExitAnim="@anim/slide_back_sideways" />
+        <action
+            android:id="@+id/action_result_fragment_to_helpFragment"
+            app:destination="@id/helpFragment"
+            app:enterAnim="@anim/fadein"
+            app:exitAnim="@anim/fadeout"
+            app:popEnterAnim="@anim/fadein"
+            app:popExitAnim="@anim/fadeout" />
     </fragment>
 
     <fragment
@@ -45,9 +59,17 @@
         android:label="@string/header_rating_detail"
         tools:layout="@layout/result_detail_fragment" >
 
+        <action
+            android:id="@+id/action_result_detail_fragment_to_helpFragment"
+            app:destination="@id/helpFragment"
+            app:enterAnim="@anim/fadein"
+            app:exitAnim="@anim/fadeout"
+            app:popEnterAnim="@anim/fadein"
+            app:popExitAnim="@anim/fadeout" />
         <argument
             android:name="rating_result"
-            app:argType="com.petrkryze.vas.RatingManager$RatingResult" />
+            app:argType="com.petrkryze.vas.RatingResult" />
+
     </fragment>
 
     <fragment
@@ -62,5 +84,21 @@
             app:exitAnim="@anim/fadeout"
             app:popEnterAnim="@anim/fadein"
             app:popExitAnim="@anim/fadeout" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/helpFragment"
+        android:name="com.petrkryze.vas.HelpFragment"
+        android:label="help_fragment"
+        tools:layout="@layout/help_fragment" >
+
+        <argument
+            android:name="context_help"
+            app:argType="string"
+            />
+        <argument
+            android:name="title_help"
+            app:argType="string"
+            />
     </fragment>
 </navigation>

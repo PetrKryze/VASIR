@@ -576,7 +576,11 @@ public class RatingFragment extends Fragment {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         int itemID = item.getItemId();
-        if (itemID == R.id.action_save && initDone) {
+        if (itemID == R.id.action_help && initDone) {
+            // TODO Check
+            NavDirections directions = RatingFragmentDirections.actionRatingFragmentToHelpFragment("a","b");
+            NavHostFragment.findNavController(this).navigate(directions);
+        } else if (itemID == R.id.action_save && initDone) {
             try {
                 ratingManager.saveResults(requireContext(), trackList);
 
@@ -591,7 +595,7 @@ public class RatingFragment extends Fragment {
         } else if (itemID == R.id.action_show_saved_results && initDone) {
             // TODO check
             try {
-                ArrayList<RatingManager.RatingResult> ratings = ratingManager.loadResults(requireContext());
+                ArrayList<RatingResult> ratings = ratingManager.loadResults(requireContext());
 
                 NavDirections directions =
                         RatingFragmentDirections.actionRatingFragmentToResultFragment(ratings);

@@ -3,7 +3,6 @@ package com.petrkryze.vas;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.graphics.ColorFilter;
 import android.graphics.PorterDuff;
@@ -73,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
         NavInflater navInflater = navController.getNavInflater();
         NavGraph navGraph = navInflater.inflate(R.navigation.nav_graph);
 
-        showWelcomeScreen = true; // TODO DEVELOPEMENT ONLY
+        showWelcomeScreen = true; // TODO DEVELOPMENT ONLY
         navGraph.setStartDestination(showWelcomeScreen ? R.id.welcome_fragment : R.id.rating_fragment);
         navController.setGraph(navGraph);
 
@@ -113,6 +112,12 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         int itemID = item.getItemId();
         if (itemID == R.id.action_help) {
+
+
+
+
+
+
             AlertDialog help_dialog = new AlertDialog.Builder(this)
                     .setMessage(getString(R.string.help_message))
                     .setTitle(getString(R.string.help))
@@ -121,17 +126,18 @@ public class MainActivity extends AppCompatActivity {
             help_dialog.setIcon(ContextCompat.getDrawable(this,
                     android.R.drawable.ic_menu_help));
             help_dialog.show();
+
+
+
+
+
+
             return true;
         } else if (itemID == R.id.action_quit) {
             AlertDialog close_dialog = new AlertDialog.Builder(this)
                     .setMessage(getString(R.string.close_confirm_prompt))
                     .setTitle(getString(R.string.alert))
-                    .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            MainActivity.this.finish();
-                        }
-                    })
+                    .setPositiveButton(R.string.ok, (dialog, which) -> MainActivity.this.finish())
                     .setNegativeButton(R.string.cancel, null)
                     .create();
             close_dialog.setIcon(ContextCompat.getDrawable(this,
