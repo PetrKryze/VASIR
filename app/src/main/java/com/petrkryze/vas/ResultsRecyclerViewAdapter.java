@@ -1,12 +1,10 @@
 package com.petrkryze.vas;
 
 import android.content.Context;
-import android.content.Intent;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
 import android.widget.TextView;
 
 import org.jetbrains.annotations.NotNull;
@@ -16,6 +14,9 @@ import java.util.Collections;
 import java.util.List;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.content.res.AppCompatResources;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.util.Pair;
 import androidx.recyclerview.widget.RecyclerView;
 
 /**
@@ -47,29 +48,17 @@ public class ResultsRecyclerViewAdapter extends RecyclerView.Adapter<ResultsRecy
         final RatingResult currentResult = ratingResults.get(position);
         holder.mItem = currentResult;
 
-        holder.viewRowNumber.setText(String.valueOf(position + 1));
+        String index = (position + 1) >= 10 ? String.valueOf(position + 1) : "0" + (position + 1);
+        holder.viewRowNumber.setText(index);
         holder.viewSessionID.setText(context.getString(R.string.rating_list_row_sessionID, currentResult.getSession_ID()));
-        holder.viewSaveDate.setText(formatDateTime(currentResult.getSaveDate()));
 
-        holder.shareButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
-                sharingIntent.setType("text/plain");
-                String shareSubject = context.getString(R.string.share_subject, currentResult.getSession_ID());
-                sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, shareSubject);
-                sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, currentResult.getRawContent());
+        Pair<String, String> dateTime = formatDateTime(currentResult.getSaveDate());
+        holder.viewSaveDate.setText(dateTime.first);
+        holder.viewSaveTime.setText(dateTime.second);
 
-                context.startActivity(Intent.createChooser(sharingIntent, context.getString(R.string.share_using)));
-            }
-        });
+        holder.mView.setOnClickListener(v -> onItemDetailListener.onItemClick(currentResult));
 
-        holder.mView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onItemDetailListener.onItemClick(currentResult);
-            }
-        });
+        holder.container.setBackground(AppCompatResources.getDrawable(context, R.drawable.result_list_item_background));
     }
 
     @Override
@@ -77,31 +66,34 @@ public class ResultsRecyclerViewAdapter extends RecyclerView.Adapter<ResultsRecy
         return ratingResults.size();
     }
 
-    private String formatDateTime(String raw) {
+    private Pair<String, String> formatDateTime(String raw) {
         String[] split1 = raw.split("_");
 
         List<String> splitDate = Arrays.asList(split1[0].split("-"));
         Collections.reverse(splitDate);
 
         String date = TextUtils.join(". ", splitDate);
-        return date + " - " + split1[1];
+
+        return new Pair<>(date, split1[1]);
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder {
+    public static class ViewHolder extends RecyclerView.ViewHolder {
         public final View mView;
+        public final ConstraintLayout container;
         public final TextView viewRowNumber;
         public final TextView viewSessionID;
         public final TextView viewSaveDate;
-        public final ImageButton shareButton;
+        public final TextView viewSaveTime;
         public RatingResult mItem;
 
         public ViewHolder(@NonNull View view) {
             super(view);
             mView = view;
+            container = view.findViewById(R.id.result_list_row);
             viewRowNumber = view.findViewById(R.id.result_list_row_number);
             viewSessionID = view.findViewById(R.id.result_list_row_sessionid);
             viewSaveDate = view.findViewById(R.id.result_list_row_date);
-            shareButton = view.findViewById(R.id.shareButton);
+            viewSaveTime = view.findViewById(R.id.result_list_row_time);
         }
 
         @NotNull
@@ -109,7 +101,8 @@ public class ResultsRecyclerViewAdapter extends RecyclerView.Adapter<ResultsRecy
         public String toString() {
             return super.toString() + " Row number: " + viewRowNumber.getText() + ", " +
                     "Session ID: " + viewSessionID.getText() + ", " +
-                    "Save date: " + viewSaveDate.getText();
+                    "Save date: " + viewSaveDate.getText() + ", " +
+                    "Save time: " + viewSaveTime.getText();
         }
     }
 }

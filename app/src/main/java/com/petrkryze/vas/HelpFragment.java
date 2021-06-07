@@ -18,18 +18,14 @@ import androidx.fragment.app.Fragment;
 public class HelpFragment extends Fragment {
 
     private String helpTitle;
-    private String helpContextMessage;
-
-    private TextView TWtitleHelp;
-    private TextView TWcontextHelp;
+    private String helpBody;
 
     private static final String KEY_HELP_TITLE = "help_title";
-    private static final String KEY_HELP_CONTEXT_MSG = "help_context_message";
+    private static final String KEY_HELP_CONTEXT_MSG = "help_body";
 
     public HelpFragment() {
         // Required empty public constructor
     }
-
 
     public static HelpFragment newInstance(String title, String contextMessage) {
         HelpFragment fragment = new HelpFragment();
@@ -44,8 +40,8 @@ public class HelpFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            helpTitle = HelpFragmentArgs.fromBundle(getArguments()).getTitleHelp();
-            helpContextMessage = HelpFragmentArgs.fromBundle(getArguments()).getContextHelp();
+            helpTitle = HelpFragmentArgs.fromBundle(getArguments()).getContextTitle();
+            helpBody = HelpFragmentArgs.fromBundle(getArguments()).getContextBody();
         }
     }
 
@@ -59,10 +55,10 @@ public class HelpFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        TWtitleHelp = view.findViewById(R.id.help_title_textview);
-        TWcontextHelp = view.findViewById(R.id.help_body_textview2);
+        TextView TWhelpTitle = view.findViewById(R.id.help_title_textview);
+        TextView TWhelpBody = view.findViewById(R.id.help_body_textview2);
 
-        TWtitleHelp.setText(helpTitle);
-        TWcontextHelp.setText(helpContextMessage);
+        TWhelpTitle.setText(helpTitle);
+        TWhelpBody.setText(helpBody);
     }
 }

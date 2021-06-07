@@ -17,6 +17,8 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 
+import com.petrkryze.vas.RatingManager.LoadResult;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.view.menu.MenuBuilder;
@@ -38,11 +40,11 @@ public class MainActivity extends AppCompatActivity {
     private GestureDetector gestureDetector;
 
     RatingFragment ratingFragment = null;
-    ResultsFragment resultFragment = null;
 
     private Vibrator vibrator;
     public static int VIBRATE_BUTTON_MS;
     public static int VIBRATE_RATING_START;
+    private static int alphaDisabled;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,6 +59,9 @@ public class MainActivity extends AppCompatActivity {
         vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
         VIBRATE_BUTTON_MS = getResources().getInteger(R.integer.VIBRATE_BUTTON_MS);
         VIBRATE_RATING_START = getResources().getInteger(R.integer.VIBRATE_RATING_BAR_START_MS);
+
+        // Menu icon disabled look alpha
+        alphaDisabled = getResources().getInteger(R.integer.DISABLED_ICON_ALPHA);
 
         // Checks for single taps on screen to hide system UI
         gestureDetector = new GestureDetector(this, new MainActivity.MyGestureListener());
@@ -111,29 +116,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         int itemID = item.getItemId();
-        if (itemID == R.id.action_help) {
-
-
-
-
-
-
-            AlertDialog help_dialog = new AlertDialog.Builder(this)
-                    .setMessage(getString(R.string.help_message))
-                    .setTitle(getString(R.string.help))
-                    .setPositiveButton(R.string.ok, null)
-                    .create();
-            help_dialog.setIcon(ContextCompat.getDrawable(this,
-                    android.R.drawable.ic_menu_help));
-            help_dialog.show();
-
-
-
-
-
-
-            return true;
-        } else if (itemID == R.id.action_quit) {
+        if (itemID == R.id.action_menu_quit) {
             AlertDialog close_dialog = new AlertDialog.Builder(this)
                     .setMessage(getString(R.string.close_confirm_prompt))
                     .setTitle(getString(R.string.alert))
@@ -143,6 +126,43 @@ public class MainActivity extends AppCompatActivity {
             close_dialog.setIcon(ContextCompat.getDrawable(this,
                     android.R.drawable.ic_menu_close_clear_cancel));
             close_dialog.show();
+            return true;
+        } else if (itemID == R.id.action_menu_show_session_info) {
+            Bundle bundle = RatingManager.getSessionInfo(this);
+            String message = "";
+            String title = "";
+            Drawable icon = null;
+
+            switch ((LoadResult) bundle.getSerializable(RatingManager.GET_SESSION_INFO_LOAD_RESULT_KEY)) {
+                case OK:
+                    message = getString(R.string.session_info_message,
+                            String.valueOf(bundle.getInt(RatingManager.SESSION_INFO_BUNDLE_SESSION_ID)),
+                            bundle.getString(RatingManager.SESSION_INFO_BUNDLE_GENERATOR_MESSAGE),
+                            String.valueOf(bundle.getLong(RatingManager.SESSION_INFO_BUNDLE_SEED)),
+                            bundle.getString(RatingManager.SESSION_INFO_BUNDLE_FINISHED_RATIO)
+                            );
+                    title = getString(R.string.session_info_title);
+                    icon = ContextCompat.getDrawable(this, android.R.drawable.ic_dialog_info);
+                    break;
+                case NO_SESSION:
+                    message = getString(R.string.no_session_found);
+                    title = getString(R.string.info);
+                    icon = ContextCompat.getDrawable(this, R.drawable.ic_info);
+                    break;
+                case CORRUPTED_SESSION:
+                    message = getString(R.string.corrupted_session);
+                    title = getString(R.string.alert);
+                    icon = ContextCompat.getDrawable(this, R.drawable.ic_error_red_24dp);
+                    break;
+            }
+
+            AlertDialog loading_failed_dialog = new AlertDialog.Builder(this)
+                    .setMessage(message)
+                    .setTitle(title)
+                    .setPositiveButton(getString(R.string.ok), null)
+                    .create();
+            loading_failed_dialog.setIcon(icon);
+            loading_failed_dialog.show();
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -207,6 +227,14 @@ public class MainActivity extends AppCompatActivity {
             hideSystemUI();
             return super.onSingleTapUp(event);
         }
+    }
+
+    public static void disableMenuItem(final Menu menu, final int itemID) {
+        menu.findItem(itemID).setEnabled(false).getIcon().setAlpha(alphaDisabled);
+    }
+
+    public static void enableMenuItem(final Menu menu, final int itemID) {
+        menu.findItem(itemID).setEnabled(true).getIcon().setAlpha(255);
     }
 
 }

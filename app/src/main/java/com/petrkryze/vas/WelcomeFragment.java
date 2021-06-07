@@ -7,11 +7,17 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ImageView;
+import android.widget.Toast;
+
+import org.jetbrains.annotations.NotNull;
+
+import java.util.ArrayList;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -25,11 +31,9 @@ import androidx.navigation.fragment.NavHostFragment;
  * create an instance of this fragment.
  */
 public class WelcomeFragment extends Fragment {
-    private static final String TAG = "WelcomeFragment";
+//    private static final String TAG = "WelcomeFragment";
 
-    // TODO Upravite tenhle text dialogu aby odpovídal tomu že se vybírá adresář
     private ImageView titleImage;
-    private Button startButton;
     private CheckBox checkBox;
 
     private SharedPreferences preferences;
@@ -38,6 +42,7 @@ public class WelcomeFragment extends Fragment {
         // Required empty public constructor
     }
 
+    @SuppressWarnings("unused")
     public static WelcomeFragment newInstance() {
         WelcomeFragment fragment = new WelcomeFragment();
         Bundle args = new Bundle();
@@ -49,10 +54,6 @@ public class WelcomeFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         preferences = requireContext().getSharedPreferences(getString(R.string.PREFERENCES_SETTINGS), Context.MODE_PRIVATE);
-//        if (getArguments() != null) {
-//            mParam1 = getArguments().getString(ARG_PARAM1);
-//            mParam2 = getArguments().getString(ARG_PARAM2);
-//        }
     }
 
     @Override
@@ -69,7 +70,7 @@ public class WelcomeFragment extends Fragment {
         requireActivity().invalidateOptionsMenu();
 
         titleImage = view.findViewById(R.id.welcome_title_image);
-        startButton = view.findViewById(R.id.welcome_start_button);
+        Button startButton = view.findViewById(R.id.welcome_start_button);
         checkBox = view.findViewById(R.id.welcome_checkbox);
 
         int colorFrom = getResources().getColor(R.color.primaryColor, null);
@@ -95,10 +96,32 @@ public class WelcomeFragment extends Fragment {
     @Override
     public void onPrepareOptionsMenu(@NonNull Menu menu) {
         super.onPrepareOptionsMenu(menu);
-        int alphaDisabled = requireContext().getResources().getInteger(R.integer.DISABLED_ICON_ALPHA);
+        int[] toDisable = {R.id.action_menu_help, R.id.action_menu_save,
+                R.id.action_menu_show_session_info, R.id.action_menu_reset_ratings};
+        int[] toEnable = {R.id.action_menu_show_saved_results, R.id.action_menu_quit};
 
-        menu.findItem(R.id.action_save).setEnabled(false).getIcon().setAlpha(alphaDisabled);
-        menu.findItem(R.id.action_show_session_info).setEnabled(false).getIcon().setAlpha(alphaDisabled);
-        menu.findItem(R.id.action_reset_ratings).setEnabled(false).getIcon().setAlpha(alphaDisabled);
+        for (int item : toDisable) MainActivity.disableMenuItem(menu, item);
+        for (int item : toEnable) MainActivity.enableMenuItem(menu, item);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull @NotNull MenuItem item) {
+        int itemID = item.getItemId();
+        if (itemID == R.id.action_menu_show_saved_results) {
+            try {
+                ArrayList<RatingResult> ratings = RatingManager.loadResults(requireContext());
+
+                NavDirections directions =
+                        WelcomeFragmentDirections.actionWelcomeFragmentToResultFragment(ratings);
+                NavHostFragment.findNavController(this).navigate(directions);
+            } catch (Exception e) {
+                e.printStackTrace();
+                Toast.makeText(requireContext(), getString(R.string.ratings_loading_failed, e.getMessage()),
+                        Toast.LENGTH_LONG).show();
+            }
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 }

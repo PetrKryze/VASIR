@@ -125,7 +125,7 @@
     <string name="placeholder" translatable="false">placeholder</string>
     <string name="header_saved_ratings_label">Saved ratings</string>
     <string name="button_close_label">Close</string>
-    <string name="rating_list_row_sessionID">Session: %d</string>
+    <string name="rating_list_row_sessionID">Session %d</string>
     <string name="ratings_loading_failed">Loading of saved rating files failed!\nReason: %s</string>
     <string name="placeholder_number" translatable="false">##</string>
     <string name="share_button_description">Share</string>
@@ -157,4 +157,12 @@
     <string name="KEY_PREFERENCES_SETTINGS_WELCOME_SHOW" translatable="false">welcome_screen_show</string>
     <string name="help_message1">\t<i><b>VASIR</b></i> is an application that utilizes visual analog scales for subjective speech intelligibility rating.\n</string>
     <string name="help_message2">TODO</string>
+    <string name="help_context_body_rating_fragment">BODY HELP RATING FRAGMENT</string>
+    <string name="help_context_title_rating_fragment">HELP TITLE CONTEXT RATING FRAGMENT</string>
+    <string name="help_context_body_results_fragment">BODY HELP RESULTS FRAGMENT</string>
+    <string name="help_context_title_results_fragment">HELP TITLE CONTEXT RESULTS FRAGMENT</string>
+    <string name="help_context_body_result_detail_fragment">BODY HELP RESULTS FRAGMENT</string>
+    <string name="help_context_title_result_detail_fragment">HELP TITLE CONTEXT RESULTS FRAGMENT</string>
+    <string name="button_share_label">Share</string>
+    <string name="hint_results_select">Select result from the list to view detailed info.</string>
 </resources>

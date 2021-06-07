@@ -1,16 +1,25 @@
 package com.petrkryze.vas;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+
+import com.google.android.material.snackbar.BaseTransientBottomBar;
+import com.google.android.material.snackbar.Snackbar;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -21,6 +30,7 @@ import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavDirections;
 import androidx.navigation.fragment.NavHostFragment;
+import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -28,15 +38,10 @@ import androidx.recyclerview.widget.RecyclerView;
  * A fragment representing a list of Items.
  */
 public class ResultsFragment extends Fragment {
-
     private static final String TAG = "ResultFragment";
     public static final String ResultListSerializedKey = "resultsList";
 
     private ArrayList<RatingResult> ratingResults;
-
-    private Button buttonClose;
-    private RecyclerView resultsListView;
-
     private Vibrator vibrator;
 
     private final View.OnClickListener shareAllListener = new View.OnClickListener() {
@@ -78,7 +83,6 @@ public class ResultsFragment extends Fragment {
         }
     };
 
-
     private final OnItemDetailListener onItemDetailListener = selectedResult -> {
         NavDirections directions =
                 ResultsFragmentDirections.actionResultFragmentToResultDetailFragment(selectedResult);
@@ -104,12 +108,14 @@ public class ResultsFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
 
         if (getArguments() != null) {
+            //noinspection unchecked
             ratingResults = ResultsFragmentArgs.fromBundle(getArguments()).getRatings();
         }
 
-        vibrator = (Vibrator) getContext().getSystemService(Context.VIBRATOR_SERVICE);
+        vibrator = (Vibrator) requireContext().getSystemService(Context.VIBRATOR_SERVICE);
     }
 
     @Override
@@ -123,13 +129,53 @@ public class ResultsFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         Context context = view.getContext();
 
-        buttonClose = view.findViewById(R.id.button_results_share_all);
-        buttonClose.setOnClickListener(shareAllListener);
+        Button buttonShareAll = view.findViewById(R.id.button_results_share_all);
+        buttonShareAll.setOnClickListener(shareAllListener);
 
-        resultsListView = view.findViewById(R.id.results_list);
+        RecyclerView resultsListView = view.findViewById(R.id.results_list);
         resultsListView.setAdapter(new ResultsRecyclerViewAdapter(
                 context, ratingResults, onItemDetailListener));
         resultsListView.setLayoutManager(new LinearLayoutManager(context));
+
+        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(context,
+                DividerItemDecoration.VERTICAL);
+        resultsListView.addItemDecoration(dividerItemDecoration);
+
+        @SuppressLint("ShowToast") Snackbar hint = Snackbar.make(
+                requireActivity().findViewById(R.id.coordinator),
+                R.string.hint_results_select, BaseTransientBottomBar.LENGTH_INDEFINITE)
+                .setAnchorView(buttonShareAll);
+        hint.setAction(R.string.button_close_label, v -> hint.dismiss());
+
+        (new Handler()).postDelayed(hint::show,context.getResources().getInteger(R.integer.SNACKBAR_HINT_DELAY));
+    }
+
+    @Override
+    public void onPrepareOptionsMenu(@NonNull @NotNull Menu menu) {
+        super.onPrepareOptionsMenu(menu);
+        int[] toDisable = { R.id.action_menu_save, R.id.action_menu_show_saved_results,
+                 R.id.action_menu_reset_ratings};
+        int[] toEnable = {R.id.action_menu_help, R.id.action_menu_show_session_info,
+                R.id.action_menu_quit};
+
+        for (int item : toDisable) MainActivity.disableMenuItem(menu, item);
+        for (int item : toEnable) MainActivity.enableMenuItem(menu, item);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull @NotNull MenuItem item) {
+        int itemID = item.getItemId();
+        if (itemID == R.id.action_menu_help) {
+            String contextHelpMessage = getString(R.string.help_context_body_results_fragment);
+            String contextHelpTitle = getString(R.string.help_context_title_results_fragment);
+
+            NavDirections directions =
+                    ResultsFragmentDirections.
+                            actionResultFragmentToHelpFragment(contextHelpMessage, contextHelpTitle);
+            NavHostFragment.findNavController(this).navigate(directions);
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     interface OnItemDetailListener {

@@ -1,70 +1,94 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/result_list_row"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:clickable="true"
+    android:focusable="true"
+    android:foreground="?android:attr/selectableItemBackground"
     android:orientation="horizontal"
-    android:layout_marginHorizontal="10dp"
-    android:layout_marginVertical="5dp">
+    android:paddingVertical="7dp">
 
     <TextView
         android:id="@+id/result_list_row_number"
+        style="@style/TextAppearance.MdcTypographyStyles.Body1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerVertical="true"
+
+        android:layout_marginStart="16dp"
         android:text="@string/placeholder_number"
-        style="@style/TextAppearance.MdcTypographyStyles.Subtitle1"
         android:textColor="@color/primaryTextColor"
-        />
+        android:textSize="18sp"
+
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <View
         android:id="@+id/result_list_row_divider"
         android:layout_width="1dp"
         android:layout_height="40dp"
-        android:layout_centerVertical="true"
-        android:layout_marginHorizontal="10dp"
-        android:layout_toEndOf="@id/result_list_row_number"
-        android:background="@color/primaryTextColor" />
+        android:layout_marginStart="8dp"
+        android:background="@color/primaryTextColor"
 
-    <RelativeLayout
-        android:id="@+id/result_list_row_text_container"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@id/result_list_row_number"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/result_list_row_sessionid"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_toEndOf="@id/result_list_row_divider"
-        android:layout_toStartOf="@id/shareButton"
-        android:layout_marginEnd="10dp">
+        android:layout_marginStart="8dp"
 
-        <TextView
-            android:id="@+id/result_list_row_sessionid"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/placeholder"
-            style="@style/TextAppearance.MdcTypographyStyles.Subtitle1"
-            android:textColor="@color/primaryTextColor"
-            android:layout_marginBottom="3dp"
-            />
+        style="@style/TextAppearance.MdcTypographyStyles.Body1"
+        android:text="@string/placeholder"
+        android:textColor="@color/primaryTextColor"
+        android:textSize="20sp"
 
-        <TextView
-            android:id="@+id/result_list_row_date"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/result_list_row_sessionid"
-            android:text="@string/placeholder"
-            style="@style/TextAppearance.MdcTypographyStyles.Subtitle2"
-            android:textColor="@color/primaryTextColor"
-            />
-    </RelativeLayout>
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@id/result_list_row_divider"
+        app:layout_constraintTop_toTopOf="parent" />
 
-    <ImageButton
-        android:id="@+id/shareButton"
-        android:layout_width="45dp"
-        android:layout_height="45dp"
-        android:layout_alignParentEnd="true"
-        android:layout_centerVertical="true"
-        app:srcCompat="@android:drawable/ic_menu_share"
-        android:background="@drawable/share_button_background"
-        android:contentDescription="@string/share_button_description"
-        android:elevation="2dp"/>
+    <TextView
+        android:id="@+id/result_list_row_time"
+        style="@style/TextAppearance.MdcTypographyStyles.Body1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
 
-</RelativeLayout>
+        android:layout_marginEnd="16dp"
+        android:alpha="0.6"
+        android:text="@string/placeholder"
+        android:textColor="@color/primaryTextColor"
+
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/result_list_row_date"
+        style="@style/TextAppearance.MdcTypographyStyles.Body1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+
+        android:layout_marginEnd="16dp"
+        android:alpha="0.6"
+        android:text="@string/placeholder"
+        android:textColor="@color/primaryTextColor"
+
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/result_list_row_time" />
+
+    <!--    <ImageButton-->
+    <!--        android:id="@+id/shareButton"-->
+    <!--        android:layout_width="45dp"-->
+    <!--        android:layout_height="45dp"-->
+    <!--        android:layout_alignParentEnd="true"-->
+    <!--        android:layout_centerVertical="true"-->
+    <!--        app:srcCompat="@android:drawable/ic_menu_share"-->
+    <!--        android:background="@drawable/share_button_background"-->
+    <!--        android:contentDescription="@string/share_button_description"-->
+    <!--        android:elevation="2dp"/>-->
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -108,7 +108,7 @@
     <string name="action_show_saved_results">Uložené Výsledky</string>
     <string name="header_saved_ratings_label">Uložené výsledky</string>
     <string name="button_close_label">Zavřít</string>
-    <string name="rating_list_row_sessionID">Sezení: %d</string>
+    <string name="rating_list_row_sessionID">Sezení %d</string>
     <string name="ratings_loading_failed">Načítání uložených hodnocení selhalo!\nPříčina: %s</string>
     <string name="share_button_description">Share</string>
     <string name="share_subject">Výsledky hodnocení pro sezení %d</string>
@@ -129,4 +129,12 @@
     <string name="welcome_title_image_desc">Logo aplikace VASIR, ikony osoby hovořící do ucha</string>
     <string name="help_message1"><i><b>VASIR</b></i> je aplikace, která používá <i>visual analog scales</i> (analogové obrazové stupnice) pro subjektivní hodnocení srozumitelnosti řeči.\n</string>
     <string name="help_message2">TODO</string>
+    <string name="help_context_body_rating_fragment">BODY HELP RATING FRAGMENT</string>
+    <string name="help_context_title_rating_fragment">HELP TITLE CONTEXT RATING FRAGMENT</string>
+    <string name="help_context_body_results_fragment">BODY HELP RESULTS FRAGMENT</string>
+    <string name="help_context_title_results_fragment">HELP TITLE CONTEXT RESULTS FRAGMENT</string>
+    <string name="help_context_body_result_detail_fragment">BODY HELP RESULTS DETAIL FRAGMENT</string>
+    <string name="help_context_title_result_detail_fragment">HELP TITLE CONTEXT RESULTS DETAIL FRAGMENT</string>
+    <string name="button_share_label">Sdílet</string>
+    <string name="hint_results_select">Podobné info o sezení zobrazíte výběrem ze seznamu.</string>
 </resources>

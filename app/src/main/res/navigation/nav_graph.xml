@@ -84,6 +84,13 @@
             app:exitAnim="@anim/fadeout"
             app:popEnterAnim="@anim/fadein"
             app:popExitAnim="@anim/fadeout" />
+        <action
+            android:id="@+id/action_welcome_fragment_to_result_fragment"
+            app:destination="@id/result_fragment"
+            app:enterAnim="@anim/fadein"
+            app:exitAnim="@anim/fadeout"
+            app:popEnterAnim="@anim/fadein"
+            app:popExitAnim="@anim/fadeout" />
     </fragment>
 
     <fragment
@@ -93,11 +100,11 @@
         tools:layout="@layout/help_fragment" >
 
         <argument
-            android:name="context_help"
+            android:name="context__body"
             app:argType="string"
             />
         <argument
-            android:name="title_help"
+            android:name="context_title"
             app:argType="string"
             />
     </fragment>

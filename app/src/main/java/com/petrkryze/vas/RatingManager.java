@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.media.MediaScannerConnection;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
@@ -26,6 +25,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
+import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 
 import static com.petrkryze.vas.RatingResult.LABEL_GENERATOR_MESSAGE;
@@ -56,11 +56,11 @@ class RatingManager {
     private final SharedPreferences preferences;
     private final RecordingsFoundListener recordingsFoundListener;
 
-    private final int DEFAULT_VALUE_NO_KEY;
-    private final String KEY_PREFERENCES_SESSION_ID;
-    private final String KEY_PREFERENCES_SEED;
-    private final String KEY_PREFERENCES_GENERATOR_MESSAGE;
-    private final String KEY_PREFERENCES_RATINGS;
+    private static int DEFAULT_VALUE_NO_KEY;
+    private static String KEY_PREFERENCES_SESSION_ID;
+    private static String KEY_PREFERENCES_SEED;
+    private static String KEY_PREFERENCES_GENERATOR_MESSAGE;
+    private static String KEY_PREFERENCES_RATINGS;
     private final String KEY_PREFERENCES_STATE;
     private final String KEY_PREFERENCES_DATADIR_PATH;
     private final String KEY_PREFERENCES_FILELIST;
@@ -74,13 +74,13 @@ class RatingManager {
     public static final String DIRCHECK_RESULT_MISSING_CNT = "dircheck_result_missing_cnt";
     public static final String DIRCHECK_RESULT_MISSING_LIST = "dircheck_result_missing_list";
 
-    private final String TAG = "RatingManager";
+    private static final String TAG = "RatingManager";
 
     public interface RecordingsFoundListener {
         void onFoundRecordings(ArrayList<File> raw_audio_files);
     }
 
-    RatingManager(Activity context, RecordingsFoundListener recordingsFoundListener) {
+    RatingManager(@NonNull Activity context, RecordingsFoundListener recordingsFoundListener) {
         Resources resources = context.getResources();
         DEFAULT_VALUE_NO_KEY = resources.getInteger(R.integer.DEFAULT_VALUE_NO_KEY);
         KEY_PREFERENCES_SESSION_ID = resources.getString(R.string.KEY_PREFERENCES_SESSION_ID);
@@ -260,6 +260,62 @@ class RatingManager {
         return generatorMessage;
     }
 
+    public static final String GET_SESSION_INFO_LOAD_RESULT_KEY = "LoadResult";
+    public static final String SESSION_INFO_BUNDLE_SESSION_ID = "sessionID";
+    public static final String SESSION_INFO_BUNDLE_SEED = "seed";
+    public static final String SESSION_INFO_BUNDLE_GENERATOR_MESSAGE = "generatorMessage";
+    public static final String SESSION_INFO_BUNDLE_FINISHED_RATIO = "finishedRatio";
+
+    public static Bundle getSessionInfo(Activity context) {
+        Bundle out = new Bundle();
+        SharedPreferences preferences = context.getPreferences(Context.MODE_PRIVATE);
+
+        int lastSessionID = preferences.getInt(KEY_PREFERENCES_SESSION_ID, DEFAULT_VALUE_NO_KEY);
+        if (lastSessionID == DEFAULT_VALUE_NO_KEY) {
+            Log.i(TAG, "loadSession: No key for session ID found in preferences.");
+            out.putSerializable(GET_SESSION_INFO_LOAD_RESULT_KEY, LoadResult.NO_SESSION);
+            return out;
+        } else {
+            out.putInt(SESSION_INFO_BUNDLE_SESSION_ID, lastSessionID);
+        }
+
+        long lastSeed = preferences.getLong(KEY_PREFERENCES_SEED, DEFAULT_VALUE_NO_KEY);
+        if (lastSeed == DEFAULT_VALUE_NO_KEY) {
+            Log.e(TAG, "loadSession: Error! Session saved without seed!");
+            out.putSerializable(GET_SESSION_INFO_LOAD_RESULT_KEY, LoadResult.CORRUPTED_SESSION);
+            return out;
+        } else {
+            out.putLong(SESSION_INFO_BUNDLE_SEED, lastSeed);
+        }
+
+        String lastGenMessage = preferences.getString(KEY_PREFERENCES_GENERATOR_MESSAGE, "");
+        if (lastGenMessage.equals("")) {
+            Log.e(TAG, "loadSession: Error! Session saved without generator message!");
+            out.putSerializable(GET_SESSION_INFO_LOAD_RESULT_KEY, LoadResult.CORRUPTED_SESSION);
+            return out;
+        } else {
+            out.putString(SESSION_INFO_BUNDLE_GENERATOR_MESSAGE, lastGenMessage);
+        }
+
+        Gson gson = new Gson();
+        String json = preferences.getString(KEY_PREFERENCES_RATINGS, "");
+        if (json.equals("")) {
+            Log.e(TAG, "loadSession: Error! Session saved without ratings!");
+            out.putSerializable(GET_SESSION_INFO_LOAD_RESULT_KEY, LoadResult.CORRUPTED_SESSION);
+            return out;
+        } else {
+            ArrayList<Integer> lastRatings = gson.fromJson(json,
+                    new TypeToken<ArrayList<Integer>>(){}.getType());
+
+            int cnt = 0;
+            for (int rating : lastRatings) if (rating != DEFAULT_UNSET_RATING) cnt++;
+            out.putString(SESSION_INFO_BUNDLE_FINISHED_RATIO, cnt + "/" + lastRatings.size());
+        }
+
+        out.putSerializable(GET_SESSION_INFO_LOAD_RESULT_KEY, LoadResult.OK);
+        return out;
+    }
+
     private int getNewSessionID() {
         int lastSessionID = preferences.getInt(KEY_PREFERENCES_SESSION_ID, DEFAULT_VALUE_NO_KEY);
         if (lastSessionID == DEFAULT_VALUE_NO_KEY) {
@@ -278,18 +334,6 @@ class RatingManager {
             }
         }
         return true;
-    }
-
-    String getRatingFinishedRatio(List<Recording> recordings) {
-        int cnt = 0;
-        int size = recordings.size();
-
-        for (Recording rec : recordings) {
-            if (rec.getRating() != DEFAULT_UNSET_RATING) {
-                cnt++;
-            }
-        }
-        return cnt + "/" + size;
     }
 
     void saveSession(List<Recording> recordings) {
@@ -402,7 +446,7 @@ class RatingManager {
         return LoadResult.OK;
     }
 
-    void checkResultsDirectory(File resultsDirectory) throws IOException {
+    static void checkResultsDirectory(File resultsDirectory) throws IOException {
         String path = resultsDirectory.getAbsolutePath();
         if (resultsDirectory.exists()) {
             Log.i(TAG, "saveResults: Results directory <" + path + "> exists.");
@@ -435,7 +479,7 @@ class RatingManager {
         }
     }
 
-    ArrayList<RatingResult> loadResults(Context context) throws Exception {
+    public static ArrayList<RatingResult> loadResults(Context context) throws Exception {
         // TODO
         File resultsDir = new File(context.getFilesDir(), context.getString(R.string.DIRECTORY_NAME_RESULTS));
         checkResultsDirectory(resultsDir);
@@ -500,7 +544,7 @@ class RatingManager {
         }
 
         // Sort and log the randomized recordings
-        Collections.sort(recordings, recordingComparator);
+        recordings.sort(recordingComparator);
         Log.i(TAG, "saveResults: Sorted recordings:");
         for (Recording r : recordings) {
             Log.i(TAG, "saveResults: " + r.toString());
@@ -535,12 +579,7 @@ class RatingManager {
         writer.close();
 
         MediaScannerConnection.scanFile(context, new String[]{newRatingsFile.getPath()}, null,
-                new MediaScannerConnection.OnScanCompletedListener() {
-                    @Override
-                    public void onScanCompleted(String path, Uri uri) {
-                        Log.i(TAG, "onScanCompleted: SCAN OF FILE <" + path + "> completed!");
-                    }
-                });
+                (path, uri) -> Log.i(TAG, "onScanCompleted: SCAN OF FILE <" + path + "> completed!"));
         Log.i(TAG, "saveResults: File: <" + newRatingsFile.getName() + "> written successfully.");
 
         // Remove old save files for this session ID

@@ -9,6 +9,18 @@
         <item name="android:statusBarColor">@color/primaryDarkColor</item>
         <item name="android:navigationBarColor">@color/primaryDarkColor</item>
         <item name="android:itemTextAppearance">@style/TextAppearance.MdcTypographyStyles.Body1</item>
+
+        <item name="snackbarTextViewStyle">@style/snackbar_text</item>
+        <item name="snackbarButtonStyle">@style/snackbar_button</item>
+    </style>
+
+    <style name="snackbar_text" parent="Widget.MaterialComponents.Snackbar.TextView">
+        <item name="android:textAppearance">@style/TextAppearance.MdcTypographyStyles.Caption</item>
+    </style>
+
+    <style name="snackbar_button" parent="Widget.MaterialComponents.Button.TextButton.Snackbar">
+        <item name="android:textAppearance">@style/TextAppearance.MdcTypographyStyles.Button</item>
+        <item name="android:textColor">@color/secondaryColor</item>
     </style>
 
     <style name="TextAppearance.MdcTypographyStyles.Headline1" parent="TextAppearance.MaterialComponents.Headline1">
