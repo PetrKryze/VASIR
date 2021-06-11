@@ -4,7 +4,6 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.content.res.Resources;
 import android.media.MediaScannerConnection;
 import android.os.Bundle;
 import android.os.Environment;
@@ -24,6 +23,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Random;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
@@ -35,7 +35,6 @@ import static com.petrkryze.vas.RatingResult.LABEL_SESSION_ID;
 import static com.petrkryze.vas.Recording.DEFAULT_UNSET_RATING;
 import static com.petrkryze.vas.Recording.recordingComparator;
 
-
 /**
  * Created by Petr on 09.02.2020. Yay!
  */
@@ -45,25 +44,27 @@ class RatingManager {
     public enum LoadResult {OK, NO_SESSION, CORRUPTED_SESSION}
     public enum DirectoryCheckError {NOT_EXIST, NOT_DIRECTORY, NOT_READABLE, NO_FILES, MISSING_FILES}
 
+    // Session defining variables
     private int session_ID;
-    private State state;
     private long seed;
     private String generatorMessage;
-    private ArrayList<Integer> lastSessionRatings;
-    private String datadir_path;
-    private ArrayList<String> filelist = null; // For file consistency check in storage
+    private List<Recording> trackList;
+    private ArrayList<Integer> ratings;
+
+    private ArrayList<String> fileList = null; // For file consistency check in storage
+
+    private State state;
+    private String datadirPath;
+    private int trackPointer = 0;
+    private int savedPlayProgress = 0;
 
     private final SharedPreferences preferences;
-    private final RecordingsFoundListener recordingsFoundListener;
 
-    private static int DEFAULT_VALUE_NO_KEY;
-    private static String KEY_PREFERENCES_SESSION_ID;
-    private static String KEY_PREFERENCES_SEED;
-    private static String KEY_PREFERENCES_GENERATOR_MESSAGE;
-    private static String KEY_PREFERENCES_RATINGS;
-    private final String KEY_PREFERENCES_STATE;
-    private final String KEY_PREFERENCES_DATADIR_PATH;
-    private final String KEY_PREFERENCES_FILELIST;
+    private static final String KEY_PREFERENCES_CURRENT_SESSION = "current_session";
+    private static final String KEY_PREFERENCES_STATE = "state";
+    private static final String KEY_PREFERENCES_DATADIR_PATH = "datadir";
+    private static final String KEY_PREFERENCES_TRACK_POINTER = "track_pointer";
+    private static final String KEY_PREFERENCES_SAVED_PLAY_PROGRESS = "saved_play_progress";
 
     public static final char separator = ';';
     public static final char headerTag = '#';
@@ -76,23 +77,8 @@ class RatingManager {
 
     private static final String TAG = "RatingManager";
 
-    public interface RecordingsFoundListener {
-        void onFoundRecordings(ArrayList<File> raw_audio_files);
-    }
-
-    RatingManager(@NonNull Activity context, RecordingsFoundListener recordingsFoundListener) {
-        Resources resources = context.getResources();
-        DEFAULT_VALUE_NO_KEY = resources.getInteger(R.integer.DEFAULT_VALUE_NO_KEY);
-        KEY_PREFERENCES_SESSION_ID = resources.getString(R.string.KEY_PREFERENCES_SESSION_ID);
-        KEY_PREFERENCES_SEED = resources.getString(R.string.KEY_PREFERENCES_SEED);
-        KEY_PREFERENCES_GENERATOR_MESSAGE = resources.getString(R.string.KEY_PREFERENCES_GENERATOR_MESSAGE);
-        KEY_PREFERENCES_RATINGS = resources.getString(R.string.KEY_PREFERENCES_RATINGS);
-        KEY_PREFERENCES_STATE = resources.getString(R.string.KEY_PREFERENCES_STATE);
-        KEY_PREFERENCES_DATADIR_PATH = resources.getString(R.string.KEY_PREFERENCES_DATADIR);
-        KEY_PREFERENCES_FILELIST = resources.getString(R.string.KEY_PREFERENCES_FILELIST);
-
+    RatingManager(@NonNull Activity context) {
         this.preferences = context.getPreferences(Context.MODE_PRIVATE);
-        this.recordingsFoundListener = recordingsFoundListener;
 
         // TODO Delet dis after production version is done
 //        SharedPreferences.Editor editor = preferences.edit();
@@ -102,7 +88,7 @@ class RatingManager {
 
     public Bundle checkDataDirectoryPath() {
         // Check data directory that has been successfully loaded
-        return checkDataDirectoryPath(new File(this.datadir_path));
+        return checkDataDirectoryPath(new File(this.datadirPath));
     }
 
     public Bundle checkDataDirectoryPath(File datadir) {
@@ -126,17 +112,17 @@ class RatingManager {
             Log.i(TAG, "checkDataDirectoryPath: " + datadir.getAbsolutePath() +
                     " exists, is a directory and can be read.");
 
-            ArrayList<File> raw_audio_files = getFilelist(datadir);
-            ArrayList<String> foundFiles = fileListToPathList(raw_audio_files);
-            Log.i(TAG, "checkDataDirectoryPath: Found " + foundFiles.size() + " audio files.");
-            if (foundFiles.isEmpty()) {
+            ArrayList<File> foundFilesFiles = getFilelist(datadir);
+            ArrayList<String> foundFilesPaths = fileListToPathList(foundFilesFiles);
+            Log.i(TAG, "checkDataDirectoryPath: Found " + foundFilesPaths.size() + " audio files.");
+            if (foundFilesPaths.isEmpty()) {
                 ret.putString(DIRCHECK_RESULT_ERROR_TYPE, DirectoryCheckError.NO_FILES.toString());
             } else {
-                if (this.filelist != null) { // Previous session found, check consistency
-                    ArrayList<String> savedFiles = new ArrayList<>(this.filelist);
+                if (this.fileList != null) { // Previous session found, check consistency
+                    ArrayList<String> savedFiles = new ArrayList<>(this.fileList);
 
-                    for (String filePath : this.filelist) {
-                        if (foundFiles.contains(filePath)) {
+                    for (String filePath : this.fileList) {
+                        if (foundFilesPaths.contains(filePath)) {
                             savedFiles.remove(filePath);
                         }
                     }
@@ -144,7 +130,6 @@ class RatingManager {
                     if (savedFiles.isEmpty()) {
                         // All files from saved file list are accounted for in the storage
                         ret.putBoolean(DIRCHECK_RESULT_IS_OK, true);
-                        recordingsFoundListener.onFoundRecordings(raw_audio_files);
                     } else {
                         ret.putString(DIRCHECK_RESULT_ERROR_TYPE, DirectoryCheckError.MISSING_FILES.toString());
                         ret.putInt(DIRCHECK_RESULT_MISSING_CNT, savedFiles.size());
@@ -156,9 +141,8 @@ class RatingManager {
                         ret.putString(DIRCHECK_RESULT_MISSING_LIST, sb.toString());
                     }
                 } else { // No previous session found, just create new file list
-                    makeNewSession(datadir.getAbsolutePath(), foundFiles);
+                    makeNewSession(datadir.getAbsolutePath(), foundFilesPaths);
                     ret.putBoolean(DIRCHECK_RESULT_IS_OK, true);
-                    recordingsFoundListener.onFoundRecordings(raw_audio_files);
                 }
             }
             return ret;
@@ -195,17 +179,49 @@ class RatingManager {
         return paths;
     }
 
-    void makeNewSession(String new_datadir_path, ArrayList<String> foundAudioFiles) {
+    void makeNewSession(String newDatadirPath, ArrayList<String> foundFilesPaths) {
         this.session_ID = getNewSessionID(); // Increments last existing session number
         this.seed = System.nanoTime();
         Log.i(TAG, "RatingManager: Newly created seed: " + seed);
         @SuppressLint("SimpleDateFormat") SimpleDateFormat format =
                 new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
         this.generatorMessage = format.format(new Date(System.currentTimeMillis()));
-        this.lastSessionRatings = new ArrayList<>();
-        this.datadir_path = new_datadir_path;
-        this.filelist = foundAudioFiles;
+        this.ratings = new ArrayList<>();
+        this.datadirPath = newDatadirPath;
+        this.fileList = foundFilesPaths;
         this.state = State.STATE_IDLE;
+        this.trackPointer = 0;
+        this.savedPlayProgress = 0;
+
+        int Nrec = foundFilesPaths.size();
+        Collections.sort(foundFilesPaths); // Ensures the same order after loading
+        // Shuffle the loaded paths randomly using the generated seed
+        Collections.shuffle(foundFilesPaths, new Random(this.seed));
+        List<Integer> rnums = linspace(1, Nrec);
+
+        List<Recording> recordings = new ArrayList<>();
+        for (int n = 0; n < foundFilesPaths.size(); n++) {
+            recordings.add(new Recording(
+                    foundFilesPaths.get(n),
+                    rnums.get(n),
+                    DEFAULT_UNSET_RATING
+            ));
+        }
+        this.trackList = recordings;
+
+        saveSession();
+    }
+
+    @SuppressWarnings("SameParameterValue")
+    private List<Integer> linspace(int start, int end) {
+        if (end < start) {
+            Log.e(TAG, "linspace: Invalid input parameters!");
+            return new ArrayList<>();
+        } else {
+            List<Integer> list = new ArrayList<>();
+            for (int i = start; i <= end; i++) list.add(i);
+            return list;
+        }
     }
 
     void wipeCurrentSession() {
@@ -214,17 +230,20 @@ class RatingManager {
         this.session_ID = -1;
         this.seed = -1;
         this.generatorMessage = null;
-        this.lastSessionRatings = null;
-        this.datadir_path = null;
-        this.filelist = null;
+        this.ratings = null;
+        this.datadirPath = null;
+        this.fileList = null;
+        this.trackList = null;
         this.state = null;
+        this.trackPointer = -1;
+        this.savedPlayProgress = -1;
     }
 
     int getLastSessionRating(int index) {
-        if (lastSessionRatings.size() == 0) { // New session without saved previous ratings
+        if (this.ratings.size() == 0) { // New session without saved previous ratings
             return DEFAULT_UNSET_RATING;
         } else {
-            return lastSessionRatings.get(index);
+            return this.ratings.get(index);
         }
     }
 
@@ -248,80 +267,76 @@ class RatingManager {
         }
     }
 
-    int getSession_ID() {
-        return session_ID;
+    public int getTrackPointer() {
+        return trackPointer;
     }
 
-    long getSeed() {
-        return seed;
+    public void trackIncrement() {
+        int current = this.trackPointer;
+        this.trackPointer = current + 1;
     }
 
-    String getGeneratorMessage() {
-        return generatorMessage;
+    public void trackDecrement() {
+        int current = this.trackPointer;
+        this.trackPointer = current - 1;
+    }
+
+    public int getSavedPlayProgress() {
+        return savedPlayProgress;
+    }
+
+    public void setPlayProgress(int savedPlayProgress) {
+        this.savedPlayProgress = savedPlayProgress;
+    }
+
+    public List<Recording> getTrackList() {
+        return trackList;
+    }
+
+    public int getTrackN() {
+        return trackList.size();
     }
 
     public static final String GET_SESSION_INFO_LOAD_RESULT_KEY = "LoadResult";
-    public static final String SESSION_INFO_BUNDLE_SESSION_ID = "sessionID";
-    public static final String SESSION_INFO_BUNDLE_SEED = "seed";
-    public static final String SESSION_INFO_BUNDLE_GENERATOR_MESSAGE = "generatorMessage";
-    public static final String SESSION_INFO_BUNDLE_FINISHED_RATIO = "finishedRatio";
+    public static final String SESSION_INFO_BUNDLE_SESSION = "session";
 
     public static Bundle getSessionInfo(Activity context) {
         Bundle out = new Bundle();
         SharedPreferences preferences = context.getPreferences(Context.MODE_PRIVATE);
 
-        int lastSessionID = preferences.getInt(KEY_PREFERENCES_SESSION_ID, DEFAULT_VALUE_NO_KEY);
-        if (lastSessionID == DEFAULT_VALUE_NO_KEY) {
-            Log.i(TAG, "loadSession: No key for session ID found in preferences.");
+        // Load last saved session - returns LoadResult.NO_SESSION when no previous session is in memory
+        String json = preferences.getString(KEY_PREFERENCES_CURRENT_SESSION, "");
+        if (json.equals("")) {
+            Log.i(TAG, "loadSession: No session found in preferences.");
             out.putSerializable(GET_SESSION_INFO_LOAD_RESULT_KEY, LoadResult.NO_SESSION);
             return out;
-        } else {
-            out.putInt(SESSION_INFO_BUNDLE_SESSION_ID, lastSessionID);
         }
 
-        long lastSeed = preferences.getLong(KEY_PREFERENCES_SEED, DEFAULT_VALUE_NO_KEY);
-        if (lastSeed == DEFAULT_VALUE_NO_KEY) {
-            Log.e(TAG, "loadSession: Error! Session saved without seed!");
+        try {
+            RatingResult currentSession = new Gson().fromJson(json,
+                    new TypeToken<RatingResult>(){}.getType());
+            out.putSerializable(SESSION_INFO_BUNDLE_SESSION, currentSession);
+            out.putSerializable(GET_SESSION_INFO_LOAD_RESULT_KEY, LoadResult.OK);
+        } catch (Exception e) {
+            e.printStackTrace();
             out.putSerializable(GET_SESSION_INFO_LOAD_RESULT_KEY, LoadResult.CORRUPTED_SESSION);
             return out;
-        } else {
-            out.putLong(SESSION_INFO_BUNDLE_SEED, lastSeed);
         }
 
-        String lastGenMessage = preferences.getString(KEY_PREFERENCES_GENERATOR_MESSAGE, "");
-        if (lastGenMessage.equals("")) {
-            Log.e(TAG, "loadSession: Error! Session saved without generator message!");
-            out.putSerializable(GET_SESSION_INFO_LOAD_RESULT_KEY, LoadResult.CORRUPTED_SESSION);
-            return out;
-        } else {
-            out.putString(SESSION_INFO_BUNDLE_GENERATOR_MESSAGE, lastGenMessage);
-        }
-
-        Gson gson = new Gson();
-        String json = preferences.getString(KEY_PREFERENCES_RATINGS, "");
-        if (json.equals("")) {
-            Log.e(TAG, "loadSession: Error! Session saved without ratings!");
-            out.putSerializable(GET_SESSION_INFO_LOAD_RESULT_KEY, LoadResult.CORRUPTED_SESSION);
-            return out;
-        } else {
-            ArrayList<Integer> lastRatings = gson.fromJson(json,
-                    new TypeToken<ArrayList<Integer>>(){}.getType());
-
-            int cnt = 0;
-            for (int rating : lastRatings) if (rating != DEFAULT_UNSET_RATING) cnt++;
-            out.putString(SESSION_INFO_BUNDLE_FINISHED_RATIO, cnt + "/" + lastRatings.size());
-        }
-
-        out.putSerializable(GET_SESSION_INFO_LOAD_RESULT_KEY, LoadResult.OK);
         return out;
     }
 
     private int getNewSessionID() {
-        int lastSessionID = preferences.getInt(KEY_PREFERENCES_SESSION_ID, DEFAULT_VALUE_NO_KEY);
-        if (lastSessionID == DEFAULT_VALUE_NO_KEY) {
+        String json = preferences.getString(KEY_PREFERENCES_CURRENT_SESSION, "");
+        if (json.equals("")) {
             Log.i(TAG, "getNewSessionID: No key for session ID found in preferences.");
             return 1;
         } else {
+            Gson gson = new Gson();
+            RatingResult currentSession = gson.fromJson(json,
+                    new TypeToken<RatingResult>(){}.getType());
+
+            int lastSessionID = currentSession.getSession_ID();
             Log.i(TAG, "getNewSessionID: NEW SESSION ID = " + (lastSessionID + 1));
             return lastSessionID + 1;
         }
@@ -336,78 +351,43 @@ class RatingManager {
         return true;
     }
 
-    void saveSession(List<Recording> recordings) {
-        if (recordings == null || recordings.size() <= 0) {
-            Log.e(TAG, "saveSession: Invalid recordings list size!");
-        } else {
-            ArrayList<Integer> ratings = new ArrayList<>(recordings.size());
-            for (Recording rec : recordings) {
-                ratings.add(rec.getRating());
-            }
-            Gson gson = new Gson();
+    void saveSession() {
+        @SuppressLint("SimpleDateFormat") SimpleDateFormat format =
+                new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss");
+        String saveDate = format.format(new Date(System.currentTimeMillis()));
 
-            Log.i(TAG, "saveSession: Saving current session data: " +
-                    "Session ID = " + session_ID + "\n" +
-                    "Seed = " + seed + "\n" +
-                    "Generator Message = " + generatorMessage + "\n" +
-                    "State = " + state + "\n" +
-                    "Ratings = " + ratings.toString());
+        RatingResult currentSession = new RatingResult(
+                this.session_ID,
+                this.seed,
+                this.generatorMessage,
+                saveDate,
+                this.trackList
+        );
 
-            SharedPreferences.Editor editor = preferences.edit();
-            editor.putInt(KEY_PREFERENCES_SESSION_ID, session_ID);
-            editor.putLong(KEY_PREFERENCES_SEED, seed);
-            editor.putString(KEY_PREFERENCES_GENERATOR_MESSAGE, generatorMessage);
-            editor.putString(KEY_PREFERENCES_RATINGS, gson.toJson(ratings));
-            editor.putString(KEY_PREFERENCES_STATE, state.toString());
-            editor.putString(KEY_PREFERENCES_DATADIR_PATH, datadir_path);
-            editor.putString(KEY_PREFERENCES_FILELIST, gson.toJson(filelist));
-            editor.apply();
-        }
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putString(KEY_PREFERENCES_CURRENT_SESSION, new Gson().toJson(currentSession))
+                .putString(KEY_PREFERENCES_STATE, this.state.toString())
+                .putString(KEY_PREFERENCES_DATADIR_PATH, this.datadirPath)
+                .putInt(KEY_PREFERENCES_TRACK_POINTER, this.trackPointer)
+                .putInt(KEY_PREFERENCES_SAVED_PLAY_PROGRESS, this.savedPlayProgress)
+                .apply();
+
+        Log.i(TAG, "saveSession: Saving current session data: " +
+                "Session ID = " + session_ID + "\n" +
+                "Seed = " + seed + "\n" +
+                "Generator Message = " + generatorMessage + "\n" +
+                "Save Date = " + saveDate + "\n" +
+                "State = " + state + "\n" +
+                "Recordings: " + this.trackList.size() + " files");
+
     }
 
     LoadResult loadSession() {
-        // Load last saved session - returns false when no previous session is in memory
-        // Load Session ID
-        int lastSessionID = preferences.getInt(KEY_PREFERENCES_SESSION_ID, DEFAULT_VALUE_NO_KEY);
-        if (lastSessionID == DEFAULT_VALUE_NO_KEY) {
-            Log.i(TAG, "loadSession: No key for session ID found in preferences.");
-            return LoadResult.NO_SESSION;
-        } else {
-            this.session_ID = lastSessionID;
-            Log.i(TAG, "loadSession: Retrieved session ID: " + lastSessionID);
-        }
-
-        // Load last randomizer seed
-        long lastSeed = preferences.getLong(KEY_PREFERENCES_SEED, DEFAULT_VALUE_NO_KEY);
-        if (lastSeed == DEFAULT_VALUE_NO_KEY) {
-            Log.e(TAG, "loadSession: Error! Session saved without seed!");
-            return LoadResult.CORRUPTED_SESSION;
-        } else {
-            this.seed = lastSeed;
-            Log.i(TAG, "loadSession: Retrieved seed: " + seed);
-        }
-
-        // Load last generator message
-        String lastGenMessage = preferences.getString(KEY_PREFERENCES_GENERATOR_MESSAGE, "");
-        if (lastGenMessage.equals("")) {
-            Log.e(TAG, "loadSession: Error! Session saved without generator message!");
-            return LoadResult.CORRUPTED_SESSION;
-        } else {
-            this.generatorMessage = lastGenMessage;
-            Log.i(TAG, "loadSession: Retrieved generator message: " + generatorMessage);
-        }
-
-        // Load array list of last ratings
-        Gson gson = new Gson();
-        String json = preferences.getString(KEY_PREFERENCES_RATINGS, "");
+        // Load last saved session - returns LoadResult.NO_SESSION when no previous session is in memory
+        String json = preferences.getString(KEY_PREFERENCES_CURRENT_SESSION, "");
         if (json.equals("")) {
-            Log.e(TAG, "loadSession: Error! Session saved without ratings!");
-            return LoadResult.CORRUPTED_SESSION;
-        } else {
-            ArrayList<Integer> lastRatings = gson.fromJson(json,
-                    new TypeToken<ArrayList<Integer>>(){}.getType());
-            this.lastSessionRatings = lastRatings;
-            Log.i(TAG, "loadSession: Retrieved ratings: " + lastRatings.toString());
+            Log.i(TAG, "loadSession: No session found in preferences.");
+            return LoadResult.NO_SESSION;
         }
 
         // Load last rating state
@@ -415,34 +395,67 @@ class RatingManager {
         if (lastState.equals("")) {
             Log.e(TAG, "loadSession: Error! Session saved without state!");
             return LoadResult.CORRUPTED_SESSION;
-        } else {
-            setState(lastState);
-            Log.i(TAG, "loadSession: Retrieved state: " + state);
         }
 
         // Load data directory path
-        String datadir_path = preferences.getString(KEY_PREFERENCES_DATADIR_PATH, "");
-        if (datadir_path.equals("")) {
+        String datadirPath = preferences.getString(KEY_PREFERENCES_DATADIR_PATH, "");
+        if (datadirPath.equals("")) {
             Log.e(TAG, "loadSession: Error! Session saved without data directory path!");
             return LoadResult.CORRUPTED_SESSION;
-        } else {
-            this.datadir_path = datadir_path;
-            Log.i(TAG, "loadSession: Retrieved local data directory path: " + datadir_path);
         }
 
-        // Load array list of session files
-        gson = new Gson();
-        json = preferences.getString(KEY_PREFERENCES_FILELIST, "");
-        if (json.equals("")) {
-            Log.e(TAG, "loadSession: Error! Session saved without file list!");
+        // Load track pointer
+        int trackPointer = preferences.getInt(KEY_PREFERENCES_TRACK_POINTER, -1);
+        if (trackPointer == -1) {
+            Log.e(TAG, "loadSession: Error! Session saved without track pointer value!");
             return LoadResult.CORRUPTED_SESSION;
-        } else {
-            this.filelist = gson.fromJson(json,
-                    new TypeToken<ArrayList<String>>(){}.getType());
-            Log.i(TAG, "loadSession: Retrieved file list: " + filelist.toString());
         }
 
-        checkDataDirectoryPath();
+        // Load saved play progress
+        int savedPlayProgress = preferences.getInt(KEY_PREFERENCES_SAVED_PLAY_PROGRESS, -1);
+        if (savedPlayProgress == -1) {
+            Log.e(TAG, "loadSession: Error! Session saved without saved play progress!");
+            return LoadResult.CORRUPTED_SESSION;
+        }
+
+        RatingResult currentSession = new Gson().fromJson(json,
+                new TypeToken<RatingResult>(){}.getType());
+
+        try {
+            this.session_ID = currentSession.getSession_ID();
+            this.seed = currentSession.getSeed();
+            this.generatorMessage = currentSession.getGeneratorMessage();
+            this.trackList = currentSession.getRecordings();
+
+            ArrayList<Integer> lastRatings = new ArrayList<>();
+            ArrayList<String> lastFileList = new ArrayList<>();
+            for (Recording r : currentSession.getRecordings()) {
+                lastRatings.add(r.getRating());
+                lastFileList.add(r.getPath());
+            }
+            this.ratings = lastRatings;
+            this.fileList = lastFileList;
+
+            setState(lastState);
+            this.datadirPath = datadirPath;
+            this.trackPointer = trackPointer;
+            this.savedPlayProgress = savedPlayProgress;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return LoadResult.CORRUPTED_SESSION;
+        }
+
+        Log.i(TAG, "loadSession: Retrieved session ID: " + this.session_ID);
+        Log.i(TAG, "loadSession: Retrieved seed: " + this.seed);
+        Log.i(TAG, "loadSession: Retrieved generator message: " + this.generatorMessage);
+        Log.i(TAG, "loadSession: Retrieved tracklist: " + this.trackList.toString());
+        Log.i(TAG, "loadSession: Retrieved ratings: " + this.ratings.toString());
+        Log.i(TAG, "loadSession: Retrieved file list: " + this.fileList.toString());
+
+        Log.i(TAG, "loadSession: Retrieved state: " + this.state);
+        Log.i(TAG, "loadSession: Retrieved local data directory path: " + this.datadirPath);
+        Log.i(TAG, "loadSession: Retrieved track pointer value: " + this.trackPointer);
+        Log.i(TAG, "loadSession: Retrieved saved play progress: " + this.savedPlayProgress);
         return LoadResult.OK;
     }
 
@@ -510,7 +523,7 @@ class RatingManager {
         return foundResults;
     }
 
-    void saveResults(Context context, List<Recording> recordings) throws Exception {
+    void saveResults(Context context) throws Exception {
         File resultsDir = new File(context.getFilesDir(), context.getString(R.string.DIRECTORY_NAME_RESULTS));
         checkResultsDirectory(resultsDir);
 
@@ -544,9 +557,9 @@ class RatingManager {
         }
 
         // Sort and log the randomized recordings
-        recordings.sort(recordingComparator);
+        this.trackList.sort(recordingComparator);
         Log.i(TAG, "saveResults: Sorted recordings:");
-        for (Recording r : recordings) {
+        for (Recording r : this.trackList) {
             Log.i(TAG, "saveResults: " + r.toString());
         }
 
@@ -555,20 +568,20 @@ class RatingManager {
                 new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss");
         String saveDate = format.format(new Date(System.currentTimeMillis()));
         String newRatingsFileName = context.getString(R.string.RATING_FILE_NAME,
-                session_ID, saveDate);
+                this.session_ID, saveDate);
 
         File newRatingsFile = new File(resultsDir, newRatingsFileName);
         FileWriter writer = new FileWriter(newRatingsFile);
 
         // Write file header
-        String header = headerTag + LABEL_SESSION_ID + separator + session_ID + "\n" +
-                headerTag + LABEL_SEED + separator + seed + "\n" +
-                headerTag + LABEL_GENERATOR_MESSAGE + separator + generatorMessage + "\n" +
+        String header = headerTag + LABEL_SESSION_ID + separator + this.session_ID + "\n" +
+                headerTag + LABEL_SEED + separator + this.seed + "\n" +
+                headerTag + LABEL_GENERATOR_MESSAGE + separator + this.generatorMessage + "\n" +
                 headerTag + LABEL_SAVE_DATE + separator + saveDate + "\n";
         writer.append(header);
 
         // Row format: id;group;random_number;rating
-        for (Recording recording : recordings) {
+        for (Recording recording : this.trackList) {
             // TODO Generalize check? ID and group type
             writer.append(recording.getID()).append(separator)
                     .append(recording.getGroupType().toString()).append(separator)

@@ -24,6 +24,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.view.menu.MenuBuilder;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.NavGraph;
 import androidx.navigation.NavInflater;
@@ -31,9 +32,11 @@ import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
+import static com.petrkryze.vas.RatingManager.SESSION_INFO_BUNDLE_SESSION;
+
 public class MainActivity extends AppCompatActivity {
 
-    private static final String TAG = "VisualAnalogScale";
+//    private static final String TAG = "VisualAnalogScale";
 
     private Toolbar toolbar;
 
@@ -127,43 +130,6 @@ public class MainActivity extends AppCompatActivity {
                     android.R.drawable.ic_menu_close_clear_cancel));
             close_dialog.show();
             return true;
-        } else if (itemID == R.id.action_menu_show_session_info) {
-            Bundle bundle = RatingManager.getSessionInfo(this);
-            String message = "";
-            String title = "";
-            Drawable icon = null;
-
-            switch ((LoadResult) bundle.getSerializable(RatingManager.GET_SESSION_INFO_LOAD_RESULT_KEY)) {
-                case OK:
-                    message = getString(R.string.session_info_message,
-                            String.valueOf(bundle.getInt(RatingManager.SESSION_INFO_BUNDLE_SESSION_ID)),
-                            bundle.getString(RatingManager.SESSION_INFO_BUNDLE_GENERATOR_MESSAGE),
-                            String.valueOf(bundle.getLong(RatingManager.SESSION_INFO_BUNDLE_SEED)),
-                            bundle.getString(RatingManager.SESSION_INFO_BUNDLE_FINISHED_RATIO)
-                            );
-                    title = getString(R.string.session_info_title);
-                    icon = ContextCompat.getDrawable(this, android.R.drawable.ic_dialog_info);
-                    break;
-                case NO_SESSION:
-                    message = getString(R.string.no_session_found);
-                    title = getString(R.string.info);
-                    icon = ContextCompat.getDrawable(this, R.drawable.ic_info);
-                    break;
-                case CORRUPTED_SESSION:
-                    message = getString(R.string.corrupted_session);
-                    title = getString(R.string.alert);
-                    icon = ContextCompat.getDrawable(this, R.drawable.ic_error_red_24dp);
-                    break;
-            }
-
-            AlertDialog loading_failed_dialog = new AlertDialog.Builder(this)
-                    .setMessage(message)
-                    .setTitle(title)
-                    .setPositiveButton(getString(R.string.ok), null)
-                    .create();
-            loading_failed_dialog.setIcon(icon);
-            loading_failed_dialog.show();
-            return true;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -235,6 +201,40 @@ public class MainActivity extends AppCompatActivity {
 
     public static void enableMenuItem(final Menu menu, final int itemID) {
         menu.findItem(itemID).setEnabled(true).getIcon().setAlpha(255);
+    }
+
+    public interface navigateToCSIInterface { void sailTheShip(RatingResult session); }
+    public static void navigateToCurrentSessionInfo(Fragment fragment,
+                                                    navigateToCSIInterface callback) {
+        Context context = fragment.requireContext();
+        Bundle bundle = RatingManager.getSessionInfo(fragment.requireActivity());
+        String message = "";
+        String title = "";
+        Drawable icon = null;
+
+        switch ((LoadResult) bundle.getSerializable(RatingManager.GET_SESSION_INFO_LOAD_RESULT_KEY)) {
+            case OK:
+                callback.sailTheShip((RatingResult) bundle.getSerializable(SESSION_INFO_BUNDLE_SESSION));
+                return;
+            case NO_SESSION:
+                message = context.getString(R.string.no_session_found);
+                title = context.getString(R.string.info);
+                icon = ContextCompat.getDrawable(context, R.drawable.ic_info);
+                break;
+            case CORRUPTED_SESSION:
+                message = context.getString(R.string.corrupted_session);
+                title = context.getString(R.string.alert);
+                icon = ContextCompat.getDrawable(context, R.drawable.ic_error_red_24dp);
+                break;
+        }
+
+        AlertDialog loading_failed_dialog = new AlertDialog.Builder(context)
+                .setMessage(message)
+                .setTitle(title)
+                .setPositiveButton(context.getString(R.string.ok), null)
+                .create();
+        loading_failed_dialog.setIcon(icon);
+        loading_failed_dialog.show();
     }
 
 }

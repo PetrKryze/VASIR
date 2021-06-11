@@ -26,9 +26,6 @@ import org.jetbrains.annotations.NotNull;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Random;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -53,28 +50,25 @@ public class RatingFragment extends Fragment {
 
     private static final String TAG = "RatingFragment";
 
-    private SeekBar ratingbar;
+    private SeekBar VASratingBar;
     private Button button_play_pause;
     private Button button_previous;
     private Button button_next;
     private TextView track_time;
     private TextView header_text;
-    private SeekBar progressBar;
+    private SeekBar playerSeekBar;
     private ImageView checkMark;
 
     private Vibrator vibrator;
     public static int VIBRATE_BUTTON_MS;
     public static int VIBRATE_RATING_START;
 
-    private int Nrec = 0;
-    private int trackPointer = 0;
-
-    private List<Recording> trackList;
     private Player player;
     private RatingManager ratingManager;
 
     private boolean isOverFlowOpen = false;
     private boolean initDone = false;
+    private boolean isLoadingSeekState = false;
 
     private final View.OnClickListener playListener = new View.OnClickListener() {
         @Override
@@ -115,9 +109,10 @@ public class RatingFragment extends Fragment {
         public void onClick(View v) {
             Log.i(TAG, "onClick: BUTTON PREVIOUS CLICKED");
             vibrator.vibrate(VibrationEffect.createOneShot(VIBRATE_BUTTON_MS,VibrationEffect.DEFAULT_AMPLITUDE));
+            int trackPointer = ratingManager.getTrackPointer();
             if (initDone && trackPointer > 0) {
                 changeCurrentTrack(trackPointer, trackPointer-1);
-                trackPointer--;
+                ratingManager.trackDecrement();
             }
         }
     };
@@ -127,17 +122,18 @@ public class RatingFragment extends Fragment {
         public void onClick(View v) {
             Log.i(TAG, "onClick: BUTTON NEXT CLICKED");
             vibrator.vibrate(VibrationEffect.createOneShot(VIBRATE_BUTTON_MS,VibrationEffect.DEFAULT_AMPLITUDE));
-            if (initDone && trackPointer < Nrec-1) {
+            int trackPointer = ratingManager.getTrackPointer();
+            if (initDone && trackPointer < ratingManager.getTrackN()-1) {
                 changeCurrentTrack(trackPointer, trackPointer+1);
-                trackPointer++;
+                ratingManager.trackIncrement();
             }
         }
     };
 
-    private final SeekBar.OnSeekBarChangeListener ratingBarListener = new SeekBar.OnSeekBarChangeListener() {
+    // VAS rating bar - enables users to rate current playing track in terms of overall intelligibility
+    private final SeekBar.OnSeekBarChangeListener VASratingBarListener = new SeekBar.OnSeekBarChangeListener() {
         @Override
         public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-//            vibrator.vibrate(30);
         }
 
         @Override
@@ -147,25 +143,28 @@ public class RatingFragment extends Fragment {
 
         @Override
         public void onStopTrackingTouch(SeekBar seekBar) {
-            progressBar.playSoundEffect(SoundEffectConstants.CLICK);
+            VASratingBar.playSoundEffect(SoundEffectConstants.CLICK);
 
             if (initDone) {
-                trackList.get(trackPointer).setRating(seekBar.getProgress());
+                ratingManager.getTrackList().get(ratingManager.getTrackPointer()).setRating(seekBar.getProgress());
 
                 // Checks if all recordings have been rated
-                if (ratingManager.isRatingFinished(trackList)) {
+                if (ratingManager.isRatingFinished(ratingManager.getTrackList())) {
                     Log.i(TAG, "onStopTrackingTouch: All recording have been rated!");
                     Toast.makeText(requireContext(), getString(R.string.all_rated), Toast.LENGTH_SHORT).show();
                     ratingManager.setState(RatingManager.State.STATE_FINISHED);
                     // Ratings will now save automatically on exit or new session
                 }
-                setCheckMarkDrawable(trackList.get(trackPointer), ratingManager.getState());
+                setCheckMarkDrawable(ratingManager.getTrackList().get(ratingManager.getTrackPointer()),
+                        ratingManager.getState());
             }
         }
     };
 
+    // Seek bar - enables users to seek back and forth over the current audio being played
+    // Also indicated the progress
     private boolean isTouchingSeekBar = false; // Prevents automatic seek bar UI change while touching
-    private final SeekBar.OnSeekBarChangeListener progressBarListener = new SeekBar.OnSeekBarChangeListener() {
+    private final SeekBar.OnSeekBarChangeListener playerSeekBarListener = new SeekBar.OnSeekBarChangeListener() {
         @Override
         public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
         }
@@ -179,39 +178,13 @@ public class RatingFragment extends Fragment {
         @Override
         public void onStopTrackingTouch(SeekBar seekBar) {
             vibrator.vibrate(VibrationEffect.createOneShot(VIBRATE_BUTTON_MS,VibrationEffect.DEFAULT_AMPLITUDE));
-            progressBar.playSoundEffect(SoundEffectConstants.CLICK);
+            playerSeekBar.playSoundEffect(SoundEffectConstants.CLICK);
             if (initDone && player.isPrepared() && !player.isSeeking()) {
                 player.seekTo(seekBar.getProgress());
+                ratingManager.setPlayProgress(seekBar.getProgress());
             }
             isTouchingSeekBar = false;
             player.doTick();
-        }
-    };
-
-    private final String STATE_TRACK_POINTER = "trackPointer";
-    private final String STATE_PROGRESS_BAR = "progressBar";
-    private boolean loadProgressfromSavedInstance = false;
-    private int savedProgress = 0;
-
-    private final RatingManager.RecordingsFoundListener recordingsFoundListener = new RatingManager.RecordingsFoundListener() {
-        @Override
-        public void onFoundRecordings(ArrayList<File> raw_audio_files) {
-            Nrec = raw_audio_files.size();
-
-            Collections.sort(raw_audio_files); // Ensures the same order after loading
-            // Shuffle the loaded paths randomly using the generated seed
-            Collections.shuffle(raw_audio_files, new Random(ratingManager.getSeed()));
-            List<Integer> rnums = linspace(1,Nrec);
-
-            List<Recording> recordings= new ArrayList<>();
-            for (int n = 0; n < Nrec; n++) {
-                recordings.add(new Recording(
-                        raw_audio_files.get(n).getPath(),
-                        rnums.get(n),
-                        ratingManager.getLastSessionRating(n))
-                );
-            }
-            trackList = recordings;
         }
     };
 
@@ -263,19 +236,7 @@ public class RatingFragment extends Fragment {
         setHasOptionsMenu(true);
         initDone = false;
         isTouchingSeekBar = false;
-
-        // Restore previous UI state (e.g. before configuration change)
-        if (savedInstanceState != null) {
-            Log.i(TAG, "onCreate: Loading instance state");
-            // Mainly for configuration changes - portrait to landscape
-            trackPointer = savedInstanceState.getInt(STATE_TRACK_POINTER);
-            savedProgress = savedInstanceState.getInt(STATE_PROGRESS_BAR);
-            loadProgressfromSavedInstance = true;
-        } else {
-            trackPointer = 0;
-            savedProgress = 0;
-            loadProgressfromSavedInstance = false;
-        }
+        isLoadingSeekState = false;
 
         // Get vibrator service for UI vibration feedback
         vibrator = (Vibrator) requireContext().getSystemService(Context.VIBRATOR_SERVICE);
@@ -287,7 +248,7 @@ public class RatingFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.rating_fragment, container, false);
+        return inflater.inflate(R.layout.fragment_rating, container, false);
     }
 
     @Override
@@ -295,25 +256,25 @@ public class RatingFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         // UI Elements setup
-        ratingbar = view.findViewById(R.id.ratingBar);
+        VASratingBar = view.findViewById(R.id.ratingBar);
         button_play_pause = view.findViewById(R.id.button_play_pause);
         button_previous = view.findViewById(R.id.button_previous);
         button_next = view.findViewById(R.id.button_next);
         track_time = view.findViewById(R.id.track_time);
         header_text = view.findViewById(R.id.header_text);
-        progressBar = view.findViewById(R.id.progressBar);
+        playerSeekBar = view.findViewById(R.id.progressBar);
         checkMark = view.findViewById(R.id.check_mark);
 
         // Assign listeners to all buttons
         button_play_pause.setOnClickListener(playListener);
         button_previous.setOnClickListener(previousListener);
         button_next.setOnClickListener(nextListener);
-        ratingbar.setOnSeekBarChangeListener(ratingBarListener);
-        progressBar.setOnSeekBarChangeListener(progressBarListener);
+        VASratingBar.setOnSeekBarChangeListener(VASratingBarListener);
+        playerSeekBar.setOnSeekBarChangeListener(playerSeekBarListener);
 
         // Initialize the audio player and rating manager
         player = new Player(requireContext(), getPlayerListener());
-        ratingManager = new RatingManager(requireActivity(), recordingsFoundListener);
+        ratingManager = new RatingManager(requireActivity());
 
         // Normal startup
         manageLoading();
@@ -364,7 +325,8 @@ public class RatingFragment extends Fragment {
 
         if (checkResult.getBoolean(DIRCHECK_RESULT_IS_OK)) {
             ratingManager.setState(RatingManager.State.STATE_IN_PROGRESS);
-            changeCurrentTrack(0, 0);
+            changeCurrentTrack(0, ratingManager.getTrackPointer());
+            isLoadingSeekState = true;
             initDone = true;
         } else { // Directory check was not ok
             String message = "";
@@ -410,7 +372,7 @@ public class RatingFragment extends Fragment {
     }
 
     private void changeCurrentTrack(int current, int changeTo) {
-        if (Nrec <= 0) {
+        if (ratingManager.getTrackN() <= 0) {
             Log.e(TAG, "changeCurrentTrack: Error! Invalid number of tracks!");
         } else {
             if (player.isPlaying()) {
@@ -419,7 +381,7 @@ public class RatingFragment extends Fragment {
 
             // Sets active track
             try {
-                player.setCurrentTrack(trackList.get(changeTo));
+                player.setCurrentTrack(ratingManager.getTrackList().get(changeTo));
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -428,13 +390,13 @@ public class RatingFragment extends Fragment {
             if (changeTo == 0) {
                 // Hide previous button
                 button_previous.setVisibility(View.INVISIBLE);
-            } else if (changeTo == Nrec-1) {
+            } else if (changeTo == ratingManager.getTrackN()-1) {
                 // Hide next button
                 button_next.setVisibility(View.INVISIBLE);
             } else if (current == 0 && changeTo == 1) {
                 // Show previous button
                 button_previous.setVisibility(View.VISIBLE);
-            } else if (current == Nrec-1 && changeTo == (Nrec-2)) {
+            } else if (current == ratingManager.getTrackN()-1 && changeTo == (ratingManager.getTrackN()-2)) {
                 // Show next button
                 button_next.setVisibility(View.VISIBLE);
             }
@@ -443,17 +405,18 @@ public class RatingFragment extends Fragment {
             header_text.setText(getString(R.string.track_counter,
                     getString(R.string.track),
                     changeTo+1,
-                    Nrec));
+                    ratingManager.getTrackN()));
 
             // Set rating bar position to default or saved
-            int savedRating = trackList.get(changeTo).getRating();
+            int savedRating = ratingManager.getTrackList().get(changeTo).getRating();
             int setTo = savedRating != Recording.DEFAULT_UNSET_RATING ?
                     savedRating : getResources().getInteger(R.integer.DEFAULT_PROGRESS_CENTER);
 
-            ratingbar.setProgress(setTo, true);
+            VASratingBar.setProgress(setTo, true);
 
             Log.i(TAG, "changeCurrentTrack: current state = " + ratingManager.getState());
-            setCheckMarkDrawable(trackList.get(changeTo), ratingManager.getState());
+            setCheckMarkDrawable(ratingManager.getTrackList().get(changeTo),
+                    ratingManager.getState());
         }
     }
 
@@ -482,14 +445,14 @@ public class RatingFragment extends Fragment {
             public void onTrackPrepared(int duration) {
                 // Enable play
                 track_time.setText(formatDuration(duration));
-                progressBar.setMax(duration);
+                playerSeekBar.setMax(duration);
 
-                if (loadProgressfromSavedInstance) {
-                    player.seekTo(savedProgress);
-                    loadProgressfromSavedInstance = false;
-                    savedProgress = 0;
+                if (isLoadingSeekState) {
+                    player.seekTo(ratingManager.getSavedPlayProgress());
+                    isLoadingSeekState = false;
                 } else {
                     player.seekTo(0);
+                    ratingManager.setPlayProgress(0);
                 }
             }
 
@@ -497,6 +460,7 @@ public class RatingFragment extends Fragment {
             public void onTrackFinished() {
                 button_play_pause.callOnClick();
                 player.rewind();
+                ratingManager.setPlayProgress(0);
             }
 
             @Override
@@ -519,7 +483,8 @@ public class RatingFragment extends Fragment {
             @Override
             public void onUpdateProgress(int current_ms) {
                 if (!isTouchingSeekBar) {
-                    progressBar.setProgress(current_ms, true);
+                    playerSeekBar.setProgress(current_ms, true);
+                    ratingManager.setPlayProgress(current_ms);
                 }
             }
         };
@@ -540,18 +505,6 @@ public class RatingFragment extends Fragment {
         }
     }
 
-    @SuppressWarnings("SameParameterValue")
-    private List<Integer> linspace(int start, int end) {
-        if (end < start) {
-            Log.e(TAG, "linspace: Invalid input parameters!");
-            return new ArrayList<>();
-        } else {
-            List<Integer> list = new ArrayList<>();
-            for (int i = start; i <= end; i++) list.add(i);
-            return list;
-        }
-    }
-
     @Override
     public void onPause() {
         super.onPause();
@@ -560,15 +513,9 @@ public class RatingFragment extends Fragment {
             button_play_pause.callOnClick();
         }
 
+        // Saves the session on every Pause occasion (change app, phone lock, change screen, ...)
         if (initDone) {
-            ratingManager.saveSession(trackList);
-        }
-        if (ratingManager.getState() == RatingManager.State.STATE_FINISHED) {
-            try {
-                ratingManager.saveResults(requireContext(), trackList);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            ratingManager.saveSession();
         }
     }
 
@@ -576,8 +523,23 @@ public class RatingFragment extends Fragment {
     public void onDestroy() {
         Log.i(TAG, "onDestroy: Destroying");
         super.onDestroy();
-        player.clean();
-        player = null;
+        // Saves the results to the .txt file in memory if the rating is in a finished state
+        if (ratingManager.getState() == RatingManager.State.STATE_FINISHED) {
+            try {
+                ratingManager.saveResults(requireContext());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        if (player != null) {
+            player.clean();
+            player = null;
+        }
+        vibrator = null;
+        ratingManager = null;
+        initDone = false;
+        isLoadingSeekState = false;
     }
 
     @Override
@@ -604,7 +566,7 @@ public class RatingFragment extends Fragment {
             return true;
         } else if (itemID == R.id.action_menu_save && initDone) {
             try {
-                ratingManager.saveResults(requireContext(), trackList);
+                ratingManager.saveResults(requireContext());
 
                 Toast.makeText(requireContext(), getString(R.string.save_success),
                         Toast.LENGTH_SHORT).show();
@@ -628,6 +590,16 @@ public class RatingFragment extends Fragment {
                         Toast.LENGTH_LONG).show();
             }
             return true;
+        } else if (itemID == R.id.action_menu_show_session_info && initDone) {
+            ratingManager.saveSession();
+            MainActivity.navigateToCurrentSessionInfo(
+                    this, session -> {
+                        NavDirections directions = RatingFragmentDirections
+                                .actionRatingFragmentToCurrentSessionInfoFragment(session);
+                        NavHostFragment.findNavController(RatingFragment.this)
+                                .navigate(directions);
+                    }
+            );
         } else if (itemID == R.id.action_menu_reset_ratings && initDone) {
             AlertDialog confirm_dialog = new AlertDialog.Builder(requireContext())
                     .setMessage(getString(R.string.reset_confirm_prompt))
@@ -635,7 +607,7 @@ public class RatingFragment extends Fragment {
                     .setPositiveButton(R.string.ok, (dialog, which) -> {
                         if (ratingManager.getState() == RatingManager.State.STATE_FINISHED) {
                             try {
-                                ratingManager.saveResults(requireContext(), trackList);
+                                ratingManager.saveResults(requireContext());
 
                                 Toast.makeText(requireContext(), getString(R.string.save_success),
                                         Toast.LENGTH_SHORT).show();
@@ -648,9 +620,7 @@ public class RatingFragment extends Fragment {
                                         .setPositiveButton(R.string.ok, (dialog1, which1) -> {
                                             initDone = false;
                                             isTouchingSeekBar = false;
-                                            trackPointer = 0;
-                                            savedProgress = 0;
-                                            loadProgressfromSavedInstance = false;
+
                                             ratingManager.wipeCurrentSession();
                                             fireSelectDirectory();
                                         })
@@ -664,9 +634,7 @@ public class RatingFragment extends Fragment {
 
                         initDone = false;
                         isTouchingSeekBar = false;
-                        trackPointer = 0;
-                        savedProgress = 0;
-                        loadProgressfromSavedInstance = false;
+
                         ratingManager.wipeCurrentSession();
                         fireSelectDirectory();
                     })
@@ -693,20 +661,6 @@ public class RatingFragment extends Fragment {
     // Re-enables the auto-hide after the overflow is closed
     public void onPanelClosed() {
         isOverFlowOpen = false;
-    }
-
-    @Override
-    public void onSaveInstanceState(@NonNull Bundle outState) {
-        Log.i(TAG, "onSaveInstanceState: Saving instance state.");
-        // Mainly for configuration changes - portrait to landscape
-        outState.putInt(STATE_TRACK_POINTER, trackPointer);
-
-        if (progressBar != null) {
-            outState.putInt(STATE_PROGRESS_BAR, progressBar.getProgress());
-        } else {
-            outState.putInt(STATE_PROGRESS_BAR, 0);
-        }
-        super.onSaveInstanceState(outState);
     }
 
     private static class SelectDirectory extends ActivityResultContracts.OpenDocumentTree {

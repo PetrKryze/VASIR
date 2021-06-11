@@ -34,13 +34,12 @@
                 <TextView
                     android:id="@+id/help_title_textview"
                     style="@style/TextAppearance.MdcTypographyStyles.Headline5"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginTop="16dp"
-                    android:layout_marginBottom="16dp"
+                    android:padding="16dp"
                     android:text="@string/help"
                     app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@+id/help_title_image"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
@@ -48,10 +47,12 @@
                     android:id="@+id/help_title_image"
                     android:layout_width="wrap_content"
 
-                    android:layout_height="0dp"
-                    android:layout_marginEnd="16dp"
+                    android:layout_height="80dp"
+                    android:layout_marginEnd="8dp"
                     android:adjustViewBounds="true"
                     android:contentDescription="@string/welcome_title_image_desc"
+
+
                     android:src="@drawable/vas_app_welcome_icon_no_text"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"

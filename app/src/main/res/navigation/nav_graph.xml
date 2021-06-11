@@ -3,14 +3,14 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    android:label="initial_fragment"
+    android:label="@string/fragment_header_welcome"
     app:startDestination="@id/welcome_fragment">
 
     <fragment
         android:id="@+id/rating_fragment"
         android:name="com.petrkryze.vas.RatingFragment"
-        android:label="@string/main_title_placeholder"
-        tools:layout="@layout/rating_fragment">
+        android:label="@string/fragment_header_rating"
+        tools:layout="@layout/fragment_rating">
 
         <action
             android:id="@+id/action_rating_fragment_to_result_fragment"
@@ -26,13 +26,16 @@
             app:exitAnim="@anim/fadeout"
             app:popEnterAnim="@anim/fadein"
             app:popExitAnim="@anim/fadeout" />
+        <action
+            android:id="@+id/action_rating_fragment_to_currentSessionInfoFragment"
+            app:destination="@id/currentSessionInfoFragment" />
     </fragment>
 
     <fragment
         android:id="@+id/result_fragment"
         android:name="com.petrkryze.vas.ResultsFragment"
-        android:label="@string/header_saved_ratings_label"
-        tools:layout="@layout/result_fragment">
+        android:label="@string/fragment_header_saved_ratings"
+        tools:layout="@layout/fragment_result">
 
         <argument
             android:name="ratings"
@@ -51,13 +54,16 @@
             app:exitAnim="@anim/fadeout"
             app:popEnterAnim="@anim/fadein"
             app:popExitAnim="@anim/fadeout" />
+        <action
+            android:id="@+id/action_result_fragment_to_currentSessionInfoFragment"
+            app:destination="@id/currentSessionInfoFragment" />
     </fragment>
 
     <fragment
         android:id="@+id/result_detail_fragment"
         android:name="com.petrkryze.vas.ResultDetailFragment"
-        android:label="@string/header_rating_detail"
-        tools:layout="@layout/result_detail_fragment" >
+        android:label="@string/fragment_header_rating_detail"
+        tools:layout="@layout/fragment_result_detail" >
 
         <action
             android:id="@+id/action_result_detail_fragment_to_helpFragment"
@@ -69,14 +75,17 @@
         <argument
             android:name="rating_result"
             app:argType="com.petrkryze.vas.RatingResult" />
+        <action
+            android:id="@+id/action_result_detail_fragment_to_currentSessionInfoFragment"
+            app:destination="@id/currentSessionInfoFragment" />
 
     </fragment>
 
     <fragment
         android:id="@+id/welcome_fragment"
         android:name="com.petrkryze.vas.WelcomeFragment"
-        android:label="@string/VASIR"
-        tools:layout="@layout/welcome_fragment" >
+        android:label="@string/fragment_header_welcome"
+        tools:layout="@layout/fragment_welcome" >
         <action
             android:id="@+id/action_welcomeFragment_to_rating_fragment"
             app:destination="@id/rating_fragment"
@@ -91,13 +100,16 @@
             app:exitAnim="@anim/fadeout"
             app:popEnterAnim="@anim/fadein"
             app:popExitAnim="@anim/fadeout" />
+        <action
+            android:id="@+id/action_welcome_fragment_to_currentSessionInfoFragment"
+            app:destination="@id/currentSessionInfoFragment" />
     </fragment>
 
     <fragment
         android:id="@+id/helpFragment"
         android:name="com.petrkryze.vas.HelpFragment"
-        android:label="help_fragment"
-        tools:layout="@layout/help_fragment" >
+        android:label="@string/fragment_header_help"
+        tools:layout="@layout/fragment_help" >
 
         <argument
             android:name="context__body"
@@ -107,5 +119,31 @@
             android:name="context_title"
             app:argType="string"
             />
+        <action
+            android:id="@+id/action_helpFragment_to_currentSessionInfoFragment"
+            app:destination="@id/currentSessionInfoFragment" />
+        <action
+            android:id="@+id/action_helpFragment_to_result_fragment"
+            app:destination="@id/result_fragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/currentSessionInfoFragment"
+        android:name="com.petrkryze.vas.CurrentSessionInfoFragment"
+        android:label="@string/fragment_header_current_session_info"
+        tools:layout="@layout/fragment_current_session_info" >
+        <argument
+            android:name="rating_result"
+            app:argType="com.petrkryze.vas.RatingResult" />
+        <action
+            android:id="@+id/action_currentSessionInfoFragment_to_helpFragment"
+            app:destination="@id/helpFragment"
+            app:enterAnim="@anim/fadein"
+            app:exitAnim="@anim/fadeout"
+            app:popEnterAnim="@anim/fadein"
+            app:popExitAnim="@anim/fadeout"/>
+        <action
+            android:id="@+id/action_currentSessionInfoFragment_to_result_fragment"
+            app:destination="@id/result_fragment" />
     </fragment>
 </navigation>

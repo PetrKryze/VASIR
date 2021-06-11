@@ -24,26 +24,23 @@ class Recording implements Serializable {
 
     private static final String TAG = "RecordingObject";
 
-    static final Comparator<Recording> recordingComparator = new Comparator<Recording>() {
-        @Override
-        public int compare(Recording o1, Recording o2) {
-            if (o1.getGroupType() == o2.getGroupType()) {
-                String replace = o1.getGroupType().toString().split("_")[0];
-                int id1 = Integer.parseInt(o1.getID().replace(replace,"").split("_")[0]);
-                int id2 = Integer.parseInt(o2.getID().replace(replace,"").split("_")[0]);
-                return Integer.compare(id1, id2);
-            } else if (o1.getGroupType() == GroupType.HC) {
-                return -1;
-            } else if (o2.getGroupType() == GroupType.HC) {
-                return 1;
-            } else if (o1.getGroupType() == GroupType.DBS_OFF) {
-                return -1;
-            } else if (o1.getGroupType() == GroupType.DBS_130) {
-                return 1;
-            } else {
-                Log.e(TAG, "compare: Sorting error - invalid group types.");
-                return 0;
-            }
+    static final Comparator<Recording> recordingComparator = (o1, o2) -> {
+        if (o1.getGroupType() == o2.getGroupType()) {
+            String replace = o1.getGroupType().toString().split("_")[0];
+            int id1 = Integer.parseInt(o1.getID().replace(replace,"").split("_")[0]);
+            int id2 = Integer.parseInt(o2.getID().replace(replace,"").split("_")[0]);
+            return Integer.compare(id1, id2);
+        } else if (o1.getGroupType() == GroupType.HC) {
+            return -1;
+        } else if (o2.getGroupType() == GroupType.HC) {
+            return 1;
+        } else if (o1.getGroupType() == GroupType.DBS_OFF) {
+            return -1;
+        } else if (o1.getGroupType() == GroupType.DBS_130) {
+            return 1;
+        } else {
+            Log.e(TAG, "compare: Sorting error - invalid group types.");
+            return 0;
         }
     };
 
@@ -107,7 +104,7 @@ class Recording implements Serializable {
     }
 
     void setRating(int rating) {
-        if (rating < 1 || rating > 100) {
+        if (rating < 0 || rating > 100) {
             Log.e(TAG, "setRating: Invalid rating value! Setting aborted.");
         } else {
             this.rating = rating;

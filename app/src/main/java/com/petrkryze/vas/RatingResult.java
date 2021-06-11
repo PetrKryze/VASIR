@@ -9,6 +9,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.petrkryze.vas.Recording.DEFAULT_UNSET_RATING;
+
 /**
  * Created by Petr on 27.05.2021. Yay!
  */
@@ -27,6 +29,18 @@ public class RatingResult implements Serializable {
     static final String LABEL_SEED = "Randomizer Seed";
     static final String LABEL_GENERATOR_MESSAGE = "Generator Date";
     static final String LABEL_SAVE_DATE = "Save Date";
+
+    public RatingResult(int session_ID, long seed, String generatorMessage, String saveDate,
+                        List<Recording> recordings) {
+        this.session_ID = session_ID;
+        this.seed = seed;
+        this.generatorMessage = generatorMessage;
+        this.saveDate = saveDate;
+        this.recordings = recordings;
+
+        this.path = null;
+        this.rawContent = null;
+    }
 
     public RatingResult(File resultsTextFile) throws Exception {
         // Takes the already found file on a path in storage and parses its contents for data
@@ -111,5 +125,12 @@ public class RatingResult implements Serializable {
 
     public String getRawContent() {
         return rawContent;
+    }
+
+    public String getRatedFractionString() {
+        int Nrated = 0;
+        for (Recording r : this.recordings) if (r.getRating() != DEFAULT_UNSET_RATING) Nrated++;
+
+        return Nrated + "/" + this.recordings.size();
     }
 }

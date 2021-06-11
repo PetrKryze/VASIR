@@ -61,7 +61,7 @@ public class WelcomeFragment extends Fragment {
                              Bundle savedInstanceState) {
         setHasOptionsMenu(true);
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.welcome_fragment, container, false);
+        return inflater.inflate(R.layout.fragment_welcome, container, false);
     }
 
     @Override
@@ -97,8 +97,9 @@ public class WelcomeFragment extends Fragment {
     public void onPrepareOptionsMenu(@NonNull Menu menu) {
         super.onPrepareOptionsMenu(menu);
         int[] toDisable = {R.id.action_menu_help, R.id.action_menu_save,
-                R.id.action_menu_show_session_info, R.id.action_menu_reset_ratings};
-        int[] toEnable = {R.id.action_menu_show_saved_results, R.id.action_menu_quit};
+                R.id.action_menu_reset_ratings};
+        int[] toEnable = {R.id.action_menu_show_saved_results, R.id.action_menu_quit,
+                R.id.action_menu_show_session_info};
 
         for (int item : toDisable) MainActivity.disableMenuItem(menu, item);
         for (int item : toEnable) MainActivity.enableMenuItem(menu, item);
@@ -120,6 +121,15 @@ public class WelcomeFragment extends Fragment {
                         Toast.LENGTH_LONG).show();
             }
             return true;
+        } else if (itemID == R.id.action_menu_show_session_info) {
+            MainActivity.navigateToCurrentSessionInfo(
+                    this, session -> {
+                        NavDirections directions = WelcomeFragmentDirections
+                                .actionWelcomeFragmentToCurrentSessionInfoFragment(session);
+                        NavHostFragment.findNavController(WelcomeFragment.this)
+                                .navigate(directions);
+                    }
+            );
         }
 
         return super.onOptionsItemSelected(item);

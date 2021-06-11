@@ -2,13 +2,18 @@ package com.petrkryze.vas;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import org.jetbrains.annotations.NotNull;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.NavDirections;
+import androidx.navigation.fragment.NavHostFragment;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -27,6 +32,7 @@ public class HelpFragment extends Fragment {
         // Required empty public constructor
     }
 
+    @SuppressWarnings("unused")
     public static HelpFragment newInstance(String title, String contextMessage) {
         HelpFragment fragment = new HelpFragment();
         Bundle args = new Bundle();
@@ -49,7 +55,7 @@ public class HelpFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.help_fragment, container, false);
+        return inflater.inflate(R.layout.fragment_help, container, false);
     }
 
     @Override
@@ -60,5 +66,22 @@ public class HelpFragment extends Fragment {
 
         TWhelpTitle.setText(helpTitle);
         TWhelpBody.setText(helpBody);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull @NotNull MenuItem item) {
+        int itemID = item.getItemId();
+        if (itemID == R.id.action_menu_show_session_info) {
+            MainActivity.navigateToCurrentSessionInfo(
+                    this, session -> {
+                        NavDirections directions = HelpFragmentDirections
+                                .actionHelpFragmentToCurrentSessionInfoFragment(session);
+                        NavHostFragment.findNavController(HelpFragment.this)
+                                .navigate(directions);
+                    }
+            );
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 }

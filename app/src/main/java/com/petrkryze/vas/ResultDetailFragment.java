@@ -80,7 +80,7 @@ public class ResultDetailFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.result_detail_fragment, container, false);
+        return inflater.inflate(R.layout.fragment_result_detail, container, false);
     }
 
     @Override
@@ -143,7 +143,17 @@ public class ResultDetailFragment extends Fragment {
         } else if (itemID == R.id.action_menu_show_saved_results) {
             NavHostFragment.findNavController(this).navigateUp();
             return true;
+        } else if (itemID == R.id.action_menu_show_session_info) {
+            MainActivity.navigateToCurrentSessionInfo(
+                    this, session -> {
+                        NavDirections directions = ResultDetailFragmentDirections
+                                .actionResultDetailFragmentToCurrentSessionInfoFragment(session);
+                        NavHostFragment.findNavController(ResultDetailFragment.this)
+                                .navigate(directions);
+                    }
+            );
         }
+
         return super.onOptionsItemSelected(item);
     }
 }

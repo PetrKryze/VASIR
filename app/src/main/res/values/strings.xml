@@ -1,15 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Visual Analog Scale</string>
-    <string name="KEY_PREFERENCES_GENERATOR_MESSAGE" translatable="false">generator_message</string>
-    <string name="KEY_PREFERENCES_RATINGS" translatable="false">ratings</string>
-    <string name="KEY_PREFERENCES_SEED" translatable="false">seed</string>
-    <string name="KEY_PREFERENCES_SESSION_ID" translatable="false">session_id</string>
     <string name="DIRECTORY_NAME_RESULTS" translatable="false">Results</string>
-    <string name="action_quit">Quit</string>
-    <string name="action_reset_ratings">Create a New Session</string>
-    <string name="action_help">Help</string>
-    <string name="action_show_session_info">Session Info</string>
+
     <string name="alert">Alert</string>
     <string name="button_pause_label">Pause</string>
     <string name="button_play_label">Play</string>
@@ -69,7 +62,6 @@
         upgraded to auto-recognize group names in the future versions.
     </string>
     <string name="not_implemented">This function is not yet implemented.</string>
-    <string name="KEY_PREFERENCES_STATE" translatable="false">state</string>
     <string name="all_rated">All recordings have been rated!</string>
     <string name="help">Help</string>
     <string name="help_message">
@@ -102,8 +94,6 @@
         kryzepet@fel.cvut.cz
     </string>
     <string name="choose_data_dir">Choose the data directory</string>
-    <string name="KEY_PREFERENCES_DATADIR" translatable="false">datadir</string>
-    <string name="KEY_PREFERENCES_FILELIST" translatable="false">filelist</string>
     <string name="no_session_found">No previous rating session was found. Please create a new session.</string>
     <string name="corrupted_session">Previous session is corrupted. Please create a new session.</string>
     <string name="info">Info</string>
@@ -116,14 +106,14 @@
     <string name="choose_valid_data_dir">Choose valid data directory</string>
     <string name="internal_error_URI_extract_failed">Internal error!\nError message: Extracting full path from document selection URI failed!</string>
     <string name="error">Error</string>
-    <string name="action_save">Save</string>
+
     <string name="save_success">Saving successful!</string>
     <string name="save_failed">Saving failed!\nReason: %s</string>
     <string name="save_failed_continue_question">Saving failed!\nReason: %s \nDo you want to continue with creating a new session? Current ratings will be lost.</string>
     <string name="save_failed_continue_title">Warning</string>
-    <string name="action_show_saved_results">Show Saved Results</string>
+
     <string name="placeholder" translatable="false">placeholder</string>
-    <string name="header_saved_ratings_label">Saved ratings</string>
+
     <string name="button_close_label">Close</string>
     <string name="rating_list_row_sessionID">Session %d</string>
     <string name="ratings_loading_failed">Loading of saved rating files failed!\nReason: %s</string>
@@ -148,8 +138,6 @@
     <string name="result_detail_recording_list_column_group_label">Group</string>
     <string name="result_detail_recording_list_column_index_label">Index</string>
     <string name="result_detail_recording_list_column_rating_label">Rating</string>
-    <string name="header_rating_detail">Rating detail</string>
-    <string name="VASIR" translatable="false">VASIR</string>
     <string name="welcome_checkbox_do_not_show_again">Do not show this screen again</string>
     <string name="welcome_button_continue_label">Continue to rating</string>
     <string name="welcome_title_image_desc">VASIR application logo, icons of a person speaking to an ear</string>
@@ -157,12 +145,33 @@
     <string name="KEY_PREFERENCES_SETTINGS_WELCOME_SHOW" translatable="false">welcome_screen_show</string>
     <string name="help_message1">\t<i><b>VASIR</b></i> is an application that utilizes visual analog scales for subjective speech intelligibility rating.\n</string>
     <string name="help_message2">TODO</string>
-    <string name="help_context_body_rating_fragment">BODY HELP RATING FRAGMENT</string>
-    <string name="help_context_title_rating_fragment">HELP TITLE CONTEXT RATING FRAGMENT</string>
-    <string name="help_context_body_results_fragment">BODY HELP RESULTS FRAGMENT</string>
-    <string name="help_context_title_results_fragment">HELP TITLE CONTEXT RESULTS FRAGMENT</string>
-    <string name="help_context_body_result_detail_fragment">BODY HELP RESULTS FRAGMENT</string>
-    <string name="help_context_title_result_detail_fragment">HELP TITLE CONTEXT RESULTS FRAGMENT</string>
     <string name="button_share_label">Share</string>
     <string name="hint_results_select">Select result from the list to view detailed info.</string>
+    <string name="current_session_info_sessionID">Session %d</string>
+    <string name="current_session_info_rated_fraction_placeholder" translatable="false">0/0</string>
+
+    <!-- Help Strings-->
+    <string name="help_context_body_rating_fragment">BODY HELP RATING FRAGMENT</string>
+    <string name="help_context_title_rating_fragment">Help: Rating</string>
+    <string name="help_context_body_results_fragment">BODY HELP RESULTS FRAGMENT</string>
+    <string name="help_context_title_results_fragment">Help: Saved ratings</string>
+    <string name="help_context_body_result_detail_fragment">BODY HELP RESULTS FRAGMENT</string>
+    <string name="help_context_title_result_detail_fragment">Help: Rating detail</string>
+    <string name="help_context_body_current_session_info_fragment">CURRENT SESSION INFO HELP BODY</string>
+    <string name="help_context_title_current_session_info_fragment">Help: Current session</string>
+
+
+    <string name="fragment_header_rating">Rating</string>
+    <string name="fragment_header_help">Help</string>
+    <string name="fragment_header_current_session_info">Current Session</string>
+    <string name="fragment_header_saved_ratings">Saved Ratings</string>
+    <string name="fragment_header_rating_detail">Rating Detail</string>
+    <string name="fragment_header_welcome" translatable="false">VASIR</string>
+
+    <string name="action_quit">Quit</string>
+    <string name="action_reset_ratings">Create a New Session</string>
+    <string name="action_help">Help</string>
+    <string name="action_show_session_info">Session Info</string>
+    <string name="action_show_saved_results">Saved Rating</string>
+    <string name="action_save">Save</string>
 </resources>

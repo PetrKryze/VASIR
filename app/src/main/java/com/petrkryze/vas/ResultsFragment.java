@@ -121,7 +121,7 @@ public class ResultsFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.result_fragment, container, false);
+        return inflater.inflate(R.layout.fragment_result, container, false);
     }
 
     @Override
@@ -174,7 +174,17 @@ public class ResultsFragment extends Fragment {
                             actionResultFragmentToHelpFragment(contextHelpMessage, contextHelpTitle);
             NavHostFragment.findNavController(this).navigate(directions);
             return true;
+        } else if (itemID == R.id.action_menu_show_session_info) {
+            MainActivity.navigateToCurrentSessionInfo(
+                    this, session -> {
+                        NavDirections directions = ResultsFragmentDirections
+                                .actionResultFragmentToCurrentSessionInfoFragment(session);
+                        NavHostFragment.findNavController(ResultsFragment.this)
+                                .navigate(directions);
+                    }
+            );
         }
+
         return super.onOptionsItemSelected(item);
     }
 
