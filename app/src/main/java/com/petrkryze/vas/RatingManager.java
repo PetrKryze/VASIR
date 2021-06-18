@@ -38,7 +38,7 @@ import static com.petrkryze.vas.Recording.recordingComparator;
 /**
  * Created by Petr on 09.02.2020. Yay!
  */
-class RatingManager {
+public class RatingManager {
 
     public enum State {STATE_IN_PROGRESS, STATE_FINISHED, STATE_IDLE}
     public enum LoadResult {OK, NO_SESSION, CORRUPTED_SESSION}
@@ -77,7 +77,7 @@ class RatingManager {
 
     private static final String TAG = "RatingManager";
 
-    RatingManager(@NonNull Activity context) {
+    public RatingManager(@NonNull Activity context) {
         this.preferences = context.getPreferences(Context.MODE_PRIVATE);
 
         // TODO Delet dis after production version is done
@@ -224,7 +224,7 @@ class RatingManager {
         }
     }
 
-    void wipeCurrentSession() {
+    public void wipeCurrentSession() {
         Log.i(TAG, "wipeCurrentSession: Wiping session " + this.session_ID +
                 ", (seed: )" + this.seed);
         this.session_ID = -1;
@@ -247,11 +247,11 @@ class RatingManager {
         }
     }
 
-    State getState() {
+    public State getState() {
         return state;
     }
 
-    void setState(State state) {
+    public void setState(State state) {
         this.state = state;
     }
 
@@ -342,7 +342,7 @@ class RatingManager {
         }
     }
 
-    boolean isRatingFinished(List<Recording> recordings) {
+    public boolean isRatingFinished(List<Recording> recordings) {
         for (Recording rec : recordings) {
             if (rec.getRating() == DEFAULT_UNSET_RATING) {
                 return false;
@@ -351,7 +351,7 @@ class RatingManager {
         return true;
     }
 
-    void saveSession() {
+    public void saveSession() {
         @SuppressLint("SimpleDateFormat") SimpleDateFormat format =
                 new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss");
         String saveDate = format.format(new Date(System.currentTimeMillis()));
@@ -382,7 +382,7 @@ class RatingManager {
 
     }
 
-    LoadResult loadSession() {
+    public LoadResult loadSession() {
         // Load last saved session - returns LoadResult.NO_SESSION when no previous session is in memory
         String json = preferences.getString(KEY_PREFERENCES_CURRENT_SESSION, "");
         if (json.equals("")) {
@@ -523,7 +523,7 @@ class RatingManager {
         return foundResults;
     }
 
-    void saveResults(Context context) throws Exception {
+    public void saveResults(Context context) throws Exception {
         File resultsDir = new File(context.getFilesDir(), context.getString(R.string.DIRECTORY_NAME_RESULTS));
         checkResultsDirectory(resultsDir);
 

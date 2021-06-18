@@ -6,7 +6,7 @@
 
     android:id="@+id/result_fragment_layout"
     android:name="com.petrkryze.vas.ResultFragment"
-    tools:context=".ResultsFragment"
+    tools:context=".fragments.ResultsFragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"

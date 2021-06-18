@@ -1,4 +1,4 @@
-package com.petrkryze.vas;
+package com.petrkryze.vas.fragments;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -18,6 +18,10 @@ import android.widget.Button;
 
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
+import com.petrkryze.vas.MainActivity;
+import com.petrkryze.vas.R;
+import com.petrkryze.vas.RatingResult;
+import com.petrkryze.vas.adapters.ResultsRecyclerViewAdapter;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -188,7 +192,7 @@ public class ResultsFragment extends Fragment {
         return super.onOptionsItemSelected(item);
     }
 
-    interface OnItemDetailListener {
+    public interface OnItemDetailListener {
         void onItemClick(RatingResult selectedRating);
     }
 }

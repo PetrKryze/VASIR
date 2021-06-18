@@ -8,7 +8,7 @@
 
     <fragment
         android:id="@+id/rating_fragment"
-        android:name="com.petrkryze.vas.RatingFragment"
+        android:name="com.petrkryze.vas.fragments.RatingFragment"
         android:label="@string/fragment_header_rating"
         tools:layout="@layout/fragment_rating">
 
@@ -33,7 +33,7 @@
 
     <fragment
         android:id="@+id/result_fragment"
-        android:name="com.petrkryze.vas.ResultsFragment"
+        android:name="com.petrkryze.vas.fragments.ResultsFragment"
         android:label="@string/fragment_header_saved_ratings"
         tools:layout="@layout/fragment_result">
 
@@ -61,7 +61,7 @@
 
     <fragment
         android:id="@+id/result_detail_fragment"
-        android:name="com.petrkryze.vas.ResultDetailFragment"
+        android:name="com.petrkryze.vas.fragments.ResultDetailFragment"
         android:label="@string/fragment_header_rating_detail"
         tools:layout="@layout/fragment_result_detail" >
 
@@ -83,7 +83,7 @@
 
     <fragment
         android:id="@+id/welcome_fragment"
-        android:name="com.petrkryze.vas.WelcomeFragment"
+        android:name="com.petrkryze.vas.fragments.WelcomeFragment"
         android:label="@string/fragment_header_welcome"
         tools:layout="@layout/fragment_welcome" >
         <action
@@ -107,7 +107,7 @@
 
     <fragment
         android:id="@+id/helpFragment"
-        android:name="com.petrkryze.vas.HelpFragment"
+        android:name="com.petrkryze.vas.fragments.HelpFragment"
         android:label="@string/fragment_header_help"
         tools:layout="@layout/fragment_help" >
 
@@ -129,7 +129,7 @@
 
     <fragment
         android:id="@+id/currentSessionInfoFragment"
-        android:name="com.petrkryze.vas.CurrentSessionInfoFragment"
+        android:name="com.petrkryze.vas.fragments.CurrentSessionInfoFragment"
         android:label="@string/fragment_header_current_session_info"
         tools:layout="@layout/fragment_current_session_info" >
         <argument

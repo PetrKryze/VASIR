@@ -18,6 +18,7 @@ import android.view.MotionEvent;
 import android.view.View;
 
 import com.petrkryze.vas.RatingManager.LoadResult;
+import com.petrkryze.vas.fragments.RatingFragment;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;

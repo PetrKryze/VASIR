@@ -1,4 +1,4 @@
-package com.petrkryze.vas;
+package com.petrkryze.vas.fragments;
 
 import android.content.Context;
 import android.content.Intent;
@@ -11,6 +11,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+
+import com.petrkryze.vas.MainActivity;
+import com.petrkryze.vas.R;
+import com.petrkryze.vas.RatingResult;
+import com.petrkryze.vas.adapters.RecordingsRecyclerViewAdapter;
 
 import org.jetbrains.annotations.NotNull;
 

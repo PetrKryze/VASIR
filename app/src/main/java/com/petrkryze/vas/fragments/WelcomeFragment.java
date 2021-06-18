@@ -1,4 +1,4 @@
-package com.petrkryze.vas;
+package com.petrkryze.vas.fragments;
 
 import android.animation.ArgbEvaluator;
 import android.animation.ValueAnimator;
@@ -14,6 +14,11 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.Toast;
+
+import com.petrkryze.vas.MainActivity;
+import com.petrkryze.vas.R;
+import com.petrkryze.vas.RatingManager;
+import com.petrkryze.vas.RatingResult;
 
 import org.jetbrains.annotations.NotNull;
 

@@ -4,7 +4,7 @@
     android:id="@+id/welcome_fragment_container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".WelcomeFragment">
+    tools:context=".fragments.WelcomeFragment">
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"

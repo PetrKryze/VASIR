@@ -1,4 +1,4 @@
-package com.petrkryze.vas;
+package com.petrkryze.vas.adapters;
 
 import android.content.Context;
 import android.text.TextUtils;
@@ -6,6 +6,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import com.petrkryze.vas.R;
+import com.petrkryze.vas.RatingResult;
+import com.petrkryze.vas.fragments.ResultsFragment;
 
 import org.jetbrains.annotations.NotNull;
 

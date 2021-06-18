@@ -9,7 +9,7 @@
     android:layout_height="match_parent"
     android:background="@color/main_background"
     android:orientation="vertical"
-    tools:context=".CurrentSessionInfoFragment">
+    tools:context=".fragments.CurrentSessionInfoFragment">
 
     <TextView
         android:id="@+id/current_session_info_recording_list_column_index"

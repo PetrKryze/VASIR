@@ -13,14 +13,14 @@ import androidx.annotation.NonNull;
 /**
  * Created by Petr on 07.02.2020. Yay!
  */
-class Recording implements Serializable {
+public class Recording implements Serializable {
     private final String path;
     private final String ID;
     private final GroupType group;
     private final int randomized_number;
     private int rating;
 
-    static final int DEFAULT_UNSET_RATING = -1;
+    public static final int DEFAULT_UNSET_RATING = -1;
 
     private static final String TAG = "RecordingObject";
 
@@ -87,23 +87,23 @@ class Recording implements Serializable {
         return path;
     }
 
-    String getID() {
+    public String getID() {
         return ID;
     }
 
-    int getRandomized_number() {
+    public int getRandomized_number() {
         return randomized_number;
     }
 
-    int getRating() {
+    public int getRating() {
         return rating;
     }
 
-    GroupType getGroupType() {
+    public GroupType getGroupType() {
         return group;
     }
 
-    void setRating(int rating) {
+    public void setRating(int rating) {
         if (rating < 0 || rating > 100) {
             Log.e(TAG, "setRating: Invalid rating value! Setting aborted.");
         } else {

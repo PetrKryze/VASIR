@@ -18,7 +18,7 @@ import androidx.annotation.Nullable;
 /**
  * Created by Petr on 09.04.2021. Yay!
  */
-class DocumentUtils {
+public class DocumentUtils {
 
     private static final String PRIMARY_VOLUME_NAME = "primary";
 

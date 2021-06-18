@@ -14,7 +14,7 @@ import java.io.IOException;
  * Created by Petr on 07.02.2020. Yay!
  */
 
-class Player {
+public class Player {
 
     private MediaPlayer mediaPlayer;
     private final AudioManager audioManager;
@@ -56,7 +56,7 @@ class Player {
         void onUpdateProgress(int current_ms);
     }
 
-    Player(Context context, final PlayerListener listener) {
+    public Player(Context context, final PlayerListener listener) {
         this.listener = listener;
         this.mediaPlayer = new MediaPlayer();
 
@@ -93,15 +93,15 @@ class Player {
         this.handler = new Handler(handlerThread.getLooper());
     }
 
-    boolean isPrepared() {
+    public boolean isPrepared() {
         return isPrepared;
     }
 
-    boolean isSeeking() {
+    public boolean isSeeking() {
         return isSeeking;
     }
 
-    boolean isPlaying() {
+    public boolean isPlaying() {
         if (mediaPlayer != null) {
             return mediaPlayer.isPlaying();
         } else {
@@ -109,7 +109,7 @@ class Player {
         }
     }
 
-    void setCurrentTrack(Recording recording) throws IOException {
+    public void setCurrentTrack(Recording recording) throws IOException {
         this.recording = recording;
         mediaPlayer.reset();
         isPrepared = false;
@@ -117,7 +117,7 @@ class Player {
         mediaPlayer.prepareAsync();
     }
 
-    boolean play() {
+    public boolean play() {
         if (isHeadphonesIn() && !isVolumeZero() && isPrepared) {
             mediaPlayer.start();
             doTick();
@@ -128,24 +128,24 @@ class Player {
         return false;
     }
 
-    void pause() {
+    public void pause() {
         mediaPlayer.pause();
     }
 
-    void rewind() {
+    public void rewind() {
         seekTo(0);
     }
 
-    void seekTo(int target) {
+    public void seekTo(int target) {
         isSeeking = true;
         mediaPlayer.seekTo(target);
     }
 
-    void doTick() {
+    public void doTick() {
         handler.post(tick);
     }
 
-    void clean() {
+    public void clean() {
         this.recording = null;
         isPrepared = false;
 

@@ -1,4 +1,4 @@
-package com.petrkryze.vas;
+package com.petrkryze.vas.fragments;
 
 import android.app.AlertDialog;
 import android.content.Context;
@@ -20,6 +20,13 @@ import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.petrkryze.vas.MainActivity;
+import com.petrkryze.vas.Player;
+import com.petrkryze.vas.R;
+import com.petrkryze.vas.RatingManager;
+import com.petrkryze.vas.RatingResult;
+import com.petrkryze.vas.Recording;
 
 import org.jetbrains.annotations.NotNull;
 

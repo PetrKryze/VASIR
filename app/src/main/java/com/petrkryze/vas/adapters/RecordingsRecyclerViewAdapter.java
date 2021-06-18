@@ -1,10 +1,13 @@
-package com.petrkryze.vas;
+package com.petrkryze.vas.adapters;
 
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import com.petrkryze.vas.R;
+import com.petrkryze.vas.Recording;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -16,7 +19,7 @@ import androidx.recyclerview.widget.RecyclerView;
 /**
  * Created by Petr on 05.05.2021. Yay!
  */
-class RecordingsRecyclerViewAdapter extends RecyclerView.Adapter<RecordingsRecyclerViewAdapter.ViewHolder> {
+public class RecordingsRecyclerViewAdapter extends RecyclerView.Adapter<RecordingsRecyclerViewAdapter.ViewHolder> {
 
     private final Context context;
     private final List<Recording> recordings;

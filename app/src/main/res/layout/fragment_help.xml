@@ -6,7 +6,7 @@
 
     android:id="@+id/welcome_fragment_container"
     android:name="com.petrkryze.vas.HelpFragment"
-    tools:context=".HelpFragment"
+    tools:context=".fragments.HelpFragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/main_background">
