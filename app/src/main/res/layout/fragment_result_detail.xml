@@ -12,77 +12,6 @@
     tools:context=".fragments.ResultDetailFragment">
 
     <TextView
-        android:id="@+id/result_detail_recording_list_column_index"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:elevation="1dp"
-        android:maxLines="1"
-        android:paddingBottom="5dp"
-        android:text="@string/result_detail_recording_list_column_index_label"
-        style="@style/TextAppearance.MdcTypographyStyles.Body1"
-        android:textStyle="bold"
-        android:textColor="@color/primaryTextColor"
-        app:layout_constraintEnd_toStartOf="@+id/result_detail_recording_list_column_rating"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/result_detail_recording_list_column_group"
-        app:layout_constraintTop_toTopOf="@id/barrier" />
-
-    <TextView
-        android:id="@+id/result_detail_recording_list_column_id"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="5dp"
-        android:layout_marginTop="8dp"
-        android:elevation="1dp"
-        android:maxLines="1"
-        android:paddingStart="8dp"
-        android:paddingBottom="5dp"
-        android:text="@string/result_detail_recording_list_column_id_label"
-        style="@style/TextAppearance.MdcTypographyStyles.Body1"
-        android:textStyle="bold"
-        android:textColor="@color/primaryTextColor"
-        app:layout_constraintEnd_toStartOf="@+id/result_detail_recording_list_column_group"
-        app:layout_constraintHorizontal_chainStyle="spread_inside"
-        app:layout_constraintStart_toStartOf="@id/result_detail_recordings_list"
-        app:layout_constraintTop_toTopOf="@id/barrier" />
-
-    <TextView
-        android:id="@+id/result_detail_recording_list_column_rating"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="5dp"
-        android:elevation="1dp"
-        android:maxLines="1"
-        android:paddingEnd="8dp"
-        android:paddingBottom="5dp"
-        android:text="@string/result_detail_recording_list_column_rating_label"
-        style="@style/TextAppearance.MdcTypographyStyles.Body1"
-        android:textStyle="bold"
-        android:textColor="@color/primaryTextColor"
-        app:layout_constraintEnd_toEndOf="@id/result_detail_recordings_list"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/result_detail_recording_list_column_index"
-        app:layout_constraintTop_toTopOf="@id/barrier" />
-
-    <TextView
-        android:id="@+id/result_detail_recording_list_column_group"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:elevation="1dp"
-        android:maxLines="1"
-        android:paddingBottom="5dp"
-        android:text="@string/result_detail_recording_list_column_group_label"
-        style="@style/TextAppearance.MdcTypographyStyles.Body1"
-        android:textStyle="bold"
-        android:textColor="@color/primaryTextColor"
-        app:layout_constraintEnd_toStartOf="@+id/result_detail_recording_list_column_index"
-        app:layout_constraintStart_toEndOf="@+id/result_detail_recording_list_column_id"
-        app:layout_constraintTop_toTopOf="@id/barrier" />
-
-    <TextView
         android:id="@+id/result_detail_sessionID"
         style="@style/TextAppearance.MdcTypographyStyles.Headline4"
         android:layout_width="0dp"
@@ -191,37 +120,24 @@
         android:id="@+id/result_detail_recordings_list"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginStart="8dp"
 
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginBottom="8dp"
         android:fadingEdgeLength="15dp"
         android:requiresFadingEdge="vertical"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         app:layout_constraintBottom_toTopOf="@id/button_result_detail_share"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/barrier2"
+        app:layout_constraintTop_toBottomOf="@id/result_detail_column_headers"
         tools:listitem="@layout/result_detail_recordings_list_row" />
 
     <androidx.constraintlayout.widget.Barrier
-        android:id="@+id/barrier"
+        android:id="@+id/barrierSaveDate"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:barrierDirection="bottom"
-        app:constraint_referenced_ids="result_detail_generator_date,result_detail_generator_date_label"
+        app:constraint_referenced_ids="result_detail_save_date_label,result_detail_save_date"
         tools:layout_editor_absoluteX="10dp"
-        tools:layout_editor_absoluteY="721dp" />
-
-    <androidx.constraintlayout.widget.Barrier
-        android:id="@+id/barrier2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:barrierDirection="bottom"
-        app:constraint_referenced_ids="result_detail_recording_list_column_index,result_detail_recording_list_column_id,result_detail_recording_list_column_rating,result_detail_recording_list_column_group"
-        tools:layout_editor_absoluteX="10dp"
-        tools:layout_editor_absoluteY="201dp" />
+        tools:layout_editor_absoluteY="55dp" />
 
     <androidx.constraintlayout.widget.Barrier
         android:id="@+id/barrierSeed"
@@ -233,24 +149,95 @@
         tools:layout_editor_absoluteY="93dp" />
 
     <androidx.constraintlayout.widget.Barrier
-        android:id="@+id/barrierSaveDate"
+        android:id="@+id/barrier"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:barrierDirection="bottom"
-        app:constraint_referenced_ids="result_detail_save_date_label,result_detail_save_date"
+        app:constraint_referenced_ids="result_detail_generator_date,result_detail_generator_date_label"
         tools:layout_editor_absoluteX="10dp"
-        tools:layout_editor_absoluteY="55dp" />
+        tools:layout_editor_absoluteY="721dp" />
 
-    <View
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/result_detail_column_headers"
-        android:layout_width="wrap_content"
-        android:layout_height="0dp"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
         android:background="@color/primaryColor"
-        android:elevation="0dp"
-        app:layout_constraintBottom_toBottomOf="@id/barrier2"
+        android:elevation="5dp"
+
+        android:orientation="horizontal"
+        android:paddingHorizontal="5dp"
+
+        android:paddingVertical="5dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/barrier" />
+        app:layout_constraintTop_toBottomOf="@id/barrier">
+
+        <TextView
+            android:id="@+id/result_detail_recording_list_column_id"
+            style="@style/TextAppearance.MdcTypographyStyles.Body1"
+            android:layout_width="wrap_content"
+
+            android:layout_height="wrap_content"
+            android:maxLines="1"
+            android:text="@string/result_detail_recording_list_column_id_label"
+            android:textColor="@color/primaryTextColor"
+            android:textStyle="bold"
+
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/result_detail_recording_list_column_group"
+            app:layout_constraintHorizontal_chainStyle="spread_inside"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/result_detail_recording_list_column_group"
+            style="@style/TextAppearance.MdcTypographyStyles.Body1"
+            android:layout_width="wrap_content"
+
+            android:layout_height="wrap_content"
+            android:maxLines="1"
+            android:text="@string/result_detail_recording_list_column_group_label"
+            android:textColor="@color/primaryTextColor"
+            android:textStyle="bold"
+
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/result_detail_recording_list_column_index"
+            app:layout_constraintStart_toEndOf="@id/result_detail_recording_list_column_id"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/result_detail_recording_list_column_index"
+            style="@style/TextAppearance.MdcTypographyStyles.Body1"
+            android:layout_width="wrap_content"
+
+            android:layout_height="wrap_content"
+            android:maxLines="1"
+            android:text="@string/result_detail_recording_list_column_index_label"
+            android:textColor="@color/primaryTextColor"
+            android:textStyle="bold"
+
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/result_detail_recording_list_column_rating"
+            app:layout_constraintStart_toEndOf="@id/result_detail_recording_list_column_group"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/result_detail_recording_list_column_rating"
+            style="@style/TextAppearance.MdcTypographyStyles.Body1"
+            android:layout_width="wrap_content"
+
+            android:layout_height="wrap_content"
+            android:maxLines="1"
+            android:text="@string/result_detail_recording_list_column_rating_label"
+            android:textColor="@color/primaryTextColor"
+            android:textStyle="bold"
+
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/result_detail_recording_list_column_index"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <Button
         android:id="@+id/button_result_detail_share"

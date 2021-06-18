@@ -4,17 +4,18 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:paddingHorizontal="5dp"
-    android:paddingBottom="5dp">
+    android:paddingVertical="2.5dp">
 
     <TextView
         android:id="@+id/result_detail_recording_list_row_id"
+        style="@style/TextAppearance.MdcTypographyStyles.Body1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:maxEms="6"
+        android:ems="3"
+        android:maxEms="3"
         android:text="@string/result_detail_recording_list_row_id_placeholder"
-        style="@style/TextAppearance.MdcTypographyStyles.Subtitle1"
-        android:textStyle="bold"
         android:textColor="@color/primaryTextColor"
+        android:textStyle="bold"
         app:layout_constraintEnd_toStartOf="@+id/result_detail_recording_list_row_group"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintHorizontal_chainStyle="spread_inside"
@@ -23,11 +24,12 @@
 
     <TextView
         android:id="@+id/result_detail_recording_list_row_group"
+        style="@style/TextAppearance.MdcTypographyStyles.Body1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:maxEms="8"
+        android:ems="4"
+        android:maxEms="4"
         android:text="@string/result_detail_recording_list_row_group_placeholder"
-        style="@style/TextAppearance.MdcTypographyStyles.Subtitle1"
         android:textColor="@color/primaryTextColor"
         app:layout_constraintEnd_toStartOf="@+id/result_detail_recording_list_row_index"
         app:layout_constraintHorizontal_bias="0.5"
@@ -36,13 +38,12 @@
 
     <TextView
         android:id="@+id/result_detail_recording_list_row_index"
+        style="@style/TextAppearance.MdcTypographyStyles.Body1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:gravity="end"
-        android:maxEms="3"
-        android:minEms="3"
+        android:ems="2"
+        android:maxEms="2"
         android:text="@string/result_detail_recording_list_row_index_placeholder"
-        style="@style/TextAppearance.MdcTypographyStyles.Subtitle1"
         android:textColor="@color/primaryTextColor"
         app:layout_constraintEnd_toStartOf="@+id/result_detail_recording_list_row_rating"
         app:layout_constraintHorizontal_bias="0.5"
@@ -51,13 +52,12 @@
 
     <TextView
         android:id="@+id/result_detail_recording_list_row_rating"
+        style="@style/TextAppearance.MdcTypographyStyles.Body1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:gravity="end"
+        android:ems="3"
         android:maxEms="3"
-        android:minEms="3"
         android:text="@string/result_detail_recording_list_row_rating_placeholder"
-        style="@style/TextAppearance.MdcTypographyStyles.Subtitle1"
         android:textColor="@color/primaryTextColor"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"

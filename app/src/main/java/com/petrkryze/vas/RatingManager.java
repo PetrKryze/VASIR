@@ -239,14 +239,6 @@ public class RatingManager {
         this.savedPlayProgress = -1;
     }
 
-    int getLastSessionRating(int index) {
-        if (this.ratings.size() == 0) { // New session without saved previous ratings
-            return DEFAULT_UNSET_RATING;
-        } else {
-            return this.ratings.get(index);
-        }
-    }
-
     public State getState() {
         return state;
     }

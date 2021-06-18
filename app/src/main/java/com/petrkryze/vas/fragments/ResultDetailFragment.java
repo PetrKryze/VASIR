@@ -28,6 +28,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavDirections;
 import androidx.navigation.fragment.NavHostFragment;
+import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -100,16 +101,20 @@ public class ResultDetailFragment extends Fragment {
         TextView TWresultDetailSaveDate = view.findViewById(R.id.result_detail_save_date);
         TextView TWresultDetailSeed = view.findViewById(R.id.result_detail_seed);
         TextView TWresultDetailGeneratorDate = view.findViewById(R.id.result_detail_generator_date);
-        RecyclerView recordingListView = view.findViewById(R.id.result_detail_recordings_list);
 
         TWresultDetailID.setText(getString(R.string.result_detail_sessionID, resultToDisplay.getSession_ID()));
         TWresultDetailSaveDate.setText(formatDateTime(resultToDisplay.getSaveDate()));
         TWresultDetailSeed.setText(String.valueOf(resultToDisplay.getSeed()));
         TWresultDetailGeneratorDate.setText(resultToDisplay.getGeneratorMessage().replace("-",". "));
 
+        RecyclerView recordingListView = view.findViewById(R.id.result_detail_recordings_list);
         recordingListView.setAdapter(
                 new RecordingsRecyclerViewAdapter(context, resultToDisplay.getRecordings()));
         recordingListView.setLayoutManager(new LinearLayoutManager(context));
+
+        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(context,
+                DividerItemDecoration.VERTICAL);
+        recordingListView.addItemDecoration(dividerItemDecoration);
     }
 
     private String formatDateTime(String raw) {
