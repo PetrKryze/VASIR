@@ -46,7 +46,9 @@ public class ResultsFragment extends Fragment {
     public static final String ResultListSerializedKey = "resultsList";
 
     private ArrayList<RatingResult> ratingResults;
+
     private Vibrator vibrator;
+    public static int VIBRATE_BUTTON_MS;
 
     private final View.OnClickListener shareAllListener = new View.OnClickListener() {
         @Override
@@ -54,7 +56,7 @@ public class ResultsFragment extends Fragment {
             if (v.getId() == R.id.button_results_share_all) {
                 Log.i(TAG, "onClick: SHARE ALL BUTTON CLICKED");
                 vibrator.vibrate(VibrationEffect.createOneShot(
-                        MainActivity.VIBRATE_BUTTON_MS, VibrationEffect.DEFAULT_AMPLITUDE));
+                        VIBRATE_BUTTON_MS, VibrationEffect.DEFAULT_AMPLITUDE));
 
                 Context context = getContext();
                 if (context == null) {
@@ -120,6 +122,7 @@ public class ResultsFragment extends Fragment {
         }
 
         vibrator = (Vibrator) requireContext().getSystemService(Context.VIBRATOR_SERVICE);
+        VIBRATE_BUTTON_MS = getResources().getInteger(R.integer.VIBRATE_BUTTON_MS);
     }
 
     @Override

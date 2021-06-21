@@ -9,16 +9,11 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.os.Vibrator;
-import android.view.GestureDetector;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.MotionEvent;
-import android.view.View;
 
 import com.petrkryze.vas.RatingManager.LoadResult;
-import com.petrkryze.vas.fragments.RatingFragment;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -39,15 +34,6 @@ public class MainActivity extends AppCompatActivity {
 
 //    private static final String TAG = "VisualAnalogScale";
 
-    private Toolbar toolbar;
-
-    private GestureDetector gestureDetector;
-
-    RatingFragment ratingFragment = null;
-
-    private Vibrator vibrator;
-    public static int VIBRATE_BUTTON_MS;
-    public static int VIBRATE_RATING_START;
     private static int alphaDisabled;
 
     @Override
@@ -56,21 +42,11 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         // Toolbar setup
-        toolbar = findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-        // Get vibrator service for UI vibration feedback
-        vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-        VIBRATE_BUTTON_MS = getResources().getInteger(R.integer.VIBRATE_BUTTON_MS);
-        VIBRATE_RATING_START = getResources().getInteger(R.integer.VIBRATE_RATING_BAR_START_MS);
 
         // Menu icon disabled look alpha
         alphaDisabled = getResources().getInteger(R.integer.DISABLED_ICON_ALPHA);
-
-        // Checks for single taps on screen to hide system UI
-        gestureDetector = new GestureDetector(this, new MainActivity.MyGestureListener());
-
-        hideSystemUI();
 
         SharedPreferences preferences = getSharedPreferences(getString(R.string.PREFERENCES_SETTINGS), MODE_PRIVATE);
         boolean showWelcomeScreen = preferences.getBoolean(getString(R.string.KEY_PREFERENCES_SETTINGS_WELCOME_SHOW), true);
@@ -81,7 +57,7 @@ public class MainActivity extends AppCompatActivity {
         NavInflater navInflater = navController.getNavInflater();
         NavGraph navGraph = navInflater.inflate(R.navigation.nav_graph);
 
-        showWelcomeScreen = true; // TODO DEVELOPMENT ONLY
+        showWelcomeScreen = true; // TODO DEVELOPMENT ONLY, delete later!
         navGraph.setStartDestination(showWelcomeScreen ? R.id.welcome_fragment : R.id.rating_fragment);
         navController.setGraph(navGraph);
 
@@ -133,67 +109,6 @@ public class MainActivity extends AppCompatActivity {
             return true;
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    private void hideSystemUI() {
-        View decorView = getWindow().getDecorView();
-        decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE);
-    }
-
-    private void showSystemUI() {
-        View decorView = getWindow().getDecorView();
-        decorView.setSystemUiVisibility(0);
-    }
-
-    // Handles the auto-hide feature of toolbar to pause when overflow is opened
-    @Override
-    public boolean onMenuOpened(int featureId, Menu menu) {
-        if (ratingFragment != null) {
-            ratingFragment.onMenuOpened();
-        }
-
-        return super.onMenuOpened(featureId, menu);
-    }
-
-    // Re-enables the auto-hide after the overflow is closed
-    @Override
-    public void onPanelClosed(int featureId, @NonNull Menu menu) {
-        if (ratingFragment != null) {
-            ratingFragment.onPanelClosed();
-        }
-
-        super.onPanelClosed(featureId, menu);
-    }
-
-    @Override
-    public void onWindowFocusChanged(boolean hasFocus) {
-        super.onWindowFocusChanged(hasFocus);
-        if (hasFocus) {
-            hideSystemUI();
-        } else {
-            showSystemUI();
-        }
-    }
-
-    // This part ensures return back to 'fullscreen' mode on app single tap
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        this.gestureDetector.onTouchEvent(event);
-        return super.onTouchEvent(event);
-    }
-
-    class MyGestureListener extends GestureDetector.SimpleOnGestureListener {
-
-        @Override
-        public boolean onDown(MotionEvent event) {
-            return true;
-        }
-
-        @Override
-        public boolean onSingleTapUp(MotionEvent event) {
-            hideSystemUI();
-            return super.onSingleTapUp(event);
-        }
     }
 
     public static void disableMenuItem(final Menu menu, final int itemID) {

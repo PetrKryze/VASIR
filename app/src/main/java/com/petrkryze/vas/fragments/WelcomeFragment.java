@@ -1,18 +1,27 @@
 package com.petrkryze.vas.fragments;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.animation.ArgbEvaluator;
 import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.ColorFilter;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.TranslateAnimation;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.petrkryze.vas.MainActivity;
@@ -26,6 +35,7 @@ import java.util.ArrayList;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavDirections;
 import androidx.navigation.fragment.NavHostFragment;
@@ -40,8 +50,11 @@ public class WelcomeFragment extends Fragment {
 
     private ImageView titleImage;
     private CheckBox checkBox;
+    private ImageView scrollIcon;
 
     private SharedPreferences preferences;
+
+    private boolean hasScrolled = false;
 
     public WelcomeFragment() {
         // Required empty public constructor
@@ -77,6 +90,8 @@ public class WelcomeFragment extends Fragment {
         titleImage = view.findViewById(R.id.welcome_title_image);
         Button startButton = view.findViewById(R.id.welcome_start_button);
         checkBox = view.findViewById(R.id.welcome_checkbox);
+        scrollIcon = view.findViewById(R.id.welcome_fragment_scroll_hint_arrow);
+        NestedScrollView scrollView = view.findViewById(R.id.welcome_fragment_scroll_container);
 
         int colorFrom = getResources().getColor(R.color.primaryColor, null);
         int colorTo = getResources().getColor(R.color.titleLogoTransition, null);
@@ -95,6 +110,58 @@ public class WelcomeFragment extends Fragment {
 
             NavDirections directions = WelcomeFragmentDirections.actionWelcomeFragmentToRatingFragment();
             NavHostFragment.findNavController(WelcomeFragment.this).navigate(directions);
+        });
+
+        // Part of code that handles the animated scroll hint button
+        scrollIcon.setOnClickListener(v -> {
+            TextView helpBody = scrollView.findViewById(R.id.welcome_body_textview);
+            scrollView.smoothScrollBy(0, helpBody.getTop());
+        });
+
+        // Filter to make the arrow black
+        ColorFilter filter = new PorterDuffColorFilter(
+                requireContext().getColor(android.R.color.black), PorterDuff.Mode.SRC_IN);
+        scrollIcon.getDrawable().setColorFilter(filter);
+
+        // Suggestive animation of slight hopping up and down
+        TranslateAnimation translateAnimation = new TranslateAnimation(0, 0, 0, 20);
+        translateAnimation.setRepeatCount(Animation.INFINITE);
+        translateAnimation.setRepeatMode(Animation.REVERSE);
+        translateAnimation.setDuration(500);
+
+        // After set delay shows the arrow and starts it's hopping animation
+        (new Handler()).postDelayed(() -> {
+            if (!hasScrolled) {
+                scrollIcon.setVisibility(View.VISIBLE);
+                scrollIcon.animate()
+                        .alpha((float) 0.2)
+                        .setListener(new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        super.onAnimationEnd(animation);
+                        scrollIcon.startAnimation(translateAnimation);
+                    }
+                });
+            }
+        }, 2000);
+
+        // Makes the arrow disappear on scroll / not appear at all
+        scrollView.setSmoothScrollingEnabled(true);
+        scrollView.setOnScrollChangeListener((NestedScrollView.OnScrollChangeListener) (v, scrollX, scrollY, oldScrollX, oldScrollY) -> {
+            hasScrolled = true;
+            if (scrollIcon.getVisibility() == View.VISIBLE) {
+
+                scrollIcon.animate()
+                        .alpha((float) 0.0)
+                        .setDuration(200)
+                        .setListener(new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        scrollIcon.clearAnimation();
+                        scrollIcon.setVisibility(View.GONE);
+                    }
+                });
+            }
         });
     }
 
@@ -139,4 +206,6 @@ public class WelcomeFragment extends Fragment {
 
         return super.onOptionsItemSelected(item);
     }
+
+
 }

@@ -485,7 +485,7 @@ public class RatingManager {
     }
 
     public static ArrayList<RatingResult> loadResults(Context context) throws Exception {
-        // TODO
+        Log.i(TAG, "loadResults: Loading results...");
         File resultsDir = new File(context.getFilesDir(), context.getString(R.string.DIRECTORY_NAME_RESULTS));
         checkResultsDirectory(resultsDir);
 

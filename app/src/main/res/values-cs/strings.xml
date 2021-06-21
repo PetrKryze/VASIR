@@ -34,7 +34,7 @@
         Aktuální sezení bude vždy automaticky ukládáno při odchodu z aplikace a může být také uloženo manuálně ve vysouvací nabídce v pravém horním rohu.
         Tato nabídka také umožňuje zobrazit si uložená sezení a sdílet je pomocí Cloudu, emailu, atd.
         \n\n
-        Tato aplikace byla vyvinuta pro potřeby výzkumu a vývoje na katedře teorie obvodů, Fakultě elektrotechnické, ČVUT v Praze.
+        <i>Tato aplikace byla vyvinuta pro potřeby výzkumu a vývoje na katedře teorie obvodů, Fakultě elektrotechnické, ČVUT v Praze.</i>
     </string>
     <string name="directory_selection_instructions">
         Instrukce pro umístění audio souborů:\n
@@ -153,4 +153,5 @@
     <string name="action_show_session_info">Aktuální Sezení</string>
     <string name="action_show_saved_results">Uložená Hodnocení</string>
     <string name="action_save">Uložit</string>
+    <string name="welcome_scroll_hint_description">Dolů mířící šipka vybízející ke scrollování</string>
 </resources>

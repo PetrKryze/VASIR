@@ -1,32 +1,55 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/welcome_fragment_container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".fragments.WelcomeFragment">
+    tools:context=".fragments.WelcomeFragment" >
+
+    <ImageView
+        android:id="@+id/welcome_fragment_scroll_hint_arrow"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:alpha="0"
+        android:clickable="false"
+        android:contentDescription="@string/welcome_scroll_hint_description"
+        android:src="@drawable/ic_scroll_hint_down"
+        android:translationX="5dp"
+        android:translationY="10dp"
+        android:translationZ="15dp"
+        android:visibility="gone"
+
+
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <androidx.core.widget.NestedScrollView
+        android:id="@+id/welcome_fragment_scroll_container"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical"
             android:gravity="center_horizontal"
+            android:orientation="vertical"
             android:padding="20dp">
 
             <ImageView
                 android:id="@+id/welcome_title_image"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginVertical="10dp"
                 android:layout_marginHorizontal="50dp"
+                android:layout_marginVertical="10dp"
                 android:adjustViewBounds="true"
+                android:background="@color/primaryColor"
                 android:contentDescription="@string/welcome_title_image_desc"
-                android:src="@drawable/vas_app_welcome_icon_no_background"
-                android:background="@color/primaryColor"/>
+                android:src="@drawable/vas_app_welcome_icon_no_background" />
 
             <TextView
                 android:id="@+id/welcome_title_textview"
@@ -40,11 +63,10 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@drawable/horizontal_divider"
-                android:alpha="0.3"
                 android:layout_marginVertical="10dp"
-                android:orientation="vertical"
-                />
+                android:alpha="0.3"
+                android:background="@drawable/horizontal_divider"
+                android:orientation="vertical" />
 
             <TextView
                 android:id="@+id/welcome_body_textview2"
@@ -52,16 +74,16 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="left"
-                android:text="@string/welcome_message"
-                android:justificationMode="inter_word"/>
+                android:justificationMode="inter_word"
+                android:text="@string/welcome_message" />
 
             <CheckBox
                 android:id="@+id/welcome_checkbox"
+                style="@style/TextAppearance.MdcTypographyStyles.Caption"
                 android:layout_width="wrap_content"
                 android:layout_height="30dp"
-                android:text="@string/welcome_checkbox_do_not_show_again"
-                style="@style/TextAppearance.MdcTypographyStyles.Caption"
-                android:layout_marginTop="10dp"/>
+                android:layout_marginTop="10dp"
+                android:text="@string/welcome_checkbox_do_not_show_again" />
 
             <Button
                 android:id="@+id/welcome_start_button"
@@ -69,27 +91,26 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="50dp"
-                android:textColor="@color/primaryTextOnPrimary"
                 android:text="@string/welcome_button_continue_label"
-                android:textSize="18sp"/>
+                android:textColor="@color/primaryTextOnPrimary"
+                android:textSize="18sp" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@drawable/horizontal_divider"
-                android:alpha="0.3"
                 android:layout_marginVertical="10dp"
-                android:orientation="vertical"
-                />
+                android:alpha="0.3"
+                android:background="@drawable/horizontal_divider"
+                android:orientation="vertical" />
 
             <TextView
                 android:id="@+id/welcome_body_textview"
                 style="@style/TextAppearance.MdcTypographyStyles.Body2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/welcome_message_further_info"
                 android:gravity="left"
-                android:justificationMode="inter_word" />
+                android:justificationMode="inter_word"
+                android:text="@string/welcome_message_further_info" />
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
