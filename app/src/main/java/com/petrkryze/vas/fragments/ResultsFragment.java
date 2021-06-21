@@ -46,6 +46,7 @@ public class ResultsFragment extends Fragment {
     public static final String ResultListSerializedKey = "resultsList";
 
     private ArrayList<RatingResult> ratingResults;
+    private Snackbar hint;
 
     private Vibrator vibrator;
     public static int VIBRATE_BUTTON_MS;
@@ -131,6 +132,7 @@ public class ResultsFragment extends Fragment {
         return inflater.inflate(R.layout.fragment_result, container, false);
     }
 
+    @SuppressLint("ShowToast")
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -148,7 +150,7 @@ public class ResultsFragment extends Fragment {
                 DividerItemDecoration.VERTICAL);
         resultsListView.addItemDecoration(dividerItemDecoration);
 
-        @SuppressLint("ShowToast") Snackbar hint = Snackbar.make(
+        hint = Snackbar.make(
                 requireActivity().findViewById(R.id.coordinator),
                 R.string.hint_results_select, BaseTransientBottomBar.LENGTH_INDEFINITE)
                 .setAnchorView(buttonShareAll);
@@ -193,6 +195,14 @@ public class ResultsFragment extends Fragment {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (hint != null) {
+            hint.dismiss();
+        }
     }
 
     public interface OnItemDetailListener {

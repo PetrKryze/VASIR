@@ -1,10 +1,16 @@
 package com.petrkryze.vas.adapters;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
+import android.os.VibrationEffect;
+import android.os.Vibrator;
 import android.view.LayoutInflater;
+import android.view.SoundEffectConstants;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.petrkryze.vas.R;
 import com.petrkryze.vas.Recording;
@@ -24,9 +30,13 @@ public class RecordingsRecyclerViewAdapter extends RecyclerView.Adapter<Recordin
     private final Context context;
     private final List<Recording> recordings;
 
+    private final int VIBRATE_LIST_ITEM_SELECT;
+
     public RecordingsRecyclerViewAdapter(Context context, List<Recording> recordings) {
         this.context = context;
         this.recordings = recordings;
+
+        VIBRATE_LIST_ITEM_SELECT = context.getResources().getInteger(R.integer.VIBRATE_LONG_CLICK);
     }
 
     @NonNull
@@ -42,10 +52,30 @@ public class RecordingsRecyclerViewAdapter extends RecyclerView.Adapter<Recordin
         final Recording currentRecording = recordings.get(position);
         holder.mItem = currentRecording;
 
-        holder.viewID.setText(currentRecording.getID());
-        holder.viewGroup.setText(currentRecording.getGroupType().toString());
-        holder.viewIndex.setText(String.valueOf(currentRecording.getRandomized_number()));
-        holder.viewRating.setText(currentRecording.getRating() == -1 ? "-" : String.valueOf(currentRecording.getRating()));
+        String id = currentRecording.getID();
+        String group = currentRecording.getGroupType().toString();
+        String index = String.valueOf(currentRecording.getRandomized_number());
+        String rating = currentRecording.getRating() == -1 ? "-" : String.valueOf(currentRecording.getRating());
+
+        holder.viewID.setText(id);
+        holder.viewGroup.setText(group);
+        holder.viewIndex.setText(index);
+        holder.viewRating.setText(rating);
+
+        holder.mView.setOnLongClickListener(v -> {
+            holder.mView.requestFocus();
+            holder.mView.playSoundEffect(SoundEffectConstants.CLICK);
+            ((Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE)).
+                    vibrate(VibrationEffect.createOneShot(VIBRATE_LIST_ITEM_SELECT, VibrationEffect.DEFAULT_AMPLITUDE));
+
+            ClipboardManager clipboardManager = context.getSystemService(ClipboardManager.class);
+            ClipData clip = ClipData.newPlainText("Recording data",
+                    context.getString(R.string.result_detail_copy, id, group, index, rating));
+            clipboardManager.setPrimaryClip(clip);
+
+            Toast.makeText(context, context.getString(R.string.result_detail_copy_copied), Toast.LENGTH_SHORT).show();
+            return true;
+        });
     }
 
     @Override

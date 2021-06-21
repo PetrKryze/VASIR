@@ -174,5 +174,8 @@
     <string name="action_show_session_info">Session Info</string>
     <string name="action_show_saved_results">Saved Rating</string>
     <string name="action_save">Save</string>
+
     <string name="welcome_scroll_hint_description">Down facing arrow suggesting scrolling</string>
+    <string name="result_detail_copy">ID: %1$s, Group: %2$s, Index: %3$s, Rating: %4$s</string>
+    <string name="result_detail_copy_copied">Recording info copied to clipboard!</string>
 </resources>

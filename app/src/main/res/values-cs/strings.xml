@@ -153,5 +153,8 @@
     <string name="action_show_session_info">Aktuální Sezení</string>
     <string name="action_show_saved_results">Uložená Hodnocení</string>
     <string name="action_save">Uložit</string>
+
     <string name="welcome_scroll_hint_description">Dolů mířící šipka vybízející ke scrollování</string>
+    <string name="result_detail_copy">ID: %1$s, Skupina: %2$s, Index: %3$s, Hodnocení: %4$s</string>
+    <string name="result_detail_copy_copied">Informace o nahrávce zkopírovány do schránky!</string>
 </resources>

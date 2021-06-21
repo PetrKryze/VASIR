@@ -67,8 +67,8 @@ public class RatingFragment extends Fragment {
     private ImageView checkMark;
 
     private Vibrator vibrator;
-    public static int VIBRATE_BUTTON_MS;
-    public static int VIBRATE_RATING_START;
+    private int VIBRATE_BUTTON_MS;
+    private int VIBRATE_RATING_START;
 
     private Player player;
     private RatingManager ratingManager;
