@@ -7,6 +7,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 import static com.petrkryze.vas.Recording.DEFAULT_UNSET_RATING;
@@ -29,6 +30,9 @@ public class RatingResult implements Serializable {
     static final String LABEL_SEED = "Randomizer Seed";
     static final String LABEL_GENERATOR_MESSAGE = "Generator Date";
     static final String LABEL_SAVE_DATE = "Save Date";
+
+    public static Comparator<RatingResult> sortChronologically = (o1, o2) ->
+            Integer.compare(0, o1.getSaveDate().compareTo(o2.getSaveDate()));
 
     public RatingResult(int session_ID, long seed, String generatorMessage, String saveDate,
                         List<Recording> recordings) {

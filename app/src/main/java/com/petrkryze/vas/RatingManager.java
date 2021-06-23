@@ -425,6 +425,7 @@ public class RatingManager {
     }
 
     private int getNewSessionID() {
+        // TODO Check if this works properly once the preferences wont change
         String json = preferences.getString(KEY_PREFERENCES_CURRENT_SESSION, "");
         if (json.equals("")) {
             Log.i(TAG, "getNewSessionID: No key for session ID found in preferences.");

@@ -121,6 +121,7 @@ public class ResultsFragment extends Fragment {
         if (getArguments() != null) {
             //noinspection unchecked
             ratingResults = ResultsFragmentArgs.fromBundle(getArguments()).getRatings();
+            ratingResults.sort(RatingResult.sortChronologically);
         }
 
         vibrator = (Vibrator) requireContext().getSystemService(Context.VIBRATOR_SERVICE);
