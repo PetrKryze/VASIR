@@ -30,6 +30,7 @@ public class GroupDirectoryRecyclerViewAdapter extends RecyclerView.Adapter<Grou
         this.groupFolders = groupFolders;
     }
 
+    @NotNull
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
@@ -51,8 +52,7 @@ public class GroupDirectoryRecyclerViewAdapter extends RecyclerView.Adapter<Grou
         holder.viewRowGroupNameInput.setText(currentGFolder.getLabel(),
                 TextView.BufferType.EDITABLE);
 
-        // TODO do input filtering here???
-
+        // TODO anything else to do with this edit text??
 
     }
 

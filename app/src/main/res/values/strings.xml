@@ -191,5 +191,6 @@
     <string name="group_control_group_folder_list_row_group_name_label">Group name:</string>
     <string name="group_control_group_folder_list_row_group_name_input_placeholder" translatable="false">Group name placeholder</string>
     <string name="group_control_group_folder_list_row_folder_name_placeholder" translatable="false">Folder name placeholder</string>
+    <string name="group_control_invalid_input"><![CDATA[Group name must not contain these characters: ~#^|$%&*!?<>/]]></string>
 
 </resources>

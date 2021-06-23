@@ -11,6 +11,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import com.petrkryze.vas.GroupFolder;
@@ -18,6 +19,7 @@ import com.petrkryze.vas.MainActivity;
 import com.petrkryze.vas.R;
 import com.petrkryze.vas.RatingManager;
 import com.petrkryze.vas.adapters.GroupDirectoryRecyclerViewAdapter;
+import com.petrkryze.vas.adapters.GroupDirectoryRecyclerViewAdapter.ViewHolder;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -40,6 +42,7 @@ public class GroupControlFragment extends Fragment {
     public static final String GroupFolderListSerializedKey = "groupFolderList";
 
     private ArrayList<GroupFolder> groupFolders;
+    private RecyclerView groupFoldersListView;
 
     private Vibrator vibrator;
     public static int VIBRATE_BUTTON_MS;
@@ -52,23 +55,24 @@ public class GroupControlFragment extends Fragment {
                 vibrator.vibrate(VibrationEffect.createOneShot(
                         VIBRATE_BUTTON_MS, VibrationEffect.DEFAULT_AMPLITUDE));
 
+                try {
+                    if (checkEditTexts()) {
+                        Bundle bundle = new Bundle();
+                        bundle.putSerializable(GroupFolderListSerializedKey,
+                                GroupControlFragment.this.groupFolders); // TODO is this okay?
+                        // TODO Maybe make the change of groupFolders differently?
 
-                // TODO confirm the folders and move on
-                // oh god oh fuck
-
-                Bundle bundle = new Bundle();
-                bundle.putSerializable(GroupFolderListSerializedKey,
-                        GroupControlFragment.this.groupFolders); // TODO is this okay?
-                // TODO Maybe make the change of groupFolders differently?
-
-                getParentFragmentManager()
-                        .setFragmentResult(RatingManager.GROUP_CHECK_RESULT_REQUEST_KEY, bundle);
-                NavHostFragment.findNavController(GroupControlFragment.this)
-                        .navigateUp();
+                        getParentFragmentManager()
+                                .setFragmentResult(RatingManager.GROUP_CHECK_RESULT_REQUEST_KEY, bundle);
+                        NavHostFragment.findNavController(GroupControlFragment.this)
+                                .navigateUp();
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         }
     };
-
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -117,7 +121,7 @@ public class GroupControlFragment extends Fragment {
         Button buttonConfirm = view.findViewById(R.id.group_control_button_confirm);
         buttonConfirm.setOnClickListener(confirmListener);
 
-        RecyclerView groupFoldersListView = view.findViewById(R.id.group_control_group_folder_list);
+        groupFoldersListView = view.findViewById(R.id.group_control_group_folder_list);
         groupFoldersListView.setAdapter(new GroupDirectoryRecyclerViewAdapter(context,
                 groupFolders));
         groupFoldersListView.setLayoutManager(new LinearLayoutManager(context));
@@ -125,6 +129,34 @@ public class GroupControlFragment extends Fragment {
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(context,
                 DividerItemDecoration.VERTICAL);
         groupFoldersListView.addItemDecoration(dividerItemDecoration);
+    }
+
+    private boolean checkEditTexts() throws Exception {
+        GroupDirectoryRecyclerViewAdapter adapter =
+                (GroupDirectoryRecyclerViewAdapter) groupFoldersListView.getAdapter();
+        if (adapter == null) throw new NullPointerException("Fatal error! RecyclerView is missing adapter.");
+        int nRows = groupFoldersListView.getAdapter().getItemCount();
+        if (nRows <= 0) throw new Exception("Fatal error! RecyclerView adapter is empty.");
+
+        EditText firstWrong = null;
+        boolean flag = true;
+        for (int i = 0; i < nRows; i++) {
+            ViewHolder row = (ViewHolder) groupFoldersListView.findViewHolderForAdapterPosition(i);
+            if (row == null) throw new NullPointerException("Fatal error! ViewHolder for row " + i + " is null.");
+            String inputText = row.viewRowGroupNameInput.getText().toString();
+            Log.i(TAG, "onClick: Edit text on row " + i + ": " + inputText);
+
+            // I fucking hate regex, but well, here we go - it should catch all of these chars
+            if (inputText.matches(".*[~#^|$%&*!/<>?\"\\\\].*")) {
+                row.viewRowGroupNameInput.setError(getString(R.string.group_control_invalid_input));
+                if (firstWrong == null) firstWrong = row.viewRowGroupNameInput;
+                flag = false;
+            } else { // Input is OK
+                this.groupFolders.get(i).setLabel(inputText);
+            }
+        }
+        if (!flag) firstWrong.requestFocus();
+        return flag;
     }
 
     @Override

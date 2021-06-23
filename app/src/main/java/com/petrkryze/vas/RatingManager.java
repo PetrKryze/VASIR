@@ -330,7 +330,7 @@ public class RatingManager {
 
     public void wipeCurrentSession() {
         Log.i(TAG, "wipeCurrentSession: Wiping session " + this.session_ID +
-                ", (seed: )" + this.seed);
+                ", (seed: " + this.seed + ")");
         this.session_ID = -1;
         this.seed = -1;
         this.generatorMessage = null;

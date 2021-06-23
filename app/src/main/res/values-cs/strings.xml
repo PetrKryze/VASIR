@@ -163,6 +163,7 @@
     <string name="group_control_group_folder_list_row_found_audio_files">Obsahuje %d vhodných audio souborů.</string>
     <string name="group_control_group_folder_list_row_folder_name_label">Adresář:</string>
     <string name="group_control_group_folder_list_row_group_name_label">Název skupiny:</string>
+    <string name="group_control_invalid_input"><![CDATA[Název skupiny nesmí obsahovat tyto znaky: ~#^|$%&*!?<>/]]></string>
 
 
 </resources>
