@@ -5,11 +5,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
 
     android:id="@+id/welcome_fragment_container"
-    android:name="com.petrkryze.vas.HelpFragment"
-    tools:context=".fragments.HelpFragment"
+    android:name="com.petrkryze.vas.fragments.HelpFragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/main_background">
+    android:background="@color/main_background"
+    android:orientation="vertical"
+    tools:context=".fragments.HelpFragment">
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"

@@ -43,7 +43,7 @@ public class ResultsRecyclerViewAdapter extends RecyclerView.Adapter<ResultsRecy
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.result_fragment_result_list_row, parent, false);
+                .inflate(R.layout.results_list_row, parent, false);
         return new ViewHolder(view);
     }
 

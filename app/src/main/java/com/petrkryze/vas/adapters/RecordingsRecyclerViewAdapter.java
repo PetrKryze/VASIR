@@ -23,7 +23,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 /**
- * Created by Petr on 05.05.2021. Yay!
+ * {@link RecyclerView.Adapter} that can display a {@link Recording}.
  */
 public class RecordingsRecyclerViewAdapter extends RecyclerView.Adapter<RecordingsRecyclerViewAdapter.ViewHolder> {
 
@@ -43,7 +43,7 @@ public class RecordingsRecyclerViewAdapter extends RecyclerView.Adapter<Recordin
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.result_detail_recordings_list_row, parent, false);
+                .inflate(R.layout.recordings_list_row, parent, false);
         return new ViewHolder(view);
     }
 
@@ -53,8 +53,8 @@ public class RecordingsRecyclerViewAdapter extends RecyclerView.Adapter<Recordin
         holder.mItem = currentRecording;
 
         String id = currentRecording.getID();
-        String group = currentRecording.getGroupType().toString();
-        String index = String.valueOf(currentRecording.getRandomized_number());
+        String group = currentRecording.getGroupName();
+        String index = String.valueOf(currentRecording.getRandomIndex());
         String rating = currentRecording.getRating() == -1 ? "-" : String.valueOf(currentRecording.getRating());
 
         holder.viewID.setText(id);

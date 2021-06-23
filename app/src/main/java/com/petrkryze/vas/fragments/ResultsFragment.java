@@ -50,6 +50,7 @@ public class ResultsFragment extends Fragment {
 
     private Vibrator vibrator;
     public static int VIBRATE_BUTTON_MS;
+    private Handler handler;
 
     private final View.OnClickListener shareAllListener = new View.OnClickListener() {
         @Override
@@ -104,7 +105,7 @@ public class ResultsFragment extends Fragment {
     }
 
     @SuppressWarnings("unused")
-    public static ResultsFragment newInstance(int columnCount, ArrayList<RatingResult> ratingResults) {
+    public static ResultsFragment newInstance(ArrayList<RatingResult> ratingResults) {
         ResultsFragment fragment = new ResultsFragment();
         Bundle args = new Bundle();
         args.putSerializable(ResultListSerializedKey, ratingResults);
@@ -124,6 +125,7 @@ public class ResultsFragment extends Fragment {
 
         vibrator = (Vibrator) requireContext().getSystemService(Context.VIBRATOR_SERVICE);
         VIBRATE_BUTTON_MS = getResources().getInteger(R.integer.VIBRATE_BUTTON_MS);
+        this.handler = new Handler();
     }
 
     @Override
@@ -156,7 +158,7 @@ public class ResultsFragment extends Fragment {
                 .setAnchorView(buttonShareAll);
         hint.setAction(R.string.button_close_label, v -> hint.dismiss());
 
-        (new Handler()).postDelayed(hint::show,context.getResources().getInteger(R.integer.SNACKBAR_HINT_DELAY));
+        handler.postDelayed(hint::show,context.getResources().getInteger(R.integer.SNACKBAR_HINT_DELAY));
     }
 
     @Override
@@ -202,6 +204,9 @@ public class ResultsFragment extends Fragment {
         super.onPause();
         if (hint != null) {
             hint.dismiss();
+        }
+        if (handler != null) {
+            handler.removeCallbacksAndMessages(null);
         }
     }
 

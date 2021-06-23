@@ -8,9 +8,12 @@ import android.media.MediaScannerConnection;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
+import android.util.Pair;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.petrkryze.vas.fragments.GroupControlFragment;
+import com.petrkryze.vas.fragments.RatingFragmentDirections;
 
 import org.apache.commons.io.FilenameUtils;
 
@@ -27,13 +30,15 @@ import java.util.Random;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
+import androidx.navigation.NavDirections;
+import androidx.navigation.fragment.NavHostFragment;
 
 import static com.petrkryze.vas.RatingResult.LABEL_GENERATOR_MESSAGE;
 import static com.petrkryze.vas.RatingResult.LABEL_SAVE_DATE;
 import static com.petrkryze.vas.RatingResult.LABEL_SEED;
 import static com.petrkryze.vas.RatingResult.LABEL_SESSION_ID;
 import static com.petrkryze.vas.Recording.DEFAULT_UNSET_RATING;
-import static com.petrkryze.vas.Recording.recordingComparator;
 
 /**
  * Created by Petr on 09.02.2020. Yay!
@@ -42,7 +47,11 @@ public class RatingManager {
 
     public enum State {STATE_IN_PROGRESS, STATE_FINISHED, STATE_IDLE}
     public enum LoadResult {OK, NO_SESSION, CORRUPTED_SESSION}
-    public enum DirectoryCheckError {NOT_EXIST, NOT_DIRECTORY, NOT_READABLE, NO_FILES, MISSING_FILES}
+    public enum DirectoryCheckError {NOT_EXIST, NOT_DIRECTORY, NOT_READABLE, NO_FILES, MISSING_FILES, OK}
+
+    public interface GroupFoldersUserCheckCallback {
+        void groupCheckDone();
+    }
 
     // Session defining variables
     private int session_ID;
@@ -54,7 +63,7 @@ public class RatingManager {
     private ArrayList<String> fileList = null; // For file consistency check in storage
 
     private State state;
-    private String datadirPath;
+    private String dataDirPath;
     private int trackPointer = 0;
     private int savedPlayProgress = 0;
 
@@ -79,84 +88,155 @@ public class RatingManager {
 
     public RatingManager(@NonNull Activity context) {
         this.preferences = context.getPreferences(Context.MODE_PRIVATE);
+        this.state = State.STATE_IDLE;
 
-        // TODO Delet dis after production version is done
+//         TODO Delet dis after production version is done
 //        SharedPreferences.Editor editor = preferences.edit();
 //        editor.clear();
 //        editor.commit();
     }
 
-    public Bundle checkDataDirectoryPath() {
-        // Check data directory that has been successfully loaded
-        return checkDataDirectoryPath(new File(this.datadirPath));
-    }
-
-    public Bundle checkDataDirectoryPath(File datadir) {
-        // podiva se esli adresar existuje
-        // podiva se jestli v nem jsou vsechny files ktery jsou v ulozenym filelistu
-        // ty co nenajde fyzicky ve storage by mohlo vypsat v dialogu
+    public static final String GROUP_CHECK_RESULT_REQUEST_KEY = "group_check_result";
+    @SuppressWarnings("unchecked")
+    public Bundle checkDataDirectoryPath(File rootDataDir, Fragment caller,
+                                         GroupFoldersUserCheckCallback callback) {
         Bundle ret = new Bundle();
         ret.putBoolean(DIRCHECK_RESULT_IS_OK, false); // Default on false, when ok overwrite
-        ret.putString(DIRCHECK_RESULT_DIRECTORY, datadir.getName());
+        ret.putString(DIRCHECK_RESULT_DIRECTORY, rootDataDir.getName());
 
-        if (!datadir.exists()) {
-            ret.putString(DIRCHECK_RESULT_ERROR_TYPE, DirectoryCheckError.NOT_EXIST.toString());
+        // Basic checks for root directory
+        Pair<Boolean, DirectoryCheckError> rootCheck = existsIsDirCanRead(rootDataDir);
+        if (!rootCheck.first) {
+            ret.putString(DIRCHECK_RESULT_ERROR_TYPE, rootCheck.second.toString());
             return ret;
-        } else if (!datadir.isDirectory()) {
-            ret.putString(DIRCHECK_RESULT_ERROR_TYPE, DirectoryCheckError.NOT_DIRECTORY.toString());
-            return ret;
-        } else if (!datadir.canRead()) {
-            ret.putString(DIRCHECK_RESULT_ERROR_TYPE, DirectoryCheckError.NOT_READABLE.toString());
-            return ret;
-        } else {
-            Log.i(TAG, "checkDataDirectoryPath: " + datadir.getAbsolutePath() +
-                    " exists, is a directory and can be read.");
+        }
 
-            ArrayList<File> foundFilesFiles = getFilelist(datadir);
-            ArrayList<String> foundFilesPaths = fileListToPathList(foundFilesFiles);
-            Log.i(TAG, "checkDataDirectoryPath: Found " + foundFilesPaths.size() + " audio files.");
-            if (foundFilesPaths.isEmpty()) {
-                ret.putString(DIRCHECK_RESULT_ERROR_TYPE, DirectoryCheckError.NO_FILES.toString());
-            } else {
-                if (this.fileList != null) { // Previous session found, check consistency
-                    ArrayList<String> savedFiles = new ArrayList<>(this.fileList);
+        // Assess group folders placed directly in root
+        ArrayList<GroupFolder> groupFolders = getGroupFolderList(rootDataDir);
 
-                    for (String filePath : this.fileList) {
-                        if (foundFilesPaths.contains(filePath)) {
-                            savedFiles.remove(filePath);
-                        }
-                    }
-
-                    if (savedFiles.isEmpty()) {
-                        // All files from saved file list are accounted for in the storage
-                        ret.putBoolean(DIRCHECK_RESULT_IS_OK, true);
-                    } else {
-                        ret.putString(DIRCHECK_RESULT_ERROR_TYPE, DirectoryCheckError.MISSING_FILES.toString());
-                        ret.putInt(DIRCHECK_RESULT_MISSING_CNT, savedFiles.size());
-                        StringBuilder sb = new StringBuilder();
-
-                        for (String str : savedFiles) {
-                            sb.append(str).append("\n");
-                        }
-                        ret.putString(DIRCHECK_RESULT_MISSING_LIST, sb.toString());
-                    }
-                } else { // No previous session found, just create new file list
-                    makeNewSession(datadir.getAbsolutePath(), foundFilesPaths);
-                    ret.putBoolean(DIRCHECK_RESULT_IS_OK, true);
-                }
+        // If no good group folders found check for files only placed directly in root
+        if (groupFolders.isEmpty()) {
+            ArrayList<File> foundFiles = getFileList(rootDataDir, false);
+            if (!foundFiles.isEmpty()) {
+                ArrayList<String> foundFilesPaths = fileListToPathList(foundFiles);
+                Collections.sort(foundFilesPaths);
+                groupFolders.add(new GroupFolder(rootDataDir.getAbsolutePath(),
+                        foundFilesPaths));
             }
-            return ret;
+        }
+
+        // If no suitable audio files have been found even in root, exit with error
+        if (groupFolders.isEmpty()) {
+            ret.putString(DIRCHECK_RESULT_ERROR_TYPE, DirectoryCheckError.NO_FILES.toString());
+        } else {
+            for (GroupFolder gf : groupFolders) { // Just logging
+                Log.i(TAG, "checkDataDirectoryPath: Group folder: " +
+                        gf.getFolderName() + ", Files: " + gf.getNaudioFiles() + " - PASSED");
+            }
+
+            if (this.fileList != null) { // Previous session found, check consistency
+                ArrayList<String> lastSessionFiles = new ArrayList<>(this.fileList);
+
+                for (String filePath : this.fileList) {
+                    for (GroupFolder gf : groupFolders) {
+                        if (gf.getFileList().contains(filePath)) {
+                            lastSessionFiles.remove(filePath);
+                        }
+                    }
+                }
+
+                // All files from saved file list are accounted for in the storage
+                if (lastSessionFiles.isEmpty()) {
+                    ret.putBoolean(DIRCHECK_RESULT_IS_OK, true);
+                    callback.groupCheckDone();
+                } else {
+                    ret.putString(DIRCHECK_RESULT_ERROR_TYPE, DirectoryCheckError.MISSING_FILES.toString());
+                    ret.putInt(DIRCHECK_RESULT_MISSING_CNT, lastSessionFiles.size());
+                    StringBuilder sb = new StringBuilder();
+
+                    for (String str : lastSessionFiles) {
+                        sb.append(str).append("\n");
+                    }
+                    ret.putString(DIRCHECK_RESULT_MISSING_LIST, sb.toString());
+                }
+            } else { // No previous session found, fire GroupFolder user check fragment
+                // Callback for the user check fragment, after check is confirmed, make new session
+                caller.getParentFragmentManager().setFragmentResultListener(
+                        GROUP_CHECK_RESULT_REQUEST_KEY, caller,
+                        (requestKey, result) -> {
+                            ArrayList<GroupFolder> validGroupFolders =
+                                    (ArrayList<GroupFolder>) result.getSerializable(
+                                            GroupControlFragment.GroupFolderListSerializedKey
+                                    );
+                            makeNewSession(rootDataDir, validGroupFolders, callback);
+                        }
+                );
+
+                // Bring up the fragment for user to check the found folders
+                groupFolders.sort(GroupFolder.groupComparator);
+                NavDirections directions =
+                        RatingFragmentDirections.actionRatingFragmentToGroupControlFragment(groupFolders);
+                NavHostFragment.findNavController(caller).navigate(directions);
+
+                ret.putBoolean(DIRCHECK_RESULT_IS_OK, true);
+            }
+        }
+        return ret;
+    }
+
+    private Pair<Boolean, DirectoryCheckError> existsIsDirCanRead(File directory) {
+        if (!directory.exists()) {
+            return new Pair<>(false, DirectoryCheckError.NOT_EXIST);
+        } else if (!directory.isDirectory()) {
+            return new Pair<>(false, DirectoryCheckError.NOT_DIRECTORY);
+        } else if (!directory.canRead()) {
+            return new Pair<>(false, DirectoryCheckError.NOT_READABLE);
+        } else {
+            return new Pair<>(true, DirectoryCheckError.OK);
         }
     }
 
-    private ArrayList<File> getFilelist(File path) { // Extracts audio files recursively from folder
+    private ArrayList<GroupFolder> getGroupFolderList(File root) {
+        ArrayList<GroupFolder> foundFolders = new ArrayList<>();
+
+        File[] files = root.listFiles();
+        if (files != null && files.length > 0) { // Check for empty root directory
+            for (File potentialGroupFolder : files) {
+                Pair<Boolean, DirectoryCheckError> fileCheck = existsIsDirCanRead(potentialGroupFolder);
+                if (fileCheck.first) { // That's what we want
+                    // Goes in depth and looks if there are any usable files in this directory
+                    ArrayList<File> foundAudioFiles = getFileList(potentialGroupFolder);
+
+                    if (!foundAudioFiles.isEmpty()) { // Some audio was found!
+                        ArrayList<String> foundAudioPaths = fileListToPathList(foundAudioFiles);
+                        Collections.sort(foundAudioPaths);
+                        foundFolders.add(new GroupFolder(potentialGroupFolder.getAbsolutePath(),
+                                foundAudioPaths));
+                    } // else ignore this folder and move on
+                } else {
+                    // TODO Maybe save instead of logging?
+                    Log.e(TAG, "getGroupFolderList: Error! File: " +
+                            potentialGroupFolder.getAbsolutePath() + ", Message: " +
+                            fileCheck.second.toString());
+                }
+            }
+        } // else Empty root
+        return foundFolders;
+    }
+
+    private ArrayList<File> getFileList(File path) {
+        return getFileList(path, true);
+    }
+
+    // Extracts audio files recursively from folder
+    private ArrayList<File> getFileList(File path, boolean goDeep) {
         ArrayList<File> foundFiles = new ArrayList<>();
 
         File[] files = path.listFiles();
         if (files != null && files.length > 0) {
             for (File file : files) {
-                if (file.isDirectory()) { // File is directory
-                    foundFiles.addAll(getFilelist(file));
+                if (file.isDirectory() && goDeep) { // File is directory
+                    foundFiles.addAll(getFileList(file));
                 } else { // File is file (lol)
                     ArrayList<String> ext = new ArrayList<>(Arrays.asList(SUPPORTED_EXTENSIONS));
 
@@ -179,37 +259,61 @@ public class RatingManager {
         return paths;
     }
 
-    void makeNewSession(String newDatadirPath, ArrayList<String> foundFilesPaths) {
+    void makeNewSession(File rootDirectory,
+                        ArrayList<GroupFolder> validGroupFolders,
+                        GroupFoldersUserCheckCallback callback) {
         this.session_ID = getNewSessionID(); // Increments last existing session number
         this.seed = System.nanoTime();
         Log.i(TAG, "RatingManager: Newly created seed: " + seed);
         @SuppressLint("SimpleDateFormat") SimpleDateFormat format =
                 new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
         this.generatorMessage = format.format(new Date(System.currentTimeMillis()));
-        this.ratings = new ArrayList<>();
-        this.datadirPath = newDatadirPath;
-        this.fileList = foundFilesPaths;
+
+        this.dataDirPath = rootDirectory.getAbsolutePath();
         this.state = State.STATE_IDLE;
         this.trackPointer = 0;
         this.savedPlayProgress = 0;
 
-        int Nrec = foundFilesPaths.size();
-        Collections.sort(foundFilesPaths); // Ensures the same order after loading
-        // Shuffle the loaded paths randomly using the generated seed
-        Collections.shuffle(foundFilesPaths, new Random(this.seed));
-        List<Integer> rnums = linspace(1, Nrec);
-
-        List<Recording> recordings = new ArrayList<>();
-        for (int n = 0; n < foundFilesPaths.size(); n++) {
-            recordings.add(new Recording(
-                    foundFilesPaths.get(n),
-                    rnums.get(n),
-                    DEFAULT_UNSET_RATING
-            ));
+        // GroupFolders and FileLists in them are already sorted alphabetically in previous steps!
+        int Nrec = 0; // Get total number of recordings
+        for (GroupFolder gf : validGroupFolders) {
+            Nrec = Nrec + gf.getFileList().size();
         }
-        this.trackList = recordings;
+
+        // Create list of random indexes by shuffling a list of integers from 1 to Nrec
+        // Use the newly generated random seed for that
+        List<Integer> rNums = linspace(1, Nrec);
+        Collections.shuffle(rNums, new Random(this.seed));
+
+        // Create Recording objects for each file and assign a random index to it
+        int counter = 0;
+        ArrayList<Recording> joinedRecordingsList = new ArrayList<>();
+        for (GroupFolder gf : validGroupFolders) {
+            for (String filePath : gf.getFileList()) {
+                joinedRecordingsList.add(new Recording(
+                        filePath, gf.getLabel(), rNums.get(counter), DEFAULT_UNSET_RATING
+                ));
+                counter++;
+            }
+        }
+        assert (Nrec == counter); // Sanity check, I hope this works jesus christ
+
+        // Sorts using the random index (basically randomizing the files) for easy player access
+        joinedRecordingsList.sort(Recording.sortByRandomIndex);
+        this.trackList = joinedRecordingsList;
+
+        ArrayList<Integer> newRatings = new ArrayList<>();
+        ArrayList<String> newJoinedFileList = new ArrayList<>();
+        for (Recording r : this.trackList) {
+            newRatings.add(r.getRating());
+            newJoinedFileList.add(r.getPath());
+        }
+        this.ratings = newRatings;
+        Collections.sort(newJoinedFileList);
+        this.fileList = newJoinedFileList;
 
         saveSession();
+        callback.groupCheckDone();
     }
 
     @SuppressWarnings("SameParameterValue")
@@ -231,7 +335,7 @@ public class RatingManager {
         this.seed = -1;
         this.generatorMessage = null;
         this.ratings = null;
-        this.datadirPath = null;
+        this.dataDirPath = null;
         this.fileList = null;
         this.trackList = null;
         this.state = null;
@@ -288,6 +392,8 @@ public class RatingManager {
     public int getTrackN() {
         return trackList.size();
     }
+
+    public String getDataDirPath() { return dataDirPath; }
 
     public static final String GET_SESSION_INFO_LOAD_RESULT_KEY = "LoadResult";
     public static final String SESSION_INFO_BUNDLE_SESSION = "session";
@@ -359,7 +465,7 @@ public class RatingManager {
         SharedPreferences.Editor editor = preferences.edit();
         editor.putString(KEY_PREFERENCES_CURRENT_SESSION, new Gson().toJson(currentSession))
                 .putString(KEY_PREFERENCES_STATE, this.state.toString())
-                .putString(KEY_PREFERENCES_DATADIR_PATH, this.datadirPath)
+                .putString(KEY_PREFERENCES_DATADIR_PATH, this.dataDirPath)
                 .putInt(KEY_PREFERENCES_TRACK_POINTER, this.trackPointer)
                 .putInt(KEY_PREFERENCES_SAVED_PLAY_PROGRESS, this.savedPlayProgress)
                 .apply();
@@ -417,19 +523,24 @@ public class RatingManager {
             this.session_ID = currentSession.getSession_ID();
             this.seed = currentSession.getSeed();
             this.generatorMessage = currentSession.getGeneratorMessage();
-            this.trackList = currentSession.getRecordings();
+
+            // Re-sort by random index to ensure the same sequence in the player
+            List<Recording> currentTrackList = new ArrayList<>(currentSession.getRecordings());
+            currentTrackList.sort(Recording.sortByRandomIndex);
+            this.trackList = currentTrackList;
 
             ArrayList<Integer> lastRatings = new ArrayList<>();
             ArrayList<String> lastFileList = new ArrayList<>();
-            for (Recording r : currentSession.getRecordings()) {
+            for (Recording r : this.trackList) {
                 lastRatings.add(r.getRating());
                 lastFileList.add(r.getPath());
             }
             this.ratings = lastRatings;
+            Collections.sort(lastFileList); // Ensures the same, alphabetical order after loading
             this.fileList = lastFileList;
 
             setState(lastState);
-            this.datadirPath = datadirPath;
+            this.dataDirPath = datadirPath;
             this.trackPointer = trackPointer;
             this.savedPlayProgress = savedPlayProgress;
         } catch (Exception e) {
@@ -445,7 +556,7 @@ public class RatingManager {
         Log.i(TAG, "loadSession: Retrieved file list: " + this.fileList.toString());
 
         Log.i(TAG, "loadSession: Retrieved state: " + this.state);
-        Log.i(TAG, "loadSession: Retrieved local data directory path: " + this.datadirPath);
+        Log.i(TAG, "loadSession: Retrieved local data directory path: " + this.dataDirPath);
         Log.i(TAG, "loadSession: Retrieved track pointer value: " + this.trackPointer);
         Log.i(TAG, "loadSession: Retrieved saved play progress: " + this.savedPlayProgress);
         return LoadResult.OK;
@@ -502,7 +613,9 @@ public class RatingManager {
                 Log.i(TAG, "saveResults: FILE LIST:");
                 for (File foundResultFile : resultFiles) {
                     Log.i(TAG, "saveResults: FILE: " + foundResultFile.getAbsolutePath());
-                    if (foundResultFile.isFile() && foundResultFile.exists() &&
+                    if (foundResultFile.exists() &&
+                            foundResultFile.isFile() &&
+                            foundResultFile.canRead() &&
                             FilenameUtils.getExtension(foundResultFile.getName()).equalsIgnoreCase("txt")) {
 
                         foundResults.add(new RatingResult(foundResultFile));
@@ -519,6 +632,8 @@ public class RatingManager {
         File resultsDir = new File(context.getFilesDir(), context.getString(R.string.DIRECTORY_NAME_RESULTS));
         checkResultsDirectory(resultsDir);
 
+        // TODO CHECK IF EVERYTHING IS BEING SAVED
+
         // Find any previous save files for this session ID
         File[] resultFiles = resultsDir.listFiles();
         ArrayList<File> existingSaveFiles = new ArrayList<>();
@@ -531,7 +646,7 @@ public class RatingManager {
                 Log.i(TAG, "saveResults: FILE LIST:");
                 for (File file : resultFiles) {
                     Log.i(TAG, "saveResults: FILE: " + file.getAbsolutePath());
-                    if (file.isFile() && file.exists() &&
+                    if (file.exists() && file.isFile() && file.canRead() &&
                             FilenameUtils.getExtension(file.getName()).equalsIgnoreCase("txt")) {
 
                         String[] split = file.getName().split("_");
@@ -549,8 +664,8 @@ public class RatingManager {
         }
 
         // Sort and log the randomized recordings
-        this.trackList.sort(recordingComparator);
-        Log.i(TAG, "saveResults: Sorted recordings:");
+        this.trackList.sort(Recording.sortAlphabetically);
+        Log.i(TAG, "saveResults: Saving! -> Sorted recordings:");
         for (Recording r : this.trackList) {
             Log.i(TAG, "saveResults: " + r.toString());
         }
@@ -574,10 +689,9 @@ public class RatingManager {
 
         // Row format: id;group;random_number;rating
         for (Recording recording : this.trackList) {
-            // TODO Generalize check? ID and group type
             writer.append(recording.getID()).append(separator)
-                    .append(recording.getGroupType().toString()).append(separator)
-                    .append(String.valueOf(recording.getRandomized_number())).append(separator)
+                    .append(recording.getGroupName()).append(separator)
+                    .append(String.valueOf(recording.getRandomIndex())).append(separator)
                     .append(String.valueOf(recording.getRating())).append("\n");
         }
         writer.flush();

@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+
+    android:id="@+id/group_control_list_row"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingStart="8dp"
+    android:paddingEnd="0dp"
+    android:paddingTop="8dp"
+    >
+
+    <TextView
+        android:id="@+id/group_control_group_folder_list_row_folder_name_label"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+
+        android:text="@string/group_control_group_folder_list_row_folder_name_label"
+        android:textColor="@color/primaryTextColor"
+        android:textAppearance="@style/TextAppearance.MdcTypographyStyles.Body1"
+
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="@id/group_control_group_folder_list_row_folder_name"
+
+        android:gravity="center_vertical"
+        android:labelFor="@id/group_control_group_folder_list_row_folder_name"
+        />
+
+    <TextView
+        android:id="@+id/group_control_group_folder_list_row_folder_name"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+
+        android:layout_marginStart="3dp"
+        android:layout_marginEnd="8dp"
+        android:alpha="0.8"
+        android:text="@string/group_control_group_folder_list_row_folder_name_placeholder"
+        android:textAppearance="@style/TextAppearance.MdcTypographyStyles.Body1"
+
+        android:textColor="@color/primaryTextColor"
+        android:textStyle="italic"
+        app:layout_constraintEnd_toEndOf="parent"
+
+        app:layout_constraintStart_toEndOf="@id/group_control_group_folder_list_row_folder_name_label"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/group_control_group_folder_list_row_found_audio_files"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+
+        android:text="@string/group_control_group_folder_list_row_found_audio_files"
+        android:textColor="@color/primaryTextColor"
+        android:textAppearance="@style/TextAppearance.MdcTypographyStyles.Caption"
+        android:alpha="0.7"
+
+        app:layout_constraintTop_toBottomOf="@id/group_control_group_folder_list_row_folder_name_label"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        />
+
+    <TextView
+        android:id="@+id/group_control_group_folder_list_row_group_name_label"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+
+        android:gravity="center_vertical"
+        android:labelFor="@id/group_control_group_folder_list_row_group_name_input"
+        android:text="@string/group_control_group_folder_list_row_group_name_label"
+
+        android:textAppearance="@style/TextAppearance.MdcTypographyStyles.Body1"
+        android:textColor="@color/primaryTextColor"
+        app:layout_constraintBottom_toBottomOf="@id/group_control_group_folder_list_row_group_name_input"
+
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/group_control_group_folder_list_row_group_name_input" />
+
+    <EditText
+        android:id="@+id/group_control_group_folder_list_row_group_name_input"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="3dp"
+
+        android:layout_marginEnd="8dp"
+        android:importantForAutofill="no"
+        android:inputType="textCapWords"
+
+        android:text="@string/group_control_group_folder_list_row_group_name_input_placeholder"
+        android:textAppearance="@style/TextAppearance.MdcTypographyStyles.Body1"
+        android:textColor="@color/primaryTextColor"
+
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/group_control_group_folder_list_row_group_name_label"
+        app:layout_constraintTop_toBottomOf="@id/group_control_group_folder_list_row_found_audio_files" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

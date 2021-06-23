@@ -83,7 +83,6 @@ public class RatingResult implements Serializable {
                     throw new IOException("Invalid header line!");
                 }
             } else { // Data row
-                // TODO Generalize check? ID and group type
                 if (split.length < 4) {
                     throw new IOException("Invalid row formatting!");
                 }

@@ -16,6 +16,7 @@ import com.petrkryze.vas.MainActivity;
 import com.petrkryze.vas.R;
 import com.petrkryze.vas.RatingManager;
 import com.petrkryze.vas.RatingResult;
+import com.petrkryze.vas.Recording;
 import com.petrkryze.vas.adapters.RecordingsRecyclerViewAdapter;
 
 import org.jetbrains.annotations.NotNull;
@@ -76,6 +77,7 @@ public class CurrentSessionInfoFragment extends Fragment {
 
         if (getArguments() != null) {
             currentSession = CurrentSessionInfoFragmentArgs.fromBundle(getArguments()).getRatingResult();
+            currentSession.getRecordings().sort(Recording.sortAlphabetically);
         }
     }
 
@@ -91,7 +93,7 @@ public class CurrentSessionInfoFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         Context context = view.getContext();
 
-        Button buttonShare = view.findViewById(R.id.button_current_session_info_share);
+        Button buttonShare = view.findViewById(R.id.current_session_info_button_share);
         buttonShare.setOnClickListener(shareListener);
 
         TextView TWcurrentSessionID = view.findViewById(R.id.current_session_info_sessionID);

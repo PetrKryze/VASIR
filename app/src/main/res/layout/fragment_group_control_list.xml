@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+
+    android:id="@+id/group_control_fragment_layout"
+    android:name="com.petrkryze.vas.fragments.GroupControlFragment"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/main_background"
+    android:orientation="vertical"
+    tools:context=".fragments.GroupControlFragment">
+
+    <TextView
+        android:id="@+id/group_control_found_folders"
+
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/secondaryColor"
+        android:elevation="5dp"
+        android:paddingHorizontal="8dp"
+        android:paddingVertical="5dp"
+
+        android:text="@string/group_control_found_folders_headline"
+        android:textColor="@color/primaryTextColor"
+        style="@style/TextAppearance.MdcTypographyStyles.Headline4"
+
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/group_control_group_folder_list"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+
+        android:fadingEdgeLength="15dp"
+        android:requiresFadingEdge="vertical"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/group_control_button_confirm"
+        app:layout_constraintTop_toBottomOf="@id/group_control_found_folders"
+
+        tools:listitem="@layout/group_control_list_row" />
+
+    <Button
+        android:id="@+id/group_control_button_confirm"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="15dp"
+
+        android:layout_marginEnd="15dp"
+        android:layout_marginBottom="10dp"
+        android:backgroundTint="@color/secondaryColor"
+        android:text="@string/button_confirm_label"
+        android:textAppearance="@style/TextAppearance.MdcTypographyStyles.Button"
+        android:textColor="@color/primaryTextColor"
+        android:textSize="18sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
+
+
+
+
+
+
+
+
+
+
+

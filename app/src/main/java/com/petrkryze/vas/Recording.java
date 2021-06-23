@@ -4,7 +4,6 @@ import android.util.Log;
 
 import org.apache.commons.io.FilenameUtils;
 
-import java.io.File;
 import java.io.Serializable;
 import java.util.Comparator;
 
@@ -14,72 +13,37 @@ import androidx.annotation.NonNull;
  * Created by Petr on 07.02.2020. Yay!
  */
 public class Recording implements Serializable {
+    private static final String TAG = "RecordingObject";
+
     private final String path;
     private final String ID;
-    private final GroupType group;
-    private final int randomized_number;
+    private final int randomIndex;
+    private final String groupName;
     private int rating;
 
     public static final int DEFAULT_UNSET_RATING = -1;
 
-    private static final String TAG = "RecordingObject";
+    public static final Comparator<Recording> sortAlphabetically = (o1, o2) -> {
+        int compareGroup = o1.getGroupName().compareToIgnoreCase(o2.getGroupName());
 
-    static final Comparator<Recording> recordingComparator = (o1, o2) -> {
-        if (o1.getGroupType() == o2.getGroupType()) {
-            String replace = o1.getGroupType().toString().split("_")[0];
-            int id1 = Integer.parseInt(o1.getID().replace(replace,"").split("_")[0]);
-            int id2 = Integer.parseInt(o2.getID().replace(replace,"").split("_")[0]);
-            return Integer.compare(id1, id2);
-        } else if (o1.getGroupType() == GroupType.HC) {
+        if (compareGroup < 0) {
             return -1;
-        } else if (o2.getGroupType() == GroupType.HC) {
+        } else if (compareGroup > 0) {
             return 1;
-        } else if (o1.getGroupType() == GroupType.DBS_OFF) {
-            return -1;
-        } else if (o1.getGroupType() == GroupType.DBS_130) {
-            return 1;
-        } else {
-            Log.e(TAG, "compare: Sorting error - invalid group types.");
-            return 0;
+        } else { // Groups are the same
+            int compareID = o1.getID().compareToIgnoreCase(o2.getID());
+            return Integer.compare(compareID, 0);
         }
     };
 
-    public enum GroupType {
-        DBS_OFF, DBS_130, HC;
+    public static final Comparator<Recording> sortByRandomIndex = (o1, o2) -> Integer.
+            compare(o1.getRandomIndex(), o2.getRandomIndex());
 
-        static GroupType getGroupFromString(String str) {
-            switch (str) {
-                case "DBS_OFF": return DBS_OFF;
-                case "DBS_130": return DBS_130;
-                case "HC": return HC;
-                default:
-                    Log.e(TAG, "getGroupFromString: Invalid parent folder name!");
-                    return null;
-            }
-        }
-    }
-
-    Recording(String path, int randomized_number, int rating) {
+    Recording(String path, String groupName, int randomIndex, int rating) {
         this.path = path;
-        this.randomized_number = randomized_number;
-
+        this.randomIndex = randomIndex;
         this.ID = FilenameUtils.getBaseName(path);
-
-        File parent_path = (new File(path)).getParentFile();
-        if (parent_path == null) {
-            Log.e(TAG, "Recording: Invalid file path! Parent folder not found.");
-            this.group = null;
-        } else {
-            this.group = GroupType.getGroupFromString(parent_path.getName());
-        }
-        this.rating = rating;
-    }
-
-    Recording(String ID, String group_string, int randomized_number, int rating) {
-        this.path = null;
-        this.ID = ID;
-        this.group = GroupType.getGroupFromString(group_string);
-        this.randomized_number = randomized_number;
+        this.groupName = groupName;
         this.rating = rating;
     }
 
@@ -91,16 +55,14 @@ public class Recording implements Serializable {
         return ID;
     }
 
-    public int getRandomized_number() {
-        return randomized_number;
+    public int getRandomIndex() {
+        return randomIndex;
     }
+
+    public String getGroupName() { return groupName; }
 
     public int getRating() {
         return rating;
-    }
-
-    public GroupType getGroupType() {
-        return group;
     }
 
     public void setRating(int rating) {
@@ -114,9 +76,9 @@ public class Recording implements Serializable {
     @NonNull
     @Override
     public String toString() {
-        return "ID:" + this.ID +
-                ", Group: " + this.group +
-                ", NUM: " + this.randomized_number +
+        return "\nID:" + this.ID +
+                ", Group name: " + this.groupName +
+                ", Index: " + this.randomIndex +
                 ", Rating: " + this.rating +
                 ", Path: " + this.path;
     }

@@ -5,12 +5,12 @@
     xmlns:tools="http://schemas.android.com/tools"
 
     android:id="@+id/rating_fragment_layout"
-    android:name="com.petrkryze.vas.RatingFragment"
-    tools:context=".fragments.RatingFragment"
+    android:name="com.petrkryze.vas.fragments.RatingFragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/main_background"
     android:orientation="vertical"
-    android:background="@color/main_background">
+    tools:context=".fragments.RatingFragment">
 
     <TextView
         android:id="@+id/header_text"

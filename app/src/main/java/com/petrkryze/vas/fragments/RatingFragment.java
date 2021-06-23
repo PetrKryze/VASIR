@@ -75,7 +75,7 @@ public class RatingFragment extends Fragment {
 
     private boolean isOverFlowOpen = false;
     private boolean initDone = false;
-    private boolean isLoadingSeekState = false;
+    private boolean isLoadingPlayProgress = false;
 
     private final View.OnClickListener playListener = new View.OnClickListener() {
         @Override
@@ -218,6 +218,7 @@ public class RatingFragment extends Fragment {
                         File datadir = new File(fullpath);
                         Log.i(TAG, "onActivityResult: pickedDir == " + datadir.getAbsolutePath());
 
+                        // Go check the selected directory and it's contents
                         manageDirectory(datadir);
                     }
                 }
@@ -243,12 +244,19 @@ public class RatingFragment extends Fragment {
         setHasOptionsMenu(true);
         initDone = false;
         isTouchingSeekBar = false;
-        isLoadingSeekState = false;
+        isLoadingPlayProgress = false;
 
         // Get vibrator service for UI vibration feedback
         vibrator = (Vibrator) requireContext().getSystemService(Context.VIBRATOR_SERVICE);
         VIBRATE_BUTTON_MS = getResources().getInteger(R.integer.VIBRATE_BUTTON_MS);
         VIBRATE_RATING_START = getResources().getInteger(R.integer.VIBRATE_RATING_BAR_START_MS);
+
+        // Initialize the audio player and rating manager
+        player = new Player(requireContext(), getPlayerListener());
+        ratingManager = new RatingManager(requireActivity());
+
+        // Normal startup
+        manageLoading();
     }
 
     @Nullable
@@ -278,13 +286,15 @@ public class RatingFragment extends Fragment {
         button_next.setOnClickListener(nextListener);
         VASratingBar.setOnSeekBarChangeListener(VASratingBarListener);
         playerSeekBar.setOnSeekBarChangeListener(playerSeekBarListener);
+    }
 
-        // Initialize the audio player and rating manager
-        player = new Player(requireContext(), getPlayerListener());
-        ratingManager = new RatingManager(requireActivity());
-
-        // Normal startup
-        manageLoading();
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (initDone) {
+            isLoadingPlayProgress = true;
+            changeCurrentTrack(0, ratingManager.getTrackPointer());
+        }
     }
 
     private void manageLoading() {
@@ -294,7 +304,7 @@ public class RatingFragment extends Fragment {
 
         switch (ratingManager.loadSession()) {
             case OK:
-                manageDirectory(null);
+                manageDirectory(new File(ratingManager.getDataDirPath()));
                 return;
             case NO_SESSION:
                 message = getString(R.string.no_session_found);
@@ -323,18 +333,18 @@ public class RatingFragment extends Fragment {
     }
 
     private void manageDirectory(File selected_dir) {
-        Bundle checkResult;
-        if (selected_dir == null) {
-            checkResult = ratingManager.checkDataDirectoryPath();
-        } else {
-            checkResult = ratingManager.checkDataDirectoryPath(selected_dir);
-        }
+        Bundle checkResult = ratingManager.checkDataDirectoryPath(
+                selected_dir,
+                this,
+                () -> {
+                    Log.i(TAG, "manageDirectory: Group check done callback!");
+                    ratingManager.setState(RatingManager.State.STATE_IN_PROGRESS);
+                    initDone = true;
+                });
 
         if (checkResult.getBoolean(DIRCHECK_RESULT_IS_OK)) {
-            ratingManager.setState(RatingManager.State.STATE_IN_PROGRESS);
-            changeCurrentTrack(0, ratingManager.getTrackPointer());
-            isLoadingSeekState = true;
-            initDone = true;
+            // Directory is ok and we can proceed to actual rating 😊
+            Log.i(TAG, "manageDirectory: Complex directory check passed, waiting for callback!");
         } else { // Directory check was not ok
             String message = "";
             RatingManager.DirectoryCheckError err = RatingManager.DirectoryCheckError.valueOf(
@@ -454,9 +464,9 @@ public class RatingFragment extends Fragment {
                 track_time.setText(formatDuration(duration));
                 playerSeekBar.setMax(duration);
 
-                if (isLoadingSeekState) {
+                if (isLoadingPlayProgress) {
                     player.seekTo(ratingManager.getSavedPlayProgress());
-                    isLoadingSeekState = false;
+                    isLoadingPlayProgress = false;
                 } else {
                     player.seekTo(0);
                     ratingManager.setPlayProgress(0);
@@ -546,7 +556,7 @@ public class RatingFragment extends Fragment {
         vibrator = null;
         ratingManager = null;
         initDone = false;
-        isLoadingSeekState = false;
+        isLoadingPlayProgress = false;
     }
 
     @Override
@@ -674,7 +684,7 @@ public class RatingFragment extends Fragment {
         @NonNull
         @NotNull
         @Override
-        public Intent createIntent(@NonNull @NotNull Context context, @Nullable @org.jetbrains.annotations.Nullable Uri input) {
+        public Intent createIntent(@NonNull Context context, @Nullable Uri input) {
             Intent intent = super.createIntent(context, input);
             intent.addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);
             intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);

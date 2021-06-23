@@ -29,6 +29,13 @@
         <action
             android:id="@+id/action_rating_fragment_to_currentSessionInfoFragment"
             app:destination="@id/currentSessionInfoFragment" />
+        <action
+            android:id="@+id/action_rating_fragment_to_groupControlFragment"
+            app:destination="@id/groupControlFragment"
+            app:enterAnim="@anim/slide_in"
+            app:exitAnim="@anim/slide_out"
+            app:popEnterAnim="@anim/slide_in"
+            app:popExitAnim="@anim/slide_out"/>
     </fragment>
 
     <fragment
@@ -145,5 +152,24 @@
         <action
             android:id="@+id/action_currentSessionInfoFragment_to_result_fragment"
             app:destination="@id/result_fragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/groupControlFragment"
+        android:name="com.petrkryze.vas.fragments.GroupControlFragment"
+        android:label="fragment_group_control_list"
+        tools:layout="@layout/fragment_group_control_list" >
+
+        <argument
+            android:name="group_folders"
+            app:argType="java.util.ArrayList" />
+
+        <action
+            android:id="@+id/action_groupControlFragment_to_helpFragment"
+            app:destination="@id/helpFragment"
+            app:enterAnim="@anim/fadein"
+            app:exitAnim="@anim/fadeout"
+            app:popEnterAnim="@anim/fadein"
+            app:popExitAnim="@anim/fadeout"/>
     </fragment>
 </navigation>

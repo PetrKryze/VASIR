@@ -24,6 +24,7 @@
         \tPokud již umíte s aplikací pracovat, pokračujte k hodnocení stiskem tlačítka.
         Pro více informací o této aplikaci a jejím použití prosím sjeďte dolů na tomto panelu.
     </string>
+    <string name="welcome_scroll_hint_description">Dolů mířící šipka vybízející ke scrollování</string>
     <string name="welcome_message_further_info">
         \tPři pokračování dále vás aplikace vyzve k vybrání adresáře s uloženými audio soubory obsahující řeč k zhodnocení.
         Místo uložení souborů je libovolné, nicméně <i>doporučujeme</i> umístit soubory do standardního adresáře v interní paměti telefonu (např. adresář <i>Documents</i>).\n\n
@@ -120,6 +121,8 @@
     <string name="result_detail_recording_list_column_group_label">Skupina</string>
     <string name="result_detail_recording_list_column_index_label">Index</string>
     <string name="result_detail_recording_list_column_rating_label">Hodnocení</string>
+    <string name="result_detail_copy">ID: %1$s, Skupina: %2$s, Index: %3$s, Hodnocení: %4$s</string>
+    <string name="result_detail_copy_copied">Informace o nahrávce zkopírovány do schránky!</string>
 
     <string name="welcome_checkbox_do_not_show_again">Tuto obrazovku již nezobrazovat</string>
     <string name="welcome_button_continue_label">Pokračovat k hodnocení</string>
@@ -139,7 +142,8 @@
     <string name="help_context_title_result_detail_fragment">Nápověda: Detail hodnocení</string>
     <string name="help_context_body_current_session_info_fragment">CURRENT SESSION INFO HELP BODY</string>
     <string name="help_context_title_current_session_info_fragment">Nápověda: Aktuální sezení</string>
-
+    <string name="help_context_title_group_control_fragment">Help: Group Control</string>
+    <string name="help_context_body_group_control_fragment">BODY HELP GROUP CONTROL FRAGMENT</string>
 
     <string name="fragment_header_rating">Hodnocení</string>
     <string name="fragment_header_help">Nápověda</string>
@@ -154,7 +158,11 @@
     <string name="action_show_saved_results">Uložená Hodnocení</string>
     <string name="action_save">Uložit</string>
 
-    <string name="welcome_scroll_hint_description">Dolů mířící šipka vybízející ke scrollování</string>
-    <string name="result_detail_copy">ID: %1$s, Skupina: %2$s, Index: %3$s, Hodnocení: %4$s</string>
-    <string name="result_detail_copy_copied">Informace o nahrávce zkopírovány do schránky!</string>
+    <string name="button_confirm_label">V Pořádku</string>
+    <string name="group_control_found_folders_headline">Nalezeno %d adresářů obsahující vhodné audio soubory</string>
+    <string name="group_control_group_folder_list_row_found_audio_files">Obsahuje %d vhodných audio souborů.</string>
+    <string name="group_control_group_folder_list_row_folder_name_label">Adresář:</string>
+    <string name="group_control_group_folder_list_row_group_name_label">Název skupiny:</string>
+
+
 </resources>

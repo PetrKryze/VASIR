@@ -1,10 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+
     android:id="@+id/welcome_fragment_container"
+    android:name="com.petrkryze.vas.fragments.WelcomeFragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/main_background"
+    android:orientation="vertical"
     tools:context=".fragments.WelcomeFragment" >
 
     <ImageView
@@ -19,7 +24,6 @@
         android:translationY="10dp"
         android:translationZ="15dp"
         android:visibility="gone"
-
 
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />

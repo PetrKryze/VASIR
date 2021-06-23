@@ -2,6 +2,23 @@
 <resources>
     <string name="app_name">Visual Analog Scale</string>
     <string name="DIRECTORY_NAME_RESULTS" translatable="false">Results</string>
+    <string name="PREFERENCES_SETTINGS" translatable="false">settings</string>
+    <string name="KEY_PREFERENCES_SETTINGS_WELCOME_SHOW" translatable="false">welcome_screen_show</string>
+    <string name="RATING_FILE_NAME" translatable="false">
+        RATING_%d_%s.txt
+    </string>
+
+    <string name="placeholder" translatable="false">placeholder</string>
+    <string name="placeholder_number" translatable="false">##</string>
+    <string name="result_detail_save_date_placeholder" translatable="false">Save date placeholder</string>
+    <string name="result_detail_seed_placeholder" translatable="false">Seed placeholder</string>
+    <string name="result_detail_generator_date_placeholder" translatable="false">Generator date placeholder</string>
+    <string name="result_detail_recording_list_row_id_placeholder" translatable="false">ID</string>
+    <string name="result_detail_recording_list_row_group_placeholder" translatable="false">group</string>
+    <string name="result_detail_recording_list_row_index_placeholder" translatable="false">index</string>
+    <string name="result_detail_recording_list_row_rating_placeholder" translatable="false">rating</string>
+    <string name="track_time_placeholder" translatable="false">00:00</string>
+    <string name="track_counter" translatable="false">%s: %d/%d</string>
 
     <string name="alert">Alert</string>
     <string name="button_pause_label">Pause</string>
@@ -26,6 +43,7 @@
         \tIf you\'re already familiar with this application, feel free to continue below and start rating.
         To find out more info about how to use this app, scroll down in this panel.
     </string>
+    <string name="welcome_scroll_hint_description">Down facing arrow suggesting scrolling</string>
     <string name="welcome_message_further_info">
         \tAfter proceeding, the app will ask you to select a directory containing the audio files of speech recordings to be rated.
         The location of the files is arbitrary, but we <i>recommend</i> saving them to a standard directory
@@ -46,11 +64,7 @@
         Seed: %s\n\n
         Rated: %s\n\n
     </string>
-    <string name="RATING_FILE_NAME" translatable="false">
-        RATING_%d_%s.txt
-    </string>
-    <string name="track_time_placeholder" translatable="false">00:00</string>
-    <string name="track_counter" translatable="false">%s: %d/%d</string>
+
     <string name="directory_selection_instructions">
         Audio file placement instructions:\n
         Place your audio speech recordings saved as WAV or MP3-files in an accessible directory
@@ -112,37 +126,31 @@
     <string name="save_failed_continue_question">Saving failed!\nReason: %s \nDo you want to continue with creating a new session? Current ratings will be lost.</string>
     <string name="save_failed_continue_title">Warning</string>
 
-    <string name="placeholder" translatable="false">placeholder</string>
 
     <string name="button_close_label">Close</string>
     <string name="rating_list_row_sessionID">Session %d</string>
     <string name="ratings_loading_failed">Loading of saved rating files failed!\nReason: %s</string>
-    <string name="placeholder_number" translatable="false">##</string>
+
     <string name="share_button_description">Share</string>
     <string name="share_subject">Rating results for session %d</string>
     <string name="share_using">Share to</string>
     <string name="result_share_title">Results (%d)</string>
     <string name="button_share_all_label">Share all</string>
     <string name="result_detail_sessionID">Session %d</string>
-    <string name="result_detail_save_date_placeholder" translatable="false">Save date placeholder</string>
-    <string name="result_detail_seed_placeholder" translatable="false">Seed placeholder</string>
-    <string name="result_detail_generator_date_placeholder" translatable="false">Generator date placeholder</string>
     <string name="result_detail_save_date_label">Save date:</string>
     <string name="result_detail_seed_label">Seed:</string>
     <string name="result_detail_generator_date_label">Session created:</string>
-    <string name="result_detail_recording_list_row_id_placeholder" translatable="false">ID</string>
-    <string name="result_detail_recording_list_row_group_placeholder" translatable="false">group</string>
-    <string name="result_detail_recording_list_row_index_placeholder" translatable="false">index</string>
-    <string name="result_detail_recording_list_row_rating_placeholder" translatable="false">rating</string>
     <string name="result_detail_recording_list_column_id_label">ID</string>
     <string name="result_detail_recording_list_column_group_label">Group</string>
     <string name="result_detail_recording_list_column_index_label">Index</string>
     <string name="result_detail_recording_list_column_rating_label">Rating</string>
+    <string name="result_detail_copy">ID: %1$s, Group: %2$s, Index: %3$s, Rating: %4$s</string>
+    <string name="result_detail_copy_copied">Recording info copied to clipboard!</string>
+
     <string name="welcome_checkbox_do_not_show_again">Do not show this screen again</string>
     <string name="welcome_button_continue_label">Continue to rating</string>
     <string name="welcome_title_image_desc">VASIR application logo, icons of a person speaking to an ear</string>
-    <string name="PREFERENCES_SETTINGS" translatable="false">settings</string>
-    <string name="KEY_PREFERENCES_SETTINGS_WELCOME_SHOW" translatable="false">welcome_screen_show</string>
+
     <string name="help_message1">\t<i><b>VASIR</b></i> is an application that utilizes visual analog scales for subjective speech intelligibility rating.\n</string>
     <string name="help_message2">TODO</string>
     <string name="button_share_label">Share</string>
@@ -159,7 +167,8 @@
     <string name="help_context_title_result_detail_fragment">Help: Rating detail</string>
     <string name="help_context_body_current_session_info_fragment">CURRENT SESSION INFO HELP BODY</string>
     <string name="help_context_title_current_session_info_fragment">Help: Current session</string>
-
+    <string name="help_context_title_group_control_fragment">Help: Group Control</string>
+    <string name="help_context_body_group_control_fragment">BODY HELP GROUP CONTROL FRAGMENT</string>
 
     <string name="fragment_header_rating">Rating</string>
     <string name="fragment_header_help">Help</string>
@@ -175,7 +184,12 @@
     <string name="action_show_saved_results">Saved Rating</string>
     <string name="action_save">Save</string>
 
-    <string name="welcome_scroll_hint_description">Down facing arrow suggesting scrolling</string>
-    <string name="result_detail_copy">ID: %1$s, Group: %2$s, Index: %3$s, Rating: %4$s</string>
-    <string name="result_detail_copy_copied">Recording info copied to clipboard!</string>
+    <string name="button_confirm_label">Confirm</string>
+    <string name="group_control_found_folders_headline">Found %d folders containing eligible audio files</string>
+    <string name="group_control_group_folder_list_row_found_audio_files">Contains %d eligible audio files.</string>
+    <string name="group_control_group_folder_list_row_folder_name_label">Folder:</string>
+    <string name="group_control_group_folder_list_row_group_name_label">Group name:</string>
+    <string name="group_control_group_folder_list_row_group_name_input_placeholder" translatable="false">Group name placeholder</string>
+    <string name="group_control_group_folder_list_row_folder_name_placeholder" translatable="false">Folder name placeholder</string>
+
 </resources>
