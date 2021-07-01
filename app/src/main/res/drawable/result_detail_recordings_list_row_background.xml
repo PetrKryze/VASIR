@@ -4,5 +4,5 @@
         android:drawable="@color/listItemFocus" />
     <item android:state_pressed="true"
         android:drawable="@color/listItemHover" />
-    <item android:drawable="@color/main_background" />
+    <item android:drawable="@color/backgroundColor" />
 </selector>

@@ -1,15 +1,19 @@
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="@dimen/player_button_size"
-    android:height="@dimen/player_button_size"
+    android:width="24dp"
+    android:height="24dp"
     android:viewportWidth="24"
     android:viewportHeight="24"
-    android:tint="@color/player_buttons_tint">
-  <group android:scaleX="0.92"
-      android:scaleY="0.92"
+    android:tint="#FFFFFF">
+  <group android:scaleX="0.2208"
+      android:scaleY="0.2208"
       android:translateX="0.96"
       android:translateY="0.96">
     <path
-        android:fillColor="@android:color/white"
-        android:pathData="M6,18l8.5,-6L6,6v12zM16,6v12h2V6h-2z"/>
+        android:pathData="M11.17,93.64C7.61,96.31 5,94.86 5,90.41V9.59c0,-4.45 2.61,-5.9 6.17,-3.24L62.74,45.15c3.56,2.67 3.63,7 0.07,9.7Z"
+        android:fillColor="#000000"/>
+    <path
+        android:pathData="M83.79,94.85A11,11 0,0 1,72.57 84.17V15.83a11.23,11.23 0,0 1,22.43 0V84.17A11,11 0,0 1,83.79 94.85"
+        android:fillColor="#000000"
+        android:fillType="evenOdd"/>
   </group>
 </vector>

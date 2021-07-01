@@ -8,18 +8,27 @@
     <color name="secondaryLightColor">#fff263</color>
     <color name="secondaryDarkColor">#c49000</color>
 
-    <color name="primaryTextColor">#000000</color>
-    <color name="secondaryTextColor">#000000</color>
+    <color name="textPrimaryOnSurface">#DD000000</color>
+    <color name="textPrimaryOnPrimary">#FFFFFF</color>
+    <color name="textPrimaryOnSecondary">#DD000000</color>
+    <color name="textPrimaryOnError">#FFFFFF</color>
+    <color name="textPrimaryOnBackground">#DF000000</color>
 
-    <color name="main_background">#FFFFFF</color>
-
-    <color name="player_buttons_tint">@color/primaryColor</color>
-    <color name="player_buttons_text">@color/primaryTextColor</color>
-
-    <color name="checkmark">@color/secondaryColor</color>
+    <color name="textSecondaryOnSurface">#9A000000</color>
+    <color name="textSecondaryOnPrimary">#DFFFFFFF</color>
+    <color name="textSecondaryOnSecondary">#9A000000</color>
+    <color name="textSecondaryOnError">#DFFFFFFF</color>
+    <color name="textSecondaryOnBackground">#9A000000</color>
     
+    <color name="backgroundColor">#FFFFFF</color>
+    <color name="surfaceColor">#FFFFFF</color>
+    <color name="errorColor">#B00020</color>
+
+    <color name="highlightColor">@color/secondaryLightColor</color>
+    
+    <!-- DELETE ME LATER -->
     <color name="titleLogoTransition">#f32194</color>
-    <color name="primaryTextOnPrimary">#FFFFFF</color>
+
     <color name="listItemHover">#DADADA</color>
     <color name="listItemFocus">#C8C8C8</color>
 </resources>

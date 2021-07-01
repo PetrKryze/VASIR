@@ -8,7 +8,7 @@
     android:name="com.petrkryze.vas.fragments.RatingFragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/main_background"
+
     android:orientation="vertical"
     tools:context=".fragments.RatingFragment">
 
@@ -23,7 +23,7 @@
 
         android:text="@string/main_title_placeholder"
         android:textAlignment="center"
-        android:textColor="@color/primaryTextColor"
+        android:textColor="@color/textPrimaryOnSurface"
         style="@style/TextAppearance.MdcTypographyStyles.Headline4"/>
 
     <ImageView
@@ -49,7 +49,7 @@
         android:gravity="center"
         android:text="@string/track_time_placeholder"
         android:textAlignment="center"
-        android:textColor="@color/player_buttons_text"
+        android:textColor="@color/textPrimaryOnSurface"
         style="@style/TextAppearance.MdcTypographyStyles.Headline4" />
 
     <SeekBar
@@ -75,51 +75,58 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_above="@id/divider2"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+
+        android:padding="10dp">
 
         <Button
             android:id="@+id/button_previous"
-            style="?android:attr/buttonBarButtonStyle"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
             android:layout_width="0dp"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:drawableTop="@drawable/ic_previous"
-            android:paddingStart="10dp"
-            android:paddingTop="10dp"
-            android:paddingEnd="5dp"
-            android:paddingBottom="10dp"
+
+            android:drawableTop="@drawable/ic_previous_sized"
+            android:drawableTint="@color/primaryColor"
+
+            android:focusable="true"
+            android:longClickable="true"
+
             android:text="@string/previous_track"
-            android:textColor="@color/player_buttons_text"
+            android:textColor="@color/textPrimaryOnBackground"
             android:textAppearance="@style/TextAppearance.MdcTypographyStyles.Button"/>
 
         <Button
             android:id="@+id/button_play_pause"
-            style="?android:attr/buttonBarButtonStyle"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
             android:layout_width="0dp"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:drawableTop="@drawable/ic_play"
-            android:paddingLeft="5dp"
-            android:paddingTop="10dp"
-            android:paddingRight="5dp"
-            android:paddingBottom="10dp"
+
+            android:drawableTop="@drawable/ic_play_sized"
+            android:drawableTint="@color/primaryColor"
+
+            android:focusable="true"
+
             android:text="@string/button_play_label"
-            android:textColor="@color/player_buttons_text"
+            android:textColor="@color/textPrimaryOnBackground"
             android:textAppearance="@style/TextAppearance.MdcTypographyStyles.Button"/>
 
         <Button
             android:id="@+id/button_next"
-            style="?android:attr/buttonBarButtonStyle"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
             android:layout_width="0dp"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:drawableTop="@drawable/ic_next"
-            android:paddingStart="5dp"
-            android:paddingTop="10dp"
-            android:paddingEnd="10dp"
-            android:paddingBottom="10dp"
+
+            android:drawableTop="@drawable/ic_next_sized"
+            android:drawableTint="@color/primaryColor"
+
+            android:focusable="true"
+            android:longClickable="true"
+
             android:text="@string/next_track"
-            android:textColor="@color/player_buttons_text"
+            android:textColor="@color/textPrimaryOnBackground"
             android:textAppearance="@style/TextAppearance.MdcTypographyStyles.Button"/>
 
     </LinearLayout>
@@ -152,7 +159,7 @@
             android:maxEms="8"
             android:text="@string/rating_label_highest"
             android:textAlignment="viewEnd"
-            android:textColor="@color/primaryTextColor"
+            android:textColor="@color/textPrimaryOnSurface"
             app:layout_constraintBottom_toTopOf="@id/ratingBar"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -169,7 +176,7 @@
             android:maxEms="8"
             android:text="@string/rating_label_lowest"
             android:textAlignment="viewStart"
-            android:textColor="@color/primaryTextColor"
+            android:textColor="@color/textPrimaryOnSurface"
             app:layout_constraintBottom_toTopOf="@+id/ratingBar"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />

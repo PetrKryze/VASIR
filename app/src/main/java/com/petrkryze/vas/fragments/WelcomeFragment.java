@@ -103,11 +103,18 @@ public class WelcomeFragment extends Fragment {
         colorAnimation.addUpdateListener(animation -> titleImage.setBackgroundColor((int) animation.getAnimatedValue()));
         colorAnimation.start();
 
-        startButton.setOnClickListener(v -> {
+        // Checkbox logic
+        boolean showWelcomeScreen = preferences.getBoolean(getString(R.string.KEY_PREFERENCES_SETTINGS_WELCOME_SHOW), false);
+        checkBox.setChecked(!showWelcomeScreen);
+        checkBox.setAlpha(checkBox.isChecked() ? 1 : (float) 0.5);
+        checkBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            checkBox.setAlpha(isChecked ? 1 : (float) 0.5);
             SharedPreferences.Editor editor = preferences.edit();
             editor.putBoolean(getString(R.string.KEY_PREFERENCES_SETTINGS_WELCOME_SHOW), !checkBox.isChecked());
             editor.apply();
+        });
 
+        startButton.setOnClickListener(v -> {
             NavDirections directions = WelcomeFragmentDirections.actionWelcomeFragmentToRatingFragment();
             NavHostFragment.findNavController(WelcomeFragment.this).navigate(directions);
         });
@@ -203,9 +210,7 @@ public class WelcomeFragment extends Fragment {
                     }
             );
         }
-
         return super.onOptionsItemSelected(item);
     }
-
 
 }

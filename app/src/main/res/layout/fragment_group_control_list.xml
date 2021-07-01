@@ -8,7 +8,7 @@
     android:name="com.petrkryze.vas.fragments.GroupControlFragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/main_background"
+
     android:orientation="vertical"
     tools:context=".fragments.GroupControlFragment">
 
@@ -23,7 +23,7 @@
         android:paddingVertical="5dp"
 
         android:text="@string/group_control_found_folders_headline"
-        android:textColor="@color/primaryTextColor"
+        android:textColor="@color/textPrimaryOnSurface"
         style="@style/TextAppearance.MdcTypographyStyles.Headline4"
 
         app:layout_constraintStart_toStartOf="parent"
@@ -56,7 +56,7 @@
         android:backgroundTint="@color/secondaryColor"
         android:text="@string/button_confirm_label"
         android:textAppearance="@style/TextAppearance.MdcTypographyStyles.Button"
-        android:textColor="@color/primaryTextColor"
+        android:textColor="@color/textPrimaryOnSurface"
         android:textSize="18sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

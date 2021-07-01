@@ -17,7 +17,7 @@
 
         android:layout_marginStart="16dp"
         android:text="@string/placeholder_number"
-        android:textColor="@color/primaryTextColor"
+        android:textColor="@color/textPrimaryOnSurface"
         android:textSize="18sp"
 
         app:layout_constraintBottom_toBottomOf="parent"
@@ -29,7 +29,7 @@
         android:layout_width="1dp"
         android:layout_height="40dp"
         android:layout_marginStart="8dp"
-        android:background="@color/primaryTextColor"
+        android:background="@color/textPrimaryOnSurface"
 
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toEndOf="@id/result_list_row_number"
@@ -43,7 +43,7 @@
 
         style="@style/TextAppearance.MdcTypographyStyles.Body1"
         android:text="@string/placeholder"
-        android:textColor="@color/primaryTextColor"
+        android:textColor="@color/textPrimaryOnSurface"
         android:textSize="20sp"
 
         app:layout_constraintBottom_toBottomOf="parent"
@@ -59,7 +59,7 @@
         android:layout_marginEnd="16dp"
         android:alpha="0.6"
         android:text="@string/placeholder"
-        android:textColor="@color/primaryTextColor"
+        android:textColor="@color/textPrimaryOnSurface"
 
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -73,7 +73,7 @@
         android:layout_marginEnd="16dp"
         android:alpha="0.6"
         android:text="@string/placeholder"
-        android:textColor="@color/primaryTextColor"
+        android:textColor="@color/textPrimaryOnSurface"
 
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

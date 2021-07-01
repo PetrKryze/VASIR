@@ -1,10 +1,8 @@
 package com.petrkryze.vas;
 
 import android.annotation.SuppressLint;
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.graphics.ColorFilter;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.Drawable;
@@ -13,8 +11,10 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.petrkryze.vas.RatingManager.LoadResult;
 
+import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.view.menu.MenuBuilder;
@@ -35,6 +35,7 @@ public class MainActivity extends AppCompatActivity {
 //    private static final String TAG = "VisualAnalogScale";
 
     private static int alphaDisabled;
+    private static int alphaEnabled;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,6 +48,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Menu icon disabled look alpha
         alphaDisabled = getResources().getInteger(R.integer.DISABLED_ICON_ALPHA);
+        alphaEnabled = getResources().getInteger(R.integer.ENABLED_ICON_ALPHA);
 
         SharedPreferences preferences = getSharedPreferences(getString(R.string.PREFERENCES_SETTINGS), MODE_PRIVATE);
         boolean showWelcomeScreen = preferences.getBoolean(getString(R.string.KEY_PREFERENCES_SETTINGS_WELCOME_SHOW), true);
@@ -78,34 +80,39 @@ public class MainActivity extends AppCompatActivity {
         }
 
         // Tint color of all icons in the menu to primary text color
-        ColorFilter filter = new PorterDuffColorFilter(getColor(R.color.primaryTextColor), PorterDuff.Mode.SRC_IN);
         for (int i = 0; i < menu.size(); i++) {
             MenuItem item = menu.getItem(i);
             if (item != null) {
                 Drawable icon = item.getIcon();
-                if (icon != null) {
-                    icon.setColorFilter(filter);
-                    icon.setAlpha(128);
-                }
+                applyTintFilter(icon, getColor(R.color.textPrimaryOnSurface));
+                icon.setAlpha(128);
             }
         }
 
         return true;
     }
 
+    public static Drawable applyTintFilter(Drawable icon, @ColorInt final int color) {
+        if (icon != null) {
+            icon.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_IN));
+        }
+        return icon;
+    }
+
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         int itemID = item.getItemId();
         if (itemID == R.id.action_menu_quit) {
-            AlertDialog close_dialog = new AlertDialog.Builder(this)
-                    .setMessage(getString(R.string.close_confirm_prompt))
-                    .setTitle(getString(R.string.alert))
-                    .setPositiveButton(R.string.ok, (dialog, which) -> MainActivity.this.finish())
-                    .setNegativeButton(R.string.cancel, null)
-                    .create();
-            close_dialog.setIcon(ContextCompat.getDrawable(this,
-                    android.R.drawable.ic_menu_close_clear_cancel));
-            close_dialog.show();
+            new MaterialAlertDialogBuilder(this)
+                    .setTitle(getString(R.string.dialog_quit_title))
+                    .setMessage(getString(R.string.dialog_quit_message))
+                    .setIcon(applyTintFilter(
+                            ContextCompat.getDrawable(this, R.drawable.ic_exit),
+                            getColor(R.color.secondaryColor)))
+                    .setPositiveButton(R.string.dialog_quit_confirm, (dialog, which) -> MainActivity.this.finish())
+                    .setNegativeButton(R.string.dialog_quit_cancel, null)
+                    .create()
+                    .show();
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -116,7 +123,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public static void enableMenuItem(final Menu menu, final int itemID) {
-        menu.findItem(itemID).setEnabled(true).getIcon().setAlpha(255);
+        menu.findItem(itemID).setEnabled(true).getIcon().setAlpha(alphaEnabled);
     }
 
     public interface navigateToCSIInterface { void sailTheShip(RatingResult session); }
@@ -133,24 +140,26 @@ public class MainActivity extends AppCompatActivity {
                 callback.sailTheShip((RatingResult) bundle.getSerializable(SESSION_INFO_BUNDLE_SESSION));
                 return;
             case NO_SESSION:
-                message = context.getString(R.string.no_session_found);
-                title = context.getString(R.string.info);
-                icon = ContextCompat.getDrawable(context, R.drawable.ic_info);
+                title = context.getString(R.string.dialog_no_session_found_title);
+                message = context.getString(R.string.dialog_no_session_found_message);
+                icon = applyTintFilter(
+                        ContextCompat.getDrawable(context, R.drawable.ic_info),
+                        context.getColor(R.color.secondaryColor));
                 break;
             case CORRUPTED_SESSION:
-                message = context.getString(R.string.corrupted_session);
-                title = context.getString(R.string.alert);
-                icon = ContextCompat.getDrawable(context, R.drawable.ic_error_red_24dp);
+                title = context.getString(R.string.dialog_corrupted_session_title);
+                message = context.getString(R.string.dialog_corrupted_session_message);
+                icon = applyTintFilter(
+                        ContextCompat.getDrawable(context, R.drawable.ic_error),
+                        context.getColor(R.color.errorColor));
                 break;
         }
-
-        AlertDialog loading_failed_dialog = new AlertDialog.Builder(context)
-                .setMessage(message)
+        new MaterialAlertDialogBuilder(context)
                 .setTitle(title)
-                .setPositiveButton(context.getString(R.string.ok), null)
-                .create();
-        loading_failed_dialog.setIcon(icon);
-        loading_failed_dialog.show();
+                .setMessage(message)
+                .setIcon(icon)
+                .setPositiveButton(context.getString(R.string.dialog_quit_confirm), null)
+                .create()
+                .show();
     }
-
 }

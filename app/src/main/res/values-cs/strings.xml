@@ -1,15 +1,15 @@
 <resources>
     <string name="app_name">Visual Analog Scale</string>
 
-    <string name="alert">Upozornění</string>
+    <string name="dialog_corrupted_session_title">Sezení poškozeno</string>
     <string name="button_pause_label">Pozastavit</string>
     <string name="button_play_label">Přehrát</string>
-    <string name="cancel">Zrušit</string>
+    <string name="dialog_quit_cancel">Zrušit</string>
     <string name="checkmark">Fajfka</string>
-    <string name="close_confirm_prompt">Opravdu si přejete odejít?</string>
+    <string name="dialog_quit_message">Opravdu si přejete odejít?</string>
     <string name="main_title_placeholder">Srozumitelnost</string>
     <string name="next_track">Další</string>
-    <string name="ok">OK</string>
+    <string name="dialog_quit_confirm">OK</string>
     <string name="previous_track">Předchozí</string>
     <string name="rating_label_highest">Dokonale srozumitelné</string>
     <string name="rating_label_lowest">Zcela nesrozumitelné</string>
@@ -86,18 +86,9 @@
         kryzepet@fel.cvut.cz
     </string>
     <string name="choose_data_dir">Zvolte datový adresář</string>
-    <string name="no_session_found">Nebylo nalezeno žádné předešelé hodnocení. Vytvořte prosím nové sezení.</string>
-    <string name="corrupted_session">Data předešelého hodnocení jsou porušena. Vytvořte prosím nové sezení.</string>
-    <string name="info">Info</string>
-    <string name="create_new_session">Vytvořit nové sezení</string>
-    <string name="directory_not_exist">Adresář <i>%s</i> neexistuje.</string>
-    <string name="directory_not_directory">Vybraná položka <i>%s</i> není adresář.</string>
-    <string name="directory_not_readable">Adresář <i>%s</i> nelze přečíst.</string>
-    <string name="directory_no_files">V adresáři <i>%s</i> nebyly nalezeny žádné použitelné audio soubory.</string>
-    <string name="directory_missing_files">Nelze nalézt soubory (celkem %1$d) z uloženého sezení v adresáři %2$s:\n%3$s</string>
-    <string name="choose_valid_data_dir">Vyberte platný adresář</string>
-    <string name="internal_error_URI_extract_failed">Interní chyba!\nChybová zpráva: Extracting full path from document selection URI failed!</string>
-    <string name="error">Chyba</string>
+
+
+
 
     <string name="save_success">Uložení úspěšné!</string>
     <string name="save_failed">Uložení nebylo úspěšné!\nPříčina: %s</string>
@@ -164,6 +155,33 @@
     <string name="group_control_group_folder_list_row_folder_name_label">Adresář:</string>
     <string name="group_control_group_folder_list_row_group_name_label">Název skupiny:</string>
     <string name="group_control_invalid_input"><![CDATA[Název skupiny nesmí obsahovat tyto znaky: ~#^|$%&*!?<>/]]></string>
+
+    <string name="dialog_make_new_session_title">Opustit současné sezení?</string>
+    <string name="dialog_make_new_session_message">Chcete zahodit veškerá neuložená hodnocení v tomto sezení a vytvořit nové hodnotitelské sezení?</string>
+    <string name="dialog_make_new_session_positive_button_label">Ano</string>
+    <string name="dialog_quit_title">Odejít?</string>
+
+
+
+    <string name="dialog_invalid_directory_title">Neplatný adresář</string>
+    <string name="invalid_directory_not_exist">Adresář <i>%s</i> neexistuje.</string>
+    <string name="invalid_directory_not_directory">Vybraná položka <i>%s</i> není adresář.</string>
+    <string name="invalid_directory_not_readable">Adresář <i>%s</i> nelze přečíst.</string>
+    <string name="invalid_directory_no_files">V adresáři <i>%s</i> nebyly nalezeny žádné použitelné audio soubory.</string>
+    <string name="invalid_directory_missing_files">Nelze nalézt soubory (celkem %1$d) z uloženého sezení v adresáři %2$s:\n%3$s</string>
+    <string name="dialog_invalid_directory_choose_valid_data_directory">Vyberte platný adresář</string>
+    <string name="dialog_invalid_directory_quit">Odejít</string>
+    <string name="dialog_no_session_corrupted_session_quit">Odejít</string>
+
+    <string name="dialog_internal_error_title">Interní chyba</string>
+    <string name="dialog_internal_error_message">Chybová zpráva: Extracting full path from document selection URI failed!</string>
+    <string name="dialog_internal_error_quit">Odejít</string>
+
+    <string name="dialog_no_session_found_message">Nebylo nalezeno žádné předešelé hodnocení. Vytvořte prosím nové sezení.</string>
+    <string name="dialog_corrupted_session_message">Data předešelého hodnocení jsou porušena. Vytvořte prosím nové sezení.</string>
+    <string name="dialog_no_session_found_title">Nenalezeno žádné sezení</string>
+    <string name="dialog_no_session_corrupted_session_create_new_session">Vytvořit nové sezení</string>
+    <string name="button_previous_description">Icon depicting an arrow pointing to the left and a vertical bar</string>
 
 
 </resources>

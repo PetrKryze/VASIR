@@ -1,6 +1,5 @@
 package com.petrkryze.vas.fragments;
 
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
@@ -21,6 +20,7 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.petrkryze.vas.MainActivity;
 import com.petrkryze.vas.Player;
 import com.petrkryze.vas.R;
@@ -38,12 +38,14 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavDirections;
 import androidx.navigation.fragment.NavHostFragment;
 
 import static com.petrkryze.vas.DocumentUtils.getFullPathFromTreeUri;
+import static com.petrkryze.vas.MainActivity.applyTintFilter;
 import static com.petrkryze.vas.RatingManager.DIRCHECK_RESULT_DIRECTORY;
 import static com.petrkryze.vas.RatingManager.DIRCHECK_RESULT_ERROR_TYPE;
 import static com.petrkryze.vas.RatingManager.DIRCHECK_RESULT_IS_OK;
@@ -77,6 +79,7 @@ public class RatingFragment extends Fragment {
     private boolean initDone = false;
     private boolean isLoadingPlayProgress = false;
 
+    private Drawable playIcon;
     private final View.OnClickListener playListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
@@ -85,15 +88,14 @@ public class RatingFragment extends Fragment {
             if (initDone && player.isPrepared() && !player.isSeeking()) {
                 if (player.play()) {
                     button_play_pause.setText(getString(R.string.button_pause_label));
-                    button_play_pause.setCompoundDrawablesWithIntrinsicBounds(null,
-                            ContextCompat.getDrawable(requireContext(),
-                                    R.drawable.ic_pause), null, null);
+                    button_play_pause.setCompoundDrawablesWithIntrinsicBounds(null, pauseIcon, null, null);
                     button_play_pause.setOnClickListener(pauseListener);
                 }
             }
         }
     };
 
+    private Drawable pauseIcon;
     private final View.OnClickListener pauseListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
@@ -103,9 +105,7 @@ public class RatingFragment extends Fragment {
                 player.pause();
 
                 button_play_pause.setText(getString(R.string.button_play_label));
-                button_play_pause.setCompoundDrawablesWithIntrinsicBounds(null,
-                        ContextCompat.getDrawable(requireContext(),
-                                R.drawable.ic_play), null, null);
+                button_play_pause.setCompoundDrawablesWithIntrinsicBounds(null, playIcon, null, null);
                 button_play_pause.setOnClickListener(playListener);
             }
         }
@@ -199,27 +199,28 @@ public class RatingFragment extends Fragment {
             new SelectDirectory(),
             resultUri -> {
                 if (resultUri != null) {
-                    String fullpath = getFullPathFromTreeUri(resultUri, requireContext());
+                    String fullPath = getFullPathFromTreeUri(resultUri, requireContext());
 
-                    if (fullpath == null || fullpath.equals("")) {
-                        AlertDialog failed_dialog = new AlertDialog.Builder(requireContext())
-                                .setMessage(getString(R.string.internal_error_URI_extract_failed))
-                                .setTitle(getString(R.string.error))
-                                .setPositiveButton(R.string.action_quit, (dialog, which) -> requireActivity().finish())
+                    if (fullPath == null || fullPath.equals("")) {
+                        AlertDialog internalErrorDialog = new MaterialAlertDialogBuilder(requireContext())
+                                .setTitle(getString(R.string.dialog_internal_error_title))
+                                .setMessage(getString(R.string.dialog_internal_error_message))
+                                .setIcon(applyTintFilter(
+                                        ContextCompat.getDrawable(requireContext(), R.drawable.ic_error),
+                                        requireContext().getColor(R.color.errorColor)))
+                                .setPositiveButton(R.string.dialog_internal_error_quit, (dialog, which) -> requireActivity().finish())
                                 .create();
-                        failed_dialog.setIcon(ContextCompat.getDrawable(requireContext(),
-                                android.R.drawable.ic_menu_close_clear_cancel));
-                        failed_dialog.setCanceledOnTouchOutside(false);
-                        failed_dialog.setCancelable(false);
-                        failed_dialog.show();
+                        internalErrorDialog.setCanceledOnTouchOutside(false);
+                        internalErrorDialog.setCancelable(false);
+                        internalErrorDialog.show();
                     } else {
                         requireContext().getContentResolver().takePersistableUriPermission(resultUri,
                                 Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                        File datadir = new File(fullpath);
-                        Log.i(TAG, "onActivityResult: pickedDir == " + datadir.getAbsolutePath());
+                        File dataDir = new File(fullPath);
+                        Log.i(TAG, "onActivityResult: pickedDir == " + dataDir.getAbsolutePath());
 
                         // Go check the selected directory and it's contents
-                        manageDirectory(datadir);
+                        manageDirectory(dataDir);
                     }
                 }
             }
@@ -280,10 +281,15 @@ public class RatingFragment extends Fragment {
         playerSeekBar = view.findViewById(R.id.progressBar);
         checkMark = view.findViewById(R.id.check_mark);
 
+        // Prepare play/pause icons
+        playIcon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_play_sized);
+        pauseIcon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_pause_sized);
+
         // Assign listeners to all buttons
         button_play_pause.setOnClickListener(playListener);
         button_previous.setOnClickListener(previousListener);
         button_next.setOnClickListener(nextListener);
+
         VASratingBar.setOnSeekBarChangeListener(VASratingBarListener);
         playerSeekBar.setOnSeekBarChangeListener(playerSeekBarListener);
     }
@@ -307,29 +313,33 @@ public class RatingFragment extends Fragment {
                 manageDirectory(new File(ratingManager.getDataDirPath()));
                 return;
             case NO_SESSION:
-                message = getString(R.string.no_session_found);
-                title = getString(R.string.info);
-                icon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_info);
+                title = getString(R.string.dialog_no_session_found_title);
+                message = getString(R.string.dialog_no_session_found_message);
+                icon = applyTintFilter(
+                        ContextCompat.getDrawable(requireContext(), R.drawable.ic_info),
+                        requireContext().getColor(R.color.secondaryColor));
                 break;
             case CORRUPTED_SESSION:
-                message = getString(R.string.corrupted_session);
-                title = getString(R.string.alert);
-                icon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_error_red_24dp);
+                title = getString(R.string.dialog_corrupted_session_title);
+                message = getString(R.string.dialog_corrupted_session_message);
+                icon = applyTintFilter(
+                        ContextCompat.getDrawable(requireContext(), R.drawable.ic_error),
+                                requireContext().getColor(R.color.errorColor));
                 break;
         }
 
-        AlertDialog loading_failed_dialog = new AlertDialog.Builder(requireContext())
-                .setMessage(message)
+        AlertDialog noSessionDialog = new MaterialAlertDialogBuilder(requireContext())
                 .setTitle(title)
-                .setPositiveButton(R.string.create_new_session, (dialog, which) -> {
+                .setMessage(message)
+                .setIcon(icon)
+                .setPositiveButton(R.string.dialog_no_session_corrupted_session_create_new_session, (dialog, which) -> {
                     // Go select directory and check it afterwards
                     fireSelectDirectory();
                 })
-                .setNegativeButton(R.string.action_quit, (dialog, which) -> requireActivity().finish())
+                .setNegativeButton(R.string.dialog_no_session_corrupted_session_quit, (dialog, which) -> requireActivity().finish())
                 .create();
-        loading_failed_dialog.setCanceledOnTouchOutside(false);
-        loading_failed_dialog.setIcon(icon);
-        loading_failed_dialog.show();
+        noSessionDialog.setCanceledOnTouchOutside(false);
+        noSessionDialog.show();
     }
 
     private void manageDirectory(File selected_dir) {
@@ -352,17 +362,17 @@ public class RatingFragment extends Fragment {
             String dirname = checkResult.getString(DIRCHECK_RESULT_DIRECTORY, "???");
             switch (err) {
                 case NOT_EXIST:
-                    message = getString(R.string.directory_not_exist, dirname); break;
+                    message = getString(R.string.invalid_directory_not_exist, dirname); break;
                 case NOT_DIRECTORY:
-                    message = getString(R.string.directory_not_directory, dirname); break;
+                    message = getString(R.string.invalid_directory_not_directory, dirname); break;
                 case NOT_READABLE:
-                    message = getString(R.string.directory_not_readable, dirname); break;
+                    message = getString(R.string.invalid_directory_not_readable, dirname); break;
                 case NO_FILES:
-                    message = getString(R.string.directory_no_files); break;
+                    message = getString(R.string.invalid_directory_no_files); break;
                 case MISSING_FILES:
                     int cnt_missing = checkResult.getInt(DIRCHECK_RESULT_MISSING_CNT);
                     String list_missing = checkResult.getString(DIRCHECK_RESULT_MISSING_LIST);
-                    message = getString(R.string.directory_missing_files,
+                    message = getString(R.string.invalid_directory_missing_files,
                             cnt_missing, dirname, list_missing);
                     break;
             }
@@ -377,15 +387,18 @@ public class RatingFragment extends Fragment {
     }
 
     private void fireInvalidDirectory(String message) {
-        AlertDialog no_files_found_dialog = new AlertDialog.Builder(requireContext())
+        AlertDialog invalidDirectoryDialog = new MaterialAlertDialogBuilder(requireContext())
+                .setTitle(getString(R.string.dialog_invalid_directory_title))
                 .setMessage(message)
-                .setTitle(getString(R.string.alert))
-                .setPositiveButton(R.string.choose_valid_data_dir, (dialog, which) -> fireSelectDirectory())
-                .setNegativeButton(R.string.action_quit, (dialog, which) -> requireActivity().finish())
+                .setIcon(applyTintFilter(
+                        ContextCompat.getDrawable(requireContext(), R.drawable.ic_error),
+                        requireContext().getColor(R.color.errorColor)))
+                .setPositiveButton(R.string.dialog_invalid_directory_choose_valid_data_directory, (dialog, which) -> fireSelectDirectory())
+                .setNegativeButton(R.string.dialog_invalid_directory_quit, (dialog, which) -> requireActivity().finish())
                 .create();
-        no_files_found_dialog.setCanceledOnTouchOutside(false);
-        no_files_found_dialog.setIcon(ContextCompat.getDrawable(requireContext(), R.drawable.ic_error_red_24dp));
-        no_files_found_dialog.show();
+
+        invalidDirectoryDialog.setCanceledOnTouchOutside(false);
+        invalidDirectoryDialog.show();
     }
 
     private void changeCurrentTrack(int current, int changeTo) {
@@ -618,10 +631,13 @@ public class RatingFragment extends Fragment {
                     }
             );
         } else if (itemID == R.id.action_menu_reset_ratings && initDone) {
-            AlertDialog confirm_dialog = new AlertDialog.Builder(requireContext())
-                    .setMessage(getString(R.string.reset_confirm_prompt))
-                    .setTitle(getString(R.string.alert))
-                    .setPositiveButton(R.string.ok, (dialog, which) -> {
+            new MaterialAlertDialogBuilder(requireContext())
+                    .setTitle(getString(R.string.dialog_make_new_session_title))
+                    .setMessage(getString(R.string.dialog_make_new_session_message))
+                    .setIcon(applyTintFilter(
+                            ContextCompat.getDrawable(requireContext(), R.drawable.ic_warning),
+                            requireContext().getColor(R.color.secondaryColor)))
+                    .setPositiveButton(R.string.dialog_make_new_session_positive_button_label, (dialog, which) -> {
                         if (ratingManager.getState() == RatingManager.State.STATE_FINISHED) {
                             try {
                                 ratingManager.saveResults(requireContext());
@@ -634,14 +650,14 @@ public class RatingFragment extends Fragment {
                                 AlertDialog saveFailDialog = new AlertDialog.Builder(requireContext())
                                         .setMessage(getString(R.string.save_failed_continue_question))
                                         .setTitle(getString(R.string.save_failed_continue_title))
-                                        .setPositiveButton(R.string.ok, (dialog1, which1) -> {
+                                        .setPositiveButton(R.string.dialog_quit_confirm, (dialog1, which1) -> {
                                             initDone = false;
                                             isTouchingSeekBar = false;
 
                                             ratingManager.wipeCurrentSession();
                                             fireSelectDirectory();
                                         })
-                                        .setNegativeButton(R.string.cancel, null)
+                                        .setNegativeButton(R.string.dialog_quit_cancel, null)
                                         .create();
                                 saveFailDialog.setIcon(ContextCompat.getDrawable(requireContext(),
                                         android.R.drawable.stat_sys_warning));
@@ -655,11 +671,9 @@ public class RatingFragment extends Fragment {
                         ratingManager.wipeCurrentSession();
                         fireSelectDirectory();
                     })
-                    .setNegativeButton(R.string.cancel, null)
-                    .create();
-            confirm_dialog.setIcon(ContextCompat.getDrawable(requireContext(),
-                    android.R.drawable.stat_sys_warning));
-            confirm_dialog.show();
+                    .setNegativeButton(R.string.dialog_quit_cancel, null)
+                    .create()
+                    .show();
             return true;
         }
         return super.onOptionsItemSelected(item);

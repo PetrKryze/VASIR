@@ -1,17 +1,84 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar">
-        <!-- Customize your theme here. -->
+    <style name="AppTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <!-- Colors for Material Theme -->
         <item name="colorPrimary">@color/primaryColor</item>
         <item name="colorPrimaryDark">@color/primaryDarkColor</item>
+        <item name="colorPrimaryVariant">@color/primaryDarkColor</item>
+        <item name="colorPrimarySurface">@color/primaryColor</item>
         <item name="colorAccent">@color/secondaryColor</item>
+        <item name="colorSecondary">@color/secondaryColor</item>
+        <item name="colorSecondaryVariant">@color/secondaryDarkColor</item>
+        <item name="colorSurface">@color/surfaceColor</item>
+        <item name="colorError">@color/errorColor</item>
+        <item name="colorOnPrimary">@color/textPrimaryOnPrimary</item>
+        <item name="colorOnPrimarySurface">@color/textPrimaryOnPrimary</item>
+        <item name="colorOnSurface">@color/textPrimaryOnSurface</item>
+        <item name="colorOnSecondary">@color/textPrimaryOnSecondary</item>
+        <item name="colorOnError">@color/textPrimaryOnError</item>
+        <item name="colorOnBackground">@color/textPrimaryOnBackground</item>
+
+        <item name="android:textColorHighlight">@color/highlightColor</item>
+        <item name="android:colorEdgeEffect">@color/primaryLightColor</item>
+
+        <item name="android:windowBackground">@color/backgroundColor</item>
+        <item name="android:windowEnterTransition">@transition/fade_in</item>
+        <item name="android:windowExitTransition">@transition/fade_out</item>
+
+        <item name="android:textViewStyle">@style/default_textview_style</item>
+
         <item name="android:statusBarColor">@color/primaryDarkColor</item>
         <item name="android:navigationBarColor">@color/primaryDarkColor</item>
         <item name="android:itemTextAppearance">@style/TextAppearance.MdcTypographyStyles.Body1</item>
 
         <item name="snackbarTextViewStyle">@style/snackbar_text</item>
         <item name="snackbarButtonStyle">@style/snackbar_button</item>
+
+        <item name="materialAlertDialogTheme">@style/MaterialAlertDialogTheme</item>
+    </style>
+
+    <!-- Material Dialog Custom Theme -->
+    <style name="MaterialAlertDialogTheme" parent="ThemeOverlay.MaterialComponents.MaterialAlertDialog">
+        <item name="alertDialogStyle">@style/MaterialAlertDialogTheme.alertDialogStyle</item>
+        <item name="materialAlertDialogTitleTextStyle">@style/MaterialAlertDialogTheme.TitleTextStyle</item>
+        <item name="materialAlertDialogBodyTextStyle">@style/MaterialAlertDialogTheme.BodyTextStyle</item>
+        <item name="buttonBarNegativeButtonStyle">@style/MaterialAlertDialogTheme.ButtonStyle</item>
+        <item name="buttonBarPositiveButtonStyle">@style/MaterialAlertDialogTheme.ButtonStyle</item>
+    </style>
+
+    <style name="MaterialAlertDialogTheme.alertDialogStyle" parent="MaterialAlertDialog.MaterialComponents">
+        <item name="shapeAppearance">@style/ShapeAppearance.App.MediumComponent</item>
+    </style>
+    <style name="ShapeAppearance.App.MediumComponent" parent="ShapeAppearance.MaterialComponents.MediumComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">15dp</item>
+    </style>
+
+    <style name="MaterialAlertDialogTheme.TitleTextStyle" parent="MaterialAlertDialog.MaterialComponents.Title.Text">
+        <item name="android:textAppearance">@style/TextAppearance.MdcTypographyStyles.Subtitle1</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="MaterialAlertDialogTheme.BodyTextStyle" parent="MaterialAlertDialog.MaterialComponents.Body.Text">
+        <item name="android:textAppearance">@style/TextAppearance.MdcTypographyStyles.Body2</item>
+    </style>
+
+    <style name="MaterialAlertDialogTheme.ButtonStyle" parent="Widget.MaterialComponents.Button.TextButton.Dialog">
+        <item name="android:textAppearance">@style/TextAppearance.MdcTypographyStyles.Button</item>
+        <item name="shapeAppearance">@style/ShapeAppearance.App.SmallComponent</item>
+    </style>
+    <style name="ShapeAppearance.App.SmallComponent" parent="ShapeAppearance.MaterialComponents.SmallComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">10dp</item>
+    </style>
+
+
+
+
+    <style name="default_textview_style" parent="Widget.MaterialComponents.TextView">
+        <item name="android:textAppearance">@style/TextAppearance.MdcTypographyStyles.Body1</item>
+        <item name="android:textColor">@color/textPrimaryOnSurface</item>
     </style>
 
     <style name="snackbar_text" parent="Widget.MaterialComponents.Snackbar.TextView">
@@ -22,6 +89,9 @@
         <item name="android:textAppearance">@style/TextAppearance.MdcTypographyStyles.Button</item>
         <item name="android:textColor">@color/secondaryColor</item>
     </style>
+
+
+
 
     <style name="TextAppearance.MdcTypographyStyles.Headline1" parent="TextAppearance.MaterialComponents.Headline1">
         <item name="fontFamily">@font/rubik</item>

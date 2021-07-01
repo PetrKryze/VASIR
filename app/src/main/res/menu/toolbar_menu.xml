@@ -7,7 +7,7 @@
         app:showAsAction="never"/>
     <item android:id="@+id/action_menu_show_saved_results"
         android:title="@string/action_show_saved_results"
-        android:icon="@drawable/ic_folder_open"
+        android:icon="@drawable/ic_open_folder"
         app:showAsAction="never"/>
     <item android:id="@+id/action_menu_save"
         android:title="@string/action_save"

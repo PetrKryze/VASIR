@@ -28,7 +28,11 @@
             app:popExitAnim="@anim/fadeout" />
         <action
             android:id="@+id/action_rating_fragment_to_currentSessionInfoFragment"
-            app:destination="@id/currentSessionInfoFragment" />
+            app:destination="@id/currentSessionInfoFragment"
+            app:enterAnim="@anim/slide_sideways"
+            app:exitAnim="@anim/slide_back_sideways"
+            app:popEnterAnim="@anim/slide_sideways"
+            app:popExitAnim="@anim/slide_back_sideways"/>
         <action
             android:id="@+id/action_rating_fragment_to_groupControlFragment"
             app:destination="@id/groupControlFragment"
@@ -63,7 +67,11 @@
             app:popExitAnim="@anim/fadeout" />
         <action
             android:id="@+id/action_result_fragment_to_currentSessionInfoFragment"
-            app:destination="@id/currentSessionInfoFragment" />
+            app:destination="@id/currentSessionInfoFragment"
+            app:enterAnim="@anim/slide_sideways"
+            app:exitAnim="@anim/slide_back_sideways"
+            app:popEnterAnim="@anim/slide_sideways"
+            app:popExitAnim="@anim/slide_back_sideways"/>
     </fragment>
 
     <fragment
@@ -72,6 +80,9 @@
         android:label="@string/fragment_header_rating_detail"
         tools:layout="@layout/fragment_result_detail" >
 
+        <argument
+            android:name="rating_result"
+            app:argType="com.petrkryze.vas.RatingResult" />
         <action
             android:id="@+id/action_result_detail_fragment_to_helpFragment"
             app:destination="@id/helpFragment"
@@ -79,12 +90,13 @@
             app:exitAnim="@anim/fadeout"
             app:popEnterAnim="@anim/fadein"
             app:popExitAnim="@anim/fadeout" />
-        <argument
-            android:name="rating_result"
-            app:argType="com.petrkryze.vas.RatingResult" />
         <action
             android:id="@+id/action_result_detail_fragment_to_currentSessionInfoFragment"
-            app:destination="@id/currentSessionInfoFragment" />
+            app:destination="@id/currentSessionInfoFragment"
+            app:enterAnim="@anim/slide_sideways"
+            app:exitAnim="@anim/slide_back_sideways"
+            app:popEnterAnim="@anim/slide_sideways"
+            app:popExitAnim="@anim/slide_back_sideways"/>
 
     </fragment>
 
@@ -93,6 +105,7 @@
         android:name="com.petrkryze.vas.fragments.WelcomeFragment"
         android:label="@string/fragment_header_welcome"
         tools:layout="@layout/fragment_welcome" >
+
         <action
             android:id="@+id/action_welcomeFragment_to_rating_fragment"
             app:destination="@id/rating_fragment"
@@ -103,13 +116,17 @@
         <action
             android:id="@+id/action_welcome_fragment_to_result_fragment"
             app:destination="@id/result_fragment"
-            app:enterAnim="@anim/fadein"
-            app:exitAnim="@anim/fadeout"
-            app:popEnterAnim="@anim/fadein"
-            app:popExitAnim="@anim/fadeout" />
+            app:enterAnim="@anim/slide_in"
+            app:exitAnim="@anim/slide_out"
+            app:popEnterAnim="@anim/slide_in"
+            app:popExitAnim="@anim/slide_out" />
         <action
             android:id="@+id/action_welcome_fragment_to_currentSessionInfoFragment"
-            app:destination="@id/currentSessionInfoFragment" />
+            app:destination="@id/currentSessionInfoFragment"
+            app:enterAnim="@anim/slide_sideways"
+            app:exitAnim="@anim/slide_back_sideways"
+            app:popEnterAnim="@anim/slide_sideways"
+            app:popExitAnim="@anim/slide_back_sideways"/>
     </fragment>
 
     <fragment
@@ -128,10 +145,18 @@
             />
         <action
             android:id="@+id/action_helpFragment_to_currentSessionInfoFragment"
-            app:destination="@id/currentSessionInfoFragment" />
+            app:destination="@id/currentSessionInfoFragment"
+            app:enterAnim="@anim/slide_sideways"
+            app:exitAnim="@anim/slide_back_sideways"
+            app:popEnterAnim="@anim/slide_sideways"
+            app:popExitAnim="@anim/slide_back_sideways"/>
         <action
             android:id="@+id/action_helpFragment_to_result_fragment"
-            app:destination="@id/result_fragment" />
+            app:destination="@id/result_fragment"
+            app:enterAnim="@anim/slide_in"
+            app:exitAnim="@anim/slide_out"
+            app:popEnterAnim="@anim/slide_in"
+            app:popExitAnim="@anim/slide_out"/>
     </fragment>
 
     <fragment
@@ -142,6 +167,7 @@
         <argument
             android:name="rating_result"
             app:argType="com.petrkryze.vas.RatingResult" />
+
         <action
             android:id="@+id/action_currentSessionInfoFragment_to_helpFragment"
             app:destination="@id/helpFragment"
@@ -151,7 +177,11 @@
             app:popExitAnim="@anim/fadeout"/>
         <action
             android:id="@+id/action_currentSessionInfoFragment_to_result_fragment"
-            app:destination="@id/result_fragment" />
+            app:destination="@id/result_fragment"
+            app:enterAnim="@anim/slide_back_sideways"
+            app:exitAnim="@anim/slide_sideways"
+            app:popEnterAnim="@anim/slide_back_sideways"
+            app:popExitAnim="@anim/slide_sideways"/>
     </fragment>
 
     <fragment

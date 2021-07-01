@@ -1,16 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <dimen name="seek_bar_thickness">10dp</dimen>
-    <dimen name="player_button_size">60dp</dimen>
+    <dimen name="player_button_size">50dp</dimen>
+
     <dimen name="progress_bar_thumb_size">20dp</dimen>
     <dimen name="progress_bar_thumb_ring_size">60dp</dimen>
     <dimen name="progress_bar_thumb_ring_thickness">10dp</dimen>
-    <dimen name="progress_bar_thumb_line_width">5dp</dimen>
-    <dimen name="progress_bar_thumb_line_height">15dp</dimen>
     <dimen name="progress_bar_thickness">5dp</dimen>
-    <dimen name="checkmark_landscape_size">35dp</dimen>
-    <dimen name="text_margin">16dp</dimen>
-    <dimen name="list_container_stroke_width">10dp</dimen>
-    <dimen name="main_heading">28sp</dimen>
-    <dimen name="result_detail_subheading">22sp</dimen>
 </resources>

@@ -17,7 +17,7 @@
         android:layout_height="0dp"
 
         android:text="@string/group_control_group_folder_list_row_folder_name_label"
-        android:textColor="@color/primaryTextColor"
+        android:textColor="@color/textPrimaryOnSurface"
         android:textAppearance="@style/TextAppearance.MdcTypographyStyles.Body1"
 
         app:layout_constraintStart_toStartOf="parent"
@@ -39,7 +39,7 @@
         android:text="@string/group_control_group_folder_list_row_folder_name_placeholder"
         android:textAppearance="@style/TextAppearance.MdcTypographyStyles.Body1"
 
-        android:textColor="@color/primaryTextColor"
+        android:textColor="@color/textPrimaryOnSurface"
         android:textStyle="italic"
         app:layout_constraintEnd_toEndOf="parent"
 
@@ -52,7 +52,7 @@
         android:layout_height="wrap_content"
 
         android:text="@string/group_control_group_folder_list_row_found_audio_files"
-        android:textColor="@color/primaryTextColor"
+        android:textColor="@color/textPrimaryOnSurface"
         android:textAppearance="@style/TextAppearance.MdcTypographyStyles.Caption"
         android:alpha="0.7"
 
@@ -71,7 +71,7 @@
         android:text="@string/group_control_group_folder_list_row_group_name_label"
 
         android:textAppearance="@style/TextAppearance.MdcTypographyStyles.Body1"
-        android:textColor="@color/primaryTextColor"
+        android:textColor="@color/textPrimaryOnSurface"
         app:layout_constraintBottom_toBottomOf="@id/group_control_group_folder_list_row_group_name_input"
 
         app:layout_constraintStart_toStartOf="parent"
@@ -89,7 +89,7 @@
 
         android:text="@string/group_control_group_folder_list_row_group_name_input_placeholder"
         android:textAppearance="@style/TextAppearance.MdcTypographyStyles.Body1"
-        android:textColor="@color/primaryTextColor"
+        android:textColor="@color/textPrimaryOnSurface"
 
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

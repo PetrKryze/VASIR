@@ -8,7 +8,7 @@
     android:name="com.petrkryze.vas.fragments.ResultDetailFragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/main_background"
+
     android:orientation="vertical"
     tools:context=".fragments.ResultDetailFragment">
 
@@ -24,7 +24,7 @@
         android:paddingEnd="10dp"
 
         android:text="@string/result_detail_sessionID"
-        android:textColor="@color/primaryTextColor"
+        android:textColor="@color/textPrimaryOnSurface"
         android:textIsSelectable="true"
 
         app:layout_constraintEnd_toEndOf="parent"
@@ -43,7 +43,7 @@
         android:paddingBottom="4dp"
 
         android:text="@string/result_detail_save_date_placeholder"
-        android:textColor="@color/primaryTextColor"
+        android:textColor="@color/textPrimaryOnSurface"
         android:textIsSelectable="true"
 
         app:layout_constraintEnd_toEndOf="parent"
@@ -62,7 +62,7 @@
         android:paddingEnd="8dp"
 
         android:text="@string/result_detail_seed_placeholder"
-        android:textColor="@color/primaryTextColor"
+        android:textColor="@color/textPrimaryOnSurface"
         android:textIsSelectable="true"
 
         app:layout_constraintEnd_toEndOf="parent"
@@ -79,7 +79,7 @@
         android:padding="8dp"
 
         android:text="@string/result_detail_generator_date_placeholder"
-        android:textColor="@color/primaryTextColor"
+        android:textColor="@color/textPrimaryOnSurface"
         android:textIsSelectable="true"
 
         app:layout_constraintBottom_toTopOf="@id/barrier"
@@ -98,7 +98,7 @@
         android:paddingBottom="4dp"
 
         android:text="@string/result_detail_save_date_label"
-        android:textColor="@color/primaryTextColor"
+        android:textColor="@color/textPrimaryOnSurface"
 
         app:layout_constraintBottom_toTopOf="@+id/result_detail_seed"
         app:layout_constraintStart_toStartOf="parent"
@@ -114,7 +114,7 @@
         android:paddingTop="4dp"
 
         android:text="@string/result_detail_seed_label"
-        android:textColor="@color/primaryTextColor"
+        android:textColor="@color/textPrimaryOnSurface"
 
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/barrierSaveDate" />
@@ -129,7 +129,7 @@
         android:paddingTop="8dp"
 
         android:text="@string/result_detail_generator_date_label"
-        android:textColor="@color/primaryTextColor"
+        android:textColor="@color/textPrimaryOnSurface"
 
         app:layout_constraintBottom_toTopOf="@+id/result_detail_column_headers"
         app:layout_constraintStart_toStartOf="parent"
@@ -199,7 +199,7 @@
             android:layout_height="wrap_content"
             android:maxLines="1"
             android:text="@string/result_detail_recording_list_column_id_label"
-            android:textColor="@color/primaryTextColor"
+            android:textColor="@color/textPrimaryOnSurface"
             android:textStyle="bold"
 
             app:layout_constraintBottom_toBottomOf="parent"
@@ -216,7 +216,7 @@
             android:layout_height="wrap_content"
             android:maxLines="1"
             android:text="@string/result_detail_recording_list_column_group_label"
-            android:textColor="@color/primaryTextColor"
+            android:textColor="@color/textPrimaryOnSurface"
             android:textStyle="bold"
 
             app:layout_constraintBottom_toBottomOf="parent"
@@ -232,7 +232,7 @@
             android:layout_height="wrap_content"
             android:maxLines="1"
             android:text="@string/result_detail_recording_list_column_index_label"
-            android:textColor="@color/primaryTextColor"
+            android:textColor="@color/textPrimaryOnSurface"
             android:textStyle="bold"
 
             app:layout_constraintBottom_toBottomOf="parent"
@@ -248,7 +248,7 @@
             android:layout_height="wrap_content"
             android:maxLines="1"
             android:text="@string/result_detail_recording_list_column_rating_label"
-            android:textColor="@color/primaryTextColor"
+            android:textColor="@color/textPrimaryOnSurface"
             android:textStyle="bold"
 
             app:layout_constraintBottom_toBottomOf="parent"
@@ -270,7 +270,7 @@
         android:backgroundTint="@color/secondaryColor"
         android:text="@string/button_share_label"
         android:textAppearance="@style/TextAppearance.MdcTypographyStyles.Button"
-        android:textColor="@color/primaryTextColor"
+        android:textColor="@color/textPrimaryOnSurface"
         android:textSize="18sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
