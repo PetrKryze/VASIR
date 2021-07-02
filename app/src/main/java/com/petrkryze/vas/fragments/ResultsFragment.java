@@ -16,7 +16,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.Toast;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
@@ -56,6 +55,7 @@ public class ResultsFragment extends Fragment {
     private ArrayList<RatingResult> ratingResults;
     private Snackbar hint;
     private RecyclerView resultsListView;
+    private Button buttonShareAll;
 
     private Vibrator vibrator;
     private static int VIBRATE_BUTTON_MS;
@@ -110,6 +110,7 @@ public class ResultsFragment extends Fragment {
             NavHostFragment.findNavController(ResultsFragment.this).navigate(directions);
         }
 
+        @SuppressLint("ShowToast")
         @Override
         public boolean onItemLongClick(RatingResult selectedResult, int position) {
             vibrator.vibrate(VibrationEffect.createOneShot(VIBRATE_BUTTON_LONG_MS,VibrationEffect.DEFAULT_AMPLITUDE));
@@ -130,7 +131,11 @@ public class ResultsFragment extends Fragment {
                             resultsListView.getAdapter().notifyDataSetChanged();
                         }
 
-                        Toast.makeText(requireContext(), outcome.second, Toast.LENGTH_SHORT).show();
+                        Snackbar.make(
+                                requireActivity().findViewById(R.id.coordinator),
+                                outcome.second, BaseTransientBottomBar.LENGTH_SHORT)
+                                .setAnchorView(buttonShareAll)
+                                .setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE).show();
                     })
                     .setNegativeButton(R.string.dialog_delete_result_cancel, null)
                     .create()
@@ -195,7 +200,7 @@ public class ResultsFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         Context context = view.getContext();
 
-        Button buttonShareAll = view.findViewById(R.id.button_results_share_all);
+        buttonShareAll = view.findViewById(R.id.button_results_share_all);
         buttonShareAll.setOnClickListener(shareAllListener);
 
         resultsListView = view.findViewById(R.id.results_list);
@@ -209,9 +214,9 @@ public class ResultsFragment extends Fragment {
 
         hint = Snackbar.make(
                 requireActivity().findViewById(R.id.coordinator),
-                R.string.hint_results_select, BaseTransientBottomBar.LENGTH_INDEFINITE)
-                .setAnchorView(buttonShareAll);
-        hint.setAction(R.string.button_close_label, v -> hint.dismiss());
+                R.string.hint_results_select, BaseTransientBottomBar.LENGTH_LONG)
+                .setAnchorView(buttonShareAll)
+                .setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE);
 
         handler.postDelayed(hint::show,context.getResources().getInteger(R.integer.SNACKBAR_HINT_DELAY_MS));
     }

@@ -30,6 +30,7 @@ import com.petrkryze.vas.MainActivity;
 import com.petrkryze.vas.Player;
 import com.petrkryze.vas.R;
 import com.petrkryze.vas.RatingManager;
+import com.petrkryze.vas.RatingManager.State;
 import com.petrkryze.vas.RatingResult;
 import com.petrkryze.vas.Recording;
 
@@ -57,6 +58,9 @@ import static com.petrkryze.vas.RatingManager.DIRCHECK_RESULT_ERROR_TYPE;
 import static com.petrkryze.vas.RatingManager.DIRCHECK_RESULT_IS_OK;
 import static com.petrkryze.vas.RatingManager.DIRCHECK_RESULT_MISSING_CNT;
 import static com.petrkryze.vas.RatingManager.DIRCHECK_RESULT_MISSING_LIST;
+import static com.petrkryze.vas.RatingManager.State.STATE_FINISHED;
+import static com.petrkryze.vas.RatingManager.State.STATE_IDLE;
+import static com.petrkryze.vas.RatingManager.State.STATE_IN_PROGRESS;
 
 /**
  * Created by Petr on 04.05.2021. Yay!
@@ -201,8 +205,11 @@ public class RatingFragment extends Fragment {
                 // Checks if all recordings have been rated
                 if (ratingManager.isRatingFinished(ratingManager.getTrackList())) {
                     Log.i(TAG, "onStopTrackingTouch: All recording have been rated!");
+
+
+                    // TODO CHANGE TOAST TO SNACKBAR
                     Toast.makeText(requireContext(), getString(R.string.all_rated), Toast.LENGTH_SHORT).show();
-                    ratingManager.setState(RatingManager.State.STATE_FINISHED);
+                    ratingManager.setState(STATE_FINISHED);
                     // Ratings will now save automatically on exit or new session
                 }
                 setCheckMarkDrawable(ratingManager.getTrackList().get(ratingManager.getTrackPointer()),
@@ -428,7 +435,9 @@ public class RatingFragment extends Fragment {
                 this,
                 () -> {
                     Log.i(TAG, "manageDirectory: Group check done callback!");
-                    ratingManager.setState(RatingManager.State.STATE_IN_PROGRESS);
+                    if (ratingManager.getState() == STATE_IDLE) {
+                        ratingManager.setState(STATE_IN_PROGRESS);
+                    }
                     initDone = true;
                 });
 
@@ -519,22 +528,21 @@ public class RatingFragment extends Fragment {
             VASratingBar.setProgress(setTo, true);
 
             Log.i(TAG, "changeCurrentTrack: current state = " + ratingManager.getState());
-            setCheckMarkDrawable(ratingManager.getTrackList().get(changeTo),
-                    ratingManager.getState());
+            setCheckMarkDrawable(ratingManager.getTrackList().get(changeTo), ratingManager.getState());
         }
     }
 
-    private void setCheckMarkDrawable(Recording recording, RatingManager.State state) {
+    private void setCheckMarkDrawable(Recording recording, State state) {
         if (checkMark != null) {
             if (recording.getRating() == Recording.DEFAULT_UNSET_RATING) {
                 checkMark.setVisibility(View.INVISIBLE);
             } else {
-                if (state == RatingManager.State.STATE_FINISHED) {
+                if (state == STATE_FINISHED) {
                     checkMark.setImageDrawable(ContextCompat.getDrawable(requireContext(),
-                            R.drawable.ic_done_all_green));
+                            R.drawable.ic_double_checkmark));
                 } else {
                     checkMark.setImageDrawable(ContextCompat.getDrawable(requireContext(),
-                            R.drawable.ic_done_green));
+                            R.drawable.ic_checkmark));
                 }
                 checkMark.setVisibility(View.VISIBLE);
             }
@@ -628,7 +636,7 @@ public class RatingFragment extends Fragment {
         Log.i(TAG, "onDestroy: Destroying");
         super.onDestroy();
         // Saves the results to the .txt file in memory if the rating is in a finished state
-        if (ratingManager.getState() == RatingManager.State.STATE_FINISHED) {
+        if (ratingManager.getState() == STATE_FINISHED) {
             try {
                 ratingManager.saveResults(requireContext());
             } catch (Exception e) {
@@ -712,7 +720,7 @@ public class RatingFragment extends Fragment {
                             ContextCompat.getDrawable(requireContext(), R.drawable.ic_warning),
                             requireContext().getColor(R.color.secondaryColor)))
                     .setPositiveButton(R.string.dialog_make_new_session_positive_button_label, (dialog, which) -> {
-                        if (ratingManager.getState() == RatingManager.State.STATE_FINISHED) {
+                        if (ratingManager.getState() == STATE_FINISHED) {
                             try {
                                 ratingManager.saveResults(requireContext());
 

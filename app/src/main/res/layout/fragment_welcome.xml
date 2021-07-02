@@ -23,7 +23,6 @@
         android:translationY="5dp"
         android:translationZ="15dp"
 
-
         android:alpha="0"
         android:visibility="gone"
 
@@ -77,8 +76,7 @@
                 android:layout_marginTop="8dp"
                 android:gravity="left"
                 android:justificationMode="inter_word"
-                android:text="@string/welcome_message"
-                android:textAppearance="@style/TextAppearance.MdcTypographyStyles.Body1" />
+                android:text="@string/welcome_message"/>
 
             <CheckBox
                 android:id="@+id/welcome_checkbox"

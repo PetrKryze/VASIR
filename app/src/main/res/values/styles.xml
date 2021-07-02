@@ -36,9 +36,25 @@
         <item name="snackbarButtonStyle">@style/snackbar_button</item>
 
         <item name="materialAlertDialogTheme">@style/MaterialAlertDialogTheme</item>
+
+
+        <!-- Text appearance links -->
+        <item name="textAppearanceBody1">@style/TextAppearance.MdcTypographyStyles.Body1</item>
+        <item name="textAppearanceBody2">@style/TextAppearance.MdcTypographyStyles.Body2</item>
+        <item name="textAppearanceButton">@style/TextAppearance.MdcTypographyStyles.Button</item>
+        <item name="textAppearanceCaption">@style/TextAppearance.MdcTypographyStyles.Caption</item>
+        <item name="textAppearanceHeadline1">@style/TextAppearance.MdcTypographyStyles.Headline1</item>
+        <item name="textAppearanceHeadline2">@style/TextAppearance.MdcTypographyStyles.Headline2</item>
+        <item name="textAppearanceHeadline3">@style/TextAppearance.MdcTypographyStyles.Headline3</item>
+        <item name="textAppearanceHeadline4">@style/TextAppearance.MdcTypographyStyles.Headline4</item>
+        <item name="textAppearanceHeadline5">@style/TextAppearance.MdcTypographyStyles.Headline5</item>
+        <item name="textAppearanceHeadline6">@style/TextAppearance.MdcTypographyStyles.Headline6</item>
+        <item name="textAppearanceOverline">@style/TextAppearance.MdcTypographyStyles.Overline</item>
+        <item name="textAppearanceSubtitle1">@style/TextAppearance.MdcTypographyStyles.Subtitle1</item>
+        <item name="textAppearanceSubtitle2">@style/TextAppearance.MdcTypographyStyles.Subtitle2</item>
     </style>
 
-    <!-- Material Dialog Custom Theme -->
+    <!-- Material Alert Dialog Custom Theme -->
     <style name="MaterialAlertDialogTheme" parent="ThemeOverlay.MaterialComponents.MaterialAlertDialog">
         <item name="alertDialogStyle">@style/MaterialAlertDialogTheme.alertDialogStyle</item>
         <item name="materialAlertDialogTitleTextStyle">@style/MaterialAlertDialogTheme.TitleTextStyle</item>
@@ -46,7 +62,6 @@
         <item name="buttonBarNegativeButtonStyle">@style/MaterialAlertDialogTheme.ButtonStyle</item>
         <item name="buttonBarPositiveButtonStyle">@style/MaterialAlertDialogTheme.ButtonStyle</item>
     </style>
-
     <style name="MaterialAlertDialogTheme.alertDialogStyle" parent="MaterialAlertDialog.MaterialComponents">
         <item name="shapeAppearance">@style/ShapeAppearance.App.MediumComponent</item>
     </style>
@@ -54,16 +69,13 @@
         <item name="cornerFamily">rounded</item>
         <item name="cornerSize">15dp</item>
     </style>
-
     <style name="MaterialAlertDialogTheme.TitleTextStyle" parent="MaterialAlertDialog.MaterialComponents.Title.Text">
         <item name="android:textAppearance">@style/TextAppearance.MdcTypographyStyles.Subtitle1</item>
         <item name="android:textStyle">bold</item>
     </style>
-
     <style name="MaterialAlertDialogTheme.BodyTextStyle" parent="MaterialAlertDialog.MaterialComponents.Body.Text">
         <item name="android:textAppearance">@style/TextAppearance.MdcTypographyStyles.Body2</item>
     </style>
-
     <style name="MaterialAlertDialogTheme.ButtonStyle" parent="Widget.MaterialComponents.Button.TextButton.Dialog">
         <item name="android:textAppearance">@style/TextAppearance.MdcTypographyStyles.Button</item>
         <item name="shapeAppearance">@style/ShapeAppearance.App.SmallComponent</item>
@@ -81,18 +93,16 @@
         <item name="android:textColor">@color/textPrimaryOnSurface</item>
     </style>
 
+    <!-- Snackbar definitions -->
     <style name="snackbar_text" parent="Widget.MaterialComponents.Snackbar.TextView">
-        <item name="android:textAppearance">@style/TextAppearance.MdcTypographyStyles.Caption</item>
+        <item name="android:textAppearance">@style/TextAppearance.MdcTypographyStyles.Body2</item>
     </style>
 
     <style name="snackbar_button" parent="Widget.MaterialComponents.Button.TextButton.Snackbar">
         <item name="android:textAppearance">@style/TextAppearance.MdcTypographyStyles.Button</item>
-        <item name="android:textColor">@color/secondaryColor</item>
     </style>
 
-
-
-
+    <!-- Text appearance font and size definitions -->
     <style name="TextAppearance.MdcTypographyStyles.Headline1" parent="TextAppearance.MaterialComponents.Headline1">
         <item name="fontFamily">@font/rubik</item>
         <item name="android:fontFamily">@font/rubik</item>

@@ -11,8 +11,8 @@
     <string name="next_track">Další</string>
     <string name="dialog_quit_confirm">OK</string>
     <string name="previous_track">Předchozí</string>
-    <string name="rating_label_highest">Dokonale srozumitelné</string>
-    <string name="rating_label_lowest">Zcela nesrozumitelné</string>
+    <string name="rating_label_highest">Dokonale\nsrozumitelné</string>
+    <string name="rating_label_lowest">Zcela\nnesrozumitelné</string>
     <string name="reset_confirm_prompt">Opravdu chcete vynulovat veškerá současná hodnocení a vytvořit nové hodnotitelské sezení?</string>
     <string name="session_info_title">Informace</string>
     <string name="toast_connect_headphones">Prosím, připojte k zařízení sluchátka.</string>
@@ -187,7 +187,7 @@
     <string name="dialog_delete_result_confirm">Ano, odstranit</string>
     <string name="dialog_delete_result_cancel">Ne</string>
 
-    <string name="result_deleted_success">Záznam úspěšně odstraněn..</string>
+    <string name="result_deleted_success">Záznam úspěšně odstraněn.</string>
     <string name="result_deleted_failure">Záznam nemohl být odstraněn.\nPříčina: %s</string>
 
 

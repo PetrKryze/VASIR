@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
+<androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -9,75 +9,87 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
 
-    android:orientation="vertical"
     tools:context=".fragments.RatingFragment">
 
     <TextView
         android:id="@+id/header_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
+
         android:layout_margin="10dp"
         android:gravity="center"
 
         android:text="@string/main_title_placeholder"
         android:textAlignment="center"
         android:textColor="@color/textPrimaryOnSurface"
-        style="@style/TextAppearance.MdcTypographyStyles.Headline4"/>
+        style="@style/TextAppearance.MdcTypographyStyles.Headline4"
+
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        />
 
     <ImageView
         android:id="@+id/check_mark"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_above="@id/track_time"
-        android:layout_centerHorizontal="true"
+        android:layout_width="@dimen/checkmark_size"
+        android:layout_height="@dimen/checkmark_size"
+
         android:contentDescription="@string/checkmark"
-        android:src="@drawable/ic_done_green"
-        android:visibility="invisible" />
+        android:src="@drawable/ic_checkmark"
+        app:tint="@color/secondaryColor"
+
+        android:visibility="invisible"
+
+        app:layout_constraintBottom_toTopOf="@id/track_time"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
 
     <TextView
         android:id="@+id/track_time"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@id/progressBar"
-        android:layout_centerHorizontal="true"
-        android:layout_marginStart="3dp"
-        android:layout_marginTop="3dp"
-        android:layout_marginEnd="3dp"
-        android:layout_marginBottom="3dp"
+        android:layout_marginBottom="10dp"
         android:gravity="center"
+
         android:text="@string/track_time_placeholder"
         android:textAlignment="center"
         android:textColor="@color/textPrimaryOnSurface"
-        style="@style/TextAppearance.MdcTypographyStyles.Headline4" />
+        style="@style/TextAppearance.MdcTypographyStyles.Headline4"
+
+        app:layout_constraintBottom_toTopOf="@id/progressBar"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
 
     <SeekBar
         android:id="@+id/progressBar"
         style="?android:attr/progressBarStyleHorizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_above="@id/button_box"
+
+        android:paddingHorizontal="20dp"
+        android:paddingVertical="5dp"
+
         android:max="@integer/PROGRESS_BAR_MAX"
-        android:paddingStart="20dp"
-        android:paddingLeft="20dp"
-        android:paddingTop="5dp"
-        android:paddingEnd="20dp"
-        android:paddingRight="20dp"
-        android:paddingBottom="5dp"
         android:progress="50"
         android:progressDrawable="@drawable/progress_bar"
-        android:thumb="@drawable/progress_thumb" />
+        android:thumb="@drawable/progress_thumb"
+
+        app:layout_constraintBottom_toTopOf="@id/button_box"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
 
     <LinearLayout
         android:id="@+id/button_box"
         style="?android:attr/buttonBarStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_above="@id/divider2"
         android:orientation="horizontal"
 
-        android:padding="10dp">
+        android:padding="10dp"
+
+        app:layout_constraintBottom_toTopOf="@id/divider"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
 
         <Button
             android:id="@+id/button_previous"
@@ -128,12 +140,15 @@
     </LinearLayout>
 
     <View
-        android:id="@+id/divider2"
+        android:id="@+id/divider"
         android:layout_width="match_parent"
         android:layout_height="5dp"
         android:layout_above="@id/rating_box"
-        android:layout_marginTop="10dp"
-        android:background="?android:attr/listDivider" />
+        android:background="?android:attr/listDivider"
+
+        app:layout_constraintBottom_toTopOf="@id/rating_box"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/rating_box"
@@ -141,71 +156,75 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:background="@color/primaryColor"
-        android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/rating_label_highest"
-            style="@style/TextAppearance.MdcTypographyStyles.Body2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginBottom="8dp"
-            android:gravity="end"
-            android:maxEms="8"
-            android:text="@string/rating_label_highest"
-            android:textAlignment="viewEnd"
-            android:textColor="@color/textPrimaryOnSurface"
-            app:layout_constraintBottom_toTopOf="@id/ratingBar"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+        android:padding="8dp"
+
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
 
         <TextView
             android:id="@+id/rating_label_lowest"
             style="@style/TextAppearance.MdcTypographyStyles.Body2"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="8dp"
+            android:paddingEnd="8dp"
+
             android:gravity="start"
-            android:maxEms="8"
+            android:minLines="2"
             android:text="@string/rating_label_lowest"
             android:textAlignment="viewStart"
-            android:textColor="@color/textPrimaryOnSurface"
-            app:layout_constraintBottom_toTopOf="@+id/ratingBar"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            android:textColor="@color/textPrimaryOnPrimary"
 
-        <SeekBar
-            android:id="@+id/ratingBar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginBottom="8dp"
-            android:max="100"
-            android:paddingStart="30dp"
-            android:paddingLeft="30dp"
-            android:paddingEnd="30dp"
-            android:paddingRight="30dp"
-            android:progress="50"
-            android:progressDrawable="@drawable/seek_bar"
-            android:splitTrack="false"
-            android:thumb="@drawable/seek_thumb"
-            android:thumbOffset="25dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@id/barrier3" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/rating_label_highest"/>
+
+        <TextView
+            android:id="@+id/rating_label_highest"
+            style="@style/TextAppearance.MdcTypographyStyles.Body2"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:paddingStart="8dp"
+
+            android:gravity="end"
+            android:minLines="2"
+            android:text="@string/rating_label_highest"
+            android:textAlignment="viewEnd"
+            android:textColor="@color/textPrimaryOnPrimary"
+
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toEndOf="@id/rating_label_lowest"/>
 
         <androidx.constraintlayout.widget.Barrier
             android:id="@+id/barrier3"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:barrierDirection="bottom"
+
             app:constraint_referenced_ids="rating_label_lowest,rating_label_highest" />
+
+        <SeekBar
+            android:id="@+id/ratingBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+
+            android:max="100"
+            android:progress="50"
+            android:progressDrawable="@drawable/seek_bar"
+            android:splitTrack="false"
+            android:thumb="@drawable/seek_thumb"
+            android:thumbOffset="25dp"
+
+            android:layout_marginTop="8dp"
+            android:paddingHorizontal="30dp"
+
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/barrier3" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-</RelativeLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

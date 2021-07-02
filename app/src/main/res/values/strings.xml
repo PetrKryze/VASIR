@@ -30,8 +30,8 @@
     <string name="next_track">Next</string>
     <string name="dialog_quit_confirm">OK</string>
     <string name="previous_track">Previous</string>
-    <string name="rating_label_highest">Perfectly intelligible</string>
-    <string name="rating_label_lowest">Completely unintelligible</string>
+    <string name="rating_label_highest">Perfectly\nintelligible</string>
+    <string name="rating_label_lowest">Completely\nunintelligible</string>
     <string name="reset_confirm_prompt">Are you sure you want to reset all current ratings and start a new rating session\\?</string>
     <string name="session_info_title">Info</string>
     <string name="toast_connect_headphones">Please, plug in headphones.</string>
