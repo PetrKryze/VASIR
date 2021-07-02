@@ -181,7 +181,14 @@
     <string name="dialog_corrupted_session_message">Data předešelého hodnocení jsou porušena. Vytvořte prosím nové sezení.</string>
     <string name="dialog_no_session_found_title">Nenalezeno žádné sezení</string>
     <string name="dialog_no_session_corrupted_session_create_new_session">Vytvořit nové sezení</string>
-    <string name="button_previous_description">Icon depicting an arrow pointing to the left and a vertical bar</string>
+
+    <string name="dialog_delete_result_title">Odstranit vybraný záznam?</string>
+    <string name="dialog_delete_result_message">Opravdu si přejete odstranit vybraný záznam ze zařízení? Tato operace je nevratná.</string>
+    <string name="dialog_delete_result_confirm">Ano, odstranit</string>
+    <string name="dialog_delete_result_cancel">Ne</string>
+
+    <string name="result_deleted_success">Záznam úspěšně odstraněn..</string>
+    <string name="result_deleted_failure">Záznam nemohl být odstraněn.\nPříčina: %s</string>
 
 
 </resources>

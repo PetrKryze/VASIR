@@ -211,6 +211,13 @@
     <string name="dialog_corrupted_session_message">Previous session is corrupted. Please create a new session.</string>
 
     <string name="dialog_no_session_corrupted_session_create_new_session">Create new session</string>
-    <string name="button_previous_description">Icon depicting an arrow pointing to the left and a vertical bar</string>
+
+    <string name="dialog_delete_result_title">Delete selected result?</string>
+    <string name="dialog_delete_result_message">Are you sure you want to delete the selected result from the device? This operation is irreversible.</string>
+    <string name="dialog_delete_result_confirm">Yes, delete</string>
+    <string name="dialog_delete_result_cancel">No</string>
+
+    <string name="result_deleted_success">Result deleted successfully.</string>
+    <string name="result_deleted_failure">Result could not be deleted.\nReason: %s</string>
 
 </resources>

@@ -61,6 +61,7 @@ public class ResultsRecyclerViewAdapter extends RecyclerView.Adapter<ResultsRecy
         holder.viewSaveTime.setText(dateTime.second);
 
         holder.mView.setOnClickListener(v -> onItemDetailListener.onItemClick(currentResult));
+        holder.mView.setOnLongClickListener(v -> onItemDetailListener.onItemLongClick(currentResult, position));
 
         holder.container.setBackground(AppCompatResources.getDrawable(context, R.drawable.result_list_item_background));
     }

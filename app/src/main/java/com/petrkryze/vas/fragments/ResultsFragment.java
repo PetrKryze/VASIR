@@ -9,13 +9,16 @@ import android.os.Handler;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
 import android.util.Log;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.Toast;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
 import com.petrkryze.vas.MainActivity;
@@ -26,10 +29,13 @@ import com.petrkryze.vas.adapters.ResultsRecyclerViewAdapter;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavDirections;
@@ -37,6 +43,8 @@ import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import static com.petrkryze.vas.MainActivity.applyTintFilter;
 
 /**
  * A fragment representing a list of Items.
@@ -47,9 +55,11 @@ public class ResultsFragment extends Fragment {
 
     private ArrayList<RatingResult> ratingResults;
     private Snackbar hint;
+    private RecyclerView resultsListView;
 
     private Vibrator vibrator;
-    public static int VIBRATE_BUTTON_MS;
+    private static int VIBRATE_BUTTON_MS;
+    private static int VIBRATE_BUTTON_LONG_MS;
     private Handler handler;
 
     private final View.OnClickListener shareAllListener = new View.OnClickListener() {
@@ -91,11 +101,54 @@ public class ResultsFragment extends Fragment {
         }
     };
 
-    private final OnItemDetailListener onItemDetailListener = selectedResult -> {
-        NavDirections directions =
-                ResultsFragmentDirections.actionResultFragmentToResultDetailFragment(selectedResult);
-        NavHostFragment.findNavController(ResultsFragment.this).navigate(directions);
+    private final OnItemDetailListener onItemDetailListener = new OnItemDetailListener() {
+        @Override
+        public void onItemClick(RatingResult selectedResult) {
+            vibrator.vibrate(VibrationEffect.createOneShot(VIBRATE_BUTTON_MS,VibrationEffect.DEFAULT_AMPLITUDE));
+            NavDirections directions =
+                    ResultsFragmentDirections.actionResultFragmentToResultDetailFragment(selectedResult);
+            NavHostFragment.findNavController(ResultsFragment.this).navigate(directions);
+        }
+
+        @Override
+        public boolean onItemLongClick(RatingResult selectedResult, int position) {
+            vibrator.vibrate(VibrationEffect.createOneShot(VIBRATE_BUTTON_LONG_MS,VibrationEffect.DEFAULT_AMPLITUDE));
+            Context context = ResultsFragment.this.requireContext();
+            new MaterialAlertDialogBuilder(context)
+                    .setTitle(getString(R.string.dialog_delete_result_title))
+                    .setMessage(getString(R.string.dialog_delete_result_message))
+                    .setIcon(applyTintFilter(
+                            ContextCompat.getDrawable(requireContext(), R.drawable.ic_delete),
+                            context.getColor(R.color.secondaryColor)))
+                    .setPositiveButton(R.string.dialog_delete_result_confirm, (dialog, which) -> {
+                        Pair<Boolean, String> outcome = deleteResult(selectedResult);
+
+                        if (outcome.first) {
+                            assert resultsListView != null;
+                            assert resultsListView.getAdapter() != null;
+                            ratingResults.remove(selectedResult);
+                            resultsListView.getAdapter().notifyDataSetChanged();
+                        }
+
+                        Toast.makeText(requireContext(), outcome.second, Toast.LENGTH_SHORT).show();
+                    })
+                    .setNegativeButton(R.string.dialog_delete_result_cancel, null)
+                    .create()
+                    .show();
+            return true;
+        }
     };
+
+    private Pair<Boolean, String> deleteResult(RatingResult toDelete) {
+        try {
+            Files.delete(new File(toDelete.getPath()).toPath());
+        } catch (IOException e) {
+            e.printStackTrace();
+            return Pair.create(false, getString(R.string.result_deleted_failure, e.getMessage()));
+        }
+
+        return Pair.create(true, getString(R.string.result_deleted_success));
+    }
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -126,13 +179,14 @@ public class ResultsFragment extends Fragment {
 
         vibrator = (Vibrator) requireContext().getSystemService(Context.VIBRATOR_SERVICE);
         VIBRATE_BUTTON_MS = getResources().getInteger(R.integer.VIBRATE_BUTTON_MS);
+        VIBRATE_BUTTON_LONG_MS = getResources().getInteger(R.integer.VIBRATE_LONG_CLICK_MS);
         this.handler = new Handler();
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_result, container, false);
+        return inflater.inflate(R.layout.fragment_results, container, false);
     }
 
     @SuppressLint("ShowToast")
@@ -144,7 +198,7 @@ public class ResultsFragment extends Fragment {
         Button buttonShareAll = view.findViewById(R.id.button_results_share_all);
         buttonShareAll.setOnClickListener(shareAllListener);
 
-        RecyclerView resultsListView = view.findViewById(R.id.results_list);
+        resultsListView = view.findViewById(R.id.results_list);
         resultsListView.setAdapter(new ResultsRecyclerViewAdapter(
                 context, ratingResults, onItemDetailListener));
         resultsListView.setLayoutManager(new LinearLayoutManager(context));
@@ -212,6 +266,7 @@ public class ResultsFragment extends Fragment {
     }
 
     public interface OnItemDetailListener {
-        void onItemClick(RatingResult selectedRating);
+        void onItemClick(RatingResult selectedResult);
+        boolean onItemLongClick(RatingResult selectedResult, int position);
     }
 }

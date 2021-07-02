@@ -46,7 +46,7 @@
         android:id="@+id/result_fragment"
         android:name="com.petrkryze.vas.fragments.ResultsFragment"
         android:label="@string/fragment_header_saved_ratings"
-        tools:layout="@layout/fragment_result">
+        tools:layout="@layout/fragment_results">
 
         <argument
             android:name="ratings"
