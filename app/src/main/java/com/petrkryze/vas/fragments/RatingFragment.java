@@ -2,8 +2,10 @@ package com.petrkryze.vas.fragments;
 
 import android.animation.ArgbEvaluator;
 import android.animation.ValueAnimator;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -13,6 +15,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.SoundEffectConstants;
 import android.view.View;
 import android.view.ViewGroup;
@@ -42,6 +45,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
+import androidx.core.widget.TextViewCompat;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavDirections;
 import androidx.navigation.fragment.NavHostFragment;
@@ -78,7 +82,6 @@ public class RatingFragment extends Fragment {
     private Player player;
     private RatingManager ratingManager;
 
-    private final boolean isOverFlowOpen = false;
     private boolean initDone = false;
     private boolean isLoadingPlayProgress = false;
 
@@ -140,7 +143,7 @@ public class RatingFragment extends Fragment {
         }
     };
 
-    ValueAnimator longClickAnimation;
+    ValueAnimator playerButtonClickAnimation;
     private final View.OnLongClickListener previousLongListener = new View.OnLongClickListener() {
         @Override
         public boolean onLongClick(View v) {
@@ -296,10 +299,9 @@ public class RatingFragment extends Fragment {
         // Setup long click animation
         int colorFrom = ContextCompat.getColor(requireContext(), R.color.primaryColor);
         int colorTo = ContextCompat.getColor(requireContext(), R.color.secondaryColor);
-        longClickAnimation = ValueAnimator.ofObject(new ArgbEvaluator(), colorFrom, colorTo);
-        longClickAnimation.setDuration(250);
-        longClickAnimation.setRepeatMode(ValueAnimator.REVERSE);
-        longClickAnimation.setRepeatCount(1);
+        playerButtonClickAnimation = ValueAnimator.ofObject(new ArgbEvaluator(), colorFrom, colorTo);
+        playerButtonClickAnimation.setDuration(100);
+        playerButtonClickAnimation.setRepeatCount(0);
 
         // Initialize the audio player and rating manager
         player = new Player(requireContext(), getPlayerListener());
@@ -315,6 +317,7 @@ public class RatingFragment extends Fragment {
                              @Nullable Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_rating, container, false);
     }
+
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
@@ -339,12 +342,36 @@ public class RatingFragment extends Fragment {
         button_previous.setOnClickListener(previousListener);
         button_next.setOnClickListener(nextListener);
 
+        setPlayerButtonAnimation(button_play_pause);
+        setPlayerButtonAnimation(button_next);
+        setPlayerButtonAnimation(button_previous);
+
         // Assign long press listeners to the previous and next buttons for going to start/end
         button_previous.setOnLongClickListener(previousLongListener);
         button_next.setOnLongClickListener(nextLongListener);
 
         VASratingBar.setOnSeekBarChangeListener(VASratingBarListener);
         playerSeekBar.setOnSeekBarChangeListener(playerSeekBarListener);
+    }
+
+    @SuppressLint("ClickableViewAccessibility")
+    private void setPlayerButtonAnimation(Button button) {
+        button.setOnTouchListener((v, event) -> {
+            if (v.getId() == button.getId()) {
+                if (event.getAction() == MotionEvent.ACTION_DOWN || event.getAction() == MotionEvent.ACTION_UP) {
+                    playerButtonClickAnimation.removeAllUpdateListeners();
+                    playerButtonClickAnimation.addUpdateListener(animation ->
+                            TextViewCompat.setCompoundDrawableTintList(button,
+                                    ColorStateList.valueOf((Integer) animation.getAnimatedValue())));
+                    if (event.getAction() == MotionEvent.ACTION_UP) {
+                        playerButtonClickAnimation.reverse();
+                    } else {
+                        playerButtonClickAnimation.start();
+                    }
+                }
+            }
+            return false;
+        });
     }
 
     @Override
