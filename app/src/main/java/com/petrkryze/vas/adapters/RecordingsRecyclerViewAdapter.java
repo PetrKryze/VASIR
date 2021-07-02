@@ -36,7 +36,7 @@ public class RecordingsRecyclerViewAdapter extends RecyclerView.Adapter<Recordin
         this.context = context;
         this.recordings = recordings;
 
-        VIBRATE_LIST_ITEM_SELECT = context.getResources().getInteger(R.integer.VIBRATE_LONG_CLICK);
+        VIBRATE_LIST_ITEM_SELECT = context.getResources().getInteger(R.integer.VIBRATE_LONG_CLICK_MS);
     }
 
     @NonNull

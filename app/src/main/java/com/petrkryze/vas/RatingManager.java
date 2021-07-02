@@ -377,6 +377,14 @@ public class RatingManager {
         this.trackPointer = current - 1;
     }
 
+    public void trackToFirst() {
+        this.trackPointer = 0;
+    }
+
+    public void trackToLast() {
+        this.trackPointer = trackList.size() - 1;
+    }
+
     public int getSavedPlayProgress() {
         return savedPlayProgress;
     }

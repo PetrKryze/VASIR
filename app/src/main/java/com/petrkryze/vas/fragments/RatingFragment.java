@@ -1,5 +1,7 @@
 package com.petrkryze.vas.fragments;
 
+import android.animation.ArgbEvaluator;
+import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
@@ -70,12 +72,13 @@ public class RatingFragment extends Fragment {
 
     private Vibrator vibrator;
     private int VIBRATE_BUTTON_MS;
-    private int VIBRATE_RATING_START;
+    private int VIBRATE_BUTTON_LONG_MS;
+    private int VIBRATE_RATING_START_MS;
 
     private Player player;
     private RatingManager ratingManager;
 
-    private boolean isOverFlowOpen = false;
+    private final boolean isOverFlowOpen = false;
     private boolean initDone = false;
     private boolean isLoadingPlayProgress = false;
 
@@ -137,6 +140,43 @@ public class RatingFragment extends Fragment {
         }
     };
 
+    ValueAnimator longClickAnimation;
+    private final View.OnLongClickListener previousLongListener = new View.OnLongClickListener() {
+        @Override
+        public boolean onLongClick(View v) {
+            if (v.getId() == button_previous.getId()) {
+                Log.i(TAG, "onLongClick: BUTTON PREVIOUS LONG CLICKED");
+                vibrator.vibrate(VibrationEffect.createOneShot(VIBRATE_BUTTON_LONG_MS, VibrationEffect.DEFAULT_AMPLITUDE));
+
+                int trackPointer = ratingManager.getTrackPointer();
+                if (initDone && trackPointer > 0) {
+                    changeCurrentTrack(trackPointer, 0);
+                    ratingManager.trackToFirst();
+                }
+                return true;
+            }
+            return false;
+        }
+    };
+
+    private final View.OnLongClickListener nextLongListener = new View.OnLongClickListener() {
+        @Override
+        public boolean onLongClick(View v) {
+            if (v.getId() == button_next.getId()) {
+                Log.i(TAG, "onLongClick: BUTTON NEXT LONG CLICKED");
+                vibrator.vibrate(VibrationEffect.createOneShot(VIBRATE_BUTTON_LONG_MS, VibrationEffect.DEFAULT_AMPLITUDE));
+
+                int trackPointer = ratingManager.getTrackPointer();
+                if (initDone && trackPointer < ratingManager.getTrackN()-1) {
+                    changeCurrentTrack(trackPointer, ratingManager.getTrackN() - 1);
+                    ratingManager.trackToLast();
+                }
+                return true;
+            }
+            return false;
+        }
+    };
+
     // VAS rating bar - enables users to rate current playing track in terms of overall intelligibility
     private final SeekBar.OnSeekBarChangeListener VASratingBarListener = new SeekBar.OnSeekBarChangeListener() {
         @Override
@@ -145,7 +185,7 @@ public class RatingFragment extends Fragment {
 
         @Override
         public void onStartTrackingTouch(SeekBar seekBar) {
-            vibrator.vibrate(VibrationEffect.createOneShot(VIBRATE_RATING_START,VibrationEffect.DEFAULT_AMPLITUDE));
+            vibrator.vibrate(VibrationEffect.createOneShot(VIBRATE_RATING_START_MS,VibrationEffect.DEFAULT_AMPLITUDE));
         }
 
         @Override
@@ -250,7 +290,16 @@ public class RatingFragment extends Fragment {
         // Get vibrator service for UI vibration feedback
         vibrator = (Vibrator) requireContext().getSystemService(Context.VIBRATOR_SERVICE);
         VIBRATE_BUTTON_MS = getResources().getInteger(R.integer.VIBRATE_BUTTON_MS);
-        VIBRATE_RATING_START = getResources().getInteger(R.integer.VIBRATE_RATING_BAR_START_MS);
+        VIBRATE_BUTTON_LONG_MS = getResources().getInteger(R.integer.VIBRATE_LONG_CLICK_MS);
+        VIBRATE_RATING_START_MS = getResources().getInteger(R.integer.VIBRATE_RATING_BAR_START_MS);
+
+        // Setup long click animation
+        int colorFrom = ContextCompat.getColor(requireContext(), R.color.primaryColor);
+        int colorTo = ContextCompat.getColor(requireContext(), R.color.secondaryColor);
+        longClickAnimation = ValueAnimator.ofObject(new ArgbEvaluator(), colorFrom, colorTo);
+        longClickAnimation.setDuration(250);
+        longClickAnimation.setRepeatMode(ValueAnimator.REVERSE);
+        longClickAnimation.setRepeatCount(1);
 
         // Initialize the audio player and rating manager
         player = new Player(requireContext(), getPlayerListener());
@@ -289,6 +338,10 @@ public class RatingFragment extends Fragment {
         button_play_pause.setOnClickListener(playListener);
         button_previous.setOnClickListener(previousListener);
         button_next.setOnClickListener(nextListener);
+
+        // Assign long press listeners to the previous and next buttons for going to start/end
+        button_previous.setOnLongClickListener(previousLongListener);
+        button_next.setOnLongClickListener(nextLongListener);
 
         VASratingBar.setOnSeekBarChangeListener(VASratingBarListener);
         playerSeekBar.setOnSeekBarChangeListener(playerSeekBarListener);
@@ -417,30 +470,24 @@ public class RatingFragment extends Fragment {
             }
 
             // Manages logical button visibility
+            int lastIndex = ratingManager.getTrackN()-1;
             if (changeTo == 0) {
-                // Hide previous button
-                button_previous.setVisibility(View.INVISIBLE);
-            } else if (changeTo == ratingManager.getTrackN()-1) {
-                // Hide next button
-                button_next.setVisibility(View.INVISIBLE);
-            } else if (current == 0 && changeTo == 1) {
-                // Show previous button
-                button_previous.setVisibility(View.VISIBLE);
-            } else if (current == ratingManager.getTrackN()-1 && changeTo == (ratingManager.getTrackN()-2)) {
-                // Show next button
-                button_next.setVisibility(View.VISIBLE);
+                button_previous.setVisibility(View.INVISIBLE); // Hide previous button
+            } else if (changeTo == lastIndex) {
+                button_next.setVisibility(View.INVISIBLE); // Hide next button
+            }
+            if (current == 0 && changeTo > 0) {
+                button_previous.setVisibility(View.VISIBLE); // Show previous button
+            } else if (current == lastIndex && changeTo < lastIndex) {
+                button_next.setVisibility(View.VISIBLE); // Show next button
             }
 
             // Sets track counter text
-            header_text.setText(getString(R.string.track_counter,
-                    getString(R.string.track),
-                    changeTo+1,
-                    ratingManager.getTrackN()));
+            header_text.setText(getString(R.string.track_counter, getString(R.string.track), changeTo+1, lastIndex+1));
 
             // Set rating bar position to default or saved
             int savedRating = ratingManager.getTrackList().get(changeTo).getRating();
-            int setTo = savedRating != Recording.DEFAULT_UNSET_RATING ?
-                    savedRating : getResources().getInteger(R.integer.DEFAULT_PROGRESS_CENTER);
+            int setTo = savedRating != Recording.DEFAULT_UNSET_RATING ? savedRating : getResources().getInteger(R.integer.DEFAULT_PROGRESS_CENTER);
 
             VASratingBar.setProgress(setTo, true);
 
@@ -677,21 +724,6 @@ public class RatingFragment extends Fragment {
             return true;
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    // Handles the auto-hide feature of toolbar to pause when overflow is opened
-    public void onMenuOpened() {
-        if (!isOverFlowOpen) {
-            if (player != null && player.isPlaying()) {
-                button_play_pause.callOnClick();
-            }
-        }
-        isOverFlowOpen = true;
-    }
-
-    // Re-enables the auto-hide after the overflow is closed
-    public void onPanelClosed() {
-        isOverFlowOpen = false;
     }
 
     private static class SelectDirectory extends ActivityResultContracts.OpenDocumentTree {

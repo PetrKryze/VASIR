@@ -159,7 +159,7 @@ public class ResultsFragment extends Fragment {
                 .setAnchorView(buttonShareAll);
         hint.setAction(R.string.button_close_label, v -> hint.dismiss());
 
-        handler.postDelayed(hint::show,context.getResources().getInteger(R.integer.SNACKBAR_HINT_DELAY));
+        handler.postDelayed(hint::show,context.getResources().getInteger(R.integer.SNACKBAR_HINT_DELAY_MS));
     }
 
     @Override
