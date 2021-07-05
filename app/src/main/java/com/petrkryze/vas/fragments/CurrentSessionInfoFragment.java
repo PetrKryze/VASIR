@@ -3,12 +3,16 @@ package com.petrkryze.vas.fragments;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.VibrationEffect;
+import android.os.Vibrator;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CheckedTextView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -22,14 +26,19 @@ import com.petrkryze.vas.adapters.RecordingsRecyclerViewAdapter;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavDirections;
 import androidx.navigation.fragment.NavHostFragment;
+import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import static com.petrkryze.vas.fragments.ResultDetailFragment.RecordingListSortBy;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -37,14 +46,30 @@ import androidx.recyclerview.widget.RecyclerView;
  * create an instance of this fragment.
  */
 public class CurrentSessionInfoFragment extends Fragment {
-
+    private static final String TAG = "CurrentSessionInfoFragment";
     private static final String CURRENT_SESSION = "current_session";
 
+    private RecordingListSortBy currentSort = RecordingListSortBy.GROUP; // Default sort
+
     private RatingResult currentSession;
+    private List<Recording> recordingsToDisplay;
+    private RecordingsRecyclerViewAdapter recyclerViewAdapter;
+
+    private CheckedTextView headerID;
+    private CheckedTextView headerGroup;
+    private CheckedTextView headerIndex;
+    private CheckedTextView headerRating;
+
+    private Vibrator vibrator;
+    private static int VIBRATE_BUTTON_MS;
 
     private final View.OnClickListener shareListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
+            Log.i(TAG, "onClick: SHARE BUTTON CLICKED");
+            vibrator.vibrate(VibrationEffect.createOneShot(
+                    VIBRATE_BUTTON_MS, VibrationEffect.DEFAULT_AMPLITUDE));
+
             Context context = requireContext();
 
             Intent sharingIntent = new Intent(Intent.ACTION_SEND);
@@ -77,8 +102,12 @@ public class CurrentSessionInfoFragment extends Fragment {
 
         if (getArguments() != null) {
             currentSession = CurrentSessionInfoFragmentArgs.fromBundle(getArguments()).getRatingResult();
-            currentSession.getRecordings().sort(Recording.sortAlphabetically);
+            recordingsToDisplay = new ArrayList<>(currentSession.getRecordings());
+            recordingsToDisplay.sort(Recording.sortByGroup);
         }
+
+        vibrator = (Vibrator) requireContext().getSystemService(Context.VIBRATOR_SERVICE);
+        VIBRATE_BUTTON_MS = getResources().getInteger(R.integer.VIBRATE_BUTTON_MS);
     }
 
     @Override
@@ -100,16 +129,39 @@ public class CurrentSessionInfoFragment extends Fragment {
         TextView TWcurrentSessionRatedFraction = view.findViewById(R.id.current_session_info_rated_fraction);
         TextView TWcurrentSessionSeed = view.findViewById(R.id.current_session_info_seed);
         TextView TWcurrentSessionGeneratorDate = view.findViewById(R.id.current_session_info_generator_date);
-        RecyclerView recordingListView = view.findViewById(R.id.current_session_info_recordings_list);
-        
+
         TWcurrentSessionID.setText(getString(R.string.current_session_info_sessionID, currentSession.getSession_ID()));
         TWcurrentSessionRatedFraction.setText(currentSession.getRatedFractionString());
         TWcurrentSessionSeed.setText(String.valueOf(currentSession.getSeed()));
         TWcurrentSessionGeneratorDate.setText(currentSession.getGeneratorMessage().replace("-",". "));
 
-        recordingListView.setAdapter(
-                new RecordingsRecyclerViewAdapter(context, currentSession.getRecordings()));
+        RecyclerView recordingListView = view.findViewById(R.id.current_session_info_recordings_list);
+        recyclerViewAdapter = new RecordingsRecyclerViewAdapter(context, recordingsToDisplay);
+        recordingListView.setAdapter(recyclerViewAdapter);
         recordingListView.setLayoutManager(new LinearLayoutManager(context));
+
+        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(context,
+                DividerItemDecoration.VERTICAL);
+        recordingListView.addItemDecoration(dividerItemDecoration);
+
+        headerID = view.findViewById(R.id.current_session_info_recording_list_column_id);
+        headerGroup = view.findViewById(R.id.current_session_info_recording_list_column_group);
+        headerIndex = view.findViewById(R.id.current_session_info_recording_list_column_index);
+        headerRating = view.findViewById(R.id.current_session_info_recording_list_column_rating);
+
+        headerID.setOnClickListener(new SortColumnListener(RecordingListSortBy.ID));
+        headerGroup.setOnClickListener(new SortColumnListener(RecordingListSortBy.GROUP));
+        headerIndex.setOnClickListener(new SortColumnListener(RecordingListSortBy.INDEX));
+        headerRating.setOnClickListener(new SortColumnListener(RecordingListSortBy.RATING));
+
+        headerGroup.setChecked(true);
+    }
+
+    private void uncheckAll() {
+        headerID.setChecked(false);
+        headerGroup.setChecked(false);
+        headerIndex.setChecked(false);
+        headerRating.setChecked(false);
     }
 
     @Override
@@ -151,5 +203,39 @@ public class CurrentSessionInfoFragment extends Fragment {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    class SortColumnListener implements View.OnClickListener {
+        RecordingListSortBy sortBy;
+
+        public SortColumnListener(RecordingListSortBy sortBy) {
+            this.sortBy = sortBy;
+        }
+
+        @Override
+        public void onClick(View v) {
+            Log.i(TAG, "onClick: COLUMN SORT BY " + sortBy + " BUTTON CLICKED");
+            vibrator.vibrate(VibrationEffect.createOneShot(
+                    VIBRATE_BUTTON_MS, VibrationEffect.DEFAULT_AMPLITUDE));
+
+            if (currentSort.equals(sortBy)) { // Clicked column is same as current selected sort
+                // Do reverse sort, don't change current sort
+                Collections.reverse(recordingsToDisplay);
+            } else {
+                uncheckAll();
+
+                switch (sortBy) {
+                    case ID: recordingsToDisplay.sort(Recording.sortByID); break;
+                    case GROUP: recordingsToDisplay.sort(Recording.sortByGroup); break;
+                    case INDEX: recordingsToDisplay.sort(Recording.sortByRandomIndex); break;
+                    case RATING: recordingsToDisplay.sort(Recording.sortByRating); break;
+                    default: break;
+                }
+                ((CheckedTextView) v).setChecked(true);
+                CurrentSessionInfoFragment.this.currentSort = sortBy;
+            }
+
+            recyclerViewAdapter.notifyDataSetChanged();
+        }
     }
 }

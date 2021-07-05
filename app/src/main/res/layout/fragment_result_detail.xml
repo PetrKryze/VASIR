@@ -180,27 +180,20 @@
         android:id="@+id/result_detail_column_headers"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:background="@color/primaryColor"
+
         android:elevation="5dp"
-
-        android:orientation="horizontal"
+        android:background="@color/primaryColor"
         android:paddingHorizontal="5dp"
-
         android:paddingVertical="5dp"
+
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/barrier">
 
-        <TextView
+        <CheckedTextView
             android:id="@+id/result_detail_recording_list_column_id"
-            style="@style/TextAppearance.MdcTypographyStyles.Body1"
-            android:layout_width="wrap_content"
-
-            android:layout_height="wrap_content"
-            android:maxLines="1"
+            style="@style/ColumnHeaderSortButton"
             android:text="@string/result_detail_recording_list_column_id_label"
-            android:textColor="@color/textPrimaryOnSurface"
-            android:textStyle="bold"
 
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@id/result_detail_recording_list_column_group"
@@ -208,48 +201,30 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <TextView
+        <CheckedTextView
             android:id="@+id/result_detail_recording_list_column_group"
-            style="@style/TextAppearance.MdcTypographyStyles.Body1"
-            android:layout_width="wrap_content"
-
-            android:layout_height="wrap_content"
-            android:maxLines="1"
+            style="@style/ColumnHeaderSortButton"
             android:text="@string/result_detail_recording_list_column_group_label"
-            android:textColor="@color/textPrimaryOnSurface"
-            android:textStyle="bold"
 
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@id/result_detail_recording_list_column_index"
             app:layout_constraintStart_toEndOf="@id/result_detail_recording_list_column_id"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <TextView
+        <CheckedTextView
             android:id="@+id/result_detail_recording_list_column_index"
-            style="@style/TextAppearance.MdcTypographyStyles.Body1"
-            android:layout_width="wrap_content"
-
-            android:layout_height="wrap_content"
-            android:maxLines="1"
+            style="@style/ColumnHeaderSortButton"
             android:text="@string/result_detail_recording_list_column_index_label"
-            android:textColor="@color/textPrimaryOnSurface"
-            android:textStyle="bold"
 
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@id/result_detail_recording_list_column_rating"
             app:layout_constraintStart_toEndOf="@id/result_detail_recording_list_column_group"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <TextView
+        <CheckedTextView
             android:id="@+id/result_detail_recording_list_column_rating"
-            style="@style/TextAppearance.MdcTypographyStyles.Body1"
-            android:layout_width="wrap_content"
-
-            android:layout_height="wrap_content"
-            android:maxLines="1"
+            style="@style/ColumnHeaderSortButton"
             android:text="@string/result_detail_recording_list_column_rating_label"
-            android:textColor="@color/textPrimaryOnSurface"
-            android:textStyle="bold"
 
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"

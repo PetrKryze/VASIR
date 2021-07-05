@@ -36,8 +36,71 @@ public class Recording implements Serializable {
         }
     };
 
+    public static final Comparator<Recording> sortByID = (o1, o2) -> {
+        int compareID = o1.getID().compareToIgnoreCase(o2.getID());
+
+        if (compareID < 0) {
+            return -1;
+        } else if (compareID > 0) {
+            return 1;
+        } else {
+            return Integer.compare(o1.getRandomIndex(), o2.getRandomIndex());
+        }
+    };
+
+    public static final Comparator<Recording> sortByGroup = (o1, o2) -> {
+        int compareGroup = o1.getGroupName().compareToIgnoreCase(o2.getGroupName());
+
+        if (compareGroup < 0) {
+            return -1;
+        } else if (compareGroup > 0) {
+            return 1;
+        } else { // Groups are the same
+            int compareID = o1.getID().compareToIgnoreCase(o2.getID());
+
+            if (compareID < 0) {
+                return -1;
+            } else if (compareID > 0) {
+                return 1;
+            } else {
+                return Integer.compare(o1.getRandomIndex(), o2.getRandomIndex());
+            }
+        }
+    };
+
     public static final Comparator<Recording> sortByRandomIndex = (o1, o2) -> Integer.
             compare(o1.getRandomIndex(), o2.getRandomIndex());
+
+    public static final Comparator<Recording> sortByRating = (o1, o2) -> {
+        if (o1.getRating() == DEFAULT_UNSET_RATING && o2.getRating() == DEFAULT_UNSET_RATING) {
+            int compareID = o1.getID().compareToIgnoreCase(o2.getID());
+
+            if (compareID < 0) {
+                return -1;
+            } else if (compareID > 0) {
+                return 1;
+            } else {
+                return Integer.compare(o1.getRandomIndex(), o2.getRandomIndex());
+            }
+        } else if (o1.getRating() == DEFAULT_UNSET_RATING) {
+            return -1;
+        } else if (o2.getRating() == DEFAULT_UNSET_RATING) {
+            return 1;
+        } else if (o1.getRating() == o2.getRating()) {
+            int compareID = o1.getID().compareToIgnoreCase(o2.getID());
+
+            if (compareID < 0) {
+                return -1;
+            } else if (compareID > 0) {
+                return 1;
+            } else {
+                return Integer.compare(o1.getRandomIndex(), o2.getRandomIndex());
+            }
+        } else {
+            return Integer.compare(o1.getRating(), o2.getRating());
+        }
+    };
+
 
     Recording(String path, String groupName, int randomIndex, int rating) {
         this.path = path;

@@ -86,6 +86,22 @@
     </style>
 
 
+    <style name="ColumnHeaderSortButton" parent="default_textview_style">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:minWidth">60dp</item>
+
+        <item name="android:maxLines">1</item>
+        <item name="android:textStyle">bold</item>
+
+        <item name="android:clickable">true</item>
+        <item name="android:checkable">true</item>
+        <item name="android:checkMark">@null</item>
+        <item name="android:background">@drawable/result_detail_column_header_background</item>
+        <item name="android:layout_marginHorizontal">5dp</item>
+        <item name="android:paddingHorizontal">5dp</item>
+        <item name="android:gravity">center_horizontal</item>
+    </style>
 
 
     <style name="default_textview_style" parent="Widget.MaterialComponents.TextView">

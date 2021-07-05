@@ -3,22 +3,28 @@ package com.petrkryze.vas.fragments;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.VibrationEffect;
+import android.os.Vibrator;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CheckedTextView;
 import android.widget.TextView;
 
 import com.petrkryze.vas.MainActivity;
 import com.petrkryze.vas.R;
 import com.petrkryze.vas.RatingResult;
+import com.petrkryze.vas.Recording;
 import com.petrkryze.vas.adapters.RecordingsRecyclerViewAdapter;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -38,15 +44,30 @@ import androidx.recyclerview.widget.RecyclerView;
  * create an instance of this fragment.
  */
 public class ResultDetailFragment extends Fragment {
-
-    // private static final String TAG = "ResultDetailFragment";
+    private static final String TAG = "ResultDetailFragment";
     private static final String RESULT_TO_DISPLAY = "result_to_display";
 
+    private RecordingListSortBy currentSort = RecordingListSortBy.GROUP; // Default sort
+
     private RatingResult resultToDisplay;
+    private List<Recording> recordingsToDisplay;
+    private RecordingsRecyclerViewAdapter recyclerViewAdapter;
+
+    private CheckedTextView headerID;
+    private CheckedTextView headerGroup;
+    private CheckedTextView headerIndex;
+    private CheckedTextView headerRating;
+
+    private Vibrator vibrator;
+    private static int VIBRATE_BUTTON_MS;
 
     private final View.OnClickListener shareListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
+            Log.i(TAG, "onClick: SHARE BUTTON CLICKED");
+            vibrator.vibrate(VibrationEffect.createOneShot(
+                    VIBRATE_BUTTON_MS, VibrationEffect.DEFAULT_AMPLITUDE));
+
             Context context = requireContext();
 
             Intent sharingIntent = new Intent(Intent.ACTION_SEND);
@@ -79,7 +100,12 @@ public class ResultDetailFragment extends Fragment {
 
         if (getArguments() != null) {
             resultToDisplay = ResultDetailFragmentArgs.fromBundle(getArguments()).getRatingResult();
+            recordingsToDisplay = new ArrayList<>(resultToDisplay.getRecordings());
+            recordingsToDisplay.sort(Recording.sortByGroup);
         }
+
+        vibrator = (Vibrator) requireContext().getSystemService(Context.VIBRATOR_SERVICE);
+        VIBRATE_BUTTON_MS = getResources().getInteger(R.integer.VIBRATE_BUTTON_MS);
     }
 
     @Override
@@ -108,13 +134,32 @@ public class ResultDetailFragment extends Fragment {
         TWresultDetailGeneratorDate.setText(resultToDisplay.getGeneratorMessage().replace("-",". "));
 
         RecyclerView recordingListView = view.findViewById(R.id.result_detail_recordings_list);
-        recordingListView.setAdapter(
-                new RecordingsRecyclerViewAdapter(context, resultToDisplay.getRecordings()));
+        recyclerViewAdapter = new RecordingsRecyclerViewAdapter(context, recordingsToDisplay);
+        recordingListView.setAdapter(recyclerViewAdapter);
         recordingListView.setLayoutManager(new LinearLayoutManager(context));
 
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(context,
                 DividerItemDecoration.VERTICAL);
         recordingListView.addItemDecoration(dividerItemDecoration);
+
+        headerID = view.findViewById(R.id.result_detail_recording_list_column_id);
+        headerGroup = view.findViewById(R.id.result_detail_recording_list_column_group);
+        headerIndex = view.findViewById(R.id.result_detail_recording_list_column_index);
+        headerRating = view.findViewById(R.id.result_detail_recording_list_column_rating);
+
+        headerID.setOnClickListener(new SortColumnListener(RecordingListSortBy.ID));
+        headerGroup.setOnClickListener(new SortColumnListener(RecordingListSortBy.GROUP));
+        headerIndex.setOnClickListener(new SortColumnListener(RecordingListSortBy.INDEX));
+        headerRating.setOnClickListener(new SortColumnListener(RecordingListSortBy.RATING));
+
+        headerGroup.setChecked(true);
+    }
+
+    private void uncheckAll() {
+        headerID.setChecked(false);
+        headerGroup.setChecked(false);
+        headerIndex.setChecked(false);
+        headerRating.setChecked(false);
     }
 
     private String formatDateTime(String raw) {
@@ -166,4 +211,43 @@ public class ResultDetailFragment extends Fragment {
 
         return super.onOptionsItemSelected(item);
     }
+
+    public enum RecordingListSortBy {
+        ID, GROUP, INDEX, RATING
+    }
+
+    class SortColumnListener implements View.OnClickListener {
+        RecordingListSortBy sortBy;
+
+        public SortColumnListener(RecordingListSortBy sortBy) {
+            this.sortBy = sortBy;
+        }
+
+        @Override
+        public void onClick(View v) {
+            Log.i(TAG, "onClick: COLUMN SORT BY " + sortBy + " BUTTON CLICKED");
+            vibrator.vibrate(VibrationEffect.createOneShot(
+                    VIBRATE_BUTTON_MS, VibrationEffect.DEFAULT_AMPLITUDE));
+
+            if (currentSort.equals(sortBy)) { // Clicked column is same as current selected sort
+                // Do reverse sort, don't change current sort
+                Collections.reverse(recordingsToDisplay);
+            } else {
+                uncheckAll();
+
+                switch (sortBy) {
+                    case ID: recordingsToDisplay.sort(Recording.sortByID); break;
+                    case GROUP: recordingsToDisplay.sort(Recording.sortByGroup); break;
+                    case INDEX: recordingsToDisplay.sort(Recording.sortByRandomIndex); break;
+                    case RATING: recordingsToDisplay.sort(Recording.sortByRating); break;
+                    default: break;
+                }
+                ((CheckedTextView) v).setChecked(true);
+                ResultDetailFragment.this.currentSort = sortBy;
+            }
+
+            recyclerViewAdapter.notifyDataSetChanged();
+        }
+    }
+
 }
