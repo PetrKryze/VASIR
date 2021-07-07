@@ -187,7 +187,7 @@
     <fragment
         android:id="@+id/groupControlFragment"
         android:name="com.petrkryze.vas.fragments.GroupControlFragment"
-        android:label="fragment_group_control_list"
+        android:label="@string/fragment_header_group_control_fragment"
         tools:layout="@layout/fragment_group_control_list" >
 
         <argument

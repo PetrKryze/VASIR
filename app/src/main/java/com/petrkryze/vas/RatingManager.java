@@ -50,7 +50,7 @@ public class RatingManager {
     public enum DirectoryCheckError {NOT_EXIST, NOT_DIRECTORY, NOT_READABLE, NO_FILES, MISSING_FILES, OK}
 
     public interface GroupFoldersUserCheckCallback {
-        void groupCheckDone();
+        void groupCheckFinished(boolean confirmed);
     }
 
     // Session defining variables
@@ -98,7 +98,7 @@ public class RatingManager {
 
     public static final String GROUP_CHECK_RESULT_REQUEST_KEY = "group_check_result";
     @SuppressWarnings("unchecked")
-    public Bundle checkDataDirectoryPath(File rootDataDir, Fragment caller,
+    public Bundle checkDataDirectoryPath(File rootDataDir, boolean newSession, Fragment caller,
                                          GroupFoldersUserCheckCallback callback) {
         Bundle ret = new Bundle();
         ret.putBoolean(DIRCHECK_RESULT_IS_OK, false); // Default on false, when ok overwrite
@@ -134,7 +134,7 @@ public class RatingManager {
                         gf.getFolderName() + ", Files: " + gf.getNaudioFiles() + " - PASSED");
             }
 
-            if (this.fileList != null) { // Previous session found, check consistency
+            if (!newSession) { // Previous session found, check consistency
                 ArrayList<String> lastSessionFiles = new ArrayList<>(this.fileList);
 
                 for (String filePath : this.fileList) {
@@ -148,7 +148,8 @@ public class RatingManager {
                 // All files from saved file list are accounted for in the storage
                 if (lastSessionFiles.isEmpty()) {
                     ret.putBoolean(DIRCHECK_RESULT_IS_OK, true);
-                    callback.groupCheckDone();
+                    // Use callback to signal that the previous session data is checked and ok
+                    callback.groupCheckFinished(true);
                 } else {
                     ret.putString(DIRCHECK_RESULT_ERROR_TYPE, DirectoryCheckError.MISSING_FILES.toString());
                     ret.putInt(DIRCHECK_RESULT_MISSING_CNT, lastSessionFiles.size());
@@ -164,11 +165,20 @@ public class RatingManager {
                 caller.getParentFragmentManager().setFragmentResultListener(
                         GROUP_CHECK_RESULT_REQUEST_KEY, caller,
                         (requestKey, result) -> {
-                            ArrayList<GroupFolder> validGroupFolders =
-                                    (ArrayList<GroupFolder>) result.getSerializable(
-                                            GroupControlFragment.GroupFolderListSerializedKey
-                                    );
-                            makeNewSession(rootDataDir, validGroupFolders, callback);
+                            if (requestKey.equals(GROUP_CHECK_RESULT_REQUEST_KEY)) {
+                                if (result.getBoolean(GroupControlFragment.GroupControlConfirmedKey)) {
+                                    ArrayList<GroupFolder> validGroupFolders =
+                                            (ArrayList<GroupFolder>) result.getSerializable(
+                                                    GroupControlFragment.GroupFolderListSerializedKey
+                                            );
+
+                                    wipeCurrentSession(); // TODO if ok
+                                    makeNewSession(rootDataDir, validGroupFolders, callback);
+                                } else { // GroupControlFragment exit without confirm
+                                    // Signal to RatingFragment that the process was cancelled
+                                    callback.groupCheckFinished(false);
+                                }
+                            }
                         }
                 );
 
@@ -313,7 +323,7 @@ public class RatingManager {
         this.fileList = newJoinedFileList;
 
         saveSession();
-        callback.groupCheckDone();
+        callback.groupCheckFinished(true);
     }
 
     @SuppressWarnings("SameParameterValue")
@@ -449,13 +459,17 @@ public class RatingManager {
         }
     }
 
-    public boolean isRatingFinished(List<Recording> recordings) {
-        for (Recording rec : recordings) {
-            if (rec.getRating() == DEFAULT_UNSET_RATING) {
-                return false;
+    public boolean isRatingFinished() {
+        if (trackList != null) {
+            for (Recording rec : trackList) {
+                if (rec.getRating() == DEFAULT_UNSET_RATING) {
+                    return false;
+                }
             }
+            return true;
+        } else {
+            return false;
         }
-        return true;
     }
 
     public void saveSession() {

@@ -39,6 +39,7 @@ import androidx.recyclerview.widget.RecyclerView;
  */
 public class GroupControlFragment extends Fragment {
     private static final String TAG = "GroupControlFragment";
+    public static final String GroupControlConfirmedKey = "groupControlConfirmedKey";
     public static final String GroupFolderListSerializedKey = "groupFolderList";
 
     private ArrayList<GroupFolder> groupFolders;
@@ -58,9 +59,9 @@ public class GroupControlFragment extends Fragment {
                 try {
                     if (checkEditTexts()) {
                         Bundle bundle = new Bundle();
+                        bundle.putBoolean(GroupControlConfirmedKey, true);
                         bundle.putSerializable(GroupFolderListSerializedKey,
-                                GroupControlFragment.this.groupFolders); // TODO is this okay?
-                        // TODO Maybe make the change of groupFolders differently?
+                                GroupControlFragment.this.groupFolders);
 
                         getParentFragmentManager()
                                 .setFragmentResult(RatingManager.GROUP_CHECK_RESULT_REQUEST_KEY, bundle);
@@ -102,6 +103,14 @@ public class GroupControlFragment extends Fragment {
 
         vibrator = (Vibrator) requireContext().getSystemService(Context.VIBRATOR_SERVICE);
         VIBRATE_BUTTON_MS = getResources().getInteger(R.integer.VIBRATE_BUTTON_MS);
+
+        // Important! Set default return bundle, so it can signal there was no confirmation on exit
+        // (navigateUp event) to the RatingManager and RatingFragment above in the hierarchy
+        Bundle bundle = new Bundle();
+        bundle.putBoolean(GroupControlConfirmedKey, false);
+        bundle.putSerializable(GroupFolderListSerializedKey, null); // Technically unnecessary
+        getParentFragmentManager()
+                .setFragmentResult(RatingManager.GROUP_CHECK_RESULT_REQUEST_KEY, bundle);
     }
 
     @Override

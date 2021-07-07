@@ -114,10 +114,8 @@
 
 
 
-    <string name="save_success">Saving successful!</string>
-    <string name="save_failed">Saving failed!\nReason: %s</string>
-    <string name="save_failed_continue_question">Saving failed!\nReason: %s \nDo you want to continue with creating a new session? Current ratings will be lost.</string>
-    <string name="save_failed_continue_title">Warning</string>
+
+
 
 
     <string name="button_close_label">Close</string>
@@ -193,14 +191,13 @@
 
     <!-- Dialog invalid directory -->
     <string name="dialog_invalid_directory_title">Invalid directory</string>
-    <string name="invalid_directory_not_exist">Directory <i>%s</i> does not exist.</string>
-    <string name="invalid_directory_not_directory">Selection <i>%s</i> is not a directory.</string>
-    <string name="invalid_directory_not_readable">Directory <i>%s</i> is not readable.</string>
-    <string name="invalid_directory_no_files">No usable audio files were found in the <i>%s</i> directory.</string>
-    <string name="invalid_directory_missing_files">The loaded session is missing the following files (total %1$d) in the directory %2$s:\n%3$s</string>
+    <string name="dialog_invalid_directory_not_exist">Directory &lt;i>%s&lt;/i> does not exist.</string>
+    <string name="dialog_invalid_directory_not_directory">Selection &lt;i>%s&lt;/i> is not a directory.</string>
+    <string name="dialog_invalid_directory_not_readable">Directory &lt;i>%s&lt;/i> is not readable.</string>
+    <string name="dialog_invalid_directory_no_files">No usable audio files were found in the &lt;i>%s&lt;/i> directory.</string>
+    <string name="dialog_invalid_directory_missing_files">The loaded session is missing the following files (total %1$d) in the directory %2$s:\n%3$s</string>
     <string name="dialog_invalid_directory_choose_valid_data_directory">Choose valid data directory</string>
-    <string name="dialog_invalid_directory_quit">Quit</string>
-    <string name="dialog_no_session_corrupted_session_quit">Quit</string>
+    <string name="dialog_invalid_directory_cancel">Back</string>
 
     <string name="dialog_internal_error_title">Internal error</string>
     <string name="dialog_internal_error_message">Error message: Extracting full path from document selection URI failed!</string>
@@ -208,6 +205,7 @@
 
     <string name="dialog_no_session_found_title">No session found</string>
     <string name="dialog_no_session_found_message">No previous rating session was found. Please create a new session.</string>
+    <string name="dialog_no_session_corrupted_session_quit">Quit</string>
     <string name="dialog_corrupted_session_message">Previous session is corrupted. Please create a new session.</string>
 
     <string name="dialog_no_session_corrupted_session_create_new_session">Create new session</string>
@@ -217,7 +215,21 @@
     <string name="dialog_delete_result_confirm">Yes, delete</string>
     <string name="dialog_delete_result_cancel">No</string>
 
+    <string name="dialog_save_failed_continue_title">Saving failed!</string>
+    <string name="dialog_save_failed_continue_message">Current session could not be saved.&lt;\br>&lt;b>Reason: &lt;i>%s&lt;/i>&lt;/b>
+        &lt;\br>Do you want to continue with creating a new session? &lt;b>Current ratings will be lost.&lt;/b></string>
+    <string name="dialog_save_failed_continue_continue">Continue</string>
+    <string name="dialog_save_failed_continue_return">Return</string>
+    <string name="dialog_save_failed_continue_error_unknown">Unknown</string>
+
     <string name="result_deleted_success">Result deleted successfully.</string>
     <string name="result_deleted_failure">Result could not be deleted.\nReason: %s</string>
+    <string name="directory_selection_canceled">New session creation cancelled - no directory selected.</string>
+
+    <string name="snackbar_save_success">Saving successful!</string>
+    <string name="snackbar_save_failed">Saving failed!&lt;\br>&lt;b>Reason: &lt;i>%s&lt;/i>&lt;/b></string>
+    <string name="snackbar_save_failed_error_unknown">Unknown</string>
+    <string name="fragment_header_group_control_fragment">Group Control</string>
+    <string name="snackbar_new_session_created">New session created successfully!</string>
 
 </resources>
