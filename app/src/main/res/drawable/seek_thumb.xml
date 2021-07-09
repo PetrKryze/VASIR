@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+<ripple
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="@color/backgroundColor">
     <item android:gravity="center">
         <shape android:shape="oval">
             <size android:width="@dimen/progress_bar_thumb_ring_size"
@@ -8,12 +10,4 @@
                 android:width="@dimen/progress_bar_thumb_ring_thickness"/>
         </shape>
     </item>
-
-<!--    <item android:gravity="center">-->
-<!--        <shape android:shape="oval">-->
-<!--            <size android:width="13dp"-->
-<!--                android:height="13dp"/>-->
-<!--            <solid android:color="@color/secondaryDarkColor"/>-->
-<!--        </shape>-->
-<!--    </item>-->
-</layer-list>
+</ripple>
