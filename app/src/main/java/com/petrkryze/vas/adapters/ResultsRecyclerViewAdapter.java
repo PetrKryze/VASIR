@@ -1,7 +1,6 @@
 package com.petrkryze.vas.adapters;
 
 import android.content.Context;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,8 +12,6 @@ import com.petrkryze.vas.fragments.ResultsFragment;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import androidx.annotation.NonNull;
@@ -72,14 +69,8 @@ public class ResultsRecyclerViewAdapter extends RecyclerView.Adapter<ResultsRecy
     }
 
     private Pair<String, String> formatDateTime(String raw) {
-        String[] split1 = raw.split("_");
-
-        List<String> splitDate = Arrays.asList(split1[0].split("-"));
-        Collections.reverse(splitDate);
-
-        String date = TextUtils.join(". ", splitDate);
-
-        return new Pair<>(date, split1[1]);
+        String[] split = raw.split(" ");
+        return new Pair<>(split[0].replace("-", "."), split[1]);
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {

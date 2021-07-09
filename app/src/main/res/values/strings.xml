@@ -231,5 +231,6 @@
     <string name="snackbar_save_failed_error_unknown">Unknown</string>
     <string name="fragment_header_group_control_fragment">Group Control</string>
     <string name="snackbar_new_session_created">New session created successfully!</string>
+    <string name="results_fragment_no_results">There are no saved ratings here yet! You can save a session manually via the corresponding option in the dropdown menu.</string>
 
 </resources>

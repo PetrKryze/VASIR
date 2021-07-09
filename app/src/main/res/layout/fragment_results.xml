@@ -12,15 +12,32 @@
     android:orientation="vertical"
     tools:context=".fragments.ResultsFragment">
 
+    <TextView
+        android:id="@+id/results_fragment_no_results_textview"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="10dp"
+
+        android:textStyle="italic"
+        android:text="@string/results_fragment_no_results"
+        android:alpha="0.33"
+        android:gravity="center_horizontal"
+        android:visibility="gone"
+
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        />
+
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/results_list"
+        android:id="@+id/results_fragment_results_list"
         android:layout_width="match_parent"
         android:layout_height="0dp"
 
         android:fadingEdgeLength="40dp"
         android:requiresFadingEdge="vertical"
         app:layoutManager="LinearLayoutManager"
-        app:layout_constraintBottom_toTopOf="@id/button_results_share_all"
+        app:layout_constraintBottom_toTopOf="@id/results_fragment_button_results_share_all"
 
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -28,7 +45,7 @@
         tools:listitem="@layout/results_list_row" />
 
     <Button
-        android:id="@+id/button_results_share_all"
+        android:id="@+id/results_fragment_button_results_share_all"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
 
@@ -36,12 +53,8 @@
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="10dp"
 
-        android:backgroundTint="@color/secondaryColor"
         android:text="@string/button_share_all_label"
-        android:textAppearance="@style/TextAppearance.MdcTypographyStyles.Button"
 
-        android:textColor="@color/textPrimaryOnSurface"
-        android:textSize="18sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />

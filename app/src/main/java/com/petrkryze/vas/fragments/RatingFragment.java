@@ -458,7 +458,7 @@ public class RatingFragment extends Fragment {
             Log.i(TAG, "manageDirectory: Complex directory check passed, waiting for callback!");
         } else { // Directory check was not ok
             Spanned message = null;
-            RatingManager.DirectoryCheckError err = RatingManager.DirectoryCheckError.valueOf(
+            RatingManager.FileCheckError err = RatingManager.FileCheckError.valueOf(
                     checkResult.getString(DIRCHECK_RESULT_ERROR_TYPE));
             String dirname = checkResult.getString(DIRCHECK_RESULT_DIRECTORY, "???");
             switch (err) {

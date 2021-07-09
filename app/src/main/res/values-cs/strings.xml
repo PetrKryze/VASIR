@@ -202,5 +202,6 @@
     <string name="snackbar_save_failed_error_unknown">Neznámá</string>
     <string name="fragment_header_group_control_fragment">Kontrola Skupin</string>
     <string name="snackbar_new_session_created">Nové sezení úspěšně vytvořeno!</string>
+    <string name="results_fragment_no_results">Zatím tu nejsou žádná uložená hodnocení! Sezení můžete manuálně uložit odpovídající volbou ve vysouvací nabídce.</string>
 
 </resources>

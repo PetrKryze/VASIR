@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.media.MediaScannerConnection;
 import android.os.Bundle;
-import android.os.Environment;
 import android.util.Log;
 import android.util.Pair;
 
@@ -29,7 +28,6 @@ import java.util.List;
 import java.util.Random;
 
 import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavDirections;
 import androidx.navigation.fragment.NavHostFragment;
@@ -47,7 +45,8 @@ public class RatingManager {
 
     public enum State {STATE_IN_PROGRESS, STATE_FINISHED, STATE_IDLE}
     public enum LoadResult {OK, NO_SESSION, CORRUPTED_SESSION}
-    public enum DirectoryCheckError {NOT_EXIST, NOT_DIRECTORY, NOT_READABLE, NO_FILES, MISSING_FILES, OK}
+    public enum FileCheckError {NOT_EXIST, NOT_DIRECTORY, NOT_FILE, NOT_READABLE, NOT_WRITABLE,
+        NO_FILES, MISSING_FILES, OK}
 
     public interface GroupFoldersUserCheckCallback {
         void groupCheckFinished(boolean confirmed);
@@ -105,7 +104,7 @@ public class RatingManager {
         ret.putString(DIRCHECK_RESULT_DIRECTORY, rootDataDir.getName());
 
         // Basic checks for root directory
-        Pair<Boolean, DirectoryCheckError> rootCheck = existsIsDirCanRead(rootDataDir);
+        Pair<Boolean, FileCheckError> rootCheck = existsIsDirOrFileCanRead(rootDataDir, true);
         if (!rootCheck.first) {
             ret.putString(DIRCHECK_RESULT_ERROR_TYPE, rootCheck.second.toString());
             return ret;
@@ -127,7 +126,7 @@ public class RatingManager {
 
         // If no suitable audio files have been found even in root, exit with error
         if (groupFolders.isEmpty()) {
-            ret.putString(DIRCHECK_RESULT_ERROR_TYPE, DirectoryCheckError.NO_FILES.toString());
+            ret.putString(DIRCHECK_RESULT_ERROR_TYPE, FileCheckError.NO_FILES.toString());
         } else {
             for (GroupFolder gf : groupFolders) { // Just logging
                 Log.i(TAG, "checkDataDirectoryPath: Group folder: " +
@@ -151,7 +150,7 @@ public class RatingManager {
                     // Use callback to signal that the previous session data is checked and ok
                     callback.groupCheckFinished(true);
                 } else {
-                    ret.putString(DIRCHECK_RESULT_ERROR_TYPE, DirectoryCheckError.MISSING_FILES.toString());
+                    ret.putString(DIRCHECK_RESULT_ERROR_TYPE, FileCheckError.MISSING_FILES.toString());
                     ret.putInt(DIRCHECK_RESULT_MISSING_CNT, lastSessionFiles.size());
                     StringBuilder sb = new StringBuilder();
 
@@ -194,16 +193,44 @@ public class RatingManager {
         return ret;
     }
 
-    private Pair<Boolean, DirectoryCheckError> existsIsDirCanRead(File directory) {
-        if (!directory.exists()) {
-            return new Pair<>(false, DirectoryCheckError.NOT_EXIST);
-        } else if (!directory.isDirectory()) {
-            return new Pair<>(false, DirectoryCheckError.NOT_DIRECTORY);
-        } else if (!directory.canRead()) {
-            return new Pair<>(false, DirectoryCheckError.NOT_READABLE);
+    /**
+     * @param dirOrFile Java {@link File} object of either a file or a directory to be checked for
+     *                  existence, file-ness or directory-ness and readability.
+     * @param checkForDir A boolean value to specify which type of file should the method check for
+     *                    - {@code true} for a directory, {@code false} for a file.
+     * @return Returns a {@link Pair} containing {@code true} in the first member if and only if the
+     * {@link File} exists, is the specified type, and can be read. Second member contains a
+     * {@link FileCheckError} enum instance of indicating the specific outcome of the check.
+     */
+    private static Pair<Boolean, FileCheckError> existsIsDirOrFileCanRead(File dirOrFile,
+                                                                          boolean checkForDir,
+                                                                          boolean checkForWritable) {
+        if (!dirOrFile.exists()) {
+            return Pair.create(false, FileCheckError.NOT_EXIST);
         } else {
-            return new Pair<>(true, DirectoryCheckError.OK);
+            if (checkForDir) { // We are looking for directory
+                if (!dirOrFile.isDirectory()) {
+                    return Pair.create(false, FileCheckError.NOT_DIRECTORY);
+                }
+            } else { // We are looking for a file
+                if (!dirOrFile.isFile()) {
+                    return Pair.create(false, FileCheckError.NOT_FILE);
+                }
+            }
+
+            if (!dirOrFile.canRead()) {
+                return Pair.create(false, FileCheckError.NOT_READABLE);
+            } else if (checkForWritable) {
+                if (!dirOrFile.canWrite()) {
+                    return Pair.create(false, FileCheckError.NOT_WRITABLE);
+                }
+            }
         }
+        return Pair.create(true, FileCheckError.OK);
+    }
+
+    private static Pair<Boolean, FileCheckError> existsIsDirOrFileCanRead(File dirOrFile, boolean checkForDir) {
+        return existsIsDirOrFileCanRead(dirOrFile, checkForDir, false);
     }
 
     private ArrayList<GroupFolder> getGroupFolderList(File root) {
@@ -212,8 +239,9 @@ public class RatingManager {
         File[] files = root.listFiles();
         if (files != null && files.length > 0) { // Check for empty root directory
             for (File potentialGroupFolder : files) {
-                Pair<Boolean, DirectoryCheckError> fileCheck = existsIsDirCanRead(potentialGroupFolder);
-                if (fileCheck.first) { // That's what we want
+                Pair<Boolean, FileCheckError> folderCheck =
+                        existsIsDirOrFileCanRead(potentialGroupFolder, true);
+                if (folderCheck.first) { // That's what we want
                     // Goes in depth and looks if there are any usable files in this directory
                     ArrayList<File> foundAudioFiles = getFileList(potentialGroupFolder);
 
@@ -227,7 +255,7 @@ public class RatingManager {
                     // TODO Maybe save instead of logging?
                     Log.e(TAG, "getGroupFolderList: Error! File: " +
                             potentialGroupFolder.getAbsolutePath() + ", Message: " +
-                            fileCheck.second.toString());
+                            folderCheck.second.toString());
                 }
             }
         } // else Empty root
@@ -587,33 +615,20 @@ public class RatingManager {
 
     static void checkResultsDirectory(File resultsDirectory) throws IOException {
         String path = resultsDirectory.getAbsolutePath();
-        if (resultsDirectory.exists()) {
-            Log.i(TAG, "saveResults: Results directory <" + path + "> exists.");
+        Pair<Boolean, FileCheckError> checkResult =
+                existsIsDirOrFileCanRead(resultsDirectory, true, true);
 
-            if (resultsDirectory.isDirectory()) {
-                Log.i(TAG, "checkResultsDirectory: Results directory <" +
-                        path + "> is a directory.");
-                if (resultsDirectory.canRead()) {
-                    Log.i(TAG, "checkResultsDirectory: Results directory <" +
-                            path + "> is readable.");
-                    if (resultsDirectory.canWrite()) {
-                        Log.i(TAG, "checkResultsDirectory: Results directory <" +
-                                path + "> is writable.");
-                    } else {
-                        throw new IOException("Results directory <" + path + "> cannot be written to!");
-                    }
+        if (!checkResult.first) { // Results directory check failed
+            if (checkResult.second.equals(FileCheckError.NOT_EXIST)) {
+                Log.i(TAG, "saveResults: Results directory <" + path + "> does not exist - creating");
+                if (!resultsDirectory.mkdirs()) {
+                    throw new IOException("Results directory <" + path + "> could not be created!");
                 } else {
-                    throw new IOException("Results directory <" + path + "> cannot be read!");
+                    checkResultsDirectory(resultsDirectory);
                 }
             } else {
-                throw new IOException("Results directory <" + path + "> is not a directory!");
-            }
-        } else {
-            Log.i(TAG, "saveResults: Results directory <" + path + "> does not exist - creating");
-            if (!resultsDirectory.mkdirs()) {
-                throw new IOException("Results directory <" + path + "> could not be created!");
-            } else {
-                checkResultsDirectory(resultsDirectory);
+                throw new IOException("checkResultsDirectory: Results directory <" + path + "> check failed.\n" +
+                        "Reason: " + checkResult.second.toString());
             }
         }
     }
@@ -621,69 +636,75 @@ public class RatingManager {
     public static ArrayList<RatingResult> loadResults(Context context) throws Exception {
         Log.i(TAG, "loadResults: Loading results...");
         File resultsDir = new File(context.getFilesDir(), context.getString(R.string.DIRECTORY_NAME_RESULTS));
-        checkResultsDirectory(resultsDir);
+        checkResultsDirectory(resultsDir); // Throws exception if the directory is not OK
 
         ArrayList<RatingResult> foundResults = new ArrayList<>();
 
         // Find any previous save files for this session ID
         File[] resultFiles = resultsDir.listFiles();
-        if (resultFiles == null) {
-            throw new Exception("Results directory is invalid!");
-        } else {
-            if (resultFiles.length == 0) {
-                Log.i(TAG, "saveResults: No result files found in the result directory.");
-            } else {
-                Log.i(TAG, "saveResults: FILE LIST:");
-                for (File foundResultFile : resultFiles) {
-                    Log.i(TAG, "saveResults: FILE: " + foundResultFile.getAbsolutePath());
-                    if (foundResultFile.exists() &&
-                            foundResultFile.isFile() &&
-                            foundResultFile.canRead() &&
-                            FilenameUtils.getExtension(foundResultFile.getName()).equalsIgnoreCase("txt")) {
 
+        if (resultFiles == null || resultFiles.length == 0) {
+            // Don't throw exception, it is not an error (necessarily)
+            Log.i(TAG, "loadResults: No result files found in the result directory.");
+        } else {
+            Log.i(TAG, "loadResults: Found result file list:");
+            for (File foundResultFile : resultFiles) {
+                Log.i(TAG, "loadResults: Result file: " + foundResultFile.getAbsolutePath());
+                Pair<Boolean, FileCheckError> result = existsIsDirOrFileCanRead(foundResultFile, false);
+
+                // Found result file is OK, check if it's text file
+                if (result.first) {
+                    if (!FilenameUtils.getExtension(foundResultFile.getName()).equalsIgnoreCase("txt")) {
+                        Log.e(TAG, "loadResults: Result file " + foundResultFile + " is not a text file.");
+                    } else {
                         foundResults.add(new RatingResult(foundResultFile));
                     }
+                } else { // Found result file is not OK
+                    Log.e(TAG, "loadResults: Result file " + foundResultFile + " error: " + result.second);
                 }
-                Log.i(TAG, "saveResults: Found " + foundResults.size() + " save files.");
             }
+            Log.i(TAG, "loadResults: Found " + foundResults.size() + " save files.");
         }
 
         return foundResults;
     }
 
+    @SuppressLint("SimpleDateFormat")
     public void saveResults(Context context) throws Exception {
         File resultsDir = new File(context.getFilesDir(), context.getString(R.string.DIRECTORY_NAME_RESULTS));
         checkResultsDirectory(resultsDir);
 
-        // TODO CHECK IF EVERYTHING IS BEING SAVED
-
         // Find any previous save files for this session ID
         File[] resultFiles = resultsDir.listFiles();
         ArrayList<File> existingSaveFiles = new ArrayList<>();
-        if (resultFiles == null) {
-            throw new Exception("Results directory is invalid!");
-        } else {
-            if (resultFiles.length == 0) {
-                Log.i(TAG, "saveResults: No result files found in the result directory.");
-            } else {
-                Log.i(TAG, "saveResults: FILE LIST:");
-                for (File file : resultFiles) {
-                    Log.i(TAG, "saveResults: FILE: " + file.getAbsolutePath());
-                    if (file.exists() && file.isFile() && file.canRead() &&
-                            FilenameUtils.getExtension(file.getName()).equalsIgnoreCase("txt")) {
 
-                        String[] split = file.getName().split("_");
+        if (resultFiles == null || resultFiles.length == 0) {
+            Log.i(TAG, "saveResults: No result files found in the result directory.");
+        } else {
+            Log.i(TAG, "saveResults: Found result file list:");
+            for (File foundResultFile : resultFiles) {
+                Log.i(TAG, "saveResults: Result file: " + foundResultFile.getAbsolutePath());
+                Pair<Boolean, FileCheckError> result = existsIsDirOrFileCanRead(foundResultFile, false);
+
+                // Found result file is OK, check if it's text file
+                if (result.first) {
+                    if (!FilenameUtils.getExtension(foundResultFile.getName()).equalsIgnoreCase("txt")) {
+                        Log.e(TAG, "saveResults: Result file " + foundResultFile + " is not a text file.");
+                    } else {
+                        String[] split = foundResultFile.getName().split("_");
                         if (split.length > 2) {
                             String foundSessionId = split[1];
                             if (Integer.parseInt(foundSessionId) == session_ID) {
-                                existingSaveFiles.add(file);
+                                existingSaveFiles.add(foundResultFile);
                             }
                         }
                     }
+                } else { // Found result file is not OK
+                    Log.e(TAG, "saveResults: Result file " + foundResultFile + " error: " + result.second);
                 }
-                Log.i(TAG, "saveResults: Found " + existingSaveFiles.size() +
-                        " existing save files for session ID " + session_ID);
             }
+            Log.i(TAG, "saveResults: Found " + existingSaveFiles.size() +
+                    " existing save files for session ID " + session_ID);
         }
 
         // Sort and log the randomized recordings
@@ -693,13 +714,16 @@ public class RatingManager {
             Log.i(TAG, "saveResults: " + r.toString());
         }
 
-        // Create new file name for the new save
-        @SuppressLint("SimpleDateFormat") SimpleDateFormat format =
-                new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss");
-        String saveDate = format.format(new Date(System.currentTimeMillis()));
-        String newRatingsFileName = context.getString(R.string.RATING_FILE_NAME,
-                this.session_ID, saveDate);
+        // Create new date
+        Date currentDateTime = new Date(System.currentTimeMillis());
+        SimpleDateFormat dateFormatFileName = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss");
+        SimpleDateFormat dateFormatText = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
 
+        // Create new file name for the new save
+        String newRatingsFileName = context.getString(R.string.RATING_FILE_NAME,
+                this.session_ID, dateFormatFileName.format(currentDateTime));
+
+        // Start writing to the file
         File newRatingsFile = new File(resultsDir, newRatingsFileName);
         FileWriter writer = new FileWriter(newRatingsFile);
 
@@ -707,7 +731,7 @@ public class RatingManager {
         String header = headerTag + LABEL_SESSION_ID + separator + this.session_ID + "\n" +
                 headerTag + LABEL_SEED + separator + this.seed + "\n" +
                 headerTag + LABEL_GENERATOR_MESSAGE + separator + this.generatorMessage + "\n" +
-                headerTag + LABEL_SAVE_DATE + separator + saveDate + "\n";
+                headerTag + LABEL_SAVE_DATE + separator + dateFormatText.format(currentDateTime) + "\n";
         writer.append(header);
 
         // Row format: id;group;random_number;rating
@@ -741,37 +765,6 @@ public class RatingManager {
                 }
             }
         }
-    }
-
-    @Deprecated
-    static File getRootAppDirOnSdCard(Context context) {
-        final String TAG = "getRootAppDirOnSdCard";
-        // Get all available storage (internal, external, mounted, emulated, ...)
-        File[] externalStorageVolumes =
-                ContextCompat.getExternalFilesDirs(context, null);
-
-        File sdcardAppFolder = null;
-        for (int i = 0; i <= externalStorageVolumes.length; i++) {
-            File f = externalStorageVolumes[i];
-            Log.i(TAG, "saveResults: Storage no." + i);
-            Log.i(TAG, "saveResults: External Storage path: " + f.getPath());
-            Log.i(TAG, "saveResults: Is this storage emulated? " +
-                    Environment.isExternalStorageEmulated(f));
-            Log.i(TAG, "saveResults: Is this storage removable? " +
-                    Environment.isExternalStorageRemovable(f));
-            Log.i(TAG, "saveResults: State of this external storage: " +
-                    Environment.getExternalStorageState(f) + "\n");
-
-            if (Environment.isExternalStorageRemovable(f) &&
-                    !Environment.isExternalStorageEmulated(f) &&
-                    Environment.getExternalStorageState(f).equals(Environment.MEDIA_MOUNTED)) {
-                // This storage is <<probably>> a external SD-card
-                sdcardAppFolder = f;
-                // Fuck everything else
-                break;
-            }
-        }
-        return sdcardAppFolder;
     }
 
 }

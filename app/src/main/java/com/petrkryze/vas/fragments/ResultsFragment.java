@@ -16,6 +16,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.TextView;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
@@ -54,6 +55,7 @@ public class ResultsFragment extends Fragment {
 
     private ArrayList<RatingResult> ratingResults;
     private Snackbar hint;
+    private TextView TWnoResults;
     private RecyclerView resultsListView;
     private Button buttonShareAll;
 
@@ -65,7 +67,7 @@ public class ResultsFragment extends Fragment {
     private final View.OnClickListener shareAllListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            if (v.getId() == R.id.button_results_share_all) {
+            if (v.getId() == R.id.results_fragment_button_results_share_all) {
                 Log.i(TAG, "onClick: SHARE ALL BUTTON CLICKED");
                 vibrator.vibrate(VibrationEffect.createOneShot(
                         VIBRATE_BUTTON_MS, VibrationEffect.DEFAULT_AMPLITUDE));
@@ -125,10 +127,17 @@ public class ResultsFragment extends Fragment {
                         Pair<Boolean, String> outcome = deleteResult(selectedResult);
 
                         if (outcome.first) {
+                            assert ratingResults != null;
                             assert resultsListView != null;
                             assert resultsListView.getAdapter() != null;
                             ratingResults.remove(selectedResult);
                             resultsListView.getAdapter().notifyDataSetChanged();
+
+                            if (ratingResults.isEmpty()) {
+                                buttonShareAll.setEnabled(false);
+                                resultsListView.setVisibility(View.GONE);
+                                TWnoResults.setVisibility(View.VISIBLE);
+                            }
                         }
 
                         Snackbar.make(
@@ -200,25 +209,32 @@ public class ResultsFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         Context context = view.getContext();
 
-        buttonShareAll = view.findViewById(R.id.button_results_share_all);
-        buttonShareAll.setOnClickListener(shareAllListener);
+        buttonShareAll = view.findViewById(R.id.results_fragment_button_results_share_all);
+        resultsListView = view.findViewById(R.id.results_fragment_results_list);
+        TWnoResults = view.findViewById(R.id.results_fragment_no_results_textview);
 
-        resultsListView = view.findViewById(R.id.results_list);
-        resultsListView.setAdapter(new ResultsRecyclerViewAdapter(
-                context, ratingResults, onItemDetailListener));
-        resultsListView.setLayoutManager(new LinearLayoutManager(context));
+        if (ratingResults != null && !ratingResults.isEmpty()) {
+            buttonShareAll.setOnClickListener(shareAllListener);
 
-        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(context,
-                DividerItemDecoration.VERTICAL);
-        resultsListView.addItemDecoration(dividerItemDecoration);
+            resultsListView.setAdapter(new ResultsRecyclerViewAdapter(
+                    context, ratingResults, onItemDetailListener));
+            resultsListView.setLayoutManager(new LinearLayoutManager(context));
+            DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(context,
+                    DividerItemDecoration.VERTICAL);
+            resultsListView.addItemDecoration(dividerItemDecoration);
 
-        hint = Snackbar.make(
-                requireActivity().findViewById(R.id.coordinator),
-                R.string.hint_results_select, BaseTransientBottomBar.LENGTH_LONG)
-                .setAnchorView(buttonShareAll)
-                .setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE);
+            hint = Snackbar.make(
+                    requireActivity().findViewById(R.id.coordinator),
+                    R.string.hint_results_select, BaseTransientBottomBar.LENGTH_LONG)
+                    .setAnchorView(buttonShareAll)
+                    .setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE);
 
-        handler.postDelayed(hint::show,context.getResources().getInteger(R.integer.SNACKBAR_HINT_DELAY_MS));
+            handler.postDelayed(hint::show, context.getResources().getInteger(R.integer.SNACKBAR_HINT_DELAY_MS));
+        } else { // No results found
+            buttonShareAll.setEnabled(false);
+            resultsListView.setVisibility(View.GONE);
+            TWnoResults.setVisibility(View.VISIBLE);
+        }
     }
 
     @Override

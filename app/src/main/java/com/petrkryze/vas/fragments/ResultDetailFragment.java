@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -25,7 +24,6 @@ import com.petrkryze.vas.adapters.RecordingsRecyclerViewAdapter;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -131,7 +129,7 @@ public class ResultDetailFragment extends Fragment {
         TWresultDetailID.setText(getString(R.string.result_detail_sessionID, resultToDisplay.getSession_ID()));
         TWresultDetailSaveDate.setText(formatDateTime(resultToDisplay.getSaveDate()));
         TWresultDetailSeed.setText(String.valueOf(resultToDisplay.getSeed()));
-        TWresultDetailGeneratorDate.setText(resultToDisplay.getGeneratorMessage().replace("-",". "));
+        TWresultDetailGeneratorDate.setText(resultToDisplay.getGeneratorMessage().replace("-","."));
 
         RecyclerView recordingListView = view.findViewById(R.id.result_detail_recordings_list);
         recyclerViewAdapter = new RecordingsRecyclerViewAdapter(context, recordingsToDisplay);
@@ -162,14 +160,9 @@ public class ResultDetailFragment extends Fragment {
         headerRating.setChecked(false);
     }
 
-    private String formatDateTime(String raw) {
-        String[] split1 = raw.split("_");
-
-        List<String> splitDate = Arrays.asList(split1[0].split("-"));
-        Collections.reverse(splitDate);
-
-        String date = TextUtils.join(". ", splitDate);
-        return date + " " + split1[1];
+    private String formatDateTime(String rawDateTime) {
+        String[] split = rawDateTime.split(" ");
+        return split[0].replace("-", ".") + " " + split[1];
     }
 
     @Override

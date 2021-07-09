@@ -133,7 +133,7 @@ public class CurrentSessionInfoFragment extends Fragment {
         TWcurrentSessionID.setText(getString(R.string.current_session_info_sessionID, currentSession.getSession_ID()));
         TWcurrentSessionRatedFraction.setText(currentSession.getRatedFractionString());
         TWcurrentSessionSeed.setText(String.valueOf(currentSession.getSeed()));
-        TWcurrentSessionGeneratorDate.setText(currentSession.getGeneratorMessage().replace("-",". "));
+        TWcurrentSessionGeneratorDate.setText(currentSession.getGeneratorMessage().replace("-","."));
 
         RecyclerView recordingListView = view.findViewById(R.id.current_session_info_recordings_list);
         recyclerViewAdapter = new RecordingsRecyclerViewAdapter(context, recordingsToDisplay);
