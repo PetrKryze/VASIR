@@ -158,10 +158,10 @@ public class ResultsFragment extends Fragment {
             Files.delete(new File(toDelete.getPath()).toPath());
         } catch (IOException e) {
             e.printStackTrace();
-            return Pair.create(false, getString(R.string.result_deleted_failure, e.getMessage()));
+            return Pair.create(false, getString(R.string.snackbar_result_deleted_failure, e.getMessage()));
         }
 
-        return Pair.create(true, getString(R.string.result_deleted_success));
+        return Pair.create(true, getString(R.string.snackbar_result_deleted_success));
     }
 
     /**

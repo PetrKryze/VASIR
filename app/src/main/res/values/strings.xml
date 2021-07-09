@@ -34,8 +34,8 @@
     <string name="rating_label_lowest">Completely\nunintelligible</string>
     <string name="reset_confirm_prompt">Are you sure you want to reset all current ratings and start a new rating session\\?</string>
     <string name="session_info_title">Info</string>
-    <string name="toast_connect_headphones">Please, plug in headphones.</string>
-    <string name="toast_increase_volume">Audio volume is muted.</string>
+    <string name="snackbar_connect_headphones">Please, plug in headphones.</string>
+    <string name="snackbar_increase_volume">Audio volume is muted.</string>
     <string name="track">Recording</string>
     <string name="welcome_title">Welcome!</string>
     <string name="welcome_message">
@@ -113,14 +113,14 @@
 
 
 
-
+    <string name="results_fragment_no_results">There are no saved ratings here yet! You can save a session manually via the corresponding option in the dropdown menu.</string>
 
 
 
 
     <string name="button_close_label">Close</string>
     <string name="rating_list_row_sessionID">Session %d</string>
-    <string name="ratings_loading_failed">Loading of saved rating files failed!\nReason: %s</string>
+
 
     <string name="share_button_description">Share</string>
     <string name="share_subject">Rating results for session %d</string>
@@ -167,6 +167,7 @@
     <string name="fragment_header_saved_ratings">Saved Ratings</string>
     <string name="fragment_header_rating_detail">Rating Detail</string>
     <string name="fragment_header_welcome" translatable="false">VASIR</string>
+    <string name="fragment_header_group_control_fragment">Group Control</string>
 
     <string name="action_quit">Quit</string>
     <string name="action_reset_ratings">Create a New Session</string>
@@ -221,14 +222,15 @@
     <string name="dialog_save_failed_continue_return">Return</string>
     <string name="dialog_save_failed_continue_error_unknown">Unknown</string>
 
-    <string name="result_deleted_success">Result deleted successfully.</string>
-    <string name="result_deleted_failure">Result could not be deleted.\nReason: %s</string>
-    <string name="directory_selection_canceled">New session creation cancelled - no directory selected.</string>
 
+
+    <string name="snackbar_result_deleted_success">Result deleted successfully.</string>
+    <string name="snackbar_result_deleted_failure">Result could not be deleted.\nReason: %s</string>
+    <string name="snackbar_directory_selection_canceled">New session creation cancelled - no directory selected.</string>
     <string name="snackbar_save_success">Saving successful!</string>
     <string name="snackbar_save_failed">Saving failed!&lt;\br>&lt;b>Reason: &lt;i>%s&lt;/i>&lt;/b></string>
     <string name="snackbar_save_failed_error_unknown">Unknown</string>
-    <string name="fragment_header_group_control_fragment">Group Control</string>
     <string name="snackbar_new_session_created">New session created successfully!</string>
-    <string name="results_fragment_no_results">There are no saved ratings here yet! You can save a session manually via the corresponding option in the dropdown menu.</string>
+    <string name="snackbar_ratings_loading_failed">Loading of saved rating files failed!&lt;\br>
+        &lt;b>Reason: &lt;i>%s&lt;/i>&lt;/b></string>
 </resources>

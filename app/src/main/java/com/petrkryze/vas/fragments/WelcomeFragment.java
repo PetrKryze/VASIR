@@ -196,7 +196,7 @@ public class WelcomeFragment extends Fragment {
                 NavHostFragment.findNavController(this).navigate(directions);
             } catch (Exception e) {
                 e.printStackTrace();
-                Toast.makeText(requireContext(), getString(R.string.ratings_loading_failed, e.getMessage()),
+                Toast.makeText(requireContext(), getString(R.string.snackbar_ratings_loading_failed, e.getMessage()),
                         Toast.LENGTH_LONG).show();
             }
             return true;

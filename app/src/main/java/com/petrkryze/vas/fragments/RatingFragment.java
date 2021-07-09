@@ -25,7 +25,6 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
@@ -504,7 +503,7 @@ public class RatingFragment extends Fragment {
 
     private void fireSessionCreationCancelled() {
         Snackbar.make(requireActivity().findViewById(R.id.coordinator),
-                getString(R.string.directory_selection_canceled),
+                getString(R.string.snackbar_directory_selection_canceled),
                 BaseTransientBottomBar.LENGTH_SHORT)
                 .setAnchorView(track_time)
                 .setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE).show();
@@ -597,14 +596,20 @@ public class RatingFragment extends Fragment {
 
             @Override
             public void onHeadphonesMissing() {
-                Toast.makeText(requireContext(),
-                        getString(R.string.toast_connect_headphones), Toast.LENGTH_SHORT).show();
+                Snackbar.make(requireActivity().findViewById(R.id.coordinator),
+                        getString(R.string.snackbar_connect_headphones),
+                        BaseTransientBottomBar.LENGTH_LONG)
+                        .setAnchorView(track_time)
+                        .setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE).show();
             }
 
             @Override
             public void onVolumeDown() {
-                Toast.makeText(requireContext(),
-                        getString(R.string.toast_increase_volume), Toast.LENGTH_SHORT).show();
+                Snackbar.make(requireActivity().findViewById(R.id.coordinator),
+                        getString(R.string.snackbar_increase_volume),
+                        BaseTransientBottomBar.LENGTH_LONG)
+                        .setAnchorView(track_time)
+                        .setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE).show();
             }
 
             @Override
@@ -724,8 +729,12 @@ public class RatingFragment extends Fragment {
                 NavHostFragment.findNavController(this).navigate(directions);
             } catch (Exception e) {
                 e.printStackTrace();
-                Toast.makeText(requireContext(), getString(R.string.ratings_loading_failed, e.getMessage()),
-                        Toast.LENGTH_LONG).show();
+
+                Snackbar.make(requireActivity().findViewById(R.id.coordinator),
+                        Html.fromHtml(getString(R.string.snackbar_ratings_loading_failed, e.getMessage()),Html.FROM_HTML_MODE_LEGACY),
+                        BaseTransientBottomBar.LENGTH_LONG)
+                        .setAnchorView(track_time)
+                        .setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE).show();
             }
             return true;
         } else if (itemID == R.id.action_menu_show_session_info && initDone) {

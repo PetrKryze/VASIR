@@ -15,8 +15,8 @@
     <string name="rating_label_lowest">Zcela\nnesrozumitelné</string>
     <string name="reset_confirm_prompt">Opravdu chcete vynulovat veškerá současná hodnocení a vytvořit nové hodnotitelské sezení?</string>
     <string name="session_info_title">Informace</string>
-    <string name="toast_connect_headphones">Prosím, připojte k zařízení sluchátka.</string>
-    <string name="toast_increase_volume">Audio výstup vašeho zařízení je ztlumený.</string>
+    <string name="snackbar_connect_headphones">Prosím, připojte k zařízení sluchátka.</string>
+    <string name="snackbar_increase_volume">Audio výstup vašeho zařízení je ztlumený.</string>
     <string name="track">Nahrávka</string>
     <string name="welcome_title">Vítejte!</string>
     <string name="welcome_message">
@@ -87,7 +87,7 @@
     </string>
     <string name="choose_data_dir">Zvolte datový adresář</string>
 
-
+    <string name="results_fragment_no_results">Zatím tu nejsou žádná uložená hodnocení! Sezení můžete manuálně uložit odpovídající volbou ve vysouvací nabídce.</string>
 
 
 
@@ -95,7 +95,7 @@
 
     <string name="button_close_label">Zavřít</string>
     <string name="rating_list_row_sessionID">Sezení %d</string>
-    <string name="ratings_loading_failed">Načítání uložených hodnocení selhalo!\nPříčina: %s</string>
+
     <string name="share_button_description">Share</string>
     <string name="share_subject">Výsledky hodnocení pro sezení %d</string>
     <string name="share_using">Sdílet na</string>
@@ -138,6 +138,8 @@
     <string name="fragment_header_current_session_info">Aktuální Sezení</string>
     <string name="fragment_header_rating_detail">Detail hodnocení</string>
     <string name="fragment_header_saved_ratings">Uložená hodnocení</string>
+    <string name="fragment_header_group_control_fragment">Kontrola Skupin</string>
+
 
     <string name="action_quit">Odejít</string>
     <string name="action_reset_ratings">Vytvořit Nové Sezení</string>
@@ -145,6 +147,7 @@
     <string name="action_show_session_info">Aktuální Sezení</string>
     <string name="action_show_saved_results">Uložená Hodnocení</string>
     <string name="action_save">Uložit</string>
+
 
     <string name="button_confirm_label">V Pořádku</string>
     <string name="group_control_group_folder_list_row_found_audio_files">Obsahuje %d vhodných audio souborů.</string>
@@ -156,7 +159,6 @@
     <string name="dialog_make_new_session_message">Chcete zahodit veškerá neuložená hodnocení v tomto sezení a vytvořit nové hodnotitelské sezení?</string>
     <string name="dialog_make_new_session_positive_button_label">Ano</string>
     <string name="dialog_quit_title">Odejít?</string>
-
 
 
     <string name="dialog_invalid_directory_title">Neplatný adresář</string>
@@ -173,16 +175,19 @@
     <string name="dialog_internal_error_message">Chybová zpráva: Extracting full path from document selection URI failed!</string>
     <string name="dialog_internal_error_quit">Odejít</string>
 
+
     <string name="dialog_no_session_found_message">Nebylo nalezeno žádné předešelé hodnocení. Vytvořte prosím nové sezení.</string>
     <string name="dialog_corrupted_session_message">Data předešelého hodnocení jsou porušena. Vytvořte prosím nové sezení.</string>
     <string name="dialog_no_session_found_title">Nenalezeno žádné sezení</string>
     <string name="dialog_no_session_corrupted_session_create_new_session">Vytvořit nové sezení</string>
     <string name="dialog_no_session_corrupted_session_quit">Odejít</string>
 
+
     <string name="dialog_delete_result_title">Odstranit vybraný záznam?</string>
     <string name="dialog_delete_result_message">Opravdu si přejete odstranit vybraný záznam ze zařízení? Tato operace je nevratná.</string>
     <string name="dialog_delete_result_confirm">Ano, odstranit</string>
     <string name="dialog_delete_result_cancel">Ne</string>
+
 
     <string name="dialog_save_failed_continue_message">Ukládání aktuálního sezení se nepodařilo.&lt;\br>&lt;b>Příčina: &lt;i>%s&lt;/i>&lt;/b>
         &lt;\br>Chcete pokračovat ve vytváření nového sezení? &lt;b>Současná hodnocení budou ztracena.&lt;/b></string>
@@ -191,16 +196,13 @@
     <string name="dialog_save_failed_continue_return">Zpět</string>
     <string name="dialog_save_failed_continue_error_unknown">Neznámá</string>
 
-    <string name="result_deleted_success">Záznam úspěšně odstraněn.</string>
-    <string name="result_deleted_failure">Záznam nemohl být odstraněn.\nPříčina: %s</string>
 
-    <string name="directory_selection_canceled">Tvorba nového sezení zrušena - nebyl vybrán žádný adresář.</string>
-
+    <string name="snackbar_result_deleted_success">Záznam úspěšně odstraněn.</string>
+    <string name="snackbar_result_deleted_failure">Záznam nemohl být odstraněn.\nPříčina: %s</string>
+    <string name="snackbar_directory_selection_canceled">Tvorba nového sezení zrušena - nebyl vybrán žádný adresář.</string>
     <string name="snackbar_save_success">Uložení úspěšné!</string>
     <string name="snackbar_save_failed">Uložení nebylo úspěšné!&lt;\br>&lt;b>Příčina: &lt;i>%s&lt;/i>&lt;/b></string>
     <string name="snackbar_save_failed_error_unknown">Neznámá</string>
-    <string name="fragment_header_group_control_fragment">Kontrola Skupin</string>
     <string name="snackbar_new_session_created">Nové sezení úspěšně vytvořeno!</string>
-    <string name="results_fragment_no_results">Zatím tu nejsou žádná uložená hodnocení! Sezení můžete manuálně uložit odpovídající volbou ve vysouvací nabídce.</string>
-
+    <string name="snackbar_ratings_loading_failed">Načítání uložených hodnocení selhalo!&lt;\br>&lt;b>Příčina: &lt;i>%s&lt;/i>&lt;/b></string>
 </resources>
