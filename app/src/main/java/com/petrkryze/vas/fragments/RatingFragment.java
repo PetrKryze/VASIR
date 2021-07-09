@@ -729,7 +729,6 @@ public class RatingFragment extends Fragment {
                 NavHostFragment.findNavController(this).navigate(directions);
             } catch (Exception e) {
                 e.printStackTrace();
-
                 Snackbar.make(requireActivity().findViewById(R.id.coordinator),
                         Html.fromHtml(getString(R.string.snackbar_ratings_loading_failed, e.getMessage()),Html.FROM_HTML_MODE_LEGACY),
                         BaseTransientBottomBar.LENGTH_LONG)

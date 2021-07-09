@@ -159,7 +159,6 @@ public class MainActivity extends AppCompatActivity {
                 .setMessage(message)
                 .setIcon(icon)
                 .setPositiveButton(context.getString(R.string.dialog_quit_confirm), null)
-                .create()
                 .show();
     }
 }

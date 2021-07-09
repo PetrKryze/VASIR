@@ -4,6 +4,7 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ArgbEvaluator;
 import android.animation.ValueAnimator;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.ColorFilter;
@@ -11,6 +12,7 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.os.Bundle;
 import android.os.Handler;
+import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -22,8 +24,9 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
+import com.google.android.material.snackbar.BaseTransientBottomBar;
+import com.google.android.material.snackbar.Snackbar;
 import com.petrkryze.vas.MainActivity;
 import com.petrkryze.vas.R;
 import com.petrkryze.vas.RatingManager;
@@ -50,6 +53,7 @@ public class WelcomeFragment extends Fragment {
 
     private ImageView titleImage;
     private CheckBox checkBox;
+    private Button startButton;
     private ImageView scrollIcon;
 
     private SharedPreferences preferences;
@@ -88,7 +92,7 @@ public class WelcomeFragment extends Fragment {
         requireActivity().invalidateOptionsMenu();
 
         titleImage = view.findViewById(R.id.welcome_title_image);
-        Button startButton = view.findViewById(R.id.welcome_start_button);
+        startButton = view.findViewById(R.id.welcome_start_button);
         checkBox = view.findViewById(R.id.welcome_checkbox);
         scrollIcon = view.findViewById(R.id.welcome_fragment_scroll_hint_arrow);
         NestedScrollView scrollView = view.findViewById(R.id.welcome_fragment_scroll_container);
@@ -184,6 +188,7 @@ public class WelcomeFragment extends Fragment {
         for (int item : toEnable) MainActivity.enableMenuItem(menu, item);
     }
 
+    @SuppressLint("ShowToast")
     @Override
     public boolean onOptionsItemSelected(@NonNull @NotNull MenuItem item) {
         int itemID = item.getItemId();
@@ -196,8 +201,11 @@ public class WelcomeFragment extends Fragment {
                 NavHostFragment.findNavController(this).navigate(directions);
             } catch (Exception e) {
                 e.printStackTrace();
-                Toast.makeText(requireContext(), getString(R.string.snackbar_ratings_loading_failed, e.getMessage()),
-                        Toast.LENGTH_LONG).show();
+                Snackbar.make(requireActivity().findViewById(R.id.coordinator),
+                        Html.fromHtml(getString(R.string.snackbar_ratings_loading_failed, e.getMessage()),Html.FROM_HTML_MODE_LEGACY),
+                        BaseTransientBottomBar.LENGTH_LONG)
+                        .setAnchorView(startButton)
+                        .setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE).show();
             }
             return true;
         } else if (itemID == R.id.action_menu_show_session_info) {

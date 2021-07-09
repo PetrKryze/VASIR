@@ -1,10 +1,12 @@
 package com.petrkryze.vas.fragments;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
+import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -14,8 +16,9 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckedTextView;
 import android.widget.TextView;
-import android.widget.Toast;
 
+import com.google.android.material.snackbar.BaseTransientBottomBar;
+import com.google.android.material.snackbar.Snackbar;
 import com.petrkryze.vas.MainActivity;
 import com.petrkryze.vas.R;
 import com.petrkryze.vas.RatingManager;
@@ -54,6 +57,7 @@ public class CurrentSessionInfoFragment extends Fragment {
     private RatingResult currentSession;
     private List<Recording> recordingsToDisplay;
     private RecordingsRecyclerViewAdapter recyclerViewAdapter;
+    private Button buttonShare;
 
     private CheckedTextView headerID;
     private CheckedTextView headerGroup;
@@ -122,7 +126,7 @@ public class CurrentSessionInfoFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         Context context = view.getContext();
 
-        Button buttonShare = view.findViewById(R.id.current_session_info_button_share);
+        buttonShare = view.findViewById(R.id.current_session_info_button_share);
         buttonShare.setOnClickListener(shareListener);
 
         TextView TWcurrentSessionID = view.findViewById(R.id.current_session_info_sessionID);
@@ -176,6 +180,7 @@ public class CurrentSessionInfoFragment extends Fragment {
         for (int item : toEnable) MainActivity.enableMenuItem(menu, item);
     }
 
+    @SuppressLint("ShowToast")
     @Override
     public boolean onOptionsItemSelected(@NonNull @NotNull MenuItem item) {
         int itemID = item.getItemId();
@@ -197,8 +202,11 @@ public class CurrentSessionInfoFragment extends Fragment {
                 NavHostFragment.findNavController(this).navigate(directions);
             } catch (Exception e) {
                 e.printStackTrace();
-                Toast.makeText(requireContext(), getString(R.string.snackbar_ratings_loading_failed, e.getMessage()),
-                        Toast.LENGTH_LONG).show();
+                Snackbar.make(requireActivity().findViewById(R.id.coordinator),
+                        Html.fromHtml(getString(R.string.snackbar_ratings_loading_failed, e.getMessage()),Html.FROM_HTML_MODE_LEGACY),
+                        BaseTransientBottomBar.LENGTH_LONG)
+                        .setAnchorView(buttonShare)
+                        .setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE).show();
             }
             return true;
         }
