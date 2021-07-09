@@ -125,7 +125,9 @@ public class GroupControlFragment extends Fragment {
         Context context = view.getContext();
 
         TextView foundFoldersHeader = view.findViewById(R.id.group_control_found_folders);
-        foundFoldersHeader.setText(getString(R.string.group_control_found_folders_headline, groupFolders.size()));
+        foundFoldersHeader.setText(getResources().
+                getQuantityString(R.plurals.group_control_found_folders_headline,
+                        groupFolders.size(), groupFolders.size()));
 
         Button buttonConfirm = view.findViewById(R.id.group_control_button_confirm);
         buttonConfirm.setOnClickListener(confirmListener);

@@ -176,7 +176,6 @@
     <string name="action_save">Save</string>
 
     <string name="button_confirm_label">Confirm</string>
-    <string name="group_control_found_folders_headline">Found %d folders containing eligible audio files</string>
     <string name="group_control_group_folder_list_row_found_audio_files">Contains %d eligible audio files.</string>
     <string name="group_control_group_folder_list_row_folder_name_label">Folder:</string>
     <string name="group_control_group_folder_list_row_group_name_label">Group name:</string>
@@ -232,5 +231,4 @@
     <string name="fragment_header_group_control_fragment">Group Control</string>
     <string name="snackbar_new_session_created">New session created successfully!</string>
     <string name="results_fragment_no_results">There are no saved ratings here yet! You can save a session manually via the corresponding option in the dropdown menu.</string>
-
 </resources>

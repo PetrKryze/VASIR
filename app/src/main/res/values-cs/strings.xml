@@ -147,7 +147,6 @@
     <string name="action_save">Uložit</string>
 
     <string name="button_confirm_label">V Pořádku</string>
-    <string name="group_control_found_folders_headline">Nalezeno %d adresářů obsahující vhodné audio soubory</string>
     <string name="group_control_group_folder_list_row_found_audio_files">Obsahuje %d vhodných audio souborů.</string>
     <string name="group_control_group_folder_list_row_folder_name_label">Adresář:</string>
     <string name="group_control_group_folder_list_row_group_name_label">Název skupiny:</string>
