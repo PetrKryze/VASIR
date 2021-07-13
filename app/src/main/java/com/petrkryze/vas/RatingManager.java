@@ -716,7 +716,7 @@ public class RatingManager {
 
         // Create new date
         Date currentDateTime = new Date(System.currentTimeMillis());
-        SimpleDateFormat dateFormatFileName = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss");
+        SimpleDateFormat dateFormatFileName = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
         SimpleDateFormat dateFormatText = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
 
         // Create new file name for the new save
@@ -747,6 +747,9 @@ public class RatingManager {
         MediaScannerConnection.scanFile(context, new String[]{newRatingsFile.getPath()}, null,
                 (path, uri) -> Log.i(TAG, "onScanCompleted: SCAN OF FILE <" + path + "> completed!"));
         Log.i(TAG, "saveResults: File: <" + newRatingsFile.getName() + "> written successfully.");
+
+
+
 
         // Remove old save files for this session ID
         int backupsNumber = context.getResources().getInteger(R.integer.SAVE_FILE_BACKUPS_NUMBER);

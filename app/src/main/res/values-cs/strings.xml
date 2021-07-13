@@ -118,7 +118,7 @@
     <string name="help_message1"><i><b>VASIR</b></i> je aplikace, která používá <i>visual analog scales</i> (analogové obrazové stupnice) pro subjektivní hodnocení srozumitelnosti řeči.\n</string>
     <string name="help_message2">TODO</string>
     <string name="button_share_label">Sdílet</string>
-    <string name="hint_results_select">Podobné info o sezení zobrazíte výběrem ze seznamu.</string>
+    <string name="snackbar_results_select_hint">Podobné info o sezení zobrazíte výběrem ze seznamu.</string>
     <string name="current_session_info_sessionID">Sezení %d</string>
 
     <!-- Help strings-->
@@ -205,4 +205,17 @@
     <string name="snackbar_save_failed_error_unknown">Neznámá</string>
     <string name="snackbar_new_session_created">Nové sezení úspěšně vytvořeno!</string>
     <string name="snackbar_ratings_loading_failed">Načítání uložených hodnocení selhalo!&lt;\br>&lt;b>Příčina: &lt;i>%s&lt;/i>&lt;/b></string>
+    <string name="excel_sheet_name">Sezení %1$d - %2$s</string>
+    <string name="excel_session_id_label">Session ID</string>
+    <string name="excel_seed_label">Seed</string>
+    <string name="excel_generator_date_label">Datum vytvoření</string>
+    <string name="excel_save_date_label">Datum uložení</string>
+    <string name="excel_recording_id_header">ID</string>
+    <string name="excel_recording_group_header">Group</string>
+    <string name="excel_recording_index_header">Index</string>
+    <string name="excel_recording_rating_header">Rating</string>
+    <string name="button_share_as_text_label">Share as plain text</string>
+    <string name="button_share_as_excel_label">Share as excel file</string>
+    <string name="snackbar_share_all_excel_failed">Tvorba excel souborů selhala!</string>
+    <string name="snackbar_share_all_text_failed">Sdílení výsledků selhalo!</string>
 </resources>

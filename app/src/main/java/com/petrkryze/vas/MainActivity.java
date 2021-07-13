@@ -32,10 +32,24 @@ import static com.petrkryze.vas.RatingManager.SESSION_INFO_BUNDLE_SESSION;
 
 public class MainActivity extends AppCompatActivity {
 
-//    private static final String TAG = "VisualAnalogScale";
-
     private static int alphaDisabled;
     private static int alphaEnabled;
+
+    // This stuff needs to be here to make the excel creation work
+    static {
+        System.setProperty(
+                "org.apache.poi.javax.xml.stream.XMLInputFactory",
+                "com.fasterxml.aalto.stax.InputFactoryImpl"
+        );
+        System.setProperty(
+                "org.apache.poi.javax.xml.stream.XMLOutputFactory",
+                "com.fasterxml.aalto.stax.OutputFactoryImpl"
+        );
+        System.setProperty(
+                "org.apache.poi.javax.xml.stream.XMLEventFactory",
+                "com.fasterxml.aalto.stax.EventFactoryImpl"
+        );
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

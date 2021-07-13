@@ -2,10 +2,14 @@
 <resources>
     <string name="app_name">Visual Analog Scale</string>
     <string name="DIRECTORY_NAME_RESULTS" translatable="false">Results</string>
+    <string name="DIRECTORY_NAME_TEMP" translatable="false">temp</string>
     <string name="PREFERENCES_SETTINGS" translatable="false">settings</string>
     <string name="KEY_PREFERENCES_SETTINGS_WELCOME_SHOW" translatable="false">welcome_screen_show</string>
     <string name="RATING_FILE_NAME" translatable="false">
         RATING_%d_%s.txt
+    </string>
+    <string name="RATING_EXCEL_FILE_NAME" translatable="false">
+        RATING_%d_%s.xlsx
     </string>
 
     <string name="placeholder" translatable="false">placeholder</string>
@@ -145,7 +149,7 @@
     <string name="help_message1">\t<i><b>VASIR</b></i> is an application that utilizes visual analog scales for subjective speech intelligibility rating.\n</string>
     <string name="help_message2">TODO</string>
     <string name="button_share_label">Share</string>
-    <string name="hint_results_select">Select result from the list to view detailed info.</string>
+    <string name="snackbar_results_select_hint">Select result from the list to view detailed info.</string>
     <string name="current_session_info_sessionID">Session %d</string>
     <string name="current_session_info_rated_fraction_placeholder" translatable="false">0/0</string>
 
@@ -233,4 +237,20 @@
     <string name="snackbar_new_session_created">New session created successfully!</string>
     <string name="snackbar_ratings_loading_failed">Loading of saved rating files failed!&lt;\br>
         &lt;b>Reason: &lt;i>%s&lt;/i>&lt;/b></string>
+
+    <string name="excel_sheet_name">Session %1$d - %2$s</string>
+    <string name="excel_title_label" translatable="false">VASIR - Visual Analog Scale Intelligibility Rating</string>
+    <string name="excel_session_id_label">Session ID</string>
+    <string name="excel_seed_label">Seed</string>
+    <string name="excel_generator_date_label">Date created</string>
+    <string name="excel_save_date_label">Date saved</string>
+    <string name="excel_recording_id_header">ID</string>
+    <string name="excel_recording_group_header">Group</string>
+    <string name="excel_recording_index_header">Index</string>
+    <string name="excel_recording_rating_header">Rating</string>
+    <string name="button_share_as_text_label">Share as plain text</string>
+    <string name="button_share_as_excel_label">Share as excel file</string>
+    <string name="snackbar_share_all_excel_failed">Excel file(s) creation failed!</string>
+    <string name="snackbar_share_all_text_failed">Text results file(s) sharing failed!</string>
+
 </resources>

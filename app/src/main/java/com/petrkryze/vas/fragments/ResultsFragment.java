@@ -1,6 +1,8 @@
 package com.petrkryze.vas.fragments;
 
 import android.annotation.SuppressLint;
+import android.content.ClipData;
+import android.content.ClipDescription;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -16,11 +18,13 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
+import com.petrkryze.vas.ExcelUtils;
 import com.petrkryze.vas.MainActivity;
 import com.petrkryze.vas.R;
 import com.petrkryze.vas.RatingResult;
@@ -35,6 +39,7 @@ import java.util.ArrayList;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
@@ -49,20 +54,29 @@ import static com.petrkryze.vas.MainActivity.applyTintFilter;
 /**
  * A fragment representing a list of Items.
  */
+@SuppressLint("ShowToast")
 public class ResultsFragment extends Fragment {
     private static final String TAG = "ResultFragment";
     public static final String ResultListSerializedKey = "resultsList";
 
     private ArrayList<RatingResult> ratingResults;
+
     private Snackbar hint;
     private TextView TWnoResults;
     private RecyclerView resultsListView;
+    private ConstraintLayout buttonBar;
     private Button buttonShareAll;
+    private Button buttonShareAsText;
+    private Button buttonShareAsExcel;
+    private ProgressBar progressTextLoading;
+    private ProgressBar progressExcelLoading;
 
     private Vibrator vibrator;
     private static int VIBRATE_BUTTON_MS;
     private static int VIBRATE_BUTTON_LONG_MS;
     private Handler handler;
+    private boolean isExcelSharing = false;
+    private boolean isTextSharing = false;
 
     private final View.OnClickListener shareAllListener = new View.OnClickListener() {
         @Override
@@ -72,33 +86,107 @@ public class ResultsFragment extends Fragment {
                 vibrator.vibrate(VibrationEffect.createOneShot(
                         VIBRATE_BUTTON_MS, VibrationEffect.DEFAULT_AMPLITUDE));
 
-                Context context = getContext();
-                if (context == null) {
-                    Log.e(TAG, "onClick: No context!");
-                    return;
-                }
+                buttonShareAll.setVisibility(View.INVISIBLE);
+                buttonShareAsText.setVisibility(View.VISIBLE);
+                buttonShareAsExcel.setVisibility(View.VISIBLE);
+            }
+        }
+    };
 
-                ArrayList<Uri> uris = new ArrayList<>();
+    private final View.OnClickListener shareAllAsTextListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            if (v.getId() == R.id.results_fragment_button_results_share_as_text) {
+                Log.i(TAG, "onClick: SHARE AS TEXT BUTTON CLICKED");
+                Context context = requireContext();
+                vibrator.vibrate(VibrationEffect.createOneShot(
+                        VIBRATE_BUTTON_MS, VibrationEffect.DEFAULT_AMPLITUDE));
 
-                for (RatingResult r : ratingResults) {
-                    File f = new File(r.getPath());
-                    try {
-                        uris.add(FileProvider.getUriForFile(
-                                getContext(),"com.petrkryze.vas.fileprovider", f));
-                    } catch (IllegalArgumentException e) {
-                        Log.e("File Selector",
-                                "The selected file can't be shared: " + f.toString());
-                        e.printStackTrace();
+                // Do work in separate thread
+                Thread textThread = new Thread(() -> {
+                    isTextSharing = true;
+                    ArrayList<Uri> uris = new ArrayList<>();
+                    for (RatingResult r : ratingResults) {
+                        File resultFile = new File(r.getPath());
+                        try {
+                            uris.add(FileProvider.getUriForFile(
+                                    context,"com.petrkryze.vas.fileprovider", resultFile));
+                        } catch (IllegalArgumentException e) {
+                            Log.e("File Selector",
+                                    "The selected file can't be shared: " + resultFile.toString());
+                            e.printStackTrace();
+                        }
                     }
-                }
 
-                Intent sharingIntent = new Intent(Intent.ACTION_SEND_MULTIPLE);
-                sharingIntent.setType("text/plain");
-                sharingIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                sharingIntent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, uris);
-                sharingIntent.putExtra(Intent.EXTRA_TITLE, getString(R.string.result_share_title, uris.size()));
+                    if (uris.isEmpty()) {
+                        requireActivity().runOnUiThread(() ->
+                                Snackbar.make(requireActivity().findViewById(R.id.coordinator),
+                                R.string.snackbar_share_all_text_failed, BaseTransientBottomBar.LENGTH_LONG)
+                                .setAnchorView(buttonBar)
+                                .setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE)
+                                .show());
+                    } else {
+                        startShareActivity(uris);
+                    }
+                });
 
-                getContext().startActivity(Intent.createChooser(sharingIntent, getContext().getString(R.string.share_using)));
+                // Show loading circle over the excel button and start the work
+                buttonShareAsText.setTextColor(context.getColor(R.color.invisible));
+                buttonShareAsText.setClickable(false);
+
+                progressTextLoading.setVisibility(View.VISIBLE);
+                textThread.start();
+            }
+        }
+    };
+
+    private final View.OnClickListener shareAllAsExcelListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            if (v.getId() == R.id.results_fragment_button_results_share_as_excel) {
+                Log.i(TAG, "onClick: SHARE AS EXCEL BUTTON CLICKED");
+                Context context = requireContext();
+                vibrator.vibrate(VibrationEffect.createOneShot(
+                        VIBRATE_BUTTON_MS, VibrationEffect.DEFAULT_AMPLITUDE));
+
+                // Do work in separate thread
+                Thread excelThread = new Thread(() -> {
+                    isExcelSharing = true;
+                    ArrayList<Uri> uris = new ArrayList<>();
+                    for (RatingResult result : ratingResults) {
+                        try {
+                            File excelFile = ExcelUtils.makeExcelFile(context, result);
+                            uris.add(FileProvider.getUriForFile(
+                                    context,"com.petrkryze.vas.fileprovider", excelFile));
+                        } catch (IllegalArgumentException e) {
+                            Log.e("File Selector",
+                                    "Selected file can't be shared: " + result.getPath());
+                            e.printStackTrace();
+                        } catch (IOException e) {
+                            Log.e(TAG, "makeExcelFile: Excel file " + result.getPath() +
+                                    " could not be created!", e);
+                            e.printStackTrace();
+                        }
+                    }
+
+                    if (uris.isEmpty()) {
+                        requireActivity().runOnUiThread(() ->
+                                Snackbar.make(requireActivity().findViewById(R.id.coordinator),
+                                R.string.snackbar_share_all_excel_failed, BaseTransientBottomBar.LENGTH_LONG)
+                                .setAnchorView(buttonBar)
+                                .setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE)
+                                .show());
+                    } else {
+                        startShareActivity(uris);
+                    }
+                });
+
+                // Show loading circle over the excel button and start the work
+                buttonShareAsExcel.setTextColor(context.getColor(R.color.invisible));
+                buttonShareAsExcel.setClickable(false);
+
+                progressExcelLoading.setVisibility(View.VISIBLE);
+                excelThread.start();
             }
         }
     };
@@ -209,12 +297,19 @@ public class ResultsFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         Context context = view.getContext();
 
+        buttonBar = view.findViewById(R.id.results_fragment_share_button_bar);
         buttonShareAll = view.findViewById(R.id.results_fragment_button_results_share_all);
+        buttonShareAsText = view.findViewById(R.id.results_fragment_button_results_share_as_text);
+        buttonShareAsExcel = view.findViewById(R.id.results_fragment_button_results_share_as_excel);
+        progressTextLoading = view.findViewById(R.id.results_fragment_text_loading);
+        progressExcelLoading = view.findViewById(R.id.results_fragment_excel_loading);
         resultsListView = view.findViewById(R.id.results_fragment_results_list);
         TWnoResults = view.findViewById(R.id.results_fragment_no_results_textview);
 
         if (ratingResults != null && !ratingResults.isEmpty()) {
             buttonShareAll.setOnClickListener(shareAllListener);
+            buttonShareAsText.setOnClickListener(shareAllAsTextListener);
+            buttonShareAsExcel.setOnClickListener(shareAllAsExcelListener);
 
             resultsListView.setAdapter(new ResultsRecyclerViewAdapter(
                     context, ratingResults, onItemDetailListener));
@@ -225,8 +320,8 @@ public class ResultsFragment extends Fragment {
 
             hint = Snackbar.make(
                     requireActivity().findViewById(R.id.coordinator),
-                    R.string.hint_results_select, BaseTransientBottomBar.LENGTH_LONG)
-                    .setAnchorView(buttonShareAll)
+                    R.string.snackbar_results_select_hint, BaseTransientBottomBar.LENGTH_LONG)
+                    .setAnchorView(buttonBar)
                     .setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE);
 
             handler.postDelayed(hint::show, context.getResources().getInteger(R.integer.SNACKBAR_HINT_DELAY_MS));
@@ -241,7 +336,7 @@ public class ResultsFragment extends Fragment {
     public void onPrepareOptionsMenu(@NonNull @NotNull Menu menu) {
         super.onPrepareOptionsMenu(menu);
         int[] toDisable = { R.id.action_menu_save, R.id.action_menu_show_saved_results,
-                 R.id.action_menu_reset_ratings};
+                R.id.action_menu_reset_ratings};
         int[] toEnable = {R.id.action_menu_help, R.id.action_menu_show_session_info,
                 R.id.action_menu_quit};
 
@@ -286,8 +381,54 @@ public class ResultsFragment extends Fragment {
         }
     }
 
+    private void startShareActivity(ArrayList<Uri> uris) {
+        String mimeType = "text/plain";
+        String[] mimeTypeArray = new String[] { mimeType };
+
+        ArrayList<ClipData.Item> items = new ArrayList<>();
+        for (Uri uri : uris) items.add(new ClipData.Item(uri));
+
+        ClipDescription clipDescription = new ClipDescription(getString(R.string.result_share_title), mimeTypeArray);
+        ClipData clipData = new ClipData(clipDescription, items.get(0));
+        items.remove(0);
+        for (ClipData.Item item : items) clipData.addItem(item);
+
+        // Note possible duplicate mimetype and data declaration, maybe fix when ClipData framework
+        // is not a complete joke
+        Intent sharingIntent = new Intent(Intent.ACTION_SEND_MULTIPLE);
+        sharingIntent.setClipData(clipData);
+        sharingIntent.setType(mimeType)
+                .addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
+                .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                .putParcelableArrayListExtra(Intent.EXTRA_STREAM, uris)
+                .putExtra(Intent.EXTRA_TITLE, getString(R.string.result_share_title, uris.size()));
+
+        requireContext().startActivity(Intent.createChooser(sharingIntent,
+                requireContext().getString(R.string.share_using)));
+    }
+
     public interface OnItemDetailListener {
         void onItemClick(RatingResult selectedResult);
         boolean onItemLongClick(RatingResult selectedResult, int position);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (isExcelSharing) {
+            progressExcelLoading.setVisibility(View.GONE);
+            buttonShareAsExcel.setTextColor(requireContext().getColor(R.color.textPrimaryOnPrimary));
+            buttonShareAsExcel.setClickable(true);
+
+            isExcelSharing = false;
+        }
+
+        if (isTextSharing) {
+            progressTextLoading.setVisibility(View.GONE);
+            buttonShareAsText.setTextColor(requireContext().getColor(R.color.textPrimaryOnSecondary));
+            buttonShareAsText.setClickable(true);
+
+            isTextSharing = false;
+        }
     }
 }

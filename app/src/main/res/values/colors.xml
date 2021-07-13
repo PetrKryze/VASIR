@@ -31,4 +31,7 @@
 
     <color name="listItemHover">#DADADA</color>
     <color name="listItemFocus">#C8C8C8</color>
+
+    <color name="excelGreen">#0f773d</color>
+    <color name="invisible">#00FFFFFF</color>
 </resources>

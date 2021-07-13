@@ -232,7 +232,6 @@ public class RatingFragment extends Fragment {
 
         @Override
         public void onStopTrackingTouch(SeekBar seekBar) {
-            vibrator.vibrate(VibrationEffect.createOneShot(VIBRATE_BUTTON_MS,VibrationEffect.DEFAULT_AMPLITUDE));
             playerSeekBar.playSoundEffect(SoundEffectConstants.CLICK);
             if (initDone && player.isPrepared() && !player.isSeeking()) {
                 player.seekTo(seekBar.getProgress());
