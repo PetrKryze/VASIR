@@ -430,5 +430,7 @@ public class ResultsFragment extends Fragment {
 
             isTextSharing = false;
         }
+
+        ExcelUtils.dumpTempFolder(requireContext());
     }
 }

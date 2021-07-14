@@ -119,4 +119,27 @@ public class ExcelUtils {
         return newExcelFile;
     }
 
+    public static void dumpTempFolder(Context context) {
+        // Temporary directory
+        File tempDir = new File(context.getFilesDir(), context.getString(R.string.DIRECTORY_NAME_TEMP));
+        if (!tempDir.exists()) {
+            if (!tempDir.mkdirs()) Log.e(TAG, "dumpTempFolder: temp directory could not be created.");
+        }
+
+        int cnt = 0;
+        File[] fileArray = tempDir.listFiles();
+        if (fileArray == null || fileArray.length <= 0) {
+            Log.i(TAG, "dumpTempFolder: No temporary files to dump.");
+        } else {
+            for (File file : fileArray) {
+                if (!file.delete()) {
+                    Log.e(TAG, "dumpTempFolder: File " + file.getName() + " could not be deleted.");
+                } else {
+                    cnt++;
+                }
+            }
+            Log.i(TAG, "dumpTempFolder: " + cnt + " temporary files dumped.");
+        }
+    }
+
 }
