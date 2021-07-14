@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
 import android.util.Log;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -34,6 +35,8 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import static com.petrkryze.vas.adapters.GroupDirectoryRecyclerViewAdapter.AdapterListener;
+
 /**
  * A fragment representing a list of Items.
  */
@@ -44,6 +47,7 @@ public class GroupControlFragment extends Fragment {
 
     private ArrayList<GroupFolder> groupFolders;
     private RecyclerView groupFoldersListView;
+    private Button buttonConfirm;
 
     private Vibrator vibrator;
     public static int VIBRATE_BUTTON_MS;
@@ -57,11 +61,14 @@ public class GroupControlFragment extends Fragment {
                         VIBRATE_BUTTON_MS, VibrationEffect.DEFAULT_AMPLITUDE));
 
                 try {
-                    if (checkEditTexts()) {
+                    Pair<Boolean, ArrayList<GroupFolder>> checkResults = checkEditTexts();
+                    if (checkResults.first) {
+                        Log.i(TAG, "onClick: Selected folders:\n");
+                        for(GroupFolder gf : checkResults.second) Log.i(TAG, "onClick: " + gf.toString());
+
                         Bundle bundle = new Bundle();
                         bundle.putBoolean(GroupControlConfirmedKey, true);
-                        bundle.putSerializable(GroupFolderListSerializedKey,
-                                GroupControlFragment.this.groupFolders);
+                        bundle.putSerializable(GroupFolderListSerializedKey, checkResults.second);
 
                         getParentFragmentManager()
                                 .setFragmentResult(RatingManager.GROUP_CHECK_RESULT_REQUEST_KEY, bundle);
@@ -72,6 +79,18 @@ public class GroupControlFragment extends Fragment {
                     e.printStackTrace();
                 }
             }
+        }
+    };
+
+    private final AdapterListener adapterListener = new AdapterListener() {
+        @Override
+        public void onAllUnchecked() {
+            if (buttonConfirm != null) buttonConfirm.setEnabled(false);
+        }
+
+        @Override
+        public void onSomethingChecked() {
+            if (buttonConfirm != null) buttonConfirm.setEnabled(true);
         }
     };
 
@@ -129,12 +148,13 @@ public class GroupControlFragment extends Fragment {
                 getQuantityString(R.plurals.group_control_found_folders_headline,
                         groupFolders.size(), groupFolders.size()));
 
-        Button buttonConfirm = view.findViewById(R.id.group_control_button_confirm);
+        buttonConfirm = view.findViewById(R.id.group_control_button_confirm);
         buttonConfirm.setOnClickListener(confirmListener);
 
         groupFoldersListView = view.findViewById(R.id.group_control_group_folder_list);
-        groupFoldersListView.setAdapter(new GroupDirectoryRecyclerViewAdapter(context,
-                groupFolders));
+        GroupDirectoryRecyclerViewAdapter adapter =
+                new GroupDirectoryRecyclerViewAdapter(context, groupFolders, adapterListener);
+        groupFoldersListView.setAdapter(adapter);
         groupFoldersListView.setLayoutManager(new LinearLayoutManager(context));
 
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(context,
@@ -142,7 +162,7 @@ public class GroupControlFragment extends Fragment {
         groupFoldersListView.addItemDecoration(dividerItemDecoration);
     }
 
-    private boolean checkEditTexts() throws Exception {
+    private Pair<Boolean, ArrayList<GroupFolder>> checkEditTexts() throws Exception {
         GroupDirectoryRecyclerViewAdapter adapter =
                 (GroupDirectoryRecyclerViewAdapter) groupFoldersListView.getAdapter();
         if (adapter == null) throw new NullPointerException("Fatal error! RecyclerView is missing adapter.");
@@ -151,23 +171,32 @@ public class GroupControlFragment extends Fragment {
 
         EditText firstWrong = null;
         boolean flag = true;
+        ArrayList<GroupFolder> selectedFolders = new ArrayList<>();
+
         for (int i = 0; i < nRows; i++) {
             ViewHolder row = (ViewHolder) groupFoldersListView.findViewHolderForAdapterPosition(i);
             if (row == null) throw new NullPointerException("Fatal error! ViewHolder for row " + i + " is null.");
-            String inputText = row.viewRowGroupNameInput.getText().toString();
-            Log.i(TAG, "onClick: Edit text on row " + i + ": " + inputText);
+            if (row.checkBox.isChecked()) {
+                String inputText = row.viewRowGroupNameInput.getText().toString();
+                Log.i(TAG, "onClick: Edit text on row " + i + ": " + inputText);
 
-            // I fucking hate regex, but well, here we go - it should catch all of these chars
-            if (inputText.matches(".*[~#^|$%&*!/<>?\"\\\\].*")) {
-                row.viewRowGroupNameInput.setError(getString(R.string.group_control_invalid_input));
-                if (firstWrong == null) firstWrong = row.viewRowGroupNameInput;
-                flag = false;
-            } else { // Input is OK
-                this.groupFolders.get(i).setLabel(inputText);
+                // I fucking hate regex, but well, here we go - it should catch all of these chars
+                if (inputText.matches(".*[~#^|$%&*!/<>?\"\\\\].*")) {
+                    row.viewRowGroupNameInput.setError(getString(R.string.group_control_invalid_input));
+                    if (firstWrong == null) firstWrong = row.viewRowGroupNameInput;
+                    flag = false;
+                } else { // Input is OK
+                    this.groupFolders.get(i).setLabel(inputText);
+
+                    // Put the selected folder with it's name user defined into output, so we don't
+                    // change the original found group folders (for safety)
+                    selectedFolders.add(this.groupFolders.get(i));
+                }
             }
         }
         if (!flag) firstWrong.requestFocus();
-        return flag;
+
+        return new Pair<>(flag, selectedFolders);
     }
 
     @Override

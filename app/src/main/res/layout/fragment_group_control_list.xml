@@ -23,7 +23,7 @@
         android:paddingVertical="5dp"
 
         android:text="@string/placeholder"
-        android:textColor="@color/textPrimaryOnSurface"
+        android:textColor="@color/textPrimaryOnSecondary"
         style="@style/TextAppearance.MdcTypographyStyles.Headline4"
 
         app:layout_constraintStart_toStartOf="parent"

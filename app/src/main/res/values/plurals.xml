@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <plurals name="group_control_found_folders_headline">
-        <item quantity="one">Found %d folder containing eligible audio files</item>
-        <item quantity="other">Found %d folders containing eligible audio files</item>
+        <item quantity="one">Found %d folder containing eligible audio files.</item>
+        <item quantity="other">Found %d folders containing eligible audio files.</item>
     </plurals>
 </resources>

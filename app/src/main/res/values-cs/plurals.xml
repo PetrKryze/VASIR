@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <plurals name="group_control_found_folders_headline">
-        <item quantity="one">Nalezen %d adresář obsahující vhodné audio soubory</item>
-        <item quantity="few">Nalezeny %d adresáře obsahující vhodné audio soubory</item>
-        <item quantity="other">Nalezeno %d adresářů obsahující vhodné audio soubory</item>
+        <item quantity="one">Nalezen %d adresář obsahující vhodné audio soubory.</item>
+        <item quantity="few">Nalezeny %d adresáře obsahující vhodné audio soubory.</item>
+        <item quantity="other">Nalezeno %d adresářů obsahující vhodné audio soubory.</item>
     </plurals>
 </resources>

@@ -1,6 +1,7 @@
 package com.petrkryze.vas;
 
 import org.apache.commons.io.FilenameUtils;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -46,5 +47,11 @@ public class GroupFolder implements Serializable {
 
     public int getNaudioFiles() {
         return this.fileList.size();
+    }
+
+    @NotNull
+    @Override
+    public String toString() {
+        return "Label: " + this.label + ", Path: " + this.path + ", Nfiles = " + this.fileList.size();
     }
 }

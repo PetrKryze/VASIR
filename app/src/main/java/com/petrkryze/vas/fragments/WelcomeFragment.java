@@ -98,9 +98,9 @@ public class WelcomeFragment extends Fragment {
         int colorTo = getResources().getColor(R.color.titleLogoTransition, null);
 
         ValueAnimator colorAnimation = ValueAnimator.ofObject(new ArgbEvaluator(), colorFrom, colorTo);
-        colorAnimation.setRepeatCount(ValueAnimator.INFINITE);
+        colorAnimation.setRepeatCount(1);
         colorAnimation.setRepeatMode(ValueAnimator.REVERSE);
-        colorAnimation.setDuration(3000);
+        colorAnimation.setDuration(1000);
         colorAnimation.addUpdateListener(animation -> titleImage.setBackgroundColor((int) animation.getAnimatedValue()));
         colorAnimation.start();
 

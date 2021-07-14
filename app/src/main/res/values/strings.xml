@@ -252,5 +252,6 @@
     <string name="button_share_as_excel_label">Share as excel file</string>
     <string name="snackbar_share_all_excel_failed">Excel file(s) creation failed!</string>
     <string name="snackbar_share_all_text_failed">Text results file(s) sharing failed!</string>
+    <string name="group_control_group_folder_list_row_folder_name" translatable="false">/%s</string>
 
 </resources>

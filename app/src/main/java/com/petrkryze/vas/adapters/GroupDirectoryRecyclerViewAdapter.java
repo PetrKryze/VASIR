@@ -7,11 +7,14 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.google.android.material.checkbox.MaterialCheckBox;
 import com.petrkryze.vas.GroupFolder;
 import com.petrkryze.vas.R;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -21,13 +24,26 @@ import androidx.recyclerview.widget.RecyclerView;
  * {@link RecyclerView.Adapter} that can display a {@link GroupFolder}.
  */
 public class GroupDirectoryRecyclerViewAdapter extends RecyclerView.Adapter<GroupDirectoryRecyclerViewAdapter.ViewHolder> {
-
     private final Context context;
     private final List<GroupFolder> groupFolders;
 
-    public GroupDirectoryRecyclerViewAdapter(Context context, List<GroupFolder> groupFolders) {
+    private final ArrayList<Boolean> checks;
+    private final AdapterListener adapterListener;
+
+    public interface AdapterListener {
+        void onAllUnchecked();
+        void onSomethingChecked();
+    }
+
+    public GroupDirectoryRecyclerViewAdapter(Context context, List<GroupFolder> groupFolders,
+                                             AdapterListener listener) {
         this.context = context;
         this.groupFolders = groupFolders;
+
+        Boolean[] checksArray = new Boolean[groupFolders.size()];
+        Arrays.fill(checksArray, true);
+        this.checks = new ArrayList<>(Arrays.asList(checksArray));
+        this.adapterListener = listener;
     }
 
     @NotNull
@@ -36,7 +52,6 @@ public class GroupDirectoryRecyclerViewAdapter extends RecyclerView.Adapter<Grou
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.group_control_list_row, parent, false);
         return new ViewHolder(view);
-
     }
 
     @Override
@@ -44,7 +59,7 @@ public class GroupDirectoryRecyclerViewAdapter extends RecyclerView.Adapter<Grou
         final GroupFolder currentGFolder = groupFolders.get(position);
         holder.mItem = currentGFolder;
 
-        holder.viewRowFolderName.setText(currentGFolder.getFolderName());
+        holder.viewRowFolderName.setText(context.getString(R.string.group_control_group_folder_list_row_folder_name, currentGFolder.getFolderName()));
         holder.viewRowAudioFilesFound.setText(
                 context.getString(R.string.group_control_group_folder_list_row_found_audio_files, currentGFolder.getNaudioFiles())
         );
@@ -54,6 +69,15 @@ public class GroupDirectoryRecyclerViewAdapter extends RecyclerView.Adapter<Grou
 
         // TODO anything else to do with this edit text??
 
+
+        holder.checkBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            checks.set(position, isChecked);
+            if (isSomethingChecked()) {
+                adapterListener.onSomethingChecked();
+            } else {
+                adapterListener.onAllUnchecked();
+            }
+        });
     }
 
     @Override
@@ -67,6 +91,7 @@ public class GroupDirectoryRecyclerViewAdapter extends RecyclerView.Adapter<Grou
         public final TextView viewRowFolderName;
         public final TextView viewRowAudioFilesFound;
         public final EditText viewRowGroupNameInput;
+        public final MaterialCheckBox checkBox;
         public GroupFolder mItem;
 
         public ViewHolder(@NotNull View view) {
@@ -76,6 +101,7 @@ public class GroupDirectoryRecyclerViewAdapter extends RecyclerView.Adapter<Grou
             viewRowFolderName = view.findViewById(R.id.group_control_group_folder_list_row_folder_name);
             viewRowAudioFilesFound = view.findViewById(R.id.group_control_group_folder_list_row_found_audio_files);
             viewRowGroupNameInput = view.findViewById(R.id.group_control_group_folder_list_row_group_name_input);
+            checkBox = view.findViewById(R.id.group_control_group_folder_list_row_checkbox);
         }
 
         @NotNull
@@ -85,5 +111,9 @@ public class GroupDirectoryRecyclerViewAdapter extends RecyclerView.Adapter<Grou
                     "Audio files found: " + viewRowAudioFilesFound.getText() + ", " +
                     "Group name: " + viewRowGroupNameInput.getText();
         }
+    }
+
+    public boolean isSomethingChecked() {
+        return checks.contains(true);
     }
 }
