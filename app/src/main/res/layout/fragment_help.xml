@@ -26,7 +26,8 @@
                 android:id="@+id/help_header_container"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@color/primaryColor"
+                android:background="@drawable/help_header_background"
+
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent">
@@ -37,7 +38,10 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:padding="16dp"
+
                     android:text="@string/help"
+                    android:textColor="@color/textPrimaryOnPrimary"
+
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toStartOf="@+id/help_title_image"
                     app:layout_constraintStart_toStartOf="parent"
@@ -46,14 +50,13 @@
                 <ImageView
                     android:id="@+id/help_title_image"
                     android:layout_width="wrap_content"
-
                     android:layout_height="80dp"
                     android:layout_marginEnd="8dp"
+
                     android:adjustViewBounds="true"
                     android:contentDescription="@string/welcome_title_image_desc"
-
-
                     android:src="@drawable/vas_app_welcome_icon_no_text"
+
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
@@ -65,22 +68,24 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginVertical="10dp"
-                android:alpha="0.3"
+                android:orientation="horizontal"
+
+                android:alpha="0.2"
                 android:background="@drawable/horizontal_divider"
+
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/help_header_container"
-                android:orientation="vertical"/>
+                app:layout_constraintTop_toBottomOf="@id/help_header_container" />
 
             <TextView
                 android:id="@+id/help_body_textview1"
-                style="@style/TextAppearance.MdcTypographyStyles.Body1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:gravity="left"
+
                 android:justificationMode="inter_word"
                 android:text="@string/help_message1"
+
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/help_divider1" />
@@ -90,12 +95,14 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginVertical="10dp"
-                android:alpha="0.3"
+                android:orientation="horizontal"
+
+                android:alpha="0.2"
                 android:background="@drawable/horizontal_divider"
+
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/help_body_textview1"
-                android:orientation="vertical"/>
+                app:layout_constraintTop_toBottomOf="@id/help_body_textview1" />
 
             <TextView
                 android:id="@+id/help_body_textview2"
@@ -103,9 +110,10 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:gravity="left"
+
                 android:justificationMode="inter_word"
                 android:text="@string/help_message2"
+
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/help_divider2" />

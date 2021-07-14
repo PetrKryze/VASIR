@@ -8,4 +8,5 @@
     <dimen name="progress_bar_thickness">5dp</dimen>
     <dimen name="checkmark_size">60dp</dimen>
     <dimen name="result_detail_column_header_button_radius">2dp</dimen>
+    <dimen name="help_header_corner_radius">5dp</dimen>
 </resources>

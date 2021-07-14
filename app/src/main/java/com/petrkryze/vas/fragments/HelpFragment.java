@@ -14,6 +14,10 @@ import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
 import com.petrkryze.vas.MainActivity;
 import com.petrkryze.vas.R;
+import com.petrkryze.vas.RatingManager;
+import com.petrkryze.vas.RatingResult;
+
+import java.util.ArrayList;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -93,12 +97,11 @@ public class HelpFragment extends Fragment {
         int itemID = item.getItemId();
         if (itemID == R.id.action_menu_show_saved_results) {
             try {
-//                ArrayList<RatingResult> ratings = RatingManager.loadResults(requireContext());
-//
-//                NavDirections directions =
-//                        HelpFragmentDirections.actionHelpFragmentToResultFragment(ratings);
-//                NavHostFragment.findNavController(this).navigate(directions);
-                throw new Exception("koko");
+                ArrayList<RatingResult> ratings = RatingManager.loadResults(requireContext());
+
+                NavDirections directions =
+                        HelpFragmentDirections.actionHelpFragmentToResultFragment(ratings);
+                NavHostFragment.findNavController(this).navigate(directions);
             } catch (Exception e) {
                 e.printStackTrace();
                 Snackbar.make(requireActivity().findViewById(R.id.coordinator),

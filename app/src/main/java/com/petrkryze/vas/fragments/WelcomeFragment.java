@@ -7,9 +7,6 @@ import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.graphics.ColorFilter;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffColorFilter;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.Html;
@@ -128,11 +125,6 @@ public class WelcomeFragment extends Fragment {
             TextView helpBody = scrollView.findViewById(R.id.welcome_body_textview);
             scrollView.smoothScrollBy(0, helpBody.getTop());
         });
-
-        // Filter to make the arrow black
-        ColorFilter filter = new PorterDuffColorFilter(
-                requireContext().getColor(android.R.color.black), PorterDuff.Mode.SRC_IN);
-        scrollIcon.getDrawable().setColorFilter(filter);
 
         // Suggestive animation of slight hopping up and down
         TranslateAnimation translateAnimation = new TranslateAnimation(0, 0, 0, 20);

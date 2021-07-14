@@ -23,6 +23,7 @@
         android:translationY="5dp"
         android:translationZ="15dp"
 
+        app:tint="@color/textPrimaryOnBackground"
         android:alpha="0"
         android:visibility="gone"
 
