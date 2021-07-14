@@ -10,7 +10,8 @@
 
     tools:context=".MainActivity"
     android:theme="@style/AppTheme"
-    android:fitsSystemWindows="true">
+    android:fitsSystemWindows="true"
+    app:layout_dodgeInsetEdges="bottom" >
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/toolbar_container"
@@ -37,7 +38,6 @@
         android:layout_height="match_parent"
         android:layout_below="@id/toolbar_container"
         app:defaultNavHost="true"
-        app:layout_dodgeInsetEdges="bottom"
         />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

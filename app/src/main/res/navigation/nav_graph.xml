@@ -15,31 +15,31 @@
         <action
             android:id="@+id/action_rating_fragment_to_result_fragment"
             app:destination="@id/result_fragment"
-            app:enterAnim="@anim/slide_in"
-            app:exitAnim="@anim/slide_out"
-            app:popEnterAnim="@anim/slide_in"
-            app:popExitAnim="@anim/slide_out" />
+            app:enterAnim="@anim/slide_in_from_right"
+            app:exitAnim="@anim/fade_out_medium"
+            app:popEnterAnim="@anim/fade_in_medium"
+            app:popExitAnim="@anim/slide_out_to_right" />
         <action
             android:id="@+id/action_rating_fragment_to_helpFragment"
             app:destination="@id/helpFragment"
-            app:enterAnim="@anim/fadein"
-            app:exitAnim="@anim/fadeout"
-            app:popEnterAnim="@anim/fadein"
-            app:popExitAnim="@anim/fadeout" />
+            app:enterAnim="@anim/fade_in_fast"
+            app:exitAnim="@anim/fade_out_fast"
+            app:popEnterAnim="@anim/fade_in_fast"
+            app:popExitAnim="@anim/fade_out_fast" />
         <action
             android:id="@+id/action_rating_fragment_to_currentSessionInfoFragment"
             app:destination="@id/currentSessionInfoFragment"
-            app:enterAnim="@anim/slide_sideways"
-            app:exitAnim="@anim/slide_back_sideways"
-            app:popEnterAnim="@anim/slide_sideways"
-            app:popExitAnim="@anim/slide_back_sideways"/>
+            app:enterAnim="@anim/slide_in_from_right"
+            app:exitAnim="@anim/fade_out_medium"
+            app:popEnterAnim="@anim/fade_in_medium"
+            app:popExitAnim="@anim/slide_out_to_right" />
         <action
             android:id="@+id/action_rating_fragment_to_groupControlFragment"
             app:destination="@id/groupControlFragment"
-            app:enterAnim="@anim/slide_in"
-            app:exitAnim="@anim/slide_out"
-            app:popEnterAnim="@anim/slide_in"
-            app:popExitAnim="@anim/slide_out"/>
+            app:enterAnim="@anim/fade_in_fast"
+            app:exitAnim="@anim/fade_out_fast"
+            app:popEnterAnim="@anim/fade_in_fast"
+            app:popExitAnim="@anim/fade_out_fast" />
     </fragment>
 
     <fragment
@@ -54,24 +54,24 @@
         <action
             android:id="@+id/action_result_fragment_to_resultDetailFragment"
             app:destination="@id/result_detail_fragment"
-            app:enterAnim="@anim/slide_sideways"
-            app:exitAnim="@anim/slide_back_sideways"
-            app:popEnterAnim="@anim/slide_sideways"
-            app:popExitAnim="@anim/slide_back_sideways" />
+            app:enterAnim="@anim/slide_in_from_right"
+            app:exitAnim="@anim/slide_out_to_left"
+            app:popEnterAnim="@anim/slide_in_from_left"
+            app:popExitAnim="@anim/slide_out_to_right" />
         <action
             android:id="@+id/action_result_fragment_to_helpFragment"
             app:destination="@id/helpFragment"
-            app:enterAnim="@anim/fadein"
-            app:exitAnim="@anim/fadeout"
-            app:popEnterAnim="@anim/fadein"
-            app:popExitAnim="@anim/fadeout" />
+            app:enterAnim="@anim/fade_in_fast"
+            app:exitAnim="@anim/fade_out_fast"
+            app:popEnterAnim="@anim/fade_in_fast"
+            app:popExitAnim="@anim/fade_out_fast" />
         <action
             android:id="@+id/action_result_fragment_to_currentSessionInfoFragment"
             app:destination="@id/currentSessionInfoFragment"
-            app:enterAnim="@anim/slide_sideways"
-            app:exitAnim="@anim/slide_back_sideways"
-            app:popEnterAnim="@anim/slide_sideways"
-            app:popExitAnim="@anim/slide_back_sideways"/>
+            app:enterAnim="@anim/slide_in_from_right"
+            app:exitAnim="@anim/slide_out_to_left"
+            app:popEnterAnim="@anim/slide_in_from_left"
+            app:popExitAnim="@anim/slide_out_to_right"/>
     </fragment>
 
     <fragment
@@ -86,17 +86,17 @@
         <action
             android:id="@+id/action_result_detail_fragment_to_helpFragment"
             app:destination="@id/helpFragment"
-            app:enterAnim="@anim/fadein"
-            app:exitAnim="@anim/fadeout"
-            app:popEnterAnim="@anim/fadein"
-            app:popExitAnim="@anim/fadeout" />
+            app:enterAnim="@anim/fade_in_fast"
+            app:exitAnim="@anim/fade_out_fast"
+            app:popEnterAnim="@anim/fade_in_fast"
+            app:popExitAnim="@anim/fade_out_fast" />
         <action
             android:id="@+id/action_result_detail_fragment_to_currentSessionInfoFragment"
             app:destination="@id/currentSessionInfoFragment"
-            app:enterAnim="@anim/slide_sideways"
-            app:exitAnim="@anim/slide_back_sideways"
-            app:popEnterAnim="@anim/slide_sideways"
-            app:popExitAnim="@anim/slide_back_sideways"/>
+            app:enterAnim="@anim/slide_in_from_right"
+            app:exitAnim="@anim/slide_out_to_left"
+            app:popEnterAnim="@anim/slide_in_from_left"
+            app:popExitAnim="@anim/slide_out_to_right"/>
 
     </fragment>
 
@@ -109,24 +109,24 @@
         <action
             android:id="@+id/action_welcomeFragment_to_rating_fragment"
             app:destination="@id/rating_fragment"
-            app:enterAnim="@anim/fadein"
-            app:exitAnim="@anim/fadeout"
-            app:popEnterAnim="@anim/fadein"
-            app:popExitAnim="@anim/fadeout" />
+            app:enterAnim="@anim/fade_in_fast"
+            app:exitAnim="@anim/fade_out_fast"
+            app:popEnterAnim="@anim/fade_in_fast"
+            app:popExitAnim="@anim/fade_out_fast" />
         <action
             android:id="@+id/action_welcome_fragment_to_result_fragment"
             app:destination="@id/result_fragment"
-            app:enterAnim="@anim/slide_in"
-            app:exitAnim="@anim/slide_out"
-            app:popEnterAnim="@anim/slide_in"
-            app:popExitAnim="@anim/slide_out" />
+            app:enterAnim="@anim/slide_in_from_right"
+            app:exitAnim="@anim/fade_out_medium"
+            app:popEnterAnim="@anim/fade_in_medium"
+            app:popExitAnim="@anim/slide_out_to_right" />
         <action
             android:id="@+id/action_welcome_fragment_to_currentSessionInfoFragment"
             app:destination="@id/currentSessionInfoFragment"
-            app:enterAnim="@anim/slide_sideways"
-            app:exitAnim="@anim/slide_back_sideways"
-            app:popEnterAnim="@anim/slide_sideways"
-            app:popExitAnim="@anim/slide_back_sideways"/>
+            app:enterAnim="@anim/slide_in_from_right"
+            app:exitAnim="@anim/fade_out_medium"
+            app:popEnterAnim="@anim/fade_in_medium"
+            app:popExitAnim="@anim/slide_out_to_right"/>
     </fragment>
 
     <fragment
@@ -146,17 +146,17 @@
         <action
             android:id="@+id/action_helpFragment_to_currentSessionInfoFragment"
             app:destination="@id/currentSessionInfoFragment"
-            app:enterAnim="@anim/slide_sideways"
-            app:exitAnim="@anim/slide_back_sideways"
-            app:popEnterAnim="@anim/slide_sideways"
-            app:popExitAnim="@anim/slide_back_sideways"/>
+            app:enterAnim="@anim/slide_in_from_right"
+            app:exitAnim="@anim/fade_out_medium"
+            app:popEnterAnim="@anim/fade_in_medium"
+            app:popExitAnim="@anim/slide_out_to_right"/>
         <action
             android:id="@+id/action_helpFragment_to_result_fragment"
             app:destination="@id/result_fragment"
-            app:enterAnim="@anim/slide_in"
-            app:exitAnim="@anim/slide_out"
-            app:popEnterAnim="@anim/slide_in"
-            app:popExitAnim="@anim/slide_out"/>
+            app:enterAnim="@anim/slide_in_from_right"
+            app:exitAnim="@anim/fade_out_medium"
+            app:popEnterAnim="@anim/fade_in_medium"
+            app:popExitAnim="@anim/slide_out_to_right" />
     </fragment>
 
     <fragment
@@ -171,17 +171,17 @@
         <action
             android:id="@+id/action_currentSessionInfoFragment_to_helpFragment"
             app:destination="@id/helpFragment"
-            app:enterAnim="@anim/fadein"
-            app:exitAnim="@anim/fadeout"
-            app:popEnterAnim="@anim/fadein"
-            app:popExitAnim="@anim/fadeout"/>
+            app:enterAnim="@anim/fade_in_fast"
+            app:exitAnim="@anim/fade_out_fast"
+            app:popEnterAnim="@anim/fade_in_fast"
+            app:popExitAnim="@anim/fade_out_fast"/>
         <action
             android:id="@+id/action_currentSessionInfoFragment_to_result_fragment"
             app:destination="@id/result_fragment"
-            app:enterAnim="@anim/slide_back_sideways"
-            app:exitAnim="@anim/slide_sideways"
-            app:popEnterAnim="@anim/slide_back_sideways"
-            app:popExitAnim="@anim/slide_sideways"/>
+            app:enterAnim="@anim/slide_out_to_right"
+            app:exitAnim="@anim/slide_in_from_right"
+            app:popEnterAnim="@anim/slide_out_to_right"
+            app:popExitAnim="@anim/slide_in_from_right"/>
     </fragment>
 
     <fragment
@@ -197,9 +197,9 @@
         <action
             android:id="@+id/action_groupControlFragment_to_helpFragment"
             app:destination="@id/helpFragment"
-            app:enterAnim="@anim/fadein"
-            app:exitAnim="@anim/fadeout"
-            app:popEnterAnim="@anim/fadein"
-            app:popExitAnim="@anim/fadeout"/>
+            app:enterAnim="@anim/fade_in_fast"
+            app:exitAnim="@anim/fade_out_fast"
+            app:popEnterAnim="@anim/fade_in_fast"
+            app:popExitAnim="@anim/fade_out_fast"/>
     </fragment>
 </navigation>

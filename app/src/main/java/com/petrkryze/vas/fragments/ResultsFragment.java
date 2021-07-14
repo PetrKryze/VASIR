@@ -365,6 +365,7 @@ public class ResultsFragment extends Fragment {
                                 .navigate(directions);
                     }
             );
+            return true;
         }
 
         return super.onOptionsItemSelected(item);

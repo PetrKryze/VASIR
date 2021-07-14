@@ -745,6 +745,7 @@ public class RatingFragment extends Fragment {
                                 .navigate(directions);
                     }
             );
+            return true;
         } else if (itemID == R.id.action_menu_reset_ratings && initDone) {
             new MaterialAlertDialogBuilder(requireContext())
                     .setTitle(getString(R.string.dialog_make_new_session_title))
