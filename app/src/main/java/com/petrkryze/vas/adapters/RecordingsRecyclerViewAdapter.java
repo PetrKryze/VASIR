@@ -1,5 +1,6 @@
 package com.petrkryze.vas.adapters;
 
+import android.annotation.SuppressLint;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
@@ -10,8 +11,9 @@ import android.view.SoundEffectConstants;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
+import com.google.android.material.snackbar.BaseTransientBottomBar;
+import com.google.android.material.snackbar.Snackbar;
 import com.petrkryze.vas.R;
 import com.petrkryze.vas.Recording;
 
@@ -47,6 +49,7 @@ public class RecordingsRecyclerViewAdapter extends RecyclerView.Adapter<Recordin
         return new ViewHolder(view);
     }
 
+    @SuppressLint("ShowToast")
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
         final Recording currentRecording = recordings.get(position);
@@ -73,7 +76,11 @@ public class RecordingsRecyclerViewAdapter extends RecyclerView.Adapter<Recordin
                     context.getString(R.string.result_detail_copy, id, group, index, rating));
             clipboardManager.setPrimaryClip(clip);
 
-            Toast.makeText(context, context.getString(R.string.result_detail_copy_copied), Toast.LENGTH_SHORT).show();
+            Snackbar.make(context, holder.mView,
+                    context.getString(R.string.result_detail_copy_copied),
+                    BaseTransientBottomBar.LENGTH_SHORT)
+                    .setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE)
+                    .show();
             return true;
         });
     }
