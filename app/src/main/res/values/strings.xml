@@ -129,7 +129,7 @@
     <string name="share_button_description">Share</string>
     <string name="share_subject">Rating results for session %d</string>
     <string name="share_using">Share to</string>
-    <string name="result_share_title">Results (%d)</string>
+    <string name="result_share_title">Rating results (%d)</string>
     <string name="button_share_all_label">Share all</string>
     <string name="result_detail_sessionID">Session %d</string>
     <string name="result_detail_save_date_label">Save date:</string>
@@ -253,5 +253,7 @@
     <string name="snackbar_share_all_excel_failed">Excel file(s) creation failed!</string>
     <string name="snackbar_share_all_text_failed">Text results file(s) sharing failed!</string>
     <string name="group_control_group_folder_list_row_folder_name" translatable="false">/%s</string>
+    <string name="snackbar_share_current_session_text_failed">Current session sharing failed!</string>
+    <string name="current_session_share_title">Current session: %s</string>
 
 </resources>

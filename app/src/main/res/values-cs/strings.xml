@@ -99,7 +99,7 @@
     <string name="share_button_description">Share</string>
     <string name="share_subject">Výsledky hodnocení pro sezení %d</string>
     <string name="share_using">Sdílet na</string>
-    <string name="result_share_title">Výsledky (%d)</string>
+    <string name="result_share_title">Výsledky hodnocení (%d)</string>
     <string name="button_share_all_label">Sdílet vše</string>
     <string name="result_detail_sessionID">Sezení %d</string>
     <string name="result_detail_save_date_label">Datum uložení:</string>
@@ -218,4 +218,6 @@
     <string name="button_share_as_excel_label">Share as excel file</string>
     <string name="snackbar_share_all_excel_failed">Tvorba excel souborů selhala!</string>
     <string name="snackbar_share_all_text_failed">Sdílení výsledků selhalo!</string>
+    <string name="snackbar_share_current_session_text_failed">Sdílení aktuálního sezení selhalo!</string>
+    <string name="current_session_share_title">Aktuální sezení: %s</string>
 </resources>

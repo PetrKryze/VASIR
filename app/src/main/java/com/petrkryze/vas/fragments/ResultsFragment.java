@@ -367,7 +367,6 @@ public class ResultsFragment extends Fragment {
             );
             return true;
         }
-
         return super.onOptionsItemSelected(item);
     }
 
@@ -402,7 +401,8 @@ public class ResultsFragment extends Fragment {
                 .addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
                 .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                 .putParcelableArrayListExtra(Intent.EXTRA_STREAM, uris)
-                .putExtra(Intent.EXTRA_TITLE, getString(R.string.result_share_title, uris.size()));
+                .putExtra(Intent.EXTRA_TITLE, getString(R.string.result_share_title, uris.size()))
+                .putExtra(Intent.EXTRA_SUBJECT, getString(R.string.result_share_title, uris.size()));
 
         requireContext().startActivity(Intent.createChooser(sharingIntent,
                 requireContext().getString(R.string.share_using)));

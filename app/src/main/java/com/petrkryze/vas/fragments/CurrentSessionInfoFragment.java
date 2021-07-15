@@ -1,8 +1,11 @@
 package com.petrkryze.vas.fragments;
 
 import android.annotation.SuppressLint;
+import android.content.ClipData;
+import android.content.ClipDescription;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
@@ -15,10 +18,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckedTextView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
+import com.petrkryze.vas.ExcelUtils;
 import com.petrkryze.vas.MainActivity;
 import com.petrkryze.vas.R;
 import com.petrkryze.vas.RatingManager;
@@ -28,12 +33,16 @@ import com.petrkryze.vas.adapters.RecordingsRecyclerViewAdapter;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavDirections;
 import androidx.navigation.fragment.NavHostFragment;
@@ -57,7 +66,12 @@ public class CurrentSessionInfoFragment extends Fragment {
     private RatingResult currentSession;
     private List<Recording> recordingsToDisplay;
     private RecordingsRecyclerViewAdapter recyclerViewAdapter;
+    private ConstraintLayout buttonBar;
     private Button buttonShare;
+    private Button buttonShareAsText;
+    private Button buttonShareAsExcel;
+    private ProgressBar progressTextLoading;
+    private ProgressBar progressExcelLoading;
 
     private CheckedTextView headerID;
     private CheckedTextView headerGroup;
@@ -66,23 +80,127 @@ public class CurrentSessionInfoFragment extends Fragment {
 
     private Vibrator vibrator;
     private static int VIBRATE_BUTTON_MS;
+    private boolean isExcelSharing = false;
+    private boolean isTextSharing = false;
 
     private final View.OnClickListener shareListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            Log.i(TAG, "onClick: SHARE BUTTON CLICKED");
-            vibrator.vibrate(VibrationEffect.createOneShot(
-                    VIBRATE_BUTTON_MS, VibrationEffect.DEFAULT_AMPLITUDE));
+            if (v.getId() == R.id.current_session_info_button_share) {
+                Log.i(TAG, "onClick: SHARE BUTTON CLICKED");
+                vibrator.vibrate(VibrationEffect.createOneShot(
+                        VIBRATE_BUTTON_MS, VibrationEffect.DEFAULT_AMPLITUDE));
 
-            Context context = requireContext();
+                buttonShare.setVisibility(View.INVISIBLE);
+                buttonShareAsText.setVisibility(View.VISIBLE);
+                buttonShareAsExcel.setVisibility(View.VISIBLE);
+            }
+        }
+    };
 
-            Intent sharingIntent = new Intent(Intent.ACTION_SEND);
-            sharingIntent.setType("text/plain");
-            String shareSubject = context.getString(R.string.share_subject, currentSession.getSession_ID());
-            sharingIntent.putExtra(Intent.EXTRA_SUBJECT, shareSubject);
-            sharingIntent.putExtra(Intent.EXTRA_TEXT, currentSession.getRawContent());
+    @SuppressLint("ShowToast")
+    private final View.OnClickListener shareAsTextListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            if (v.getId() == R.id.current_session_info_button_results_share_as_text) {
+                Log.i(TAG, "onClick: SHARE AS TEXT BUTTON CLICKED");
+                Context context = requireContext();
+                vibrator.vibrate(VibrationEffect.createOneShot(
+                        VIBRATE_BUTTON_MS, VibrationEffect.DEFAULT_AMPLITUDE));
 
-            context.startActivity(Intent.createChooser(sharingIntent, context.getString(R.string.share_using)));
+                // Do work in separate thread
+                Thread textThread = new Thread(() -> {
+                    isTextSharing = true;
+
+                    Uri uri = null;
+                    try {
+                        File resultFile;
+                        if (currentSession.getPath() != null) {
+                            resultFile = new File(currentSession.getPath());
+                        } else {
+                            resultFile = RatingManager.saveResultToTemp(context, currentSession);
+                        }
+
+                        uri = FileProvider.getUriForFile(
+                                context,"com.petrkryze.vas.fileprovider", resultFile);
+                    } catch (IllegalArgumentException e ) {
+                        Log.e(TAG, "URI could not be retrieved for this result.", e);
+                        e.printStackTrace();
+                    } catch (Exception e) {
+                        Log.e(TAG, "onClick: Result could not be saved temporarily.", e);
+                        e.printStackTrace();
+                    }
+
+                    if (uri == null) {
+                        requireActivity().runOnUiThread(() ->
+                                Snackbar.make(requireActivity().findViewById(R.id.coordinator),
+                                        R.string.snackbar_share_current_session_text_failed, BaseTransientBottomBar.LENGTH_LONG)
+                                        .setAnchorView(buttonBar)
+                                        .setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE)
+                                        .show());
+                    } else {
+                        startShareActivity(uri,
+                                getString(R.string.current_session_share_title, currentSession.toString()));
+                    }
+                });
+
+                // Show loading circle over the excel button and start the work
+                buttonShareAsText.setTextColor(context.getColor(R.color.invisible));
+                buttonShareAsText.setClickable(false);
+
+                progressTextLoading.setVisibility(View.VISIBLE);
+                textThread.start();
+            }
+        }
+    };
+
+    @SuppressLint("ShowToast")
+    private final View.OnClickListener shareAsExcelListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            if (v.getId() == R.id.current_session_info_button_results_share_as_excel) {
+                Log.i(TAG, "onClick: SHARE AS EXCEL BUTTON CLICKED");
+                Context context = requireContext();
+                vibrator.vibrate(VibrationEffect.createOneShot(
+                        VIBRATE_BUTTON_MS, VibrationEffect.DEFAULT_AMPLITUDE));
+
+                // Do work in separate thread
+                Thread excelThread = new Thread(() -> {
+                    isExcelSharing = true;
+
+                    Uri uri = null;
+                    try {
+                        File excelFile = ExcelUtils.makeExcelFile(context, currentSession);
+                        uri = FileProvider.getUriForFile(
+                                context,"com.petrkryze.vas.fileprovider", excelFile);
+                    } catch (IllegalArgumentException e) {
+                        Log.e(TAG, "URI could not be retrieved for this result.", e);
+                        e.printStackTrace();
+                    } catch (IOException e) {
+                        Log.e(TAG, "makeExcelFile: Excel file for current session could not be created!", e);
+                        e.printStackTrace();
+                    }
+
+                    if (uri == null) {
+                        requireActivity().runOnUiThread(() ->
+                                Snackbar.make(requireActivity().findViewById(R.id.coordinator),
+                                        R.string.snackbar_share_current_session_text_failed, BaseTransientBottomBar.LENGTH_LONG)
+                                        .setAnchorView(buttonBar)
+                                        .setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE)
+                                        .show());
+                    } else {
+                        startShareActivity(uri,
+                                getString(R.string.current_session_share_title, currentSession.toString()));
+                    }
+                });
+
+                // Show loading circle over the excel button and start the work
+                buttonShareAsExcel.setTextColor(context.getColor(R.color.invisible));
+                buttonShareAsExcel.setClickable(false);
+
+                progressExcelLoading.setVisibility(View.VISIBLE);
+                excelThread.start();
+            }
         }
     };
 
@@ -126,8 +244,16 @@ public class CurrentSessionInfoFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         Context context = view.getContext();
 
+        buttonBar = view.findViewById(R.id.current_session_info_share_button_bar);
         buttonShare = view.findViewById(R.id.current_session_info_button_share);
+        buttonShareAsText = view.findViewById(R.id.current_session_info_button_results_share_as_text);
+        buttonShareAsExcel = view.findViewById(R.id.current_session_info_button_results_share_as_excel);
+        progressTextLoading = view.findViewById(R.id.current_session_info_text_loading);
+        progressExcelLoading = view.findViewById(R.id.current_session_info_excel_loading);
+
         buttonShare.setOnClickListener(shareListener);
+        buttonShareAsText.setOnClickListener(shareAsTextListener);
+        buttonShareAsExcel.setOnClickListener(shareAsExcelListener);
 
         TextView TWcurrentSessionID = view.findViewById(R.id.current_session_info_sessionID);
         TextView TWcurrentSessionRatedFraction = view.findViewById(R.id.current_session_info_rated_fraction);
@@ -245,5 +371,49 @@ public class CurrentSessionInfoFragment extends Fragment {
 
             recyclerViewAdapter.notifyDataSetChanged();
         }
+    }
+
+    private void startShareActivity(Uri uri, String description) {
+        String mimeType = "text/plain";
+        String[] mimeTypeArray = new String[] { mimeType };
+
+        ClipDescription clipDescription = new ClipDescription(description, mimeTypeArray);
+        ClipData clipData = new ClipData(clipDescription, new ClipData.Item(uri));
+
+        // Note possible duplicate mimetype and data declaration, maybe fix when ClipData framework
+        // is not a complete joke
+        Intent sharingIntent = new Intent(Intent.ACTION_SEND);
+        sharingIntent.setClipData(clipData);
+        sharingIntent.setType(mimeType)
+                .addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
+                .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                .putExtra(Intent.EXTRA_STREAM, uri)
+                .putExtra(Intent.EXTRA_TITLE, description)
+                .putExtra(Intent.EXTRA_SUBJECT, description);
+
+        requireContext().startActivity(Intent.createChooser(sharingIntent,
+                requireContext().getString(R.string.share_using)));
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (isExcelSharing) {
+            progressExcelLoading.setVisibility(View.GONE);
+            buttonShareAsExcel.setTextColor(requireContext().getColor(R.color.textPrimaryOnPrimary));
+            buttonShareAsExcel.setClickable(true);
+
+            isExcelSharing = false;
+        }
+
+        if (isTextSharing) {
+            progressTextLoading.setVisibility(View.GONE);
+            buttonShareAsText.setTextColor(requireContext().getColor(R.color.textPrimaryOnSecondary));
+            buttonShareAsText.setClickable(true);
+
+            isTextSharing = false;
+        }
+
+        ExcelUtils.dumpTempFolder(requireContext());
     }
 }

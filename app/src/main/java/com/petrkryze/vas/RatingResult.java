@@ -10,20 +10,21 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
+import androidx.annotation.NonNull;
+
 import static com.petrkryze.vas.Recording.DEFAULT_UNSET_RATING;
 
 /**
  * Created by Petr on 27.05.2021. Yay!
  */
 public class RatingResult implements Serializable {
+
     private int session_ID;
     private long seed;
     private String generatorMessage;
     private String saveDate;
-
     private final List<Recording> recordings;
-
-    private final String path;
+    private String path;
     private final String rawContent;
 
     static final String LABEL_SESSION_ID = "Session ID";
@@ -35,14 +36,14 @@ public class RatingResult implements Serializable {
             Integer.compare(0, o1.getSaveDate().compareTo(o2.getSaveDate()));
 
     public RatingResult(int session_ID, long seed, String generatorMessage, String saveDate,
-                        List<Recording> recordings) {
+                        List<Recording> recordings, String path) {
         this.session_ID = session_ID;
         this.seed = seed;
         this.generatorMessage = generatorMessage;
         this.saveDate = saveDate;
         this.recordings = recordings;
 
-        this.path = null;
+        this.path = path;
         this.rawContent = null;
     }
 
@@ -98,7 +99,7 @@ public class RatingResult implements Serializable {
         br.close();
 
         this.recordings = loadedRecordings;
-        this.path = resultsTextFile.getPath();
+        this.path = resultsTextFile.getAbsolutePath();
         this.rawContent = sb.toString();
     }
 
@@ -126,6 +127,10 @@ public class RatingResult implements Serializable {
         return path;
     }
 
+    public void setPath(String path) {
+        this.path = path;
+    }
+
     public String getRawContent() {
         return rawContent;
     }
@@ -135,5 +140,12 @@ public class RatingResult implements Serializable {
         for (Recording r : this.recordings) if (r.getRating() != DEFAULT_UNSET_RATING) Nrated++;
 
         return Nrated + "/" + this.recordings.size();
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        return "Rating: ID " + this.getSession_ID() +
+                " - Generated " + this.getGeneratorMessage();
     }
 }

@@ -754,7 +754,7 @@ public class RatingFragment extends Fragment {
             }
             return true;
         } else if (itemID == R.id.action_menu_show_session_info && initDone) {
-            ratingManager.saveSession();
+            // ratingManager.saveSession(); // Probably unnecessary
             MainActivity.navigateToCurrentSessionInfo(
                     this, session -> {
                         NavDirections directions = RatingFragmentDirections

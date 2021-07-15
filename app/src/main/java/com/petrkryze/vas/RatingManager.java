@@ -58,6 +58,7 @@ public class RatingManager {
     private String generatorMessage;
     private List<Recording> trackList;
     private ArrayList<Integer> ratings;
+    private String currentSessionFilePath;
 
     private ArrayList<String> fileList = null; // For file consistency check in storage
 
@@ -306,6 +307,7 @@ public class RatingManager {
         @SuppressLint("SimpleDateFormat") SimpleDateFormat format =
                 new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
         this.generatorMessage = format.format(new Date(System.currentTimeMillis()));
+        this.currentSessionFilePath = null; // Will be filled when result is saved
 
         this.dataDirPath = rootDirectory.getAbsolutePath();
         this.state = State.STATE_IDLE;
@@ -372,6 +374,7 @@ public class RatingManager {
         this.session_ID = -1;
         this.seed = -1;
         this.generatorMessage = null;
+        this.currentSessionFilePath = null;
         this.ratings = null;
         this.dataDirPath = null;
         this.fileList = null;
@@ -510,7 +513,8 @@ public class RatingManager {
                 this.seed,
                 this.generatorMessage,
                 saveDate,
-                this.trackList
+                this.trackList,
+                this.currentSessionFilePath
         );
 
         SharedPreferences.Editor editor = preferences.edit();
@@ -527,7 +531,8 @@ public class RatingManager {
                 "Generator Message = " + generatorMessage + "\n" +
                 "Save Date = " + saveDate + "\n" +
                 "State = " + state + "\n" +
-                "Recordings: " + this.trackList.size() + " files");
+                "Recordings: " + trackList.size() + " files\n" +
+                "Current Session File Path: " + currentSessionFilePath);
 
     }
 
@@ -574,6 +579,7 @@ public class RatingManager {
             this.session_ID = currentSession.getSession_ID();
             this.seed = currentSession.getSeed();
             this.generatorMessage = currentSession.getGeneratorMessage();
+            this.currentSessionFilePath = currentSession.getPath();
 
             // Re-sort by random index to ensure the same sequence in the player
             List<Recording> currentTrackList = new ArrayList<>(currentSession.getRecordings());
@@ -602,7 +608,7 @@ public class RatingManager {
         Log.i(TAG, "loadSession: Retrieved session ID: " + this.session_ID);
         Log.i(TAG, "loadSession: Retrieved seed: " + this.seed);
         Log.i(TAG, "loadSession: Retrieved generator message: " + this.generatorMessage);
-        Log.i(TAG, "loadSession: Retrieved tracklist: " + this.trackList.toString());
+        Log.i(TAG, "loadSession: Retrieved track list: " + this.trackList.toString());
         Log.i(TAG, "loadSession: Retrieved ratings: " + this.ratings.toString());
         Log.i(TAG, "loadSession: Retrieved file list: " + this.fileList.toString());
 
@@ -720,12 +726,12 @@ public class RatingManager {
         SimpleDateFormat dateFormatText = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
 
         // Create new file name for the new save
-        String newRatingsFileName = context.getString(R.string.RATING_FILE_NAME,
+        String newResultFileName = context.getString(R.string.RATING_FILE_NAME,
                 this.session_ID, dateFormatFileName.format(currentDateTime));
 
         // Start writing to the file
-        File newRatingsFile = new File(resultsDir, newRatingsFileName);
-        FileWriter writer = new FileWriter(newRatingsFile);
+        File newResultFile = new File(resultsDir, newResultFileName);
+        FileWriter writer = new FileWriter(newResultFile);
 
         // Write file header
         String header = headerTag + LABEL_SESSION_ID + separator + this.session_ID + "\n" +
@@ -744,12 +750,13 @@ public class RatingManager {
         writer.flush();
         writer.close();
 
-        MediaScannerConnection.scanFile(context, new String[]{newRatingsFile.getPath()}, null,
+        // This is important for sharing the current session info
+        this.currentSessionFilePath = newResultFile.getAbsolutePath();
+        saveSession();
+
+        MediaScannerConnection.scanFile(context, new String[]{newResultFile.getPath()}, null,
                 (path, uri) -> Log.i(TAG, "onScanCompleted: SCAN OF FILE <" + path + "> completed!"));
-        Log.i(TAG, "saveResults: File: <" + newRatingsFile.getName() + "> written successfully.");
-
-
-
+        Log.i(TAG, "saveResults: File: <" + newResultFile.getName() + "> written successfully.");
 
         // Remove old save files for this session ID
         int backupsNumber = context.getResources().getInteger(R.integer.SAVE_FILE_BACKUPS_NUMBER);
@@ -769,5 +776,56 @@ public class RatingManager {
             }
         }
     }
+    @SuppressLint("SimpleDateFormat")
+    public static File saveResultToTemp(Context context, RatingResult ratingResult) throws Exception {
+        // Temporary directory
+        File tempDir = new File(context.getFilesDir(), context.getString(R.string.DIRECTORY_NAME_TEMP));
+        if (!tempDir.exists()) {
+            if (!tempDir.mkdirs()) throw new IOException("temp directory could not be created.");
+        }
 
+        // Sort recordings
+        List<Recording> trackList = new ArrayList<>(ratingResult.getRecordings());
+        trackList.sort(Recording.sortAlphabetically);
+
+        // Create new date
+        Date currentDateTime = new Date(System.currentTimeMillis());
+        SimpleDateFormat dateFormatFileName = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
+        SimpleDateFormat dateFormatText = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+
+        // Start writing to the file
+        String tempResultFileName = context.getString(R.string.RATING_FILE_NAME,
+                ratingResult.getSession_ID(), dateFormatFileName.format(currentDateTime));
+        File newTempResultFile = new File(tempDir, tempResultFileName);
+        FileWriter writer = new FileWriter(newTempResultFile);
+
+        // Write file header
+        String header = headerTag + LABEL_SESSION_ID + separator + ratingResult.getSession_ID() + "\n" +
+                headerTag + LABEL_SEED + separator + ratingResult.getSeed() + "\n" +
+                headerTag + LABEL_GENERATOR_MESSAGE + separator + ratingResult.getGeneratorMessage() + "\n" +
+                headerTag + LABEL_SAVE_DATE + separator + dateFormatText.format(currentDateTime) + "\n";
+        writer.append(header);
+
+        // Row format: id;group;random_number;rating
+        for (Recording recording : trackList) {
+            writer.append(recording.getID()).append(separator)
+                    .append(recording.getGroupName()).append(separator)
+                    .append(String.valueOf(recording.getRandomIndex())).append(separator)
+                    .append(String.valueOf(recording.getRating())).append("\n");
+        }
+        writer.flush();
+        writer.close();
+
+        Log.i(TAG, "saveResults: Temporary file: <" + newTempResultFile.getName() +
+                "> written successfully.");
+        return newTempResultFile;
+    }
+
+    private final static String alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    public static String getRandomName16() {
+        StringBuilder sb = new StringBuilder(16);
+        Random rnd = new Random();
+        for (int i = 0; i < 16; i++) sb.append(alphabet.charAt(rnd.nextInt(alphabet.length() - 1)));
+        return sb.toString();
+    }
 }
