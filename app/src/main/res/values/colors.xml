@@ -34,4 +34,6 @@
 
     <color name="excelGreen">#0f773d</color>
     <color name="invisible">#00FFFFFF</color>
+
+    <color name="scrim">#52000000</color>
 </resources>

@@ -23,6 +23,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
@@ -69,9 +70,10 @@ import static com.petrkryze.vas.RatingManager.State.STATE_IN_PROGRESS;
  */
 @SuppressLint("ShowToast")
 public class RatingFragment extends Fragment {
-
     private static final String TAG = "RatingFragment";
 
+    private boolean loadingFinishedFlag = false;
+    private RelativeLayout loadingContainer;
     private SeekBar VASratingBar;
     private Button button_play_pause;
     private Button button_previous;
@@ -311,7 +313,8 @@ public class RatingFragment extends Fragment {
         ratingManager = new RatingManager(requireActivity());
 
         // Normal startup
-        manageLoading();
+        loadingFinishedFlag = false;
+        new Thread(this::manageLoading).start();
     }
 
     @Nullable
@@ -327,6 +330,7 @@ public class RatingFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         // UI Elements setup
+        loadingContainer = view.findViewById(R.id.rating_fragment_loading_container);
         VASratingBar = view.findViewById(R.id.ratingBar);
         button_play_pause = view.findViewById(R.id.button_play_pause);
         button_previous = view.findViewById(R.id.button_previous);
@@ -355,6 +359,9 @@ public class RatingFragment extends Fragment {
 
         VASratingBar.setOnSeekBarChangeListener(VASratingBarListener);
         playerSeekBar.setOnSeekBarChangeListener(playerSeekBarListener);
+
+        // If loading view was not available when loading actually finished, hide it now
+        if (loadingFinishedFlag) hideLoading();
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -411,20 +418,26 @@ public class RatingFragment extends Fragment {
                 break;
         }
 
-        new MaterialAlertDialogBuilder(requireContext())
-                .setTitle(title)
-                .setMessage(message)
-                .setIcon(icon)
+        // This branch is finished here, hide the loading view
+        hideLoading();
+
+        String finalTitle = title;
+        String finalMessage = message;
+        Drawable finalIcon = icon;
+        requireActivity().runOnUiThread(() -> new MaterialAlertDialogBuilder(requireContext())
+                .setTitle(finalTitle)
+                .setMessage(finalMessage)
+                .setIcon(finalIcon)
                 .setPositiveButton(R.string.dialog_no_session_corrupted_session_create_new_session, (dialog, which) -> {
                     // Go select directory and check it afterwards
                     fireSelectDirectory();
                 })
                 .setNegativeButton(R.string.dialog_no_session_corrupted_session_quit, (dialog, which) -> requireActivity().finish())
-                .setCancelable(false).show();
+                .setCancelable(false).show());
     }
 
     private void manageDirectory(File selected_dir, boolean newSession) {
-         Bundle checkResult = ratingManager.checkDataDirectoryPath(
+        Bundle checkResult = ratingManager.checkDataDirectoryPath(
                 selected_dir, newSession, this, confirmed -> {
                     Log.i(TAG, "manageDirectory: Group check done callback triggered!");
 
@@ -435,14 +448,15 @@ public class RatingFragment extends Fragment {
                             ratingManager.setState(STATE_IN_PROGRESS);
                         }
                         Log.i(TAG, "groupCheckFinished: Rating initiation complete!");
+                        hideLoading();
                         initDone = true;
 
                         if (newSession) {
-                            Snackbar.make(requireActivity().findViewById(R.id.coordinator),
-                                    getString(R.string.snackbar_new_session_created),
-                                    BaseTransientBottomBar.LENGTH_SHORT)
-                                    .setAnchorView(track_time)
-                                    .setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE).show();
+                            requireActivity().runOnUiThread(() ->
+                                    Snackbar.make(requireActivity().findViewById(R.id.coordinator),
+                                            getString(R.string.snackbar_new_session_created),
+                                            BaseTransientBottomBar.LENGTH_SHORT)
+                                            .setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE).show());
                         }
                     } else { // Group check cancelled - new session creation cancelled
                         Log.i(TAG, "groupCheckFinished: Group check exited via cancel");
@@ -475,6 +489,7 @@ public class RatingFragment extends Fragment {
                             cnt_missing, dirname, list_missing), Html.FROM_HTML_MODE_LEGACY);
                     break;
             }
+            hideLoading();
             fireInvalidDirectory(message);
         }
     }
@@ -486,26 +501,27 @@ public class RatingFragment extends Fragment {
     }
 
     private void fireInvalidDirectory(Spanned message) {
-        new MaterialAlertDialogBuilder(requireContext())
-                .setTitle(getString(R.string.dialog_invalid_directory_title))
-                .setMessage(message)
-                .setIcon(applyTintFilter(
-                        ContextCompat.getDrawable(requireContext(), R.drawable.ic_error),
-                        requireContext().getColor(R.color.errorColor)))
-                .setPositiveButton(R.string.dialog_invalid_directory_choose_valid_data_directory, (dialog, which) -> fireSelectDirectory())
-                .setNegativeButton(R.string.dialog_invalid_directory_cancel, (dialog, which) -> {
-                    Log.i(TAG, "fireInvalidDirectory: Invalid directory dialog cancelled");
-                    manageLoading();
-                })
-                .setCancelable(false).show();
+        requireActivity().runOnUiThread(() ->
+                new MaterialAlertDialogBuilder(requireContext())
+                        .setTitle(getString(R.string.dialog_invalid_directory_title))
+                        .setMessage(message)
+                        .setIcon(applyTintFilter(
+                                ContextCompat.getDrawable(requireContext(), R.drawable.ic_error),
+                                requireContext().getColor(R.color.errorColor)))
+                        .setPositiveButton(R.string.dialog_invalid_directory_choose_valid_data_directory, (dialog, which) -> fireSelectDirectory())
+                        .setNegativeButton(R.string.dialog_invalid_directory_cancel, (dialog, which) -> {
+                            Log.i(TAG, "fireInvalidDirectory: Invalid directory dialog cancelled");
+                            manageLoading();
+                        })
+                        .setCancelable(false).show());
     }
 
     private void fireSessionCreationCancelled() {
-        Snackbar.make(requireActivity().findViewById(R.id.coordinator),
-                getString(R.string.snackbar_directory_selection_canceled),
-                BaseTransientBottomBar.LENGTH_SHORT)
-                .setAnchorView(track_time)
-                .setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE).show();
+        requireActivity().runOnUiThread(() ->
+                Snackbar.make(requireActivity().findViewById(R.id.coordinator),
+                        getString(R.string.snackbar_directory_selection_canceled),
+                        BaseTransientBottomBar.LENGTH_SHORT)
+                        .setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE).show());
     }
 
     private void changeCurrentTrack(int current, int changeTo) {
@@ -598,7 +614,6 @@ public class RatingFragment extends Fragment {
                 Snackbar.make(requireActivity().findViewById(R.id.coordinator),
                         getString(R.string.snackbar_connect_headphones),
                         BaseTransientBottomBar.LENGTH_LONG)
-                        .setAnchorView(track_time)
                         .setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE).show();
             }
 
@@ -607,7 +622,6 @@ public class RatingFragment extends Fragment {
                 Snackbar.make(requireActivity().findViewById(R.id.coordinator),
                         getString(R.string.snackbar_increase_volume),
                         BaseTransientBottomBar.LENGTH_LONG)
-                        .setAnchorView(track_time)
                         .setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE).show();
             }
 
@@ -639,6 +653,13 @@ public class RatingFragment extends Fragment {
                     ":" +
                     (sec >= 10 ? String.valueOf(sec) : "0" + sec);
         }
+    }
+
+    private void hideLoading() {
+        if (loadingContainer != null) {
+            requireActivity().runOnUiThread(() -> loadingContainer.setVisibility(View.GONE));
+        }
+        loadingFinishedFlag = true;
     }
 
     @Override
@@ -706,7 +727,6 @@ public class RatingFragment extends Fragment {
                 Snackbar.make(requireActivity().findViewById(R.id.coordinator),
                         getString(R.string.snackbar_save_success),
                         BaseTransientBottomBar.LENGTH_SHORT)
-                        .setAnchorView(track_time)
                         .setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE).show();
             } catch (Exception e) {
                 e.printStackTrace();
@@ -715,7 +735,6 @@ public class RatingFragment extends Fragment {
                 Snackbar.make(requireActivity().findViewById(R.id.coordinator),
                         Html.fromHtml(getString(R.string.snackbar_save_failed, errorMessage),Html.FROM_HTML_MODE_LEGACY),
                         BaseTransientBottomBar.LENGTH_LONG)
-                        .setAnchorView(track_time)
                         .setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE).show();
             }
             return true;
@@ -731,7 +750,6 @@ public class RatingFragment extends Fragment {
                 Snackbar.make(requireActivity().findViewById(R.id.coordinator),
                         Html.fromHtml(getString(R.string.snackbar_ratings_loading_failed, e.getMessage()),Html.FROM_HTML_MODE_LEGACY),
                         BaseTransientBottomBar.LENGTH_LONG)
-                        .setAnchorView(track_time)
                         .setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE).show();
             }
             return true;
