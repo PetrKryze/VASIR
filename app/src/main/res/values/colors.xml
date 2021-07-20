@@ -26,8 +26,7 @@
 
     <color name="highlightColor">@color/secondaryLightColor</color>
     
-    <!-- DELETE ME LATER -->
-    <color name="titleLogoTransition">#f32194</color>
+    <!-- DELETE ME LATER??? -->
 
     <color name="listItemHover">#DADADA</color>
     <color name="listItemFocus">#C8C8C8</color>

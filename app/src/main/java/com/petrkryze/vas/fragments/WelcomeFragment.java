@@ -2,6 +2,7 @@ package com.petrkryze.vas.fragments;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.animation.AnimatorSet;
 import android.animation.ArgbEvaluator;
 import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
@@ -13,9 +14,13 @@ import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
+import android.view.SoundEffectConstants;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Animation;
+import android.view.animation.DecelerateInterpolator;
 import android.view.animation.TranslateAnimation;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -83,6 +88,7 @@ public class WelcomeFragment extends Fragment {
         return inflater.inflate(R.layout.fragment_welcome, container, false);
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -95,14 +101,38 @@ public class WelcomeFragment extends Fragment {
         NestedScrollView scrollView = view.findViewById(R.id.welcome_fragment_scroll_container);
 
         int colorFrom = getResources().getColor(R.color.primaryColor, null);
-        int colorTo = getResources().getColor(R.color.titleLogoTransition, null);
+        int colorTo = getResources().getColor(R.color.secondaryColor, null);
 
-        ValueAnimator colorAnimation = ValueAnimator.ofObject(new ArgbEvaluator(), colorFrom, colorTo);
-        colorAnimation.setRepeatCount(1);
-        colorAnimation.setRepeatMode(ValueAnimator.REVERSE);
-        colorAnimation.setDuration(1000);
-        colorAnimation.addUpdateListener(animation -> titleImage.setBackgroundColor((int) animation.getAnimatedValue()));
-        colorAnimation.start();
+        // App startup logo animation
+        ValueAnimator colorIntroAnimation = ValueAnimator.ofObject(new ArgbEvaluator(), colorFrom, colorTo);
+        colorIntroAnimation.setRepeatCount(1);
+        colorIntroAnimation.setRepeatMode(ValueAnimator.REVERSE);
+        colorIntroAnimation.setDuration(1000);
+        colorIntroAnimation.setInterpolator(new AccelerateDecelerateInterpolator());
+        colorIntroAnimation.addUpdateListener(animation -> titleImage.setBackgroundColor((int) animation.getAnimatedValue()));
+        colorIntroAnimation.start();
+
+        // "Easter egg" animation on logo press
+        ValueAnimator colorTouchAnimation = ValueAnimator.ofObject(new ArgbEvaluator(), colorFrom, colorTo);
+        colorTouchAnimation.addUpdateListener(animation -> titleImage.setBackgroundColor((int) animation.getAnimatedValue()));
+        ValueAnimator elevationAnimation = ValueAnimator.ofFloat(0f,50f);
+        elevationAnimation.addUpdateListener(animation -> titleImage.setElevation((Float) animation.getAnimatedValue()));
+        AnimatorSet set = new AnimatorSet();
+        set.playTogether(colorTouchAnimation, elevationAnimation);
+        set.setInterpolator(new DecelerateInterpolator());
+        set.setDuration(200);
+
+        titleImage.setOnTouchListener((v, event) -> {
+            switch (event.getAction()) {
+                case MotionEvent.ACTION_DOWN:
+                    v.playSoundEffect(SoundEffectConstants.CLICK);
+                    set.start(); return true;
+                case MotionEvent.ACTION_UP:
+                case MotionEvent.ACTION_CANCEL:
+                    set.reverse(); return true;
+                default: return false;
+            }
+        });
 
         // Checkbox logic
         boolean showWelcomeScreen = preferences.getBoolean(getString(R.string.KEY_PREFERENCES_SETTINGS_WELCOME_SHOW), false);
@@ -139,12 +169,12 @@ public class WelcomeFragment extends Fragment {
                 scrollIcon.animate()
                         .alpha((float) 0.2)
                         .setListener(new AnimatorListenerAdapter() {
-                    @Override
-                    public void onAnimationEnd(Animator animation) {
-                        super.onAnimationEnd(animation);
-                        scrollIcon.startAnimation(translateAnimation);
-                    }
-                });
+                            @Override
+                            public void onAnimationEnd(Animator animation) {
+                                super.onAnimationEnd(animation);
+                                scrollIcon.startAnimation(translateAnimation);
+                            }
+                        });
             }
         }, 2000);
 
@@ -158,12 +188,12 @@ public class WelcomeFragment extends Fragment {
                         .alpha((float) 0.0)
                         .setDuration(200)
                         .setListener(new AnimatorListenerAdapter() {
-                    @Override
-                    public void onAnimationEnd(Animator animation) {
-                        scrollIcon.clearAnimation();
-                        scrollIcon.setVisibility(View.GONE);
-                    }
-                });
+                            @Override
+                            public void onAnimationEnd(Animator animation) {
+                                scrollIcon.clearAnimation();
+                                scrollIcon.setVisibility(View.GONE);
+                            }
+                        });
             }
         });
     }
