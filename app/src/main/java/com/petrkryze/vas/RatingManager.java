@@ -64,8 +64,8 @@ public class RatingManager {
 
     private State state;
     private String dataDirPath;
-    private int trackPointer = 0;
-    private int savedPlayProgress = 0;
+    private int trackPointer = -1;
+    private int savedPlayProgress = Player.SAVED_PROGRESS_DEFAULT;
 
     private final SharedPreferences preferences;
 
@@ -380,7 +380,7 @@ public class RatingManager {
         this.trackList = null;
         this.state = null;
         this.trackPointer = -1;
-        this.savedPlayProgress = -1;
+        this.savedPlayProgress = Player.SAVED_PROGRESS_DEFAULT;
     }
 
     public State getState() {

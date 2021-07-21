@@ -16,6 +16,7 @@ import java.io.IOException;
 
 public class Player {
     // private final String TAG = "Player";
+    public static final int SAVED_PROGRESS_DEFAULT = -1;
 
     private MediaPlayer mediaPlayer;
     private final AudioManager audioManager;
@@ -167,5 +168,4 @@ public class Player {
         listener.onHeadphonesMissing();
         return false;
     }
-
 }

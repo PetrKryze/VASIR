@@ -89,7 +89,7 @@ public class RatingFragment extends Fragment {
 
     private boolean loadingFinishedFlag = false;
     private boolean initDone = false;
-    private boolean isLoadingPlayProgress = false;
+    private boolean isSeekingFromLoadedValue = false;
 
     private Vibrator vibrator;
     private static int VIBRATE_BUTTON_MS;
@@ -226,6 +226,7 @@ public class RatingFragment extends Fragment {
     private final SeekBar.OnSeekBarChangeListener playerSeekBarListener = new SeekBar.OnSeekBarChangeListener() {
         @Override
         public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+            playerTimeTracker.setText(formatDuration(seekBar.getMax() - progress));
         }
 
         @Override
@@ -292,10 +293,9 @@ public class RatingFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         initDone = false;
         isTouchingSeekBar = false;
-        isLoadingPlayProgress = false;
+        isSeekingFromLoadedValue = false;
 
         // Get vibrator service for UI vibration feedback
         vibrator = (Vibrator) requireContext().getSystemService(Context.VIBRATOR_SERVICE);
@@ -397,7 +397,15 @@ public class RatingFragment extends Fragment {
     public void onResume() {
         super.onResume();
         if (initDone) {
-            isLoadingPlayProgress = true;
+            /*
+            Sets the active track in cases when user is returning to this fragment from elsewhere
+            in the app the chain:
+                onCreate > manageLoading > manageDirectory > checkDataDirectoryPath callback > changeCurrentTrack()
+            would not trigger, therefore we need to do it here
+            + it also works when user gets back from GroupControlFragment when creating a new
+            session, so the changeCurrentTrack does not have to be in the callback
+            */
+            isSeekingFromLoadedValue = true;
             changeCurrentTrack(0, ratingManager.getTrackPointer());
         }
     }
@@ -451,22 +459,32 @@ public class RatingFragment extends Fragment {
                     Log.d(TAG, "manageDirectory: Group check done callback triggered!");
 
                     if (confirmed) {
-                        Log.d(TAG, "groupCheckFinished: Group check exited via confirmation");
+                        Log.d(TAG, "groupCheckFinished: Group check exited via confirmation -" +
+                                " Rating initiation complete!");
+                        initDone = true;
 
+                        // Sets the "in progress" state if the session is not finished
                         if (ratingManager.getState() == STATE_IDLE) {
                             ratingManager.setState(STATE_IN_PROGRESS);
                         }
-                        Log.d(TAG, "groupCheckFinished: Rating initiation complete!");
-                        hideLoading();
-                        initDone = true;
 
-                        if (newSession) {
-                            requireActivity().runOnUiThread(() ->
-                                    Snackbar.make(requireActivity().findViewById(R.id.coordinator),
-                                            getString(R.string.snackbar_new_session_created),
-                                            BaseTransientBottomBar.LENGTH_SHORT)
-                                            .setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE).show());
-                        }
+                        requireActivity().runOnUiThread(() -> {
+                            if (newSession) {
+                                // We don't have to call changeCurrentTrack here, it is already
+                                // called in onResume when user gets back from GroupControlFragment
+                                Snackbar.make(requireActivity().findViewById(R.id.coordinator),
+                                        getString(R.string.snackbar_new_session_created),
+                                        BaseTransientBottomBar.LENGTH_SHORT)
+                                        .setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE).show();
+                            } else {
+                                // Must be called when an already established session is being loaded
+                                isSeekingFromLoadedValue = true;
+                                changeCurrentTrack(0, ratingManager.getTrackPointer());
+                            }
+                        });
+
+                        // Hide the loading overlay
+                        hideLoading();
                     } else { // Group check cancelled - new session creation cancelled
                         Log.d(TAG, "groupCheckFinished: Group check exited via cancel");
                         fireSessionCreationCancelled();
@@ -476,7 +494,7 @@ public class RatingFragment extends Fragment {
 
         if (checkResult.getBoolean(DIRCHECK_RESULT_IS_OK)) {
             // Directory is ok and we can proceed to actual rating 😊
-            Log.i(TAG, "manageDirectory: Complex directory check passed, waiting for callback!");
+            Log.i(TAG, "manageDirectory: Complex directory check passed!");
         } else { // Directory check was not ok
             Spanned message = null;
             RatingManager.FileCheckError err = RatingManager.FileCheckError.valueOf(
@@ -537,41 +555,50 @@ public class RatingFragment extends Fragment {
         if (ratingManager.getTrackN() <= 0) {
             Log.w(TAG, "changeCurrentTrack: Error! Invalid number of tracks!");
         } else {
-            if (player.isPlaying()) {
+            // Get the recording that is to be made active
+            Recording selectedRecording = ratingManager.getTrackList().get(changeTo);
+            if (player.isPlaying()) { // Pause player on track change
                 buttonPlayPause.callOnClick();
             }
 
-            // Sets active track
+            // Calls the player instance to try to set a new active track
             try {
-                player.setCurrentTrack(ratingManager.getTrackList().get(changeTo));
+                // Track progress timer and bar will be set when the track is prepared by the player
+                player.setCurrentTrack(selectedRecording);
             } catch (IOException e) {
                 e.printStackTrace();
+                Log.e(TAG, "changeCurrentTrack: Player could not be initialized with a track!", e);
+                Snackbar.make(requireActivity().findViewById(R.id.coordinator),
+                        getString(R.string.snackbar_rating_player_track_load_failed),
+                        BaseTransientBottomBar.LENGTH_LONG)
+                        .setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE).show();
+                return;
             }
 
-            // Manages logical button visibility
-            int lastIndex = ratingManager.getTrackN()-1;
+            // Manages visibility of player buttons according to the track being selected
+            int indexLastTrack = ratingManager.getTrackN()-1;
             if (changeTo == 0) {
                 buttonPrevious.setVisibility(View.INVISIBLE); // Hide previous button
-            } else if (changeTo == lastIndex) {
+            } else if (changeTo == indexLastTrack) {
                 buttonNext.setVisibility(View.INVISIBLE); // Hide next button
             }
             if (current == 0 && changeTo > 0) {
                 buttonPrevious.setVisibility(View.VISIBLE); // Show previous button
-            } else if (current == lastIndex && changeTo < lastIndex) {
+            } else if (current == indexLastTrack && changeTo < indexLastTrack) {
                 buttonNext.setVisibility(View.VISIBLE); // Show next button
             }
 
-            // Sets track counter text
-            headerText.setText(getString(R.string.track_counter, getString(R.string.track), changeTo+1, lastIndex+1));
+            // Sets the header text - Recording n/N
+            headerText.setText(getString(R.string.track_counter, getString(R.string.track), changeTo+1, indexLastTrack+1));
 
-            // Set rating bar position to default or saved
-            int savedRating = ratingManager.getTrackList().get(changeTo).getRating();
+            // Sets rating bar position to default or saved
+            int savedRating = selectedRecording.getRating();
             int setTo = savedRating != Recording.DEFAULT_UNSET_RATING ? savedRating : getResources().getInteger(R.integer.DEFAULT_PROGRESS_CENTER);
-
             VASratingBar.setProgress(setTo, true);
 
+            // Sets the checkmark depending on the current state (in progress or finished)
             Log.d(TAG, "changeCurrentTrack: current state = " + ratingManager.getState());
-            setCheckMarkDrawable(ratingManager.getTrackList().get(changeTo), ratingManager.getState());
+            setCheckMarkDrawable(selectedRecording, ratingManager.getState());
         }
     }
 
@@ -598,16 +625,19 @@ public class RatingFragment extends Fragment {
         return new Player.PlayerListener() {
             @Override
             public void onTrackPrepared(int duration) {
-                // Enable play
-                playerTimeTracker.setText(formatDuration(duration));
+                // Track is ready, set maximum value for the player seek progress bar
                 playerProgressBar.setMax(duration);
 
-                if (isLoadingPlayProgress) {
-                    player.seekTo(ratingManager.getSavedPlayProgress());
-                    isLoadingPlayProgress = false;
+                int savedProgress = ratingManager.getSavedPlayProgress();
+                if (isSeekingFromLoadedValue && savedProgress != Player.SAVED_PROGRESS_DEFAULT) {
+                    player.seekTo(savedProgress);
+                    playerTimeTracker.setText(formatDuration(duration - savedProgress));
+
+                    isSeekingFromLoadedValue = false;
                 } else {
                     player.seekTo(0);
                     ratingManager.setPlayProgress(0);
+                    playerTimeTracker.setText(formatDuration(duration));
                 }
             }
 
@@ -703,7 +733,6 @@ public class RatingFragment extends Fragment {
         vibrator = null;
         ratingManager = null;
         initDone = false;
-        isLoadingPlayProgress = false;
     }
 
     @Override
