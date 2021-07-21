@@ -62,16 +62,30 @@
         android:id="@+id/rating_fragment_player_track_time"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="10dp"
-        android:gravity="center"
+        android:layout_marginStart="25dp"
+        app:layout_constraintHorizontal_chainStyle="spread_inside"
 
         android:text="@string/track_time_placeholder"
-        android:textAlignment="center"
+        android:textAlignment="viewStart"
         android:textColor="@color/textPrimaryOnSurface"
         style="@style/TextAppearance.MdcTypographyStyles.Headline4"
 
         app:layout_constraintBottom_toTopOf="@id/rating_fragment_player_progress_bar"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/rating_fragment_player_total_time"/>
+
+    <TextView
+        android:id="@+id/rating_fragment_player_total_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="25dp"
+
+        android:text="@string/track_time_placeholder"
+        android:textAlignment="viewEnd"
+        style="@style/TextAppearance.MdcTypographyStyles.Headline4"
+
+        app:layout_constraintBottom_toTopOf="@id/rating_fragment_player_progress_bar"
+        app:layout_constraintStart_toEndOf="@id/rating_fragment_player_track_time"
         app:layout_constraintEnd_toEndOf="parent"/>
 
     <SeekBar

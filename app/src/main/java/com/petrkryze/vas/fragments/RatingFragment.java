@@ -81,6 +81,7 @@ public class RatingFragment extends Fragment {
     private Button buttonPrevious;
     private Button buttonNext;
     private TextView playerTimeTracker;
+    private TextView playerTimeTotal;
     private TextView headerText;
     private ImageView checkMarkIcon;
 
@@ -226,7 +227,7 @@ public class RatingFragment extends Fragment {
     private final SeekBar.OnSeekBarChangeListener playerSeekBarListener = new SeekBar.OnSeekBarChangeListener() {
         @Override
         public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-            playerTimeTracker.setText(formatDuration(seekBar.getMax() - progress));
+            playerTimeTracker.setText(formatDuration(progress));
         }
 
         @Override
@@ -336,6 +337,7 @@ public class RatingFragment extends Fragment {
         loadingContainer = binding.ratingFragmentLoadingContainer;
         headerText = binding.ratingFragmentHeaderText;
         playerTimeTracker = binding.ratingFragmentPlayerTrackTime;
+        playerTimeTotal = binding.ratingFragmentPlayerTotalTime;
         buttonPlayPause = binding.ratingFragmentPlayerButtonPlayPause;
         buttonPrevious = binding.ratingFragmentPlayerButtonPrevious;
         buttonNext = binding.ratingFragmentPlayerButtonNext;
@@ -627,17 +629,18 @@ public class RatingFragment extends Fragment {
             public void onTrackPrepared(int duration) {
                 // Track is ready, set maximum value for the player seek progress bar
                 playerProgressBar.setMax(duration);
+                playerTimeTotal.setText(formatDuration(duration));
 
                 int savedProgress = ratingManager.getSavedPlayProgress();
                 if (isSeekingFromLoadedValue && savedProgress != Player.SAVED_PROGRESS_DEFAULT) {
                     player.seekTo(savedProgress);
-                    playerTimeTracker.setText(formatDuration(duration - savedProgress));
+                    playerTimeTracker.setText(formatDuration(savedProgress));
 
                     isSeekingFromLoadedValue = false;
                 } else {
                     player.seekTo(0);
                     ratingManager.setPlayProgress(0);
-                    playerTimeTracker.setText(formatDuration(duration));
+                    playerTimeTracker.setText(formatDuration(0));
                 }
             }
 

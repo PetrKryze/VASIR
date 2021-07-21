@@ -36,7 +36,7 @@ public class Player {
                 int current_ms = mediaPlayer.getCurrentPosition();
                 int current = (int) Math.floor((double) current_ms / 1000);
                 if (lastTick != current) {
-                    listener.onTimeTick(mediaPlayer.getDuration() - current_ms);
+                    listener.onTimeTick(current_ms);
                     lastTick = current;
                 }
                 listener.onUpdateProgress(current_ms);
