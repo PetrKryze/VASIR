@@ -8,7 +8,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
@@ -16,6 +15,9 @@ import com.petrkryze.vas.MainActivity;
 import com.petrkryze.vas.R;
 import com.petrkryze.vas.RatingManager;
 import com.petrkryze.vas.RatingResult;
+import com.petrkryze.vas.databinding.FragmentHelpBinding;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 
@@ -31,12 +33,12 @@ import androidx.navigation.fragment.NavHostFragment;
  * create an instance of this fragment.
  */
 public class HelpFragment extends Fragment {
-
-    private String helpTitle;
-    private String helpBody;
-
     private static final String KEY_HELP_TITLE = "help_title";
     private static final String KEY_HELP_CONTEXT_MSG = "help_body";
+
+    private FragmentHelpBinding binding;
+    private String helpTitle;
+    private String helpBody;
 
     public HelpFragment() {
         // Required empty public constructor
@@ -62,21 +64,24 @@ public class HelpFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NotNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         setHasOptionsMenu(true);
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_help, container, false);
+        binding = FragmentHelpBinding.inflate(inflater, container, false);
+        return binding.getRoot();
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        TextView TWhelpTitle = view.findViewById(R.id.help_title_textview);
-        TextView TWhelpBody = view.findViewById(R.id.help_body_textview2);
+        binding.helpTitleTextview.setText(helpTitle);
+        binding.helpBodyTextview2.setText(helpBody);
+    }
 
-        TWhelpTitle.setText(helpTitle);
-        TWhelpBody.setText(helpBody);
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        binding = null;
     }
 
     @Override

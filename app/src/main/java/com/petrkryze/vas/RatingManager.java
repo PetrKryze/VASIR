@@ -253,7 +253,6 @@ public class RatingManager {
                                 foundAudioPaths));
                     } // else ignore this folder and move on
                 } else {
-                    // TODO Maybe save instead of logging?
                     Log.e(TAG, "getGroupFolderList: Error! File: " +
                             potentialGroupFolder.getAbsolutePath() + ", Message: " +
                             folderCheck.second.toString());
@@ -282,7 +281,7 @@ public class RatingManager {
                     if (ext.contains(FilenameUtils.getExtension(file.getPath()).toLowerCase())) {
                         foundFiles.add(file);
                     } else {
-                        Log.i(TAG, "getFilelist: " + file.getName() + " - unsupported extension.");
+                        Log.w(TAG, "getFilelist: " + file.getName() + " - unsupported extension.");
                     }
                 }
             }
@@ -454,7 +453,7 @@ public class RatingManager {
         // Load last saved session - returns LoadResult.NO_SESSION when no previous session is in memory
         String json = preferences.getString(KEY_PREFERENCES_CURRENT_SESSION, "");
         if (json.equals("")) {
-            Log.i(TAG, "loadSession: No session found in preferences.");
+            Log.w(TAG, "loadSession: No session found in preferences.");
             out.putSerializable(GET_SESSION_INFO_LOAD_RESULT_KEY, LoadResult.NO_SESSION);
             return out;
         }
@@ -477,7 +476,7 @@ public class RatingManager {
         // TODO Check if this works properly once the preferences wont change
         String json = preferences.getString(KEY_PREFERENCES_CURRENT_SESSION, "");
         if (json.equals("")) {
-            Log.i(TAG, "getNewSessionID: No key for session ID found in preferences.");
+            Log.w(TAG, "getNewSessionID: No key for session ID found in preferences.");
             return 1;
         } else {
             Gson gson = new Gson();
@@ -540,7 +539,7 @@ public class RatingManager {
         // Load last saved session - returns LoadResult.NO_SESSION when no previous session is in memory
         String json = preferences.getString(KEY_PREFERENCES_CURRENT_SESSION, "");
         if (json.equals("")) {
-            Log.i(TAG, "loadSession: No session found in preferences.");
+            Log.w(TAG, "loadSession: No session found in preferences.");
             return LoadResult.NO_SESSION;
         }
 
@@ -605,17 +604,17 @@ public class RatingManager {
             return LoadResult.CORRUPTED_SESSION;
         }
 
-        Log.i(TAG, "loadSession: Retrieved session ID: " + this.session_ID);
-        Log.i(TAG, "loadSession: Retrieved seed: " + this.seed);
-        Log.i(TAG, "loadSession: Retrieved generator message: " + this.generatorMessage);
-        Log.i(TAG, "loadSession: Retrieved track list: " + this.trackList.toString());
-        Log.i(TAG, "loadSession: Retrieved ratings: " + this.ratings.toString());
-        Log.i(TAG, "loadSession: Retrieved file list: " + this.fileList.toString());
-
-        Log.i(TAG, "loadSession: Retrieved state: " + this.state);
-        Log.i(TAG, "loadSession: Retrieved local data directory path: " + this.dataDirPath);
-        Log.i(TAG, "loadSession: Retrieved track pointer value: " + this.trackPointer);
-        Log.i(TAG, "loadSession: Retrieved saved play progress: " + this.savedPlayProgress);
+        String loadLog = "Retrieved session ID: " + this.session_ID + "\n" +
+                "Retrieved seed: " + this.seed + "\n" +
+                "Retrieved generator message: " + this.generatorMessage + "\n" +
+                "Retrieved track list: " + this.trackList.toString() + "\n" +
+                "Retrieved ratings: " + this.ratings.toString() + "\n" +
+                "Retrieved file list: " + this.fileList.toString() + "\n" +
+                "Retrieved state: " + this.state + "\n" +
+                "Retrieved local data directory path: " + this.dataDirPath + "\n" +
+                "Retrieved track pointer value: " + this.trackPointer + "\n" +
+                "Retrieved saved play progress: " + this.savedPlayProgress;
+        Log.d(TAG, "loadSession: " + loadLog);
         return LoadResult.OK;
     }
 
@@ -626,7 +625,7 @@ public class RatingManager {
 
         if (!checkResult.first) { // Results directory check failed
             if (checkResult.second.equals(FileCheckError.NOT_EXIST)) {
-                Log.i(TAG, "saveResults: Results directory <" + path + "> does not exist - creating");
+                Log.w(TAG, "saveResults: Results directory <" + path + "> does not exist - creating");
                 if (!resultsDirectory.mkdirs()) {
                     throw new IOException("Results directory <" + path + "> could not be created!");
                 } else {
@@ -651,11 +650,11 @@ public class RatingManager {
 
         if (resultFiles == null || resultFiles.length == 0) {
             // Don't throw exception, it is not an error (necessarily)
-            Log.i(TAG, "loadResults: No result files found in the result directory.");
+            Log.w(TAG, "loadResults: No result files found in the result directory.");
         } else {
-            Log.i(TAG, "loadResults: Found result file list:");
+            Log.d(TAG, "loadResults: Found result file list:");
             for (File foundResultFile : resultFiles) {
-                Log.i(TAG, "loadResults: Result file: " + foundResultFile.getAbsolutePath());
+                Log.d(TAG, "loadResults: Result file: " + foundResultFile.getAbsolutePath());
                 Pair<Boolean, FileCheckError> result = existsIsDirOrFileCanRead(foundResultFile, false);
 
                 // Found result file is OK, check if it's text file
@@ -669,7 +668,7 @@ public class RatingManager {
                     Log.e(TAG, "loadResults: Result file " + foundResultFile + " error: " + result.second);
                 }
             }
-            Log.i(TAG, "loadResults: Found " + foundResults.size() + " save files.");
+            Log.d(TAG, "loadResults: Found " + foundResults.size() + " save files.");
         }
 
         return foundResults;
@@ -687,9 +686,9 @@ public class RatingManager {
         if (resultFiles == null || resultFiles.length == 0) {
             Log.i(TAG, "saveResults: No result files found in the result directory.");
         } else {
-            Log.i(TAG, "saveResults: Found result file list:");
+            Log.d(TAG, "saveResults: Found result file list:");
             for (File foundResultFile : resultFiles) {
-                Log.i(TAG, "saveResults: Result file: " + foundResultFile.getAbsolutePath());
+                Log.d(TAG, "saveResults: Result file: " + foundResultFile.getAbsolutePath());
                 Pair<Boolean, FileCheckError> result = existsIsDirOrFileCanRead(foundResultFile, false);
 
                 // Found result file is OK, check if it's text file

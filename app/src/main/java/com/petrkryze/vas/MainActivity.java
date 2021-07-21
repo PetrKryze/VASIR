@@ -13,12 +13,12 @@ import android.view.MenuItem;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.petrkryze.vas.RatingManager.LoadResult;
+import com.petrkryze.vas.databinding.ActivityMainBinding;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.view.menu.MenuBuilder;
-import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
@@ -54,11 +54,11 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        ActivityMainBinding binding = ActivityMainBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
 
         // Toolbar setup
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+        setSupportActionBar(binding.toolbar);
 
         // Menu icon disabled look alpha
         alphaDisabled = getResources().getInteger(R.integer.DISABLED_ICON_ALPHA);
@@ -69,6 +69,7 @@ public class MainActivity extends AppCompatActivity {
 
         NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.nav_host_fragment);
+        assert navHostFragment != null;
         NavController navController = navHostFragment.getNavController();
         NavInflater navInflater = navController.getNavInflater();
         NavGraph navGraph = navInflater.inflate(R.navigation.nav_graph);
@@ -78,7 +79,7 @@ public class MainActivity extends AppCompatActivity {
         navController.setGraph(navGraph);
 
         AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(navController.getGraph()).build();
-        NavigationUI.setupWithNavController(toolbar, navController, appBarConfiguration);
+        NavigationUI.setupWithNavController(binding.toolbar, navController, appBarConfiguration);
     }
 
     @SuppressLint("RestrictedApi")
@@ -124,9 +125,7 @@ public class MainActivity extends AppCompatActivity {
                             ContextCompat.getDrawable(this, R.drawable.ic_exit),
                             getColor(R.color.secondaryColor)))
                     .setPositiveButton(R.string.dialog_quit_confirm, (dialog, which) -> MainActivity.this.finish())
-                    .setNegativeButton(R.string.dialog_quit_cancel, null)
-                    .create()
-                    .show();
+                    .setNegativeButton(R.string.dialog_quit_cancel, null).show();
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -169,10 +168,7 @@ public class MainActivity extends AppCompatActivity {
                 break;
         }
         new MaterialAlertDialogBuilder(context)
-                .setTitle(title)
-                .setMessage(message)
-                .setIcon(icon)
-                .setPositiveButton(context.getString(R.string.dialog_quit_confirm), null)
-                .show();
+                .setTitle(title).setMessage(message).setIcon(icon)
+                .setPositiveButton(context.getString(R.string.dialog_quit_confirm), null).show();
     }
 }

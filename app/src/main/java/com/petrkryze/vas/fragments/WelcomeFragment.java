@@ -22,7 +22,6 @@ import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Animation;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.TranslateAnimation;
-import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -33,6 +32,7 @@ import com.petrkryze.vas.MainActivity;
 import com.petrkryze.vas.R;
 import com.petrkryze.vas.RatingManager;
 import com.petrkryze.vas.RatingResult;
+import com.petrkryze.vas.databinding.FragmentWelcomeBinding;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -53,10 +53,7 @@ import androidx.navigation.fragment.NavHostFragment;
 public class WelcomeFragment extends Fragment {
 //    private static final String TAG = "WelcomeFragment";
 
-    private ImageView titleImage;
-    private CheckBox checkBox;
-    private Button startButton;
-    private ImageView scrollIcon;
+    private FragmentWelcomeBinding binding;
 
     private SharedPreferences preferences;
 
@@ -81,11 +78,11 @@ public class WelcomeFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NotNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         setHasOptionsMenu(true);
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_welcome, container, false);
+        binding = FragmentWelcomeBinding.inflate(inflater, container, false);
+        return binding.getRoot();
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -94,11 +91,9 @@ public class WelcomeFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         requireActivity().invalidateOptionsMenu();
 
-        titleImage = view.findViewById(R.id.welcome_title_image);
-        startButton = view.findViewById(R.id.welcome_start_button);
-        checkBox = view.findViewById(R.id.welcome_checkbox);
-        scrollIcon = view.findViewById(R.id.welcome_fragment_scroll_hint_arrow);
-        NestedScrollView scrollView = view.findViewById(R.id.welcome_fragment_scroll_container);
+        CheckBox checkBox = binding.welcomeFragmentCheckbox;
+        ImageView scrollIcon = binding.welcomeFragmentScrollHintArrow;
+        NestedScrollView scrollView = binding.welcomeFragmentScrollContainer;
 
         int colorFrom = getResources().getColor(R.color.primaryColor, null);
         int colorTo = getResources().getColor(R.color.secondaryColor, null);
@@ -109,20 +104,23 @@ public class WelcomeFragment extends Fragment {
         colorIntroAnimation.setRepeatMode(ValueAnimator.REVERSE);
         colorIntroAnimation.setDuration(1000);
         colorIntroAnimation.setInterpolator(new AccelerateDecelerateInterpolator());
-        colorIntroAnimation.addUpdateListener(animation -> titleImage.setBackgroundColor((int) animation.getAnimatedValue()));
+        colorIntroAnimation.addUpdateListener(animation ->
+                binding.welcomeFragmentTitleImage.setBackgroundColor((int) animation.getAnimatedValue()));
         colorIntroAnimation.start();
 
         // "Easter egg" animation on logo press
         ValueAnimator colorTouchAnimation = ValueAnimator.ofObject(new ArgbEvaluator(), colorFrom, colorTo);
-        colorTouchAnimation.addUpdateListener(animation -> titleImage.setBackgroundColor((int) animation.getAnimatedValue()));
+        colorTouchAnimation.addUpdateListener(animation ->
+                binding.welcomeFragmentTitleImage.setBackgroundColor((int) animation.getAnimatedValue()));
         ValueAnimator elevationAnimation = ValueAnimator.ofFloat(0f,50f);
-        elevationAnimation.addUpdateListener(animation -> titleImage.setElevation((Float) animation.getAnimatedValue()));
+        elevationAnimation.addUpdateListener(animation ->
+                binding.welcomeFragmentTitleImage.setElevation((Float) animation.getAnimatedValue()));
         AnimatorSet set = new AnimatorSet();
         set.playTogether(colorTouchAnimation, elevationAnimation);
         set.setInterpolator(new DecelerateInterpolator());
         set.setDuration(200);
 
-        titleImage.setOnTouchListener((v, event) -> {
+        binding.welcomeFragmentTitleImage.setOnTouchListener((v, event) -> {
             switch (event.getAction()) {
                 case MotionEvent.ACTION_DOWN:
                     v.playSoundEffect(SoundEffectConstants.CLICK);
@@ -145,7 +143,7 @@ public class WelcomeFragment extends Fragment {
             editor.apply();
         });
 
-        startButton.setOnClickListener(v -> {
+        binding.welcomeFragmentStartButton.setOnClickListener(v -> {
             NavDirections directions = WelcomeFragmentDirections.actionWelcomeFragmentToRatingFragment();
             NavHostFragment.findNavController(WelcomeFragment.this).navigate(directions);
         });
@@ -226,7 +224,6 @@ public class WelcomeFragment extends Fragment {
                 Snackbar.make(requireActivity().findViewById(R.id.coordinator),
                         Html.fromHtml(getString(R.string.snackbar_ratings_loading_failed, e.getMessage()),Html.FROM_HTML_MODE_LEGACY),
                         BaseTransientBottomBar.LENGTH_LONG)
-                        .setAnchorView(startButton)
                         .setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE).show();
             }
             return true;

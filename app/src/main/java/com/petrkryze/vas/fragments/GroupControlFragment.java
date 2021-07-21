@@ -13,7 +13,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 
 import com.petrkryze.vas.GroupFolder;
 import com.petrkryze.vas.MainActivity;
@@ -21,6 +20,7 @@ import com.petrkryze.vas.R;
 import com.petrkryze.vas.RatingManager;
 import com.petrkryze.vas.adapters.GroupDirectoryRecyclerViewAdapter;
 import com.petrkryze.vas.adapters.GroupDirectoryRecyclerViewAdapter.ViewHolder;
+import com.petrkryze.vas.databinding.FragmentGroupControlBinding;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -45,9 +45,11 @@ public class GroupControlFragment extends Fragment {
     public static final String GroupControlConfirmedKey = "groupControlConfirmedKey";
     public static final String GroupFolderListSerializedKey = "groupFolderList";
 
-    private ArrayList<GroupFolder> groupFolders;
+    private FragmentGroupControlBinding binding;
     private RecyclerView groupFoldersListView;
     private Button buttonConfirm;
+
+    private ArrayList<GroupFolder> groupFolders;
 
     private Vibrator vibrator;
     public static int VIBRATE_BUTTON_MS;
@@ -94,11 +96,8 @@ public class GroupControlFragment extends Fragment {
         }
     };
 
-    /**
-     * Mandatory empty constructor for the fragment manager to instantiate the
-     * fragment (e.g. upon screen orientation changes).
-     */
     public GroupControlFragment() {
+        // Required empty public constructor
     }
 
     @SuppressWarnings("unused")
@@ -113,7 +112,6 @@ public class GroupControlFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setHasOptionsMenu(true);
 
         if (getArguments() != null) {
             //noinspection unchecked
@@ -133,9 +131,11 @@ public class GroupControlFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NotNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_group_control_list, container, false);
+        setHasOptionsMenu(true);
+        binding = FragmentGroupControlBinding.inflate(inflater, container, false);
+        return binding.getRoot();
     }
 
     @Override
@@ -143,15 +143,14 @@ public class GroupControlFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         Context context = view.getContext();
 
-        TextView foundFoldersHeader = view.findViewById(R.id.group_control_found_folders);
-        foundFoldersHeader.setText(getResources().
+        binding.groupControlFoundFolders.setText(getResources().
                 getQuantityString(R.plurals.group_control_found_folders_headline,
                         groupFolders.size(), groupFolders.size()));
 
-        buttonConfirm = view.findViewById(R.id.group_control_button_confirm);
+        buttonConfirm = binding.groupControlButtonConfirm;
         buttonConfirm.setOnClickListener(confirmListener);
 
-        groupFoldersListView = view.findViewById(R.id.group_control_group_folder_list);
+        groupFoldersListView = binding.groupControlGroupFolderList;
         GroupDirectoryRecyclerViewAdapter adapter =
                 new GroupDirectoryRecyclerViewAdapter(context, groupFolders, adapterListener);
         groupFoldersListView.setAdapter(adapter);
@@ -160,6 +159,12 @@ public class GroupControlFragment extends Fragment {
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(context,
                 DividerItemDecoration.VERTICAL);
         groupFoldersListView.addItemDecoration(dividerItemDecoration);
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        binding = null;
     }
 
     private Pair<Boolean, ArrayList<GroupFolder>> checkEditTexts() throws Exception {

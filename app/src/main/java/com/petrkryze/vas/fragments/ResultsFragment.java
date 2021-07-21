@@ -29,6 +29,7 @@ import com.petrkryze.vas.MainActivity;
 import com.petrkryze.vas.R;
 import com.petrkryze.vas.RatingResult;
 import com.petrkryze.vas.adapters.ResultsRecyclerViewAdapter;
+import com.petrkryze.vas.databinding.FragmentResultsBinding;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -59,9 +60,7 @@ public class ResultsFragment extends Fragment {
     private static final String TAG = "ResultFragment";
     public static final String ResultListSerializedKey = "resultsList";
 
-    private ArrayList<RatingResult> ratingResults;
-
-    private Snackbar hint;
+    private FragmentResultsBinding binding;
     private TextView TWnoResults;
     private RecyclerView resultsListView;
     private ConstraintLayout buttonBar;
@@ -70,13 +69,17 @@ public class ResultsFragment extends Fragment {
     private Button buttonShareAsExcel;
     private ProgressBar progressTextLoading;
     private ProgressBar progressExcelLoading;
+    private Snackbar hint;
+
+    private ArrayList<RatingResult> ratingResults;
+
+    private Handler handler;
+    private boolean isExcelSharing = false;
+    private boolean isTextSharing = false;
 
     private Vibrator vibrator;
     private static int VIBRATE_BUTTON_MS;
     private static int VIBRATE_BUTTON_LONG_MS;
-    private Handler handler;
-    private boolean isExcelSharing = false;
-    private boolean isTextSharing = false;
 
     private final View.OnClickListener shareAllListener = new View.OnClickListener() {
         @Override
@@ -252,11 +255,8 @@ public class ResultsFragment extends Fragment {
         return Pair.create(true, getString(R.string.snackbar_result_deleted_success));
     }
 
-    /**
-     * Mandatory empty constructor for the fragment manager to instantiate the
-     * fragment (e.g. upon screen orientation changes).
-     */
     public ResultsFragment() {
+        // Required empty public constructor
     }
 
     @SuppressWarnings("unused")
@@ -271,7 +271,6 @@ public class ResultsFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setHasOptionsMenu(true);
 
         if (getArguments() != null) {
             //noinspection unchecked
@@ -286,9 +285,11 @@ public class ResultsFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NotNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_results, container, false);
+        setHasOptionsMenu(true);
+        binding = FragmentResultsBinding.inflate(inflater, container, false);
+        return binding.getRoot();
     }
 
     @SuppressLint("ShowToast")
@@ -297,14 +298,14 @@ public class ResultsFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         Context context = view.getContext();
 
-        buttonBar = view.findViewById(R.id.results_fragment_share_button_bar);
-        buttonShareAll = view.findViewById(R.id.results_fragment_button_results_share_all);
-        buttonShareAsText = view.findViewById(R.id.results_fragment_button_results_share_as_text);
-        buttonShareAsExcel = view.findViewById(R.id.results_fragment_button_results_share_as_excel);
-        progressTextLoading = view.findViewById(R.id.results_fragment_text_loading);
-        progressExcelLoading = view.findViewById(R.id.results_fragment_excel_loading);
-        resultsListView = view.findViewById(R.id.results_fragment_results_list);
-        TWnoResults = view.findViewById(R.id.results_fragment_no_results_textview);
+        buttonBar = binding.resultsFragmentShareButtonBar;
+        buttonShareAll = binding.resultsFragmentButtonResultsShareAll;
+        buttonShareAsText = binding.resultsFragmentButtonResultsShareAsText;
+        buttonShareAsExcel = binding.resultsFragmentButtonResultsShareAsExcel;
+        progressTextLoading = binding.resultsFragmentTextLoading;
+        progressExcelLoading = binding.resultsFragmentExcelLoading;
+        resultsListView = binding.resultsFragmentResultsList;
+        TWnoResults = binding.resultsFragmentTextviewNoResults;
 
         if (ratingResults != null && !ratingResults.isEmpty()) {
             buttonShareAll.setOnClickListener(shareAllListener);
@@ -330,6 +331,12 @@ public class ResultsFragment extends Fragment {
             resultsListView.setVisibility(View.GONE);
             TWnoResults.setVisibility(View.VISIBLE);
         }
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        binding = null;
     }
 
     @Override

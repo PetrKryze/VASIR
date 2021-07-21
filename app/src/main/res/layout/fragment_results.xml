@@ -13,7 +13,7 @@
     tools:context=".fragments.ResultsFragment">
 
     <TextView
-        android:id="@+id/results_fragment_no_results_textview"
+        android:id="@+id/results_fragment_textview_no_results"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="10dp"

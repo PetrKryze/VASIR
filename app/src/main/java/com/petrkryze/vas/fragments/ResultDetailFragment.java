@@ -11,15 +11,14 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.CheckedTextView;
-import android.widget.TextView;
 
 import com.petrkryze.vas.MainActivity;
 import com.petrkryze.vas.R;
 import com.petrkryze.vas.RatingResult;
 import com.petrkryze.vas.Recording;
 import com.petrkryze.vas.adapters.RecordingsRecyclerViewAdapter;
+import com.petrkryze.vas.databinding.FragmentResultDetailBinding;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -34,7 +33,6 @@ import androidx.navigation.NavDirections;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -45,16 +43,16 @@ public class ResultDetailFragment extends Fragment {
     private static final String TAG = "ResultDetailFragment";
     private static final String RESULT_TO_DISPLAY = "result_to_display";
 
-    private RecordingListSortBy currentSort = RecordingListSortBy.GROUP; // Default sort
-
-    private RatingResult resultToDisplay;
-    private List<Recording> recordingsToDisplay;
-    private RecordingsRecyclerViewAdapter recyclerViewAdapter;
-
+    private FragmentResultDetailBinding binding;
     private CheckedTextView headerID;
     private CheckedTextView headerGroup;
     private CheckedTextView headerIndex;
     private CheckedTextView headerRating;
+    private RecordingsRecyclerViewAdapter recyclerViewAdapter;
+
+    private RatingResult resultToDisplay;
+    private List<Recording> recordingsToDisplay;
+    private RecordingListSortBy currentSort = RecordingListSortBy.GROUP; // Default sort
 
     private Vibrator vibrator;
     private static int VIBRATE_BUTTON_MS;
@@ -94,7 +92,6 @@ public class ResultDetailFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setHasOptionsMenu(true);
 
         if (getArguments() != null) {
             resultToDisplay = ResultDetailFragmentArgs.fromBundle(getArguments()).getRatingResult();
@@ -107,10 +104,11 @@ public class ResultDetailFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NotNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_result_detail, container, false);
+        setHasOptionsMenu(true);
+        binding = FragmentResultDetailBinding.inflate(inflater, container, false);
+        return binding.getRoot();
     }
 
     @Override
@@ -118,32 +116,25 @@ public class ResultDetailFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         Context context = view.getContext();
 
-        Button buttonShare = view.findViewById(R.id.button_result_detail_share);
-        buttonShare.setOnClickListener(shareListener);
+        binding.resultDetailButtonShare.setOnClickListener(shareListener);
 
-        TextView TWresultDetailID = view.findViewById(R.id.result_detail_sessionID);
-        TextView TWresultDetailSaveDate = view.findViewById(R.id.result_detail_save_date);
-        TextView TWresultDetailSeed = view.findViewById(R.id.result_detail_seed);
-        TextView TWresultDetailGeneratorDate = view.findViewById(R.id.result_detail_generator_date);
+        binding.resultDetailSessionID.setText(getString(R.string.result_detail_sessionID, resultToDisplay.getSession_ID()));
+        binding.resultDetailSaveDate.setText(formatDateTime(resultToDisplay.getSaveDate()));
+        binding.resultDetailSeed.setText(String.valueOf(resultToDisplay.getSeed()));
+        binding.resultDetailGeneratorDate.setText(resultToDisplay.getGeneratorMessage().replace("-","."));
 
-        TWresultDetailID.setText(getString(R.string.result_detail_sessionID, resultToDisplay.getSession_ID()));
-        TWresultDetailSaveDate.setText(formatDateTime(resultToDisplay.getSaveDate()));
-        TWresultDetailSeed.setText(String.valueOf(resultToDisplay.getSeed()));
-        TWresultDetailGeneratorDate.setText(resultToDisplay.getGeneratorMessage().replace("-","."));
-
-        RecyclerView recordingListView = view.findViewById(R.id.result_detail_recordings_list);
         recyclerViewAdapter = new RecordingsRecyclerViewAdapter(context, recordingsToDisplay);
-        recordingListView.setAdapter(recyclerViewAdapter);
-        recordingListView.setLayoutManager(new LinearLayoutManager(context));
+        binding.resultDetailRecordingsList.setAdapter(recyclerViewAdapter);
+        binding.resultDetailRecordingsList.setLayoutManager(new LinearLayoutManager(context));
 
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(context,
                 DividerItemDecoration.VERTICAL);
-        recordingListView.addItemDecoration(dividerItemDecoration);
+        binding.resultDetailRecordingsList.addItemDecoration(dividerItemDecoration);
 
-        headerID = view.findViewById(R.id.result_detail_recording_list_column_id);
-        headerGroup = view.findViewById(R.id.result_detail_recording_list_column_group);
-        headerIndex = view.findViewById(R.id.result_detail_recording_list_column_index);
-        headerRating = view.findViewById(R.id.result_detail_recording_list_column_rating);
+        headerID = binding.resultDetailRecordingListColumnId;
+        headerGroup = binding.resultDetailRecordingListColumnGroup;
+        headerIndex = binding.resultDetailRecordingListColumnIndex;
+        headerRating = binding.resultDetailRecordingListColumnRating;
 
         headerID.setOnClickListener(new SortColumnListener(RecordingListSortBy.ID));
         headerGroup.setOnClickListener(new SortColumnListener(RecordingListSortBy.GROUP));
@@ -151,6 +142,12 @@ public class ResultDetailFragment extends Fragment {
         headerRating.setOnClickListener(new SortColumnListener(RecordingListSortBy.RATING));
 
         headerGroup.setChecked(true);
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        binding = null;
     }
 
     private void uncheckAll() {

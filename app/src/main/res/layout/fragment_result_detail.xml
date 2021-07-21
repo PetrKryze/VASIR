@@ -142,7 +142,7 @@
         android:fadingEdgeLength="15dp"
         android:requiresFadingEdge="vertical"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        app:layout_constraintBottom_toTopOf="@id/button_result_detail_share"
+        app:layout_constraintBottom_toTopOf="@id/result_detail_button_share"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/result_detail_column_headers"
@@ -233,7 +233,7 @@
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <Button
-        android:id="@+id/button_result_detail_share"
+        android:id="@+id/result_detail_button_share"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
 

@@ -19,7 +19,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckedTextView;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
@@ -30,6 +29,7 @@ import com.petrkryze.vas.RatingManager;
 import com.petrkryze.vas.RatingResult;
 import com.petrkryze.vas.Recording;
 import com.petrkryze.vas.adapters.RecordingsRecyclerViewAdapter;
+import com.petrkryze.vas.databinding.FragmentCurrentSessionInfoBinding;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -48,7 +48,6 @@ import androidx.navigation.NavDirections;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import static com.petrkryze.vas.fragments.ResultDetailFragment.RecordingListSortBy;
 
@@ -61,22 +60,22 @@ public class CurrentSessionInfoFragment extends Fragment {
     private static final String TAG = "CurrentSessionInfoFragment";
     private static final String CURRENT_SESSION = "current_session";
 
-    private RecordingListSortBy currentSort = RecordingListSortBy.GROUP; // Default sort
-
-    private RatingResult currentSession;
-    private List<Recording> recordingsToDisplay;
-    private RecordingsRecyclerViewAdapter recyclerViewAdapter;
+    private FragmentCurrentSessionInfoBinding binding;
     private ConstraintLayout buttonBar;
     private Button buttonShare;
     private Button buttonShareAsText;
     private Button buttonShareAsExcel;
     private ProgressBar progressTextLoading;
     private ProgressBar progressExcelLoading;
-
     private CheckedTextView headerID;
     private CheckedTextView headerGroup;
     private CheckedTextView headerIndex;
     private CheckedTextView headerRating;
+    private RecordingsRecyclerViewAdapter recyclerViewAdapter;
+
+    private RecordingListSortBy currentSort = RecordingListSortBy.GROUP; // Default sort
+    private RatingResult currentSession;
+    private List<Recording> recordingsToDisplay;
 
     private Vibrator vibrator;
     private static int VIBRATE_BUTTON_MS;
@@ -220,7 +219,6 @@ public class CurrentSessionInfoFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setHasOptionsMenu(true);
 
         if (getArguments() != null) {
             currentSession = CurrentSessionInfoFragmentArgs.fromBundle(getArguments()).getRatingResult();
@@ -233,10 +231,11 @@ public class CurrentSessionInfoFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NotNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_current_session_info, container, false);
+        setHasOptionsMenu(true);
+        binding = FragmentCurrentSessionInfoBinding.inflate(inflater, container, false);
+        return binding.getRoot();
     }
 
     @Override
@@ -244,40 +243,34 @@ public class CurrentSessionInfoFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         Context context = view.getContext();
 
-        buttonBar = view.findViewById(R.id.current_session_info_share_button_bar);
-        buttonShare = view.findViewById(R.id.current_session_info_button_share);
-        buttonShareAsText = view.findViewById(R.id.current_session_info_button_results_share_as_text);
-        buttonShareAsExcel = view.findViewById(R.id.current_session_info_button_results_share_as_excel);
-        progressTextLoading = view.findViewById(R.id.current_session_info_text_loading);
-        progressExcelLoading = view.findViewById(R.id.current_session_info_excel_loading);
+        buttonBar = binding.currentSessionInfoShareButtonBar;
+        buttonShare = binding.currentSessionInfoButtonShare;
+        buttonShareAsText = binding.currentSessionInfoButtonResultsShareAsText;
+        buttonShareAsExcel = binding.currentSessionInfoButtonResultsShareAsExcel;
+        progressTextLoading = binding.currentSessionInfoTextLoading;
+        progressExcelLoading = binding.currentSessionInfoExcelLoading;
 
         buttonShare.setOnClickListener(shareListener);
         buttonShareAsText.setOnClickListener(shareAsTextListener);
         buttonShareAsExcel.setOnClickListener(shareAsExcelListener);
 
-        TextView TWcurrentSessionID = view.findViewById(R.id.current_session_info_sessionID);
-        TextView TWcurrentSessionRatedFraction = view.findViewById(R.id.current_session_info_rated_fraction);
-        TextView TWcurrentSessionSeed = view.findViewById(R.id.current_session_info_seed);
-        TextView TWcurrentSessionGeneratorDate = view.findViewById(R.id.current_session_info_generator_date);
+        binding.currentSessionInfoSessionID.setText(getString(R.string.current_session_info_sessionID, currentSession.getSession_ID()));
+        binding.currentSessionInfoRatedFraction.setText(currentSession.getRatedFractionString());
+        binding.currentSessionInfoSeed.setText(String.valueOf(currentSession.getSeed()));
+        binding.currentSessionInfoGeneratorDate.setText(currentSession.getGeneratorMessage().replace("-","."));
 
-        TWcurrentSessionID.setText(getString(R.string.current_session_info_sessionID, currentSession.getSession_ID()));
-        TWcurrentSessionRatedFraction.setText(currentSession.getRatedFractionString());
-        TWcurrentSessionSeed.setText(String.valueOf(currentSession.getSeed()));
-        TWcurrentSessionGeneratorDate.setText(currentSession.getGeneratorMessage().replace("-","."));
-
-        RecyclerView recordingListView = view.findViewById(R.id.current_session_info_recordings_list);
         recyclerViewAdapter = new RecordingsRecyclerViewAdapter(context, recordingsToDisplay);
-        recordingListView.setAdapter(recyclerViewAdapter);
-        recordingListView.setLayoutManager(new LinearLayoutManager(context));
+        binding.currentSessionInfoRecordingsList.setAdapter(recyclerViewAdapter);
+        binding.currentSessionInfoRecordingsList.setLayoutManager(new LinearLayoutManager(context));
 
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(context,
                 DividerItemDecoration.VERTICAL);
-        recordingListView.addItemDecoration(dividerItemDecoration);
+        binding.currentSessionInfoRecordingsList.addItemDecoration(dividerItemDecoration);
 
-        headerID = view.findViewById(R.id.current_session_info_recording_list_column_id);
-        headerGroup = view.findViewById(R.id.current_session_info_recording_list_column_group);
-        headerIndex = view.findViewById(R.id.current_session_info_recording_list_column_index);
-        headerRating = view.findViewById(R.id.current_session_info_recording_list_column_rating);
+        headerID = binding.currentSessionInfoRecordingListColumnId;
+        headerGroup = binding.currentSessionInfoRecordingListColumnGroup;
+        headerIndex = binding.currentSessionInfoRecordingListColumnIndex;
+        headerRating = binding.currentSessionInfoRecordingListColumnRating;
 
         headerID.setOnClickListener(new SortColumnListener(RecordingListSortBy.ID));
         headerGroup.setOnClickListener(new SortColumnListener(RecordingListSortBy.GROUP));
@@ -285,6 +278,12 @@ public class CurrentSessionInfoFragment extends Fragment {
         headerRating.setOnClickListener(new SortColumnListener(RecordingListSortBy.RATING));
 
         headerGroup.setChecked(true);
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        binding = null;
     }
 
     private void uncheckAll() {

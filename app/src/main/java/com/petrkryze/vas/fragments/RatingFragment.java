@@ -37,6 +37,7 @@ import com.petrkryze.vas.RatingManager;
 import com.petrkryze.vas.RatingManager.State;
 import com.petrkryze.vas.RatingResult;
 import com.petrkryze.vas.Recording;
+import com.petrkryze.vas.databinding.FragmentRatingBinding;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -72,27 +73,28 @@ import static com.petrkryze.vas.RatingManager.State.STATE_IN_PROGRESS;
 public class RatingFragment extends Fragment {
     private static final String TAG = "RatingFragment";
 
-    private boolean loadingFinishedFlag = false;
+    private FragmentRatingBinding binding;
     private RelativeLayout loadingContainer;
     private SeekBar VASratingBar;
-    private Button button_play_pause;
-    private Button button_previous;
-    private Button button_next;
-    private TextView track_time;
-    private TextView header_text;
-    private SeekBar playerSeekBar;
-    private ImageView checkMark;
+    private SeekBar playerProgressBar;
+    private Button buttonPlayPause;
+    private Button buttonPrevious;
+    private Button buttonNext;
+    private TextView playerTimeTracker;
+    private TextView headerText;
+    private ImageView checkMarkIcon;
+
+    private Player player;
+    private RatingManager ratingManager;
+
+    private boolean loadingFinishedFlag = false;
+    private boolean initDone = false;
+    private boolean isLoadingPlayProgress = false;
 
     private Vibrator vibrator;
     private static int VIBRATE_BUTTON_MS;
     private static int VIBRATE_BUTTON_LONG_MS;
     private static int VIBRATE_RATING_START_MS;
-
-    private Player player;
-    private RatingManager ratingManager;
-
-    private boolean initDone = false;
-    private boolean isLoadingPlayProgress = false;
 
     private Drawable playIcon;
     private final View.OnClickListener playListener = new View.OnClickListener() {
@@ -102,9 +104,9 @@ public class RatingFragment extends Fragment {
             vibrator.vibrate(VibrationEffect.createOneShot(VIBRATE_BUTTON_MS,VibrationEffect.DEFAULT_AMPLITUDE));
             if (initDone && player.isPrepared() && !player.isSeeking()) {
                 if (player.play()) {
-                    button_play_pause.setText(getString(R.string.button_pause_label));
-                    button_play_pause.setCompoundDrawablesWithIntrinsicBounds(null, pauseIcon, null, null);
-                    button_play_pause.setOnClickListener(pauseListener);
+                    buttonPlayPause.setText(getString(R.string.button_pause_label));
+                    buttonPlayPause.setCompoundDrawablesWithIntrinsicBounds(null, pauseIcon, null, null);
+                    buttonPlayPause.setOnClickListener(pauseListener);
                 }
             }
         }
@@ -119,9 +121,9 @@ public class RatingFragment extends Fragment {
             if (initDone && player.isPrepared() && !player.isSeeking()) {
                 player.pause();
 
-                button_play_pause.setText(getString(R.string.button_play_label));
-                button_play_pause.setCompoundDrawablesWithIntrinsicBounds(null, playIcon, null, null);
-                button_play_pause.setOnClickListener(playListener);
+                buttonPlayPause.setText(getString(R.string.button_play_label));
+                buttonPlayPause.setCompoundDrawablesWithIntrinsicBounds(null, playIcon, null, null);
+                buttonPlayPause.setOnClickListener(playListener);
             }
         }
     };
@@ -152,11 +154,11 @@ public class RatingFragment extends Fragment {
         }
     };
 
-    ValueAnimator playerButtonClickAnimation;
+    private ValueAnimator playerButtonClickAnimation;
     private final View.OnLongClickListener previousLongListener = new View.OnLongClickListener() {
         @Override
         public boolean onLongClick(View v) {
-            if (v.getId() == button_previous.getId()) {
+            if (v.getId() == buttonPrevious.getId()) {
                 Log.i(TAG, "onLongClick: BUTTON PREVIOUS LONG CLICKED");
                 vibrator.vibrate(VibrationEffect.createOneShot(VIBRATE_BUTTON_LONG_MS, VibrationEffect.DEFAULT_AMPLITUDE));
 
@@ -174,7 +176,7 @@ public class RatingFragment extends Fragment {
     private final View.OnLongClickListener nextLongListener = new View.OnLongClickListener() {
         @Override
         public boolean onLongClick(View v) {
-            if (v.getId() == button_next.getId()) {
+            if (v.getId() == buttonNext.getId()) {
                 Log.i(TAG, "onLongClick: BUTTON NEXT LONG CLICKED");
                 vibrator.vibrate(VibrationEffect.createOneShot(VIBRATE_BUTTON_LONG_MS, VibrationEffect.DEFAULT_AMPLITUDE));
 
@@ -234,7 +236,7 @@ public class RatingFragment extends Fragment {
 
         @Override
         public void onStopTrackingTouch(SeekBar seekBar) {
-            playerSeekBar.playSoundEffect(SoundEffectConstants.CLICK);
+            playerProgressBar.playSoundEffect(SoundEffectConstants.CLICK);
             if (initDone && player.isPrepared() && !player.isSeeking()) {
                 player.seekTo(seekBar.getProgress());
                 ratingManager.setPlayProgress(seekBar.getProgress());
@@ -275,6 +277,7 @@ public class RatingFragment extends Fragment {
     );
 
     public RatingFragment() {
+        // Required empty public constructor
     }
 
     @SuppressWarnings("unused")
@@ -290,7 +293,7 @@ public class RatingFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         Log.i(TAG, "onCreate: Creating");
         super.onCreate(savedInstanceState);
-        setHasOptionsMenu(true);
+
         initDone = false;
         isTouchingSeekBar = false;
         isLoadingPlayProgress = false;
@@ -304,9 +307,8 @@ public class RatingFragment extends Fragment {
         // Setup long click animation
         int colorFrom = ContextCompat.getColor(requireContext(), R.color.primaryColor);
         int colorTo = ContextCompat.getColor(requireContext(), R.color.secondaryColor);
-        playerButtonClickAnimation = ValueAnimator.ofObject(new ArgbEvaluator(), colorFrom, colorTo);
-        playerButtonClickAnimation.setDuration(100);
-        playerButtonClickAnimation.setRepeatCount(0);
+        playerButtonClickAnimation = ValueAnimator.ofObject(new ArgbEvaluator(), colorFrom, colorTo)
+                .setDuration(100);
 
         // Initialize the audio player and rating manager
         player = new Player(requireContext(), getPlayerListener());
@@ -321,7 +323,9 @@ public class RatingFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_rating, container, false);
+        setHasOptionsMenu(true);
+        binding = FragmentRatingBinding.inflate(inflater, container, false);
+        return binding.getRoot();
     }
 
 
@@ -330,38 +334,44 @@ public class RatingFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         // UI Elements setup
-        loadingContainer = view.findViewById(R.id.rating_fragment_loading_container);
-        VASratingBar = view.findViewById(R.id.ratingBar);
-        button_play_pause = view.findViewById(R.id.button_play_pause);
-        button_previous = view.findViewById(R.id.button_previous);
-        button_next = view.findViewById(R.id.button_next);
-        track_time = view.findViewById(R.id.track_time);
-        header_text = view.findViewById(R.id.header_text);
-        playerSeekBar = view.findViewById(R.id.progressBar);
-        checkMark = view.findViewById(R.id.check_mark);
+        loadingContainer = binding.ratingFragmentLoadingContainer;
+        headerText = binding.ratingFragmentHeaderText;
+        playerTimeTracker = binding.ratingFragmentPlayerTrackTime;
+        buttonPlayPause = binding.ratingFragmentPlayerButtonPlayPause;
+        buttonPrevious = binding.ratingFragmentPlayerButtonPrevious;
+        buttonNext = binding.ratingFragmentPlayerButtonNext;
+        playerProgressBar = binding.ratingFragmentPlayerProgressBar;
+        checkMarkIcon = binding.ratingFragmentCheckMarkIcon;
+        VASratingBar = binding.ratingFragmentRatingBar;
 
         // Prepare play/pause icons
         playIcon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_play_sized);
         pauseIcon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_pause_sized);
 
         // Assign listeners to all buttons
-        button_play_pause.setOnClickListener(playListener);
-        button_previous.setOnClickListener(previousListener);
-        button_next.setOnClickListener(nextListener);
+        buttonPlayPause.setOnClickListener(playListener);
+        buttonPrevious.setOnClickListener(previousListener);
+        buttonNext.setOnClickListener(nextListener);
 
-        setPlayerButtonAnimation(button_play_pause);
-        setPlayerButtonAnimation(button_next);
-        setPlayerButtonAnimation(button_previous);
+        setPlayerButtonAnimation(buttonPlayPause);
+        setPlayerButtonAnimation(buttonNext);
+        setPlayerButtonAnimation(buttonPrevious);
 
         // Assign long press listeners to the previous and next buttons for going to start/end
-        button_previous.setOnLongClickListener(previousLongListener);
-        button_next.setOnLongClickListener(nextLongListener);
+        buttonPrevious.setOnLongClickListener(previousLongListener);
+        buttonNext.setOnLongClickListener(nextLongListener);
 
         VASratingBar.setOnSeekBarChangeListener(VASratingBarListener);
-        playerSeekBar.setOnSeekBarChangeListener(playerSeekBarListener);
+        playerProgressBar.setOnSeekBarChangeListener(playerSeekBarListener);
 
         // If loading view was not available when loading actually finished, hide it now
         if (loadingFinishedFlag) hideLoading();
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        binding = null;
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -529,7 +539,7 @@ public class RatingFragment extends Fragment {
             Log.e(TAG, "changeCurrentTrack: Error! Invalid number of tracks!");
         } else {
             if (player.isPlaying()) {
-                button_play_pause.callOnClick();
+                buttonPlayPause.callOnClick();
             }
 
             // Sets active track
@@ -542,18 +552,18 @@ public class RatingFragment extends Fragment {
             // Manages logical button visibility
             int lastIndex = ratingManager.getTrackN()-1;
             if (changeTo == 0) {
-                button_previous.setVisibility(View.INVISIBLE); // Hide previous button
+                buttonPrevious.setVisibility(View.INVISIBLE); // Hide previous button
             } else if (changeTo == lastIndex) {
-                button_next.setVisibility(View.INVISIBLE); // Hide next button
+                buttonNext.setVisibility(View.INVISIBLE); // Hide next button
             }
             if (current == 0 && changeTo > 0) {
-                button_previous.setVisibility(View.VISIBLE); // Show previous button
+                buttonPrevious.setVisibility(View.VISIBLE); // Show previous button
             } else if (current == lastIndex && changeTo < lastIndex) {
-                button_next.setVisibility(View.VISIBLE); // Show next button
+                buttonNext.setVisibility(View.VISIBLE); // Show next button
             }
 
             // Sets track counter text
-            header_text.setText(getString(R.string.track_counter, getString(R.string.track), changeTo+1, lastIndex+1));
+            headerText.setText(getString(R.string.track_counter, getString(R.string.track), changeTo+1, lastIndex+1));
 
             // Set rating bar position to default or saved
             int savedRating = ratingManager.getTrackList().get(changeTo).getRating();
@@ -567,18 +577,18 @@ public class RatingFragment extends Fragment {
     }
 
     private void setCheckMarkDrawable(Recording recording, State state) {
-        if (checkMark != null) {
+        if (checkMarkIcon != null) {
             if (recording.getRating() == Recording.DEFAULT_UNSET_RATING) {
-                checkMark.setVisibility(View.INVISIBLE);
+                checkMarkIcon.setVisibility(View.INVISIBLE);
             } else {
                 if (state == STATE_FINISHED) {
-                    checkMark.setImageDrawable(ContextCompat.getDrawable(requireContext(),
+                    checkMarkIcon.setImageDrawable(ContextCompat.getDrawable(requireContext(),
                             R.drawable.ic_double_checkmark));
                 } else {
-                    checkMark.setImageDrawable(ContextCompat.getDrawable(requireContext(),
+                    checkMarkIcon.setImageDrawable(ContextCompat.getDrawable(requireContext(),
                             R.drawable.ic_checkmark));
                 }
-                checkMark.setVisibility(View.VISIBLE);
+                checkMarkIcon.setVisibility(View.VISIBLE);
             }
         } else {
             Log.e(TAG, "setCheckMarkDrawable: Not able to find checkmark view!");
@@ -590,8 +600,8 @@ public class RatingFragment extends Fragment {
             @Override
             public void onTrackPrepared(int duration) {
                 // Enable play
-                track_time.setText(formatDuration(duration));
-                playerSeekBar.setMax(duration);
+                playerTimeTracker.setText(formatDuration(duration));
+                playerProgressBar.setMax(duration);
 
                 if (isLoadingPlayProgress) {
                     player.seekTo(ratingManager.getSavedPlayProgress());
@@ -604,7 +614,7 @@ public class RatingFragment extends Fragment {
 
             @Override
             public void onTrackFinished() {
-                button_play_pause.callOnClick();
+                buttonPlayPause.callOnClick();
                 player.rewind();
                 ratingManager.setPlayProgress(0);
             }
@@ -627,13 +637,13 @@ public class RatingFragment extends Fragment {
 
             @Override
             public void onTimeTick(final int time) {
-                requireActivity().runOnUiThread(() -> track_time.setText(formatDuration(time)));
+                requireActivity().runOnUiThread(() -> playerTimeTracker.setText(formatDuration(time)));
             }
 
             @Override
             public void onUpdateProgress(int current_ms) {
                 if (!isTouchingSeekBar) {
-                    playerSeekBar.setProgress(current_ms, true);
+                    playerProgressBar.setProgress(current_ms, true);
                     ratingManager.setPlayProgress(current_ms);
                 }
             }
@@ -667,7 +677,7 @@ public class RatingFragment extends Fragment {
         super.onPause();
         Log.i(TAG, "onPause: Pausing");
         if (player != null && player.isPlaying()) {
-            button_play_pause.callOnClick();
+            buttonPlayPause.callOnClick();
         }
 
         // Saves the session on every Pause occasion (change app, phone lock, change screen, ...)

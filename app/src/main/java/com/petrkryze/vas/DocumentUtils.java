@@ -51,7 +51,7 @@ public class DocumentUtils {
             return getVolumePathBeforeAndroid11(volumeId, context);
     }
 
-
+    @SuppressWarnings({"JavaReflectionMemberAccess", "ConstantConditions"})
     private static String getVolumePathBeforeAndroid11(final String volumeId, Context context){
         try {
             StorageManager mStorageManager = (StorageManager) context.getSystemService(Context.STORAGE_SERVICE);
@@ -62,6 +62,7 @@ public class DocumentUtils {
             Method isPrimary = storageVolumeClazz.getMethod("isPrimary");
             Object result = getVolumeList.invoke(mStorageManager);
 
+            assert result != null;
             final int length = Array.getLength(result);
             for (int i = 0; i < length; i++) {
                 Object storageVolumeElement = Array.get(result, i);
