@@ -100,7 +100,7 @@ public class RatingFragment extends Fragment {
     private final View.OnClickListener playListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            Log.i(TAG, "onClick: BUTTON PLAY CLICKED");
+            Log.d(TAG, "onClick: BUTTON PLAY CLICKED");
             vibrator.vibrate(VibrationEffect.createOneShot(VIBRATE_BUTTON_MS,VibrationEffect.DEFAULT_AMPLITUDE));
             if (initDone && player.isPrepared() && !player.isSeeking()) {
                 if (player.play()) {
@@ -116,7 +116,7 @@ public class RatingFragment extends Fragment {
     private final View.OnClickListener pauseListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            Log.i(TAG, "onClick: BUTTON PAUSE CLICKED");
+            Log.d(TAG, "onClick: BUTTON PAUSE CLICKED");
             vibrator.vibrate(VibrationEffect.createOneShot(VIBRATE_BUTTON_MS,VibrationEffect.DEFAULT_AMPLITUDE));
             if (initDone && player.isPrepared() && !player.isSeeking()) {
                 player.pause();
@@ -131,7 +131,7 @@ public class RatingFragment extends Fragment {
     private final View.OnClickListener previousListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            Log.i(TAG, "onClick: BUTTON PREVIOUS CLICKED");
+            Log.d(TAG, "onClick: BUTTON PREVIOUS CLICKED");
             vibrator.vibrate(VibrationEffect.createOneShot(VIBRATE_BUTTON_MS,VibrationEffect.DEFAULT_AMPLITUDE));
             int trackPointer = ratingManager.getTrackPointer();
             if (initDone && trackPointer > 0) {
@@ -144,7 +144,7 @@ public class RatingFragment extends Fragment {
     private final View.OnClickListener nextListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            Log.i(TAG, "onClick: BUTTON NEXT CLICKED");
+            Log.d(TAG, "onClick: BUTTON NEXT CLICKED");
             vibrator.vibrate(VibrationEffect.createOneShot(VIBRATE_BUTTON_MS,VibrationEffect.DEFAULT_AMPLITUDE));
             int trackPointer = ratingManager.getTrackPointer();
             if (initDone && trackPointer < ratingManager.getTrackN()-1) {
@@ -159,7 +159,7 @@ public class RatingFragment extends Fragment {
         @Override
         public boolean onLongClick(View v) {
             if (v.getId() == buttonPrevious.getId()) {
-                Log.i(TAG, "onLongClick: BUTTON PREVIOUS LONG CLICKED");
+                Log.d(TAG, "onLongClick: BUTTON PREVIOUS LONG CLICKED");
                 vibrator.vibrate(VibrationEffect.createOneShot(VIBRATE_BUTTON_LONG_MS, VibrationEffect.DEFAULT_AMPLITUDE));
 
                 int trackPointer = ratingManager.getTrackPointer();
@@ -177,7 +177,7 @@ public class RatingFragment extends Fragment {
         @Override
         public boolean onLongClick(View v) {
             if (v.getId() == buttonNext.getId()) {
-                Log.i(TAG, "onLongClick: BUTTON NEXT LONG CLICKED");
+                Log.d(TAG, "onLongClick: BUTTON NEXT LONG CLICKED");
                 vibrator.vibrate(VibrationEffect.createOneShot(VIBRATE_BUTTON_LONG_MS, VibrationEffect.DEFAULT_AMPLITUDE));
 
                 int trackPointer = ratingManager.getTrackPointer();
@@ -265,11 +265,11 @@ public class RatingFragment extends Fragment {
                         requireContext().getContentResolver().takePersistableUriPermission(resultUri,
                                 Intent.FLAG_GRANT_READ_URI_PERMISSION);
                         File dataDir = new File(fullPath);
-                        Log.i(TAG, "onActivityResult: Selected directory: " + dataDir.getAbsolutePath());
+                        Log.d(TAG, "onActivityResult: Selected directory: " + dataDir.getAbsolutePath());
                         manageDirectory(dataDir, true); // Go check the selected directory and it's contents
                     }
                 } else {
-                    Log.i(TAG, "onActivityResult: User left the directory selection activity without selecting.");
+                    Log.d(TAG, "onActivityResult: User left the directory selection activity without selecting.");
                     fireSessionCreationCancelled();
                     manageLoading(); // Cycle back to the session check
                 }
@@ -291,7 +291,6 @@ public class RatingFragment extends Fragment {
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
-        Log.i(TAG, "onCreate: Creating");
         super.onCreate(savedInstanceState);
 
         initDone = false;
@@ -449,15 +448,15 @@ public class RatingFragment extends Fragment {
     private void manageDirectory(File selected_dir, boolean newSession) {
         Bundle checkResult = ratingManager.checkDataDirectoryPath(
                 selected_dir, newSession, this, confirmed -> {
-                    Log.i(TAG, "manageDirectory: Group check done callback triggered!");
+                    Log.d(TAG, "manageDirectory: Group check done callback triggered!");
 
                     if (confirmed) {
-                        Log.i(TAG, "groupCheckFinished: Group check exited via confirmation");
+                        Log.d(TAG, "groupCheckFinished: Group check exited via confirmation");
 
                         if (ratingManager.getState() == STATE_IDLE) {
                             ratingManager.setState(STATE_IN_PROGRESS);
                         }
-                        Log.i(TAG, "groupCheckFinished: Rating initiation complete!");
+                        Log.d(TAG, "groupCheckFinished: Rating initiation complete!");
                         hideLoading();
                         initDone = true;
 
@@ -469,7 +468,7 @@ public class RatingFragment extends Fragment {
                                             .setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE).show());
                         }
                     } else { // Group check cancelled - new session creation cancelled
-                        Log.i(TAG, "groupCheckFinished: Group check exited via cancel");
+                        Log.d(TAG, "groupCheckFinished: Group check exited via cancel");
                         fireSessionCreationCancelled();
                         manageLoading(); // Cycle back to the session check
                     }
@@ -520,7 +519,7 @@ public class RatingFragment extends Fragment {
                                 requireContext().getColor(R.color.errorColor)))
                         .setPositiveButton(R.string.dialog_invalid_directory_choose_valid_data_directory, (dialog, which) -> fireSelectDirectory())
                         .setNegativeButton(R.string.dialog_invalid_directory_cancel, (dialog, which) -> {
-                            Log.i(TAG, "fireInvalidDirectory: Invalid directory dialog cancelled");
+                            Log.d(TAG, "fireInvalidDirectory: Invalid directory dialog cancelled");
                             manageLoading();
                         })
                         .setCancelable(false).show());
@@ -536,7 +535,7 @@ public class RatingFragment extends Fragment {
 
     private void changeCurrentTrack(int current, int changeTo) {
         if (ratingManager.getTrackN() <= 0) {
-            Log.e(TAG, "changeCurrentTrack: Error! Invalid number of tracks!");
+            Log.w(TAG, "changeCurrentTrack: Error! Invalid number of tracks!");
         } else {
             if (player.isPlaying()) {
                 buttonPlayPause.callOnClick();
@@ -571,7 +570,7 @@ public class RatingFragment extends Fragment {
 
             VASratingBar.setProgress(setTo, true);
 
-            Log.i(TAG, "changeCurrentTrack: current state = " + ratingManager.getState());
+            Log.d(TAG, "changeCurrentTrack: current state = " + ratingManager.getState());
             setCheckMarkDrawable(ratingManager.getTrackList().get(changeTo), ratingManager.getState());
         }
     }
@@ -591,7 +590,7 @@ public class RatingFragment extends Fragment {
                 checkMarkIcon.setVisibility(View.VISIBLE);
             }
         } else {
-            Log.e(TAG, "setCheckMarkDrawable: Not able to find checkmark view!");
+            Log.w(TAG, "setCheckMarkDrawable: Not able to find checkmark view!");
         }
     }
 
@@ -653,7 +652,7 @@ public class RatingFragment extends Fragment {
     private String formatDuration(int time_ms) {
         if (time_ms >= (60 * 60 * 1000)) {
             // If somehow longer than one hour
-            Log.e(TAG, "formatDuration: I don't know how, but the audio is too damn long.");
+            Log.wtf(TAG, "formatDuration: I don't know how, but the audio is too damn long.");
             return "Error";
         } else {
             int min = (int) Math.floor((double) time_ms / 60000);
@@ -675,7 +674,6 @@ public class RatingFragment extends Fragment {
     @Override
     public void onPause() {
         super.onPause();
-        Log.i(TAG, "onPause: Pausing");
         if (player != null && player.isPlaying()) {
             buttonPlayPause.callOnClick();
         }
@@ -688,7 +686,6 @@ public class RatingFragment extends Fragment {
 
     @Override
     public void onDestroy() {
-        Log.i(TAG, "onDestroy: Destroying");
         super.onDestroy();
         // Saves the results to the .txt file in memory if the rating is in a finished state
         if (ratingManager.getState() == STATE_FINISHED) {

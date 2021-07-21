@@ -85,7 +85,7 @@ public class ResultsFragment extends Fragment {
         @Override
         public void onClick(View v) {
             if (v.getId() == R.id.results_fragment_button_results_share_all) {
-                Log.i(TAG, "onClick: SHARE ALL BUTTON CLICKED");
+                Log.d(TAG, "onClick: SHARE ALL BUTTON CLICKED");
                 vibrator.vibrate(VibrationEffect.createOneShot(
                         VIBRATE_BUTTON_MS, VibrationEffect.DEFAULT_AMPLITUDE));
 
@@ -100,7 +100,7 @@ public class ResultsFragment extends Fragment {
         @Override
         public void onClick(View v) {
             if (v.getId() == R.id.results_fragment_button_results_share_as_text) {
-                Log.i(TAG, "onClick: SHARE AS TEXT BUTTON CLICKED");
+                Log.d(TAG, "onClick: SHARE AS TEXT BUTTON CLICKED");
                 Context context = requireContext();
                 vibrator.vibrate(VibrationEffect.createOneShot(
                         VIBRATE_BUTTON_MS, VibrationEffect.DEFAULT_AMPLITUDE));
@@ -147,7 +147,7 @@ public class ResultsFragment extends Fragment {
         @Override
         public void onClick(View v) {
             if (v.getId() == R.id.results_fragment_button_results_share_as_excel) {
-                Log.i(TAG, "onClick: SHARE AS EXCEL BUTTON CLICKED");
+                Log.d(TAG, "onClick: SHARE AS EXCEL BUTTON CLICKED");
                 Context context = requireContext();
                 vibrator.vibrate(VibrationEffect.createOneShot(
                         VIBRATE_BUTTON_MS, VibrationEffect.DEFAULT_AMPLITUDE));

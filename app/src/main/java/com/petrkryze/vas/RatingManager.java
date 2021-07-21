@@ -130,7 +130,7 @@ public class RatingManager {
             ret.putString(DIRCHECK_RESULT_ERROR_TYPE, FileCheckError.NO_FILES.toString());
         } else {
             for (GroupFolder gf : groupFolders) { // Just logging
-                Log.i(TAG, "checkDataDirectoryPath: Group folder: " +
+                Log.d(TAG, "checkDataDirectoryPath: Group folder: " +
                         gf.getFolderName() + ", Files: " + gf.getNaudioFiles() + " - PASSED");
             }
 
@@ -253,7 +253,7 @@ public class RatingManager {
                                 foundAudioPaths));
                     } // else ignore this folder and move on
                 } else {
-                    Log.e(TAG, "getGroupFolderList: Error! File: " +
+                    Log.w(TAG, "getGroupFolderList: Error! File: " +
                             potentialGroupFolder.getAbsolutePath() + ", Message: " +
                             folderCheck.second.toString());
                 }
@@ -668,7 +668,7 @@ public class RatingManager {
                     Log.e(TAG, "loadResults: Result file " + foundResultFile + " error: " + result.second);
                 }
             }
-            Log.d(TAG, "loadResults: Found " + foundResults.size() + " save files.");
+            Log.i(TAG, "loadResults: Found " + foundResults.size() + " save files.");
         }
 
         return foundResults;
@@ -714,9 +714,9 @@ public class RatingManager {
 
         // Sort and log the randomized recordings
         this.trackList.sort(Recording.sortAlphabetically);
-        Log.i(TAG, "saveResults: Saving! -> Sorted recordings:");
+        Log.d(TAG, "saveResults: Saving! -> Sorted recordings:");
         for (Recording r : this.trackList) {
-            Log.i(TAG, "saveResults: " + r.toString());
+            Log.d(TAG, "saveResults: " + r.toString());
         }
 
         // Create new date
@@ -754,7 +754,7 @@ public class RatingManager {
         saveSession();
 
         MediaScannerConnection.scanFile(context, new String[]{newResultFile.getPath()}, null,
-                (path, uri) -> Log.i(TAG, "onScanCompleted: SCAN OF FILE <" + path + "> completed!"));
+                (path, uri) -> Log.d(TAG, "onScanCompleted: SCAN OF FILE <" + path + "> completed!"));
         Log.i(TAG, "saveResults: File: <" + newResultFile.getName() + "> written successfully.");
 
         // Remove old save files for this session ID
@@ -766,10 +766,10 @@ public class RatingManager {
                 File oldBackup = existingSaveFiles.get(i);
 
                 if (oldBackup.delete()) {
-                    Log.i(TAG, "saveResults: Old save file <" + oldBackup.getAbsolutePath() +
+                    Log.d(TAG, "saveResults: Old save file <" + oldBackup.getAbsolutePath() +
                             "> was successfully deleted.");
                 } else {
-                    Log.e(TAG, "saveResults: Old save file <" + oldBackup.getAbsolutePath() +
+                    Log.w(TAG, "saveResults: Old save file <" + oldBackup.getAbsolutePath() +
                             "> could not be deleted.");
                 }
             }

@@ -60,7 +60,7 @@ public class ResultDetailFragment extends Fragment {
     private final View.OnClickListener shareListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            Log.i(TAG, "onClick: SHARE BUTTON CLICKED");
+            Log.d(TAG, "onClick: SHARE BUTTON CLICKED");
             vibrator.vibrate(VibrationEffect.createOneShot(
                     VIBRATE_BUTTON_MS, VibrationEffect.DEFAULT_AMPLITUDE));
 
@@ -216,7 +216,7 @@ public class ResultDetailFragment extends Fragment {
 
         @Override
         public void onClick(View v) {
-            Log.i(TAG, "onClick: COLUMN SORT BY " + sortBy + " BUTTON CLICKED");
+            Log.d(TAG, "onClick: COLUMN SORT BY " + sortBy + " BUTTON CLICKED");
             vibrator.vibrate(VibrationEffect.createOneShot(
                     VIBRATE_BUTTON_MS, VibrationEffect.DEFAULT_AMPLITUDE));
 

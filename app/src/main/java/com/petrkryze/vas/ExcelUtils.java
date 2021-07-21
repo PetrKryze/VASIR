@@ -98,7 +98,7 @@ public class ExcelUtils {
         File newExcelFile = new File(tempDir, fileName);
         // If the file already exists, delete it
         if (newExcelFile.exists()) {
-            Log.i(TAG, "makeExcelFile: " + newExcelFile.getAbsolutePath() + " already exists - deleting.");
+            Log.d(TAG, "makeExcelFile: " + newExcelFile.getAbsolutePath() + " already exists - deleting.");
             if (!newExcelFile.delete()) {
                 throw new IOException(newExcelFile.getName() + " could not be deleted!");
             }
@@ -129,11 +129,11 @@ public class ExcelUtils {
         int cnt = 0;
         File[] fileArray = tempDir.listFiles();
         if (fileArray == null || fileArray.length <= 0) {
-            Log.i(TAG, "dumpTempFolder: No temporary files to dump.");
+            Log.d(TAG, "dumpTempFolder: No temporary files to dump.");
         } else {
             for (File file : fileArray) {
                 if (!file.delete()) {
-                    Log.e(TAG, "dumpTempFolder: File " + file.getName() + " could not be deleted.");
+                    Log.w(TAG, "dumpTempFolder: File " + file.getName() + " could not be deleted.");
                 } else {
                     cnt++;
                 }

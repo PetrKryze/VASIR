@@ -15,6 +15,7 @@ import java.io.IOException;
  */
 
 public class Player {
+    // private final String TAG = "Player";
 
     private MediaPlayer mediaPlayer;
     private final AudioManager audioManager;
@@ -45,8 +46,6 @@ public class Player {
         }
     };
 
-    // private final String TAG = "Player";
-
     public interface PlayerListener {
         void onTrackPrepared(int duration);
         void onTrackFinished();
@@ -66,25 +65,14 @@ public class Player {
                 .build();
 
         mediaPlayer.setAudioAttributes(attributes);
-        mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-            @Override
-            public void onPrepared(MediaPlayer mp) {
-                Player.this.listener.onTrackPrepared(mediaPlayer.getDuration());
-                isPrepared = true;
-            }
+        mediaPlayer.setOnPreparedListener(mp -> {
+            Player.this.listener.onTrackPrepared(mediaPlayer.getDuration());
+            isPrepared = true;
         });
-        mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-            @Override
-            public void onCompletion(MediaPlayer mp) {
-                listener.onTrackFinished();
-            }
-        });
-        mediaPlayer.setOnSeekCompleteListener(new MediaPlayer.OnSeekCompleteListener() {
-            @Override
-            public void onSeekComplete(MediaPlayer mp) {
-                isSeeking = false;
-                doTick();
-            }
+        mediaPlayer.setOnCompletionListener(mp -> listener.onTrackFinished());
+        mediaPlayer.setOnSeekCompleteListener(mp -> {
+            isSeeking = false;
+            doTick();
         });
         this.audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
 
@@ -97,6 +85,7 @@ public class Player {
         return isPrepared;
     }
 
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public boolean isSeeking() {
         return isSeeking;
     }

@@ -130,7 +130,7 @@ public class Recording implements Serializable {
 
     public void setRating(int rating) {
         if (rating < 0 || rating > 100) {
-            Log.e(TAG, "setRating: Invalid rating value! Setting aborted.");
+            Log.w(TAG, "setRating: Invalid rating value! Setting aborted.");
         } else {
             this.rating = rating;
         }

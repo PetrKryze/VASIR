@@ -58,7 +58,7 @@ public class GroupControlFragment extends Fragment {
         @Override
         public void onClick(View v) {
             if (v.getId() == R.id.group_control_button_confirm) {
-                Log.i(TAG, "onClick: CONFIRM BUTTON CLICKED");
+                Log.d(TAG, "onClick: CONFIRM BUTTON CLICKED");
                 vibrator.vibrate(VibrationEffect.createOneShot(
                         VIBRATE_BUTTON_MS, VibrationEffect.DEFAULT_AMPLITUDE));
 
@@ -183,7 +183,7 @@ public class GroupControlFragment extends Fragment {
             if (row == null) throw new NullPointerException("Fatal error! ViewHolder for row " + i + " is null.");
             if (row.checkBox.isChecked()) {
                 String inputText = row.viewRowGroupNameInput.getText().toString();
-                Log.i(TAG, "onClick: Edit text on row " + i + ": " + inputText);
+                Log.d(TAG, "onClick: Edit text on row " + i + ": " + inputText);
 
                 // I fucking hate regex, but well, here we go - it should catch all of these chars
                 if (inputText.matches(".*[~#^|$%&*!/<>?\"\\\\].*")) {
