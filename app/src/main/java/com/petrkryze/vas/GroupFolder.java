@@ -1,9 +1,13 @@
 package com.petrkryze.vas;
 
+import android.net.Uri;
+
 import org.apache.commons.io.FilenameUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.Serializable;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Comparator;
 
@@ -12,32 +16,36 @@ import java.util.Comparator;
  */
 public class GroupFolder implements Serializable {
 
-    private final String path;
+    private URI uri; // URI instead of Uri to make it serializable
     private String label;
-    private final ArrayList<String> fileList;
+    private final ArrayList<Uri> fileList;
 
     public static Comparator<GroupFolder> groupComparator = (o1, o2) -> Integer.
             compare(o1.getLabel().compareToIgnoreCase(o2.getLabel()), 0);
 
-    public GroupFolder(String path, ArrayList<String> fileList) {
-        this.path = path;
+    public GroupFolder(Uri uri, ArrayList<Uri> fileList) {
+        try {
+            this.uri = new URI(uri.toString());
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
         this.label = this.getFolderName();
         this.fileList = fileList;
     }
 
-    public String getPath() {
-        return path;
+    public Uri getUri() {
+        return Uri.parse(uri.toString());
     }
 
     public String getFolderName() {
-        return FilenameUtils.getName(this.path);
+        return FilenameUtils.getName(uri.getPath());
     }
 
     public String getLabel() {
         return label;
     }
 
-    public ArrayList<String> getFileList() {
+    public ArrayList<Uri> getFileList() {
         return fileList;
     }
 
@@ -52,6 +60,6 @@ public class GroupFolder implements Serializable {
     @NotNull
     @Override
     public String toString() {
-        return "Label: " + this.label + ", Path: " + this.path + ", Nfiles = " + this.fileList.size();
+        return "Label: " + this.label + ", Path: " + this.uri + ", Nfiles = " + this.fileList.size();
     }
 }

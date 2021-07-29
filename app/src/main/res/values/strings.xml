@@ -61,13 +61,7 @@
         \n\n
         This application was developed for use in research and development in the department of circuit theory, faculty of electrotechnics, CTU in Prague.\n
     </string>
-    <string name="session_info_message">
-        Session information (debug purpose only):\n\n
-        Session ID: %s\n\n
-        Generated: %s\n\n
-        Seed: %s\n\n
-        Rated: %s\n\n
-    </string>
+
 
     <string name="directory_selection_instructions">
         Audio file placement instructions:\n

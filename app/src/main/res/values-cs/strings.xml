@@ -49,13 +49,7 @@
     </string>
     <string name="not_implemented">Tato funkce ještě není implementována.</string>
     <string name="all_rated">Všechny nahrávky byly ohodnoceny!</string>
-    <string name="session_info_message">
-        Informace o sezení (pouze pro vývojářské účely):\n\n
-        ID Sezení: %s\n\n
-        Generováno: %s\n\n
-        Randomizační seed: %s\n\n
-        Ohodnoceno: %s\n\n
-    </string>
+
     <string name="help">Nápověda</string>
     <string name="help_message">
         Tato aplikace slouží k pohodlnému subjektivnímu poslechovému hodnocení srozumitelnosti

@@ -1,10 +1,13 @@
 package com.petrkryze.vas;
 
+import android.net.Uri;
 import android.util.Log;
 
 import org.apache.commons.io.FilenameUtils;
 
 import java.io.Serializable;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Comparator;
 
 import androidx.annotation.NonNull;
@@ -15,7 +18,7 @@ import androidx.annotation.NonNull;
 public class Recording implements Serializable {
     private static final String TAG = "RecordingObject";
 
-    private final String path;
+    private URI uri;
     private final String ID;
     private final int randomIndex;
     private final String groupName;
@@ -102,16 +105,29 @@ public class Recording implements Serializable {
     };
 
 
-    Recording(String path, String groupName, int randomIndex, int rating) {
-        this.path = path;
+    Recording(Uri uri, String groupName, int randomIndex, int rating) {
+        try {
+            this.uri = new URI(uri.toString());
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
         this.randomIndex = randomIndex;
-        this.ID = FilenameUtils.getBaseName(path);
+        this.ID = FilenameUtils.getBaseName(uri.getPath());
         this.groupName = groupName;
         this.rating = rating;
     }
 
-    String getPath() {
-        return path;
+    Recording(String ID, String groupName, int randomIndex, int rating) {
+        this.ID = ID;
+        this.groupName = groupName;
+        this.randomIndex = randomIndex;
+        this.rating = rating;
+
+        this.uri = null;
+    }
+
+    public Uri getUri() {
+        return Uri.parse(uri.toString());
     }
 
     public String getID() {
@@ -139,10 +155,10 @@ public class Recording implements Serializable {
     @NonNull
     @Override
     public String toString() {
-        return "\nID:" + this.ID +
+        return "ID:" + this.ID +
                 ", Group name: " + this.groupName +
                 ", Index: " + this.randomIndex +
                 ", Rating: " + this.rating +
-                ", Path: " + this.path;
+                ", Uri: " + this.uri;
     }
 }

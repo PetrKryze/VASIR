@@ -2,6 +2,14 @@ apply plugin: 'com.android.application'
 apply plugin: "androidx.navigation.safeargs"
 
 android {
+    signingConfigs {
+        release {
+            storeFile file('D:\\Petr\\Documents\\Android Studio Projects\\VAS\\app\\signing\\upload-keystore.jks')
+            storePassword 'n48FeQuGxd8Aahbx'
+            keyAlias 'deviceKey'
+            keyPassword 'n48FeQuGxd8Aahbx'
+        }
+    }
     compileSdkVersion 30
     defaultConfig {
         applicationId "com.petrkryze.vas"
@@ -11,6 +19,7 @@ android {
         versionName "1.1"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
+        signingConfig signingConfigs.release
     }
     buildTypes {
         release {
@@ -18,10 +27,14 @@ android {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'),
                     'proguard-rules.pro'
+            debuggable true
         }
     }
     buildFeatures {
         viewBinding true
+    }
+    lintOptions {
+        checkReleaseBuilds false
     }
 }
 

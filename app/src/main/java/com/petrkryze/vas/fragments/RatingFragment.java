@@ -41,7 +41,6 @@ import com.petrkryze.vas.databinding.FragmentRatingBinding;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -55,7 +54,6 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.NavDirections;
 import androidx.navigation.fragment.NavHostFragment;
 
-import static com.petrkryze.vas.DocumentUtils.getFullPathFromTreeUri;
 import static com.petrkryze.vas.MainActivity.applyTintFilter;
 import static com.petrkryze.vas.RatingManager.DIRCHECK_RESULT_DIRECTORY;
 import static com.petrkryze.vas.RatingManager.DIRCHECK_RESULT_ERROR_TYPE;
@@ -97,34 +95,37 @@ public class RatingFragment extends Fragment {
     private static int VIBRATE_BUTTON_LONG_MS;
     private static int VIBRATE_RATING_START_MS;
 
+    private ButtonState playPauseButtonState = ButtonState.PAUSED;
+    private enum ButtonState {PLAYING, PAUSED}
     private Drawable playIcon;
+    private Drawable pauseIcon;
     private final View.OnClickListener playListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
             Log.d(TAG, "onClick: BUTTON PLAY CLICKED");
             vibrator.vibrate(VibrationEffect.createOneShot(VIBRATE_BUTTON_MS,VibrationEffect.DEFAULT_AMPLITUDE));
-            if (initDone && player.isPrepared() && !player.isSeeking()) {
-                if (player.play()) {
+            if (initDone && !player.isSeeking() && playPauseButtonState == ButtonState.PAUSED) {
+                if (player.start()) {
                     buttonPlayPause.setText(getString(R.string.button_pause_label));
                     buttonPlayPause.setCompoundDrawablesWithIntrinsicBounds(null, pauseIcon, null, null);
                     buttonPlayPause.setOnClickListener(pauseListener);
+                    playPauseButtonState = ButtonState.PLAYING;
                 }
             }
         }
     };
-
-    private Drawable pauseIcon;
     private final View.OnClickListener pauseListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
             Log.d(TAG, "onClick: BUTTON PAUSE CLICKED");
             vibrator.vibrate(VibrationEffect.createOneShot(VIBRATE_BUTTON_MS,VibrationEffect.DEFAULT_AMPLITUDE));
-            if (initDone && player.isPrepared() && !player.isSeeking()) {
-                player.pause();
-
-                buttonPlayPause.setText(getString(R.string.button_play_label));
-                buttonPlayPause.setCompoundDrawablesWithIntrinsicBounds(null, playIcon, null, null);
-                buttonPlayPause.setOnClickListener(playListener);
+            if (initDone && !player.isSeeking() && playPauseButtonState == ButtonState.PLAYING) {
+                if (player.pause()) {
+                    buttonPlayPause.setText(getString(R.string.button_play_label));
+                    buttonPlayPause.setCompoundDrawablesWithIntrinsicBounds(null, playIcon, null, null);
+                    buttonPlayPause.setOnClickListener(playListener);
+                    playPauseButtonState = ButtonState.PAUSED;
+                }
             }
         }
     };
@@ -234,17 +235,17 @@ public class RatingFragment extends Fragment {
         public void onStartTrackingTouch(SeekBar seekBar) {
             vibrator.vibrate(VibrationEffect.createOneShot(VIBRATE_BUTTON_MS,VibrationEffect.DEFAULT_AMPLITUDE));
             isTouchingSeekBar = true;
+            player.dontTick();
         }
 
         @Override
         public void onStopTrackingTouch(SeekBar seekBar) {
             playerProgressBar.playSoundEffect(SoundEffectConstants.CLICK);
-            if (initDone && player.isPrepared() && !player.isSeeking()) {
+            if (initDone) {
                 player.seekTo(seekBar.getProgress());
                 ratingManager.setPlayProgress(seekBar.getProgress());
             }
             isTouchingSeekBar = false;
-            player.doTick();
         }
     };
 
@@ -252,28 +253,29 @@ public class RatingFragment extends Fragment {
             new SelectDirectory(),
             resultUri -> {
                 if (resultUri != null) {
-                    String fullPath = getFullPathFromTreeUri(resultUri, requireContext());
-
+                    // LEGACY Approach
+                    // String fullPath = getFullPathFromTreeUri(resultUri, RatingFragment.this.requireContext());
+                    String fullPath = resultUri.getPath();
                     if (fullPath == null || fullPath.equals("")) {
-                        new MaterialAlertDialogBuilder(requireContext())
-                                .setTitle(getString(R.string.dialog_internal_error_title))
-                                .setMessage(getString(R.string.dialog_internal_error_message))
+                        new MaterialAlertDialogBuilder(RatingFragment.this.requireContext())
+                                .setTitle(RatingFragment.this.getString(R.string.dialog_internal_error_title))
+                                .setMessage(RatingFragment.this.getString(R.string.dialog_internal_error_message))
                                 .setIcon(applyTintFilter(
-                                        ContextCompat.getDrawable(requireContext(), R.drawable.ic_error),
-                                        requireContext().getColor(R.color.errorColor)))
-                                .setPositiveButton(R.string.dialog_internal_error_quit, (dialog, which) -> requireActivity().finish())
+                                        ContextCompat.getDrawable(RatingFragment.this.requireContext(), R.drawable.ic_error),
+                                        RatingFragment.this.requireContext().getColor(R.color.errorColor)))
+                                .setPositiveButton(R.string.dialog_internal_error_quit, (dialog, which) -> RatingFragment.this.requireActivity().finish())
                                 .setCancelable(false).show();
                     } else {
-                        requireContext().getContentResolver().takePersistableUriPermission(resultUri,
-                                Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                        File dataDir = new File(fullPath);
-                        Log.d(TAG, "onActivityResult: Selected directory: " + dataDir.getAbsolutePath());
-                        manageDirectory(dataDir, true); // Go check the selected directory and it's contents
+                        RatingFragment.this.requireContext().getContentResolver()
+                                .takePersistableUriPermission(resultUri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                        // Go check the selected directory and it's contents
+                        Log.d(TAG, "onActivityResult: Selected directory: " + fullPath);
+                        RatingFragment.this.manageDirectory(resultUri, true);
                     }
                 } else {
                     Log.d(TAG, "onActivityResult: User left the directory selection activity without selecting.");
-                    fireSessionCreationCancelled();
-                    manageLoading(); // Cycle back to the session check
+                    RatingFragment.this.fireSessionCreationCancelled();
+                    RatingFragment.this.manageLoading(); // Cycle back to the session check
                 }
             }
     );
@@ -419,7 +421,7 @@ public class RatingFragment extends Fragment {
 
         switch (ratingManager.loadSession()) {
             case OK:
-                manageDirectory(new File(ratingManager.getDataDirPath()), false);
+                manageDirectory(ratingManager.getDataDirPath(), false);
                 return;
             case NO_SESSION:
                 title = getString(R.string.dialog_no_session_found_title);
@@ -455,9 +457,9 @@ public class RatingFragment extends Fragment {
                 .setCancelable(false).show());
     }
 
-    private void manageDirectory(File selected_dir, boolean newSession) {
+    private void manageDirectory(Uri selectedDir, boolean newSession) {
         Bundle checkResult = ratingManager.checkDataDirectoryPath(
-                selected_dir, newSession, this, confirmed -> {
+                selectedDir, newSession, this, confirmed -> {
                     Log.d(TAG, "manageDirectory: Group check done callback triggered!");
 
                     if (confirmed) {
@@ -492,7 +494,8 @@ public class RatingFragment extends Fragment {
                         fireSessionCreationCancelled();
                         manageLoading(); // Cycle back to the session check
                     }
-                });
+                }
+        );
 
         if (checkResult.getBoolean(DIRCHECK_RESULT_IS_OK)) {
             // Directory is ok and we can proceed to actual rating 😊
@@ -566,7 +569,9 @@ public class RatingFragment extends Fragment {
             // Calls the player instance to try to set a new active track
             try {
                 // Track progress timer and bar will be set when the track is prepared by the player
-                player.setCurrentTrack(selectedRecording);
+                if (!player.setCurrentTrack(requireContext(), selectedRecording.getUri())) {
+                    return;
+                }
             } catch (IOException e) {
                 e.printStackTrace();
                 Log.e(TAG, "changeCurrentTrack: Player could not be initialized with a track!", e);
@@ -642,11 +647,27 @@ public class RatingFragment extends Fragment {
                     ratingManager.setPlayProgress(0);
                     playerTimeTracker.setText(formatDuration(0));
                 }
+
+                // Failsafe so we dont accidentally end up with buttons invisible when they shouldnt
+                if (buttonNext.getVisibility() == View.INVISIBLE) {
+                    if (ratingManager.getTrackPointer() < ratingManager.getTrackN()-1) {
+                        buttonNext.setVisibility(View.VISIBLE);
+                    }
+                }
+                if (buttonPrevious.getVisibility() == View.INVISIBLE) {
+                    if (ratingManager.getTrackPointer() > 0) {
+                        buttonPrevious.setVisibility(View.VISIBLE);
+                    }
+                }
             }
 
             @Override
             public void onTrackFinished() {
-                buttonPlayPause.callOnClick();
+                // "Force" set the play/pause button to the paused state
+                buttonPlayPause.setText(getString(R.string.button_play_label));
+                buttonPlayPause.setCompoundDrawablesWithIntrinsicBounds(null, playIcon, null, null);
+                buttonPlayPause.setOnClickListener(playListener);
+                playPauseButtonState = ButtonState.PAUSED;
                 player.rewind();
                 ratingManager.setPlayProgress(0);
             }
@@ -679,6 +700,11 @@ public class RatingFragment extends Fragment {
                     ratingManager.setPlayProgress(current_ms);
                 }
             }
+
+            @Override
+            public void onError() {
+                changeCurrentTrack(0, ratingManager.getTrackPointer());
+            }
         };
     }
 
@@ -707,8 +733,11 @@ public class RatingFragment extends Fragment {
     @Override
     public void onPause() {
         super.onPause();
-        if (player != null && player.isPlaying()) {
-            buttonPlayPause.callOnClick();
+        if (player != null) {
+            player.dontTick();
+            if (playPauseButtonState == ButtonState.PLAYING) {
+                buttonPlayPause.callOnClick();
+            }
         }
 
         // Saves the session on every Pause occasion (change app, phone lock, change screen, ...)
@@ -847,8 +876,10 @@ public class RatingFragment extends Fragment {
         @Override
         public Intent createIntent(@NonNull Context context, @Nullable Uri input) {
             Intent intent = super.createIntent(context, input);
-            intent.addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);
-            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION
+                    | Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                    | Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION
+                    | Intent.FLAG_GRANT_PREFIX_URI_PERMISSION);
             return intent;
         }
     }

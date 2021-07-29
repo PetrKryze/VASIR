@@ -23,10 +23,10 @@
 -keep public class * extends androidx.appcompat.app.AppCompatActivity
 
 -keep public class com.petrkryze.vas.DocumentUtils
+#-keep public class com.petrkryze.vas.RatingManager
 -assumenosideeffects class android.util.Log {
     public static *** d(...);
     public static *** v(...);
-    public static *** i(...);
 }
 
 -keepnames class * implements java.io.Serializable

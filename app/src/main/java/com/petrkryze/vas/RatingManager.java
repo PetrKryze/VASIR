@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.media.MediaScannerConnection;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.Pair;
@@ -28,6 +29,7 @@ import java.util.List;
 import java.util.Random;
 
 import androidx.annotation.NonNull;
+import androidx.documentfile.provider.DocumentFile;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavDirections;
 import androidx.navigation.fragment.NavHostFragment;
@@ -60,10 +62,10 @@ public class RatingManager {
     private ArrayList<Integer> ratings;
     private String currentSessionFilePath;
 
-    private ArrayList<String> fileList = null; // For file consistency check in storage
+    private ArrayList<Uri> fileList = null; // For file consistency check in storage
 
     private State state;
-    private String dataDirPath;
+    private Uri dataDirPath;
     private int trackPointer = -1;
     private int savedPlayProgress = Player.SAVED_PROGRESS_DEFAULT;
 
@@ -98,30 +100,36 @@ public class RatingManager {
 
     public static final String GROUP_CHECK_RESULT_REQUEST_KEY = "group_check_result";
     @SuppressWarnings("unchecked")
-    public Bundle checkDataDirectoryPath(File rootDataDir, boolean newSession, Fragment caller,
+    public Bundle checkDataDirectoryPath(Uri rootDataUri, boolean newSession, Fragment caller,
                                          GroupFoldersUserCheckCallback callback) {
+        DocumentFile rootDataDir = DocumentFile.fromTreeUri(caller.requireContext(), rootDataUri);
+        assert rootDataDir != null;
+
+        DocumentFile[] documentFiles = rootDataDir.listFiles();
+        for (DocumentFile document : documentFiles) {
+            Log.d(TAG, "checkDataDirectoryPath: File: " + document.getName());
+        }
+
         Bundle ret = new Bundle();
         ret.putBoolean(DIRCHECK_RESULT_IS_OK, false); // Default on false, when ok overwrite
         ret.putString(DIRCHECK_RESULT_DIRECTORY, rootDataDir.getName());
 
         // Basic checks for root directory
-        Pair<Boolean, FileCheckError> rootCheck = existsIsDirOrFileCanRead(rootDataDir, true);
+        Pair<Boolean, FileCheckError> rootCheck = existsIsDirCanRead(rootDataDir);
         if (!rootCheck.first) {
             ret.putString(DIRCHECK_RESULT_ERROR_TYPE, rootCheck.second.toString());
             return ret;
         }
-
         // Assess group folders placed directly in root
         ArrayList<GroupFolder> groupFolders = getGroupFolderList(rootDataDir);
 
         // If no good group folders found check for files only placed directly in root
         if (groupFolders.isEmpty()) {
-            ArrayList<File> foundFiles = getFileList(rootDataDir, false);
+            ArrayList<DocumentFile> foundFiles = getFileList(rootDataDir, false);
             if (!foundFiles.isEmpty()) {
-                ArrayList<String> foundFilesPaths = fileListToPathList(foundFiles);
+                ArrayList<Uri> foundFilesPaths = fileListToUriList(foundFiles);
                 Collections.sort(foundFilesPaths);
-                groupFolders.add(new GroupFolder(rootDataDir.getAbsolutePath(),
-                        foundFilesPaths));
+                groupFolders.add(new GroupFolder(rootDataDir.getUri(), foundFilesPaths));
             }
         }
 
@@ -135,9 +143,9 @@ public class RatingManager {
             }
 
             if (!newSession) { // Previous session found, check consistency
-                ArrayList<String> lastSessionFiles = new ArrayList<>(this.fileList);
+                ArrayList<Uri> lastSessionFiles = new ArrayList<>(this.fileList);
 
-                for (String filePath : this.fileList) {
+                for (Uri filePath : this.fileList) {
                     for (GroupFolder gf : groupFolders) {
                         if (gf.getFileList().contains(filePath)) {
                             lastSessionFiles.remove(filePath);
@@ -155,8 +163,8 @@ public class RatingManager {
                     ret.putInt(DIRCHECK_RESULT_MISSING_CNT, lastSessionFiles.size());
                     StringBuilder sb = new StringBuilder();
 
-                    for (String str : lastSessionFiles) {
-                        sb.append(str).append("\n");
+                    for (Uri uri : lastSessionFiles) {
+                        sb.append(uri).append("\n");
                     }
                     ret.putString(DIRCHECK_RESULT_MISSING_LIST, sb.toString());
                 }
@@ -172,7 +180,7 @@ public class RatingManager {
                                                     GroupControlFragment.GroupFolderListSerializedKey
                                             );
 
-                                    wipeCurrentSession(); // TODO if ok
+                                    wipeCurrentSession();
                                     makeNewSession(rootDataDir, validGroupFolders, callback);
                                 } else { // GroupControlFragment exit without confirm
                                     // Signal to RatingFragment that the process was cancelled
@@ -203,9 +211,9 @@ public class RatingManager {
      * {@link File} exists, is the specified type, and can be read. Second member contains a
      * {@link FileCheckError} enum instance of indicating the specific outcome of the check.
      */
-    private static Pair<Boolean, FileCheckError> existsIsDirOrFileCanRead(File dirOrFile,
-                                                                          boolean checkForDir,
-                                                                          boolean checkForWritable) {
+    private static Pair<Boolean, FileCheckError> existsIsDirOrFileCanReadCanWrite(DocumentFile dirOrFile,
+                                                                                  boolean checkForDir,
+                                                                                  boolean checkForWritable) {
         if (!dirOrFile.exists()) {
             return Pair.create(false, FileCheckError.NOT_EXIST);
         } else {
@@ -230,31 +238,38 @@ public class RatingManager {
         return Pair.create(true, FileCheckError.OK);
     }
 
-    private static Pair<Boolean, FileCheckError> existsIsDirOrFileCanRead(File dirOrFile, boolean checkForDir) {
-        return existsIsDirOrFileCanRead(dirOrFile, checkForDir, false);
+   private static Pair<Boolean, FileCheckError> existsIsDirCanReadCanWrite(File dir) {
+        return existsIsDirOrFileCanReadCanWrite(DocumentFile.fromFile(dir), true, true);
     }
 
-    private ArrayList<GroupFolder> getGroupFolderList(File root) {
+    private static Pair<Boolean, FileCheckError> existsIsDirCanRead(DocumentFile dir) {
+        return existsIsDirOrFileCanReadCanWrite(dir, true, false);
+    }
+
+    private static Pair<Boolean, FileCheckError> existsIsFileCanRead(File file) {
+        return existsIsDirOrFileCanReadCanWrite(DocumentFile.fromFile(file), false, false);
+    }
+
+    private ArrayList<GroupFolder> getGroupFolderList(DocumentFile root) {
         ArrayList<GroupFolder> foundFolders = new ArrayList<>();
 
-        File[] files = root.listFiles();
-        if (files != null && files.length > 0) { // Check for empty root directory
-            for (File potentialGroupFolder : files) {
-                Pair<Boolean, FileCheckError> folderCheck =
-                        existsIsDirOrFileCanRead(potentialGroupFolder, true);
+        DocumentFile[] files = root.listFiles();
+        if (files.length > 0) { // Check for empty root directory
+            for (DocumentFile potentialGroupFolder : files) {
+                Pair<Boolean, FileCheckError> folderCheck = existsIsDirCanRead(potentialGroupFolder);
+
                 if (folderCheck.first) { // That's what we want
                     // Goes in depth and looks if there are any usable files in this directory
-                    ArrayList<File> foundAudioFiles = getFileList(potentialGroupFolder);
+                    ArrayList<DocumentFile> foundAudioFiles = getFileList(potentialGroupFolder);
 
                     if (!foundAudioFiles.isEmpty()) { // Some audio was found!
-                        ArrayList<String> foundAudioPaths = fileListToPathList(foundAudioFiles);
-                        Collections.sort(foundAudioPaths);
-                        foundFolders.add(new GroupFolder(potentialGroupFolder.getAbsolutePath(),
-                                foundAudioPaths));
+                        ArrayList<Uri> foundAudioUris = fileListToUriList(foundAudioFiles);
+                        Collections.sort(foundAudioUris);
+                        foundFolders.add(new GroupFolder(potentialGroupFolder.getUri(), foundAudioUris));
                     } // else ignore this folder and move on
                 } else {
-                    Log.w(TAG, "getGroupFolderList: Error! File: " +
-                            potentialGroupFolder.getAbsolutePath() + ", Message: " +
+                    Log.d(TAG, "getGroupFolderList: File: " +
+                            potentialGroupFolder.getUri() + ", Message: " +
                             folderCheck.second.toString());
                 }
             }
@@ -262,23 +277,24 @@ public class RatingManager {
         return foundFolders;
     }
 
-    private ArrayList<File> getFileList(File path) {
+    private ArrayList<DocumentFile> getFileList(DocumentFile path) {
         return getFileList(path, true);
     }
 
     // Extracts audio files recursively from folder
-    private ArrayList<File> getFileList(File path, boolean goDeep) {
-        ArrayList<File> foundFiles = new ArrayList<>();
+    private ArrayList<DocumentFile> getFileList(DocumentFile path, boolean goDeep) {
+        ArrayList<DocumentFile> foundFiles = new ArrayList<>();
 
-        File[] files = path.listFiles();
-        if (files != null && files.length > 0) {
-            for (File file : files) {
+        DocumentFile[] files = path.listFiles();
+        if (files.length > 0) {
+            for (DocumentFile file : files) {
                 if (file.isDirectory() && goDeep) { // File is directory
                     foundFiles.addAll(getFileList(file));
                 } else { // File is file (lol)
                     ArrayList<String> ext = new ArrayList<>(Arrays.asList(SUPPORTED_EXTENSIONS));
 
-                    if (ext.contains(FilenameUtils.getExtension(file.getPath()).toLowerCase())) {
+                    assert file.getName() != null;
+                    if (ext.contains(FilenameUtils.getExtension(file.getName()).toLowerCase())) {
                         foundFiles.add(file);
                     } else {
                         Log.w(TAG, "getFilelist: " + file.getName() + " - unsupported extension.");
@@ -289,15 +305,15 @@ public class RatingManager {
         return foundFiles;
     }
 
-    private ArrayList<String> fileListToPathList(ArrayList<File> filelist) {
-        ArrayList<String> paths = new ArrayList<>();
-        for (File f : filelist) {
-            paths.add(f.getAbsolutePath());
+    private ArrayList<Uri> fileListToUriList(ArrayList<DocumentFile> fileList) {
+        ArrayList<Uri> paths = new ArrayList<>();
+        for (DocumentFile f : fileList) {
+            paths.add(f.getUri());
         }
         return paths;
     }
 
-    void makeNewSession(File rootDirectory,
+    void makeNewSession(DocumentFile rootDirectory,
                         ArrayList<GroupFolder> validGroupFolders,
                         GroupFoldersUserCheckCallback callback) {
         this.session_ID = getNewSessionID(); // Increments last existing session number
@@ -308,7 +324,7 @@ public class RatingManager {
         this.generatorMessage = format.format(new Date(System.currentTimeMillis()));
         this.currentSessionFilePath = null; // Will be filled when result is saved
 
-        this.dataDirPath = rootDirectory.getAbsolutePath();
+        this.dataDirPath = rootDirectory.getUri();
         this.state = State.STATE_IDLE;
         this.trackPointer = 0;
         this.savedPlayProgress = 0;
@@ -328,9 +344,9 @@ public class RatingManager {
         int counter = 0;
         ArrayList<Recording> joinedRecordingsList = new ArrayList<>();
         for (GroupFolder gf : validGroupFolders) {
-            for (String filePath : gf.getFileList()) {
+            for (Uri fileUri : gf.getFileList()) {
                 joinedRecordingsList.add(new Recording(
-                        filePath, gf.getLabel(), rNums.get(counter), DEFAULT_UNSET_RATING
+                        fileUri, gf.getLabel(), rNums.get(counter), DEFAULT_UNSET_RATING
                 ));
                 counter++;
             }
@@ -342,10 +358,10 @@ public class RatingManager {
         this.trackList = joinedRecordingsList;
 
         ArrayList<Integer> newRatings = new ArrayList<>();
-        ArrayList<String> newJoinedFileList = new ArrayList<>();
+        ArrayList<Uri> newJoinedFileList = new ArrayList<>();
         for (Recording r : this.trackList) {
             newRatings.add(r.getRating());
-            newJoinedFileList.add(r.getPath());
+            newJoinedFileList.add(r.getUri());
         }
         this.ratings = newRatings;
         Collections.sort(newJoinedFileList);
@@ -441,7 +457,7 @@ public class RatingManager {
         return trackList.size();
     }
 
-    public String getDataDirPath() { return dataDirPath; }
+    public Uri getDataDirPath() { return dataDirPath; }
 
     public static final String GET_SESSION_INFO_LOAD_RESULT_KEY = "LoadResult";
     public static final String SESSION_INFO_BUNDLE_SESSION = "session";
@@ -519,7 +535,7 @@ public class RatingManager {
         SharedPreferences.Editor editor = preferences.edit();
         editor.putString(KEY_PREFERENCES_CURRENT_SESSION, new Gson().toJson(currentSession))
                 .putString(KEY_PREFERENCES_STATE, this.state.toString())
-                .putString(KEY_PREFERENCES_DATADIR_PATH, this.dataDirPath)
+                .putString(KEY_PREFERENCES_DATADIR_PATH, this.dataDirPath.toString())
                 .putInt(KEY_PREFERENCES_TRACK_POINTER, this.trackPointer)
                 .putInt(KEY_PREFERENCES_SAVED_PLAY_PROGRESS, this.savedPlayProgress)
                 .apply();
@@ -586,17 +602,17 @@ public class RatingManager {
             this.trackList = currentTrackList;
 
             ArrayList<Integer> lastRatings = new ArrayList<>();
-            ArrayList<String> lastFileList = new ArrayList<>();
+            ArrayList<Uri> lastFileList = new ArrayList<>();
             for (Recording r : this.trackList) {
                 lastRatings.add(r.getRating());
-                lastFileList.add(r.getPath());
+                lastFileList.add(r.getUri());
             }
             this.ratings = lastRatings;
             Collections.sort(lastFileList); // Ensures the same, alphabetical order after loading
             this.fileList = lastFileList;
 
             setState(lastState);
-            this.dataDirPath = datadirPath;
+            this.dataDirPath = Uri.parse(datadirPath);
             this.trackPointer = trackPointer;
             this.savedPlayProgress = savedPlayProgress;
         } catch (Exception e) {
@@ -620,8 +636,7 @@ public class RatingManager {
 
     static void checkResultsDirectory(File resultsDirectory) throws IOException {
         String path = resultsDirectory.getAbsolutePath();
-        Pair<Boolean, FileCheckError> checkResult =
-                existsIsDirOrFileCanRead(resultsDirectory, true, true);
+        Pair<Boolean, FileCheckError> checkResult = existsIsDirCanReadCanWrite(resultsDirectory);
 
         if (!checkResult.first) { // Results directory check failed
             if (checkResult.second.equals(FileCheckError.NOT_EXIST)) {
@@ -632,8 +647,8 @@ public class RatingManager {
                     checkResultsDirectory(resultsDirectory);
                 }
             } else {
-                throw new IOException("checkResultsDirectory: Results directory <" + path + "> check failed.\n" +
-                        "Reason: " + checkResult.second.toString());
+                throw new IOException("checkResultsDirectory: Results directory <" + path +
+                        "> check failed.\n" + "Reason: " + checkResult.second.toString());
             }
         }
     }
@@ -641,6 +656,7 @@ public class RatingManager {
     public static ArrayList<RatingResult> loadResults(Context context) throws Exception {
         Log.i(TAG, "loadResults: Loading results...");
         File resultsDir = new File(context.getFilesDir(), context.getString(R.string.DIRECTORY_NAME_RESULTS));
+
         checkResultsDirectory(resultsDir); // Throws exception if the directory is not OK
 
         ArrayList<RatingResult> foundResults = new ArrayList<>();
@@ -655,7 +671,7 @@ public class RatingManager {
             Log.d(TAG, "loadResults: Found result file list:");
             for (File foundResultFile : resultFiles) {
                 Log.d(TAG, "loadResults: Result file: " + foundResultFile.getAbsolutePath());
-                Pair<Boolean, FileCheckError> result = existsIsDirOrFileCanRead(foundResultFile, false);
+                Pair<Boolean, FileCheckError> result = existsIsFileCanRead(foundResultFile);
 
                 // Found result file is OK, check if it's text file
                 if (result.first) {
@@ -689,7 +705,7 @@ public class RatingManager {
             Log.d(TAG, "saveResults: Found result file list:");
             for (File foundResultFile : resultFiles) {
                 Log.d(TAG, "saveResults: Result file: " + foundResultFile.getAbsolutePath());
-                Pair<Boolean, FileCheckError> result = existsIsDirOrFileCanRead(foundResultFile, false);
+                Pair<Boolean, FileCheckError> result = existsIsFileCanRead(foundResultFile);
 
                 // Found result file is OK, check if it's text file
                 if (result.first) {
@@ -775,6 +791,7 @@ public class RatingManager {
             }
         }
     }
+
     @SuppressLint("SimpleDateFormat")
     public static File saveResultToTemp(Context context, RatingResult ratingResult) throws Exception {
         // Temporary directory
@@ -820,6 +837,7 @@ public class RatingManager {
         return newTempResultFile;
     }
 
+    /* Utility method for creating randomized file names
     private final static String alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     public static String getRandomName16() {
         StringBuilder sb = new StringBuilder(16);
@@ -827,4 +845,5 @@ public class RatingManager {
         for (int i = 0; i < 16; i++) sb.append(alphabet.charAt(rnd.nextInt(alphabet.length() - 1)));
         return sb.toString();
     }
+    */
 }
