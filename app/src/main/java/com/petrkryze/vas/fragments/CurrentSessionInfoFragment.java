@@ -219,7 +219,7 @@ public class CurrentSessionInfoFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        loadingVisibility(true);
         if (getArguments() != null) {
             currentSession = CurrentSessionInfoFragmentArgs.fromBundle(getArguments()).getRatingResult();
             recordingsToDisplay = new ArrayList<>(currentSession.getRecordings());
@@ -278,6 +278,8 @@ public class CurrentSessionInfoFragment extends Fragment {
         headerRating.setOnClickListener(new SortColumnListener(RecordingListSortBy.RATING));
 
         headerGroup.setChecked(true);
+
+        loadingVisibility(false);
     }
 
     @Override
@@ -319,23 +321,76 @@ public class CurrentSessionInfoFragment extends Fragment {
             NavHostFragment.findNavController(this).navigate(directions);
             return true;
         } else if (itemID == R.id.action_menu_show_saved_results) {
-            try {
-                ArrayList<RatingResult> ratings = RatingManager.loadResults(requireContext());
-
-                NavDirections directions =
-                        CurrentSessionInfoFragmentDirections.actionCurrentSessionInfoFragmentToResultFragment(ratings);
-                NavHostFragment.findNavController(this).navigate(directions);
-            } catch (Exception e) {
-                e.printStackTrace();
-                Snackbar.make(requireActivity().findViewById(R.id.coordinator),
-                        Html.fromHtml(getString(R.string.snackbar_ratings_loading_failed, e.getMessage()),Html.FROM_HTML_MODE_LEGACY),
-                        BaseTransientBottomBar.LENGTH_LONG)
-                        .setAnchorView(buttonShare)
-                        .setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE).show();
-            }
+            loadingVisibility(true);
+            new Thread(() -> { // Threading for slow loading times
+                try {
+                    ArrayList<RatingResult> ratings = RatingManager.loadResults(requireContext());
+                    loadingVisibility(false);
+                    requireActivity().runOnUiThread(() -> {
+                        NavDirections directions =
+                                CurrentSessionInfoFragmentDirections.actionCurrentSessionInfoFragmentToResultFragment(ratings);
+                        NavHostFragment.findNavController(this).navigate(directions);
+                    });
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    loadingVisibility(false);
+                    requireActivity().runOnUiThread(() -> Snackbar.make(requireActivity().findViewById(R.id.coordinator),
+                            Html.fromHtml(getString(R.string.snackbar_ratings_loading_failed, e.getMessage()),Html.FROM_HTML_MODE_LEGACY),
+                            BaseTransientBottomBar.LENGTH_LONG)
+                            .setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE).show()
+                    );
+                }
+            }, "ResultsLoadingThread").start();
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void loadingVisibility(boolean show) {requireContext().sendBroadcast(
+            new Intent().setAction(show ? MainActivity.ACTION_SHOW_LOADING : MainActivity.ACTION_HIDE_LOADING));}
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (isExcelSharing) {
+            progressExcelLoading.setVisibility(View.GONE);
+            buttonShareAsExcel.setTextColor(requireContext().getColor(R.color.textPrimaryOnPrimary));
+            buttonShareAsExcel.setClickable(true);
+
+            isExcelSharing = false;
+        }
+
+        if (isTextSharing) {
+            progressTextLoading.setVisibility(View.GONE);
+            buttonShareAsText.setTextColor(requireContext().getColor(R.color.textPrimaryOnSecondary));
+            buttonShareAsText.setClickable(true);
+
+            isTextSharing = false;
+        }
+
+        ExcelUtils.dumpTempFolder(requireContext());
+    }
+
+    private void startShareActivity(Uri uri, String description) {
+        String mimeType = "text/plain";
+        String[] mimeTypeArray = new String[] { mimeType };
+
+        ClipDescription clipDescription = new ClipDescription(description, mimeTypeArray);
+        ClipData clipData = new ClipData(clipDescription, new ClipData.Item(uri));
+
+        // Note possible duplicate mimetype and data declaration, maybe fix when ClipData framework
+        // is not a complete joke
+        Intent sharingIntent = new Intent(Intent.ACTION_SEND);
+        sharingIntent.setClipData(clipData);
+        sharingIntent.setType(mimeType)
+                .addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
+                .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                .putExtra(Intent.EXTRA_STREAM, uri)
+                .putExtra(Intent.EXTRA_TITLE, description)
+                .putExtra(Intent.EXTRA_SUBJECT, description);
+
+        requireContext().startActivity(Intent.createChooser(sharingIntent,
+                requireContext().getString(R.string.share_using)));
     }
 
     class SortColumnListener implements View.OnClickListener {
@@ -370,49 +425,5 @@ public class CurrentSessionInfoFragment extends Fragment {
 
             recyclerViewAdapter.notifyDataSetChanged();
         }
-    }
-
-    private void startShareActivity(Uri uri, String description) {
-        String mimeType = "text/plain";
-        String[] mimeTypeArray = new String[] { mimeType };
-
-        ClipDescription clipDescription = new ClipDescription(description, mimeTypeArray);
-        ClipData clipData = new ClipData(clipDescription, new ClipData.Item(uri));
-
-        // Note possible duplicate mimetype and data declaration, maybe fix when ClipData framework
-        // is not a complete joke
-        Intent sharingIntent = new Intent(Intent.ACTION_SEND);
-        sharingIntent.setClipData(clipData);
-        sharingIntent.setType(mimeType)
-                .addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
-                .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                .putExtra(Intent.EXTRA_STREAM, uri)
-                .putExtra(Intent.EXTRA_TITLE, description)
-                .putExtra(Intent.EXTRA_SUBJECT, description);
-
-        requireContext().startActivity(Intent.createChooser(sharingIntent,
-                requireContext().getString(R.string.share_using)));
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        if (isExcelSharing) {
-            progressExcelLoading.setVisibility(View.GONE);
-            buttonShareAsExcel.setTextColor(requireContext().getColor(R.color.textPrimaryOnPrimary));
-            buttonShareAsExcel.setClickable(true);
-
-            isExcelSharing = false;
-        }
-
-        if (isTextSharing) {
-            progressTextLoading.setVisibility(View.GONE);
-            buttonShareAsText.setTextColor(requireContext().getColor(R.color.textPrimaryOnSecondary));
-            buttonShareAsText.setClickable(true);
-
-            isTextSharing = false;
-        }
-
-        ExcelUtils.dumpTempFolder(requireContext());
     }
 }

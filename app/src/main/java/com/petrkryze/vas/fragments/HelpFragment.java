@@ -1,6 +1,7 @@
 package com.petrkryze.vas.fragments;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.Html;
 import android.view.LayoutInflater;
@@ -101,32 +102,46 @@ public class HelpFragment extends Fragment {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         int itemID = item.getItemId();
         if (itemID == R.id.action_menu_show_saved_results) {
-            try {
-                ArrayList<RatingResult> ratings = RatingManager.loadResults(requireContext());
-
-                NavDirections directions =
-                        HelpFragmentDirections.actionHelpFragmentToResultFragment(ratings);
-                NavHostFragment.findNavController(this).navigate(directions);
-            } catch (Exception e) {
-                e.printStackTrace();
-                Snackbar.make(requireActivity().findViewById(R.id.coordinator),
-                        Html.fromHtml(getString(R.string.snackbar_ratings_loading_failed, e.getMessage()),Html.FROM_HTML_MODE_LEGACY),
-                        BaseTransientBottomBar.LENGTH_LONG)
-                        .setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE).show();
-            }
+            loadingVisibility(true);
+            new Thread(() -> { // Threading for slow loading times
+                try {
+                    ArrayList<RatingResult> ratings = RatingManager.loadResults(requireContext());
+                    loadingVisibility(false);
+                    requireActivity().runOnUiThread(() -> {
+                        NavDirections directions =
+                                HelpFragmentDirections.actionHelpFragmentToResultFragment(ratings);
+                        NavHostFragment.findNavController(this).navigate(directions);
+                    });
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    loadingVisibility(false);
+                    requireActivity().runOnUiThread(() -> Snackbar.make(requireActivity().findViewById(R.id.coordinator),
+                            Html.fromHtml(getString(R.string.snackbar_ratings_loading_failed, e.getMessage()),Html.FROM_HTML_MODE_LEGACY),
+                            BaseTransientBottomBar.LENGTH_LONG)
+                            .setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE).show()
+                    );
+                }
+            }, "ResultsLoadingThread").start();
             return true;
         } else if (itemID == R.id.action_menu_show_session_info) {
-            MainActivity.navigateToCurrentSessionInfo(
+            loadingVisibility(true);
+            new Thread(() -> MainActivity.navigateToCurrentSessionInfo(
                     this, session -> {
-                        NavDirections directions = HelpFragmentDirections
-                                .actionHelpFragmentToCurrentSessionInfoFragment(session);
-                        NavHostFragment.findNavController(HelpFragment.this)
-                                .navigate(directions);
+                        loadingVisibility(false);
+                        requireActivity().runOnUiThread(() -> {
+                            NavDirections directions = HelpFragmentDirections
+                                    .actionHelpFragmentToCurrentSessionInfoFragment(session);
+                            NavHostFragment.findNavController(HelpFragment.this)
+                                    .navigate(directions);
+                        });
                     }
-            );
+            ), "SessionLoadingThread").start();
             return true;
         }
 
         return super.onOptionsItemSelected(item);
     }
+
+    private void loadingVisibility(boolean show) {requireContext().sendBroadcast(
+            new Intent().setAction(show ? MainActivity.ACTION_SHOW_LOADING : MainActivity.ACTION_HIDE_LOADING));}
 }

@@ -92,7 +92,7 @@ public class ResultDetailFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        loadingVisibility(true);
         if (getArguments() != null) {
             resultToDisplay = ResultDetailFragmentArgs.fromBundle(getArguments()).getRatingResult();
             recordingsToDisplay = new ArrayList<>(resultToDisplay.getRecordings());
@@ -142,6 +142,8 @@ public class ResultDetailFragment extends Fragment {
         headerRating.setOnClickListener(new SortColumnListener(RecordingListSortBy.RATING));
 
         headerGroup.setChecked(true);
+
+        loadingVisibility(false);
     }
 
     @Override
@@ -189,19 +191,26 @@ public class ResultDetailFragment extends Fragment {
             NavHostFragment.findNavController(this).navigateUp();
             return true;
         } else if (itemID == R.id.action_menu_show_session_info) {
-            MainActivity.navigateToCurrentSessionInfo(
+            loadingVisibility(true);
+            new Thread(() -> MainActivity.navigateToCurrentSessionInfo(
                     this, session -> {
-                        NavDirections directions = ResultDetailFragmentDirections
-                                .actionResultDetailFragmentToCurrentSessionInfoFragment(session);
-                        NavHostFragment.findNavController(ResultDetailFragment.this)
-                                .navigate(directions);
+                        loadingVisibility(false);
+                        requireActivity().runOnUiThread(() -> {
+                            NavDirections directions = ResultDetailFragmentDirections
+                                    .actionResultDetailFragmentToCurrentSessionInfoFragment(session);
+                            NavHostFragment.findNavController(ResultDetailFragment.this)
+                                    .navigate(directions);
+                        });
                     }
-            );
+            ), "SessionLoadingThread").start();
             return true;
         }
 
         return super.onOptionsItemSelected(item);
     }
+
+    private void loadingVisibility(boolean show) {requireContext().sendBroadcast(
+            new Intent().setAction(show ? MainActivity.ACTION_SHOW_LOADING : MainActivity.ACTION_HIDE_LOADING));}
 
     public enum RecordingListSortBy {
         ID, GROUP, INDEX, RATING

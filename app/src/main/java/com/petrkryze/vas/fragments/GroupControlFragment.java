@@ -1,6 +1,7 @@
 package com.petrkryze.vas.fragments;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
@@ -112,7 +113,7 @@ public class GroupControlFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        loadingVisibility(true);
         if (getArguments() != null) {
             //noinspection unchecked
             groupFolders = GroupControlFragmentArgs.fromBundle(getArguments()).getGroupFolders();
@@ -159,6 +160,8 @@ public class GroupControlFragment extends Fragment {
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(context,
                 DividerItemDecoration.VERTICAL);
         groupFoldersListView.addItemDecoration(dividerItemDecoration);
+
+        loadingVisibility(false);
     }
 
     @Override
@@ -231,4 +234,7 @@ public class GroupControlFragment extends Fragment {
 
         return super.onOptionsItemSelected(item);
     }
+
+    private void loadingVisibility(boolean show) {requireContext().sendBroadcast(
+            new Intent().setAction(show ? MainActivity.ACTION_SHOW_LOADING : MainActivity.ACTION_HIDE_LOADING));}
 }

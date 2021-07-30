@@ -23,13 +23,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
+import com.petrkryze.vas.GroupFolder;
 import com.petrkryze.vas.MainActivity;
 import com.petrkryze.vas.Player;
 import com.petrkryze.vas.R;
@@ -72,7 +72,6 @@ public class RatingFragment extends Fragment {
     private static final String TAG = "RatingFragment";
 
     private FragmentRatingBinding binding;
-    private RelativeLayout loadingContainer;
     private SeekBar VASratingBar;
     private SeekBar playerProgressBar;
     private Button buttonPlayPause;
@@ -271,7 +270,8 @@ public class RatingFragment extends Fragment {
                                 .takePersistableUriPermission(resultUri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
                         // Go check the selected directory and it's contents
                         showLoading();
-                        new Thread(() -> RatingFragment.this.manageDirectory(resultUri, true)).start();
+                        new Thread(() -> RatingFragment.this.manageDirectory(resultUri, true)
+                                , "GroupControlCheckThread").start();
                     }
                 } else {
                     Log.d(TAG, "onActivityResult: User left the directory selection activity without selecting.");
@@ -297,6 +297,8 @@ public class RatingFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        showLoading();
+        loadingFinishedFlag = false;
         initDone = false;
         isTouchingSeekBar = false;
         isSeekingFromLoadedValue = false;
@@ -318,8 +320,7 @@ public class RatingFragment extends Fragment {
         ratingManager = new RatingManager(requireActivity());
 
         // Normal startup
-        loadingFinishedFlag = false;
-        new Thread(this::manageLoading).start();
+        new Thread(this::manageLoading, "RatingLoadingThread").start();
     }
 
     @Nullable
@@ -337,7 +338,6 @@ public class RatingFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         // UI Elements setup
-        loadingContainer = binding.ratingFragmentLoadingContainer;
         headerText = binding.ratingFragmentHeaderText;
         playerTimeTracker = binding.ratingFragmentPlayerTrackTime;
         playerTimeTotal = binding.ratingFragmentPlayerTotalTime;
@@ -460,40 +460,51 @@ public class RatingFragment extends Fragment {
 
     private void manageDirectory(Uri selectedDir, boolean newSession) {
         Bundle checkResult = ratingManager.checkDataDirectoryPath(
-                selectedDir, newSession, this, confirmed -> {
-                    Log.d(TAG, "manageDirectory: Group check done callback triggered!");
+                selectedDir, newSession, this, new RatingManager.GroupFoldersUserCheckCallback() {
+                    @Override
+                    public void groupCheckFinished(boolean confirmed) {
+                        Log.d(TAG, "manageDirectory: Group check done callback triggered!");
 
-                    if (confirmed) {
-                        Log.d(TAG, "groupCheckFinished: Group check exited via confirmation -" +
-                                " Rating initiation complete!");
-                        initDone = true;
+                        if (confirmed) {
+                            Log.d(TAG, "groupCheckFinished: Group check exited via confirmation -" +
+                                    " Rating initiation complete!");
+                            initDone = true;
 
-                        // Sets the "in progress" state if the session is not finished
-                        if (ratingManager.getState() == STATE_IDLE) {
-                            ratingManager.setState(STATE_IN_PROGRESS);
-                        }
-
-                        requireActivity().runOnUiThread(() -> {
-                            if (newSession) {
-                                // We don't have to call changeCurrentTrack here, it is already
-                                // called in onResume when user gets back from GroupControlFragment
-                                Snackbar.make(requireActivity().findViewById(R.id.coordinator),
-                                        getString(R.string.snackbar_new_session_created),
-                                        BaseTransientBottomBar.LENGTH_SHORT)
-                                        .setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE).show();
-                            } else {
-                                // Must be called when an already established session is being loaded
-                                isSeekingFromLoadedValue = true;
+                            // Sets the "in progress" state if the session is not finished
+                            if (ratingManager.getState() == STATE_IDLE) {
+                                ratingManager.setState(STATE_IN_PROGRESS);
                             }
-                            changeCurrentTrack(0, ratingManager.getTrackPointer());
-                        });
 
-                        // Hide the loading overlay
+                            requireActivity().runOnUiThread(() -> {
+                                if (newSession) {
+                                    // We don't have to call changeCurrentTrack here, it is already
+                                    // called in onResume when user gets back from GroupControlFragment
+                                    Snackbar.make(requireActivity().findViewById(R.id.coordinator),
+                                            getString(R.string.snackbar_new_session_created),
+                                            BaseTransientBottomBar.LENGTH_SHORT)
+                                            .setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE).show();
+                                } else {
+                                    // Must be called when an already established session is being loaded
+                                    isSeekingFromLoadedValue = true;
+                                }
+                                changeCurrentTrack(0, ratingManager.getTrackPointer());
+                            });
+
+                            // Hide the loading overlay
+                            hideLoading();
+                        } else { // Group check cancelled - new session creation cancelled
+                            Log.d(TAG, "groupCheckFinished: Group check exited via cancel");
+                            fireSessionCreationCancelled();
+                            manageLoading(); // Cycle back to the session check
+                        }
+                    }
+
+                    @Override
+                    public void groupCheckStart(ArrayList<GroupFolder> groupFolders) {
                         hideLoading();
-                    } else { // Group check cancelled - new session creation cancelled
-                        Log.d(TAG, "groupCheckFinished: Group check exited via cancel");
-                        fireSessionCreationCancelled();
-                        manageLoading(); // Cycle back to the session check
+                        NavDirections directions =
+                                RatingFragmentDirections.actionRatingFragmentToGroupControlFragment(groupFolders);
+                        NavHostFragment.findNavController(RatingFragment.this).navigate(directions);
                     }
                 }
         );
@@ -725,11 +736,8 @@ public class RatingFragment extends Fragment {
     }
 
     private void changeLoadingVisibility(boolean show) {
-        if (loadingContainer != null) {
-            requireActivity().runOnUiThread(() -> loadingContainer.setVisibility(
-                    show ? View.VISIBLE : View.GONE
-            ));
-        }
+        requireContext().sendBroadcast(
+                new Intent().setAction(show ? MainActivity.ACTION_SHOW_LOADING : MainActivity.ACTION_HIDE_LOADING));
         loadingFinishedFlag = !show;
     }
     private void hideLoading() { changeLoadingVisibility(false);}
@@ -795,47 +803,64 @@ public class RatingFragment extends Fragment {
             NavHostFragment.findNavController(this).navigate(directions);
             return true;
         } else if (itemID == R.id.action_menu_save && initDone) {
-            try {
-                ratingManager.saveResults(requireContext());
-                Snackbar.make(requireActivity().findViewById(R.id.coordinator),
-                        getString(R.string.snackbar_save_success),
-                        BaseTransientBottomBar.LENGTH_SHORT)
-                        .setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE).show();
-            } catch (Exception e) {
-                e.printStackTrace();
-                String errorMessage = (e.getMessage() == null ? getString(R.string.snackbar_save_failed_error_unknown) : e.getMessage());
-
-                Snackbar.make(requireActivity().findViewById(R.id.coordinator),
-                        Html.fromHtml(getString(R.string.snackbar_save_failed, errorMessage),Html.FROM_HTML_MODE_LEGACY),
-                        BaseTransientBottomBar.LENGTH_LONG)
-                        .setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE).show();
-            }
+            new Thread(() -> {
+                try {
+                    ratingManager.saveResults(requireContext());
+                    requireActivity().runOnUiThread(() ->
+                            Snackbar.make(requireActivity().findViewById(R.id.coordinator),
+                                    getString(R.string.snackbar_save_success),
+                                    BaseTransientBottomBar.LENGTH_SHORT)
+                                    .setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE).show()
+                    );
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    String errorMessage = (e.getMessage() == null ? getString(R.string.snackbar_save_failed_error_unknown) : e.getMessage());
+                    requireActivity().runOnUiThread(() ->
+                            Snackbar.make(requireActivity().findViewById(R.id.coordinator),
+                                    Html.fromHtml(getString(R.string.snackbar_save_failed, errorMessage),Html.FROM_HTML_MODE_LEGACY),
+                                    BaseTransientBottomBar.LENGTH_LONG)
+                                    .setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE).show()
+                    );
+                }
+            }, "SaveResultsThread").start();
             return true;
         } else if (itemID == R.id.action_menu_show_saved_results && initDone) {
-            try {
-                ArrayList<RatingResult> ratings = RatingManager.loadResults(requireContext());
+            showLoading();
+            new Thread(() -> { // Threading for slow loading times
+                try {
+                    ArrayList<RatingResult> ratings = RatingManager.loadResults(requireContext());
 
-                NavDirections directions =
-                        RatingFragmentDirections.actionRatingFragmentToResultFragment(ratings);
-                NavHostFragment.findNavController(this).navigate(directions);
-            } catch (Exception e) {
-                e.printStackTrace();
-                Snackbar.make(requireActivity().findViewById(R.id.coordinator),
-                        Html.fromHtml(getString(R.string.snackbar_ratings_loading_failed, e.getMessage()),Html.FROM_HTML_MODE_LEGACY),
-                        BaseTransientBottomBar.LENGTH_LONG)
-                        .setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE).show();
-            }
+                    hideLoading();
+                    requireActivity().runOnUiThread(() -> {
+                        NavDirections directions =
+                                RatingFragmentDirections.actionRatingFragmentToResultFragment(ratings);
+                        NavHostFragment.findNavController(this).navigate(directions);
+                    });
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    hideLoading();
+                    requireActivity().runOnUiThread(() -> Snackbar.make(requireActivity().findViewById(R.id.coordinator),
+                            Html.fromHtml(getString(R.string.snackbar_ratings_loading_failed, e.getMessage()),Html.FROM_HTML_MODE_LEGACY),
+                            BaseTransientBottomBar.LENGTH_LONG)
+                            .setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE).show()
+                    );
+                }
+            }, "ResultsLoadingThread").start();
+
             return true;
         } else if (itemID == R.id.action_menu_show_session_info && initDone) {
-            // ratingManager.saveSession(); // Probably unnecessary
-            MainActivity.navigateToCurrentSessionInfo(
+            showLoading();
+            new Thread(() -> MainActivity.navigateToCurrentSessionInfo(
                     this, session -> {
-                        NavDirections directions = RatingFragmentDirections
-                                .actionRatingFragmentToCurrentSessionInfoFragment(session);
-                        NavHostFragment.findNavController(RatingFragment.this)
-                                .navigate(directions);
+                        hideLoading();
+                        requireActivity().runOnUiThread(() -> {
+                            NavDirections directions = RatingFragmentDirections
+                                    .actionRatingFragmentToCurrentSessionInfoFragment(session);
+                            NavHostFragment.findNavController(RatingFragment.this)
+                                    .navigate(directions);
+                        });
                     }
-            );
+            ), "SessionLoadingThread").start();
             return true;
         } else if (itemID == R.id.action_menu_reset_ratings && initDone) {
             new MaterialAlertDialogBuilder(requireContext())
@@ -845,30 +870,35 @@ public class RatingFragment extends Fragment {
                             ContextCompat.getDrawable(requireContext(), R.drawable.ic_warning),
                             requireContext().getColor(R.color.secondaryColor)))
                     .setPositiveButton(R.string.dialog_make_new_session_positive_button_label, (dialog, which) -> {
-                        // If the rating is finished, try saving it
-                        if (ratingManager.getState() == STATE_FINISHED) {
-                            try {
-                                ratingManager.saveResults(requireContext());
+                        showLoading();
+                        new Thread(() -> {
+                            // If the rating is finished, try saving it
+                            if (ratingManager.getState() == STATE_FINISHED) {
+                                try {
+                                    ratingManager.saveResults(requireContext());
+                                    fireSelectDirectory();
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                    String errorMessage = (e.getMessage() == null ? getString(R.string.dialog_save_failed_continue_error_unknown) : e.getMessage());
+                                    hideLoading();
+                                    requireActivity().runOnUiThread(() ->
+                                            new MaterialAlertDialogBuilder(requireContext())
+                                                    .setTitle(getString(R.string.dialog_save_failed_continue_title))
+                                                    .setMessage(Html.fromHtml(getString(R.string.dialog_save_failed_continue_message, errorMessage), Html.FROM_HTML_MODE_LEGACY))
+                                                    .setIcon(applyTintFilter(
+                                                            ContextCompat.getDrawable(requireContext(), R.drawable.ic_error),
+                                                            requireContext().getColor(R.color.errorColor)))
+                                                    .setPositiveButton(R.string.dialog_save_failed_continue_continue,
+                                                            (dialog1, which1) -> fireSelectDirectory())
+                                                    .setNegativeButton(R.string.dialog_save_failed_continue_return, null)
+                                                    .setCancelable(false)
+                                                    .show()
+                                    );
+                                }
+                            } else { // Session is not complete, just proceed with selection
                                 fireSelectDirectory();
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                                String errorMessage = (e.getMessage() == null ? getString(R.string.dialog_save_failed_continue_error_unknown) : e.getMessage());
-
-                                new MaterialAlertDialogBuilder(requireContext())
-                                        .setTitle(getString(R.string.dialog_save_failed_continue_title))
-                                        .setMessage(Html.fromHtml(getString(R.string.dialog_save_failed_continue_message, errorMessage), Html.FROM_HTML_MODE_LEGACY))
-                                        .setIcon(applyTintFilter(
-                                                ContextCompat.getDrawable(requireContext(), R.drawable.ic_error),
-                                                requireContext().getColor(R.color.errorColor)))
-                                        .setPositiveButton(R.string.dialog_save_failed_continue_continue,
-                                                (dialog1, which1) -> fireSelectDirectory())
-                                        .setNegativeButton(R.string.dialog_save_failed_continue_return, null)
-                                        .setCancelable(false)
-                                        .show();
                             }
-                        } else { // Session is not complete, just proceed with selection
-                            fireSelectDirectory();
-                        }
+                        }, "SaveResultsThread").start();
                     })
                     .setNegativeButton(R.string.dialog_quit_cancel, null).show();
             return true;

@@ -7,6 +7,7 @@ import android.animation.ArgbEvaluator;
 import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
@@ -74,6 +75,7 @@ public class WelcomeFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        loadingVisibility(true);
         preferences = requireContext().getSharedPreferences(getString(R.string.PREFERENCES_SETTINGS), Context.MODE_PRIVATE);
     }
 
@@ -194,6 +196,8 @@ public class WelcomeFragment extends Fragment {
                         });
             }
         });
+
+        loadingVisibility(false);
     }
 
     @Override
@@ -213,32 +217,45 @@ public class WelcomeFragment extends Fragment {
     public boolean onOptionsItemSelected(@NonNull @NotNull MenuItem item) {
         int itemID = item.getItemId();
         if (itemID == R.id.action_menu_show_saved_results) {
-            try {
-                ArrayList<RatingResult> ratings = RatingManager.loadResults(requireContext());
-
-                NavDirections directions =
-                        WelcomeFragmentDirections.actionWelcomeFragmentToResultFragment(ratings);
-                NavHostFragment.findNavController(this).navigate(directions);
-            } catch (Exception e) {
-                e.printStackTrace();
-                Snackbar.make(requireActivity().findViewById(R.id.coordinator),
-                        Html.fromHtml(getString(R.string.snackbar_ratings_loading_failed, e.getMessage()),Html.FROM_HTML_MODE_LEGACY),
-                        BaseTransientBottomBar.LENGTH_LONG)
-                        .setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE).show();
-            }
+            loadingVisibility(true);
+            new Thread(() -> { // Threading for slow loading times
+                try {
+                    ArrayList<RatingResult> ratings = RatingManager.loadResults(requireContext());
+                    loadingVisibility(false);
+                    requireActivity().runOnUiThread(() -> {
+                        NavDirections directions =
+                                WelcomeFragmentDirections.actionWelcomeFragmentToResultFragment(ratings);
+                        NavHostFragment.findNavController(this).navigate(directions);
+                    });
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    loadingVisibility(false);
+                    requireActivity().runOnUiThread(() -> Snackbar.make(requireActivity().findViewById(R.id.coordinator),
+                            Html.fromHtml(getString(R.string.snackbar_ratings_loading_failed, e.getMessage()),Html.FROM_HTML_MODE_LEGACY),
+                            BaseTransientBottomBar.LENGTH_LONG)
+                            .setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE).show()
+                    );
+                }
+            }, "ResultsLoadingThread").start();
             return true;
         } else if (itemID == R.id.action_menu_show_session_info) {
-            MainActivity.navigateToCurrentSessionInfo(
+            loadingVisibility(true);
+            new Thread(() -> MainActivity.navigateToCurrentSessionInfo(
                     this, session -> {
-                        NavDirections directions = WelcomeFragmentDirections
-                                .actionWelcomeFragmentToCurrentSessionInfoFragment(session);
-                        NavHostFragment.findNavController(WelcomeFragment.this)
-                                .navigate(directions);
+                        loadingVisibility(false);
+                        requireActivity().runOnUiThread(() -> {
+                            NavDirections directions = WelcomeFragmentDirections
+                                    .actionWelcomeFragmentToCurrentSessionInfoFragment(session);
+                            NavHostFragment.findNavController(WelcomeFragment.this)
+                                    .navigate(directions);
+                        });
                     }
-            );
+            ), "SessionLoadingThread").start();
             return true;
         }
         return super.onOptionsItemSelected(item);
     }
 
+    private void loadingVisibility(boolean show) {requireContext().sendBroadcast(
+            new Intent().setAction(show ? MainActivity.ACTION_SHOW_LOADING : MainActivity.ACTION_HIDE_LOADING));}
 }

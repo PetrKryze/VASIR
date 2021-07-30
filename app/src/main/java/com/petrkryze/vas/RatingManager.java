@@ -13,7 +13,6 @@ import android.util.Pair;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.petrkryze.vas.fragments.GroupControlFragment;
-import com.petrkryze.vas.fragments.RatingFragmentDirections;
 
 import org.apache.commons.io.FilenameUtils;
 
@@ -32,8 +31,6 @@ import androidx.annotation.NonNull;
 import androidx.documentfile.provider.DocumentFile;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
-import androidx.navigation.NavDirections;
-import androidx.navigation.fragment.NavHostFragment;
 
 import static com.petrkryze.vas.RatingResult.LABEL_GENERATOR_MESSAGE;
 import static com.petrkryze.vas.RatingResult.LABEL_SAVE_DATE;
@@ -53,6 +50,7 @@ public class RatingManager {
 
     public interface GroupFoldersUserCheckCallback {
         void groupCheckFinished(boolean confirmed);
+        void groupCheckStart(ArrayList<GroupFolder> groupFolders);
     }
 
     // Session defining variables
@@ -93,10 +91,10 @@ public class RatingManager {
         this.preferences = context.getPreferences(Context.MODE_PRIVATE);
         this.state = State.STATE_IDLE;
 
-//         TODO Delet dis after production version is done
-//        SharedPreferences.Editor editor = preferences.edit();
-//        editor.clear();
-//        editor.commit();
+        // DELETEME Delet dis after production version is done
+        //  SharedPreferences.Editor editor = preferences.edit();
+        //  editor.clear();
+        //  editor.commit();
     }
 
     public static final String GROUP_CHECK_RESULT_REQUEST_KEY = "group_check_result";
@@ -188,7 +186,7 @@ public class RatingManager {
                                             new Thread(() -> {
                                                 wipeCurrentSession();
                                                 makeNewSession(rootDataDir, validGroupFolders, callback);
-                                            }).start();
+                                            }, "GroupControlConfirmedThread").start();
                                         } else { // GroupControlFragment exit without confirm
                                             // Signal to RatingFragment that the process was cancelled
                                             callback.groupCheckFinished(false);
@@ -199,13 +197,7 @@ public class RatingManager {
 
                 // Bring up the fragment for user to check the found folders
                 groupFolders.sort(GroupFolder.groupComparator);
-
-                activity.runOnUiThread(() -> {
-                    NavDirections directions =
-                            RatingFragmentDirections.actionRatingFragmentToGroupControlFragment(groupFolders);
-                    NavHostFragment.findNavController(caller).navigate(directions);
-                });
-
+                activity.runOnUiThread(() -> callback.groupCheckStart(groupFolders));
                 ret.putBoolean(DIRCHECK_RESULT_IS_OK, true);
             }
         }

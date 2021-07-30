@@ -28,7 +28,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        
+
         <provider
             android:authorities="com.petrkryze.vas.fileprovider"
             android:name="androidx.core.content.FileProvider"

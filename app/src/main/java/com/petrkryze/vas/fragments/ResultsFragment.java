@@ -271,7 +271,7 @@ public class ResultsFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        loadingVisibility(true);
         if (getArguments() != null) {
             //noinspection unchecked
             ratingResults = ResultsFragmentArgs.fromBundle(getArguments()).getRatings();
@@ -331,6 +331,8 @@ public class ResultsFragment extends Fragment {
             resultsListView.setVisibility(View.GONE);
             TWnoResults.setVisibility(View.VISIBLE);
         }
+
+        loadingVisibility(false);
     }
 
     @Override
@@ -364,18 +366,25 @@ public class ResultsFragment extends Fragment {
             NavHostFragment.findNavController(this).navigate(directions);
             return true;
         } else if (itemID == R.id.action_menu_show_session_info) {
-            MainActivity.navigateToCurrentSessionInfo(
+            loadingVisibility(true);
+            new Thread(() -> MainActivity.navigateToCurrentSessionInfo(
                     this, session -> {
-                        NavDirections directions = ResultsFragmentDirections
-                                .actionResultFragmentToCurrentSessionInfoFragment(session);
-                        NavHostFragment.findNavController(ResultsFragment.this)
-                                .navigate(directions);
+                        loadingVisibility(false);
+                        requireActivity().runOnUiThread(() -> {
+                            NavDirections directions = ResultsFragmentDirections
+                                    .actionResultFragmentToCurrentSessionInfoFragment(session);
+                            NavHostFragment.findNavController(ResultsFragment.this)
+                                    .navigate(directions);
+                        });
                     }
-            );
+            ), "SessionLoadingThread").start();
             return true;
         }
         return super.onOptionsItemSelected(item);
     }
+
+    private void loadingVisibility(boolean show) {requireContext().sendBroadcast(
+            new Intent().setAction(show ? MainActivity.ACTION_SHOW_LOADING : MainActivity.ACTION_HIDE_LOADING));}
 
     @Override
     public void onPause() {
