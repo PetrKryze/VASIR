@@ -31,6 +31,7 @@ import java.util.Random;
 import androidx.annotation.NonNull;
 import androidx.documentfile.provider.DocumentFile;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
 import androidx.navigation.NavDirections;
 import androidx.navigation.fragment.NavHostFragment;
 
@@ -170,31 +171,40 @@ public class RatingManager {
                 }
             } else { // No previous session found, fire GroupFolder user check fragment
                 // Callback for the user check fragment, after check is confirmed, make new session
-                caller.getParentFragmentManager().setFragmentResultListener(
-                        GROUP_CHECK_RESULT_REQUEST_KEY, caller,
-                        (requestKey, result) -> {
-                            if (requestKey.equals(GROUP_CHECK_RESULT_REQUEST_KEY)) {
-                                if (result.getBoolean(GroupControlFragment.GroupControlConfirmedKey)) {
-                                    ArrayList<GroupFolder> validGroupFolders =
-                                            (ArrayList<GroupFolder>) result.getSerializable(
-                                                    GroupControlFragment.GroupFolderListSerializedKey
-                                            );
+                FragmentActivity activity = caller.requireActivity();
+                activity.runOnUiThread(() ->
+                        caller.getParentFragmentManager().setFragmentResultListener(
+                                GROUP_CHECK_RESULT_REQUEST_KEY, caller,
+                                // This callback is what happens when GroupCheckFragment is exited
+                                (requestKey, result) -> {
+                                    if (requestKey.equals(GROUP_CHECK_RESULT_REQUEST_KEY)) {
+                                        // The GroupCheck was confirmed, we can make a new session
+                                        if (result.getBoolean(GroupControlFragment.GroupControlConfirmedKey)) {
+                                            ArrayList<GroupFolder> validGroupFolders =
+                                                    (ArrayList<GroupFolder>) result.getSerializable(
+                                                            GroupControlFragment.GroupFolderListSerializedKey
+                                                    );
 
-                                    wipeCurrentSession();
-                                    makeNewSession(rootDataDir, validGroupFolders, callback);
-                                } else { // GroupControlFragment exit without confirm
-                                    // Signal to RatingFragment that the process was cancelled
-                                    callback.groupCheckFinished(false);
+                                            new Thread(() -> {
+                                                wipeCurrentSession();
+                                                makeNewSession(rootDataDir, validGroupFolders, callback);
+                                            }).start();
+                                        } else { // GroupControlFragment exit without confirm
+                                            // Signal to RatingFragment that the process was cancelled
+                                            callback.groupCheckFinished(false);
+                                        }
+                                    }
                                 }
-                            }
-                        }
-                );
+                        ));
 
                 // Bring up the fragment for user to check the found folders
                 groupFolders.sort(GroupFolder.groupComparator);
-                NavDirections directions =
-                        RatingFragmentDirections.actionRatingFragmentToGroupControlFragment(groupFolders);
-                NavHostFragment.findNavController(caller).navigate(directions);
+
+                activity.runOnUiThread(() -> {
+                    NavDirections directions =
+                            RatingFragmentDirections.actionRatingFragmentToGroupControlFragment(groupFolders);
+                    NavHostFragment.findNavController(caller).navigate(directions);
+                });
 
                 ret.putBoolean(DIRCHECK_RESULT_IS_OK, true);
             }
@@ -238,7 +248,7 @@ public class RatingManager {
         return Pair.create(true, FileCheckError.OK);
     }
 
-   private static Pair<Boolean, FileCheckError> existsIsDirCanReadCanWrite(File dir) {
+    private static Pair<Boolean, FileCheckError> existsIsDirCanReadCanWrite(File dir) {
         return existsIsDirOrFileCanReadCanWrite(DocumentFile.fromFile(dir), true, true);
     }
 

@@ -253,10 +253,10 @@ public class RatingFragment extends Fragment {
             new SelectDirectory(),
             resultUri -> {
                 if (resultUri != null) {
-                    // LEGACY Approach
-                    // String fullPath = getFullPathFromTreeUri(resultUri, RatingFragment.this.requireContext());
+                    // DELETEME legacy Approach
+                    //  String fullPath = getFullPathFromTreeUri(resultUri, RatingFragment.this.requireContext());
                     String fullPath = resultUri.getPath();
-                    if (fullPath == null || fullPath.equals("")) {
+                    if (fullPath == null || fullPath.equals("")) { // Bad returned path somehow
                         new MaterialAlertDialogBuilder(RatingFragment.this.requireContext())
                                 .setTitle(RatingFragment.this.getString(R.string.dialog_internal_error_title))
                                 .setMessage(RatingFragment.this.getString(R.string.dialog_internal_error_message))
@@ -265,12 +265,13 @@ public class RatingFragment extends Fragment {
                                         RatingFragment.this.requireContext().getColor(R.color.errorColor)))
                                 .setPositiveButton(R.string.dialog_internal_error_quit, (dialog, which) -> RatingFragment.this.requireActivity().finish())
                                 .setCancelable(false).show();
-                    } else {
+                    } else { // Returned path seems ok, start the checks
+                        Log.d(TAG, "onActivityResult: Selected directory: " + fullPath);
                         RatingFragment.this.requireContext().getContentResolver()
                                 .takePersistableUriPermission(resultUri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
                         // Go check the selected directory and it's contents
-                        Log.d(TAG, "onActivityResult: Selected directory: " + fullPath);
-                        RatingFragment.this.manageDirectory(resultUri, true);
+                        showLoading();
+                        new Thread(() -> RatingFragment.this.manageDirectory(resultUri, true)).start();
                     }
                 } else {
                     Log.d(TAG, "onActivityResult: User left the directory selection activity without selecting.");
@@ -483,8 +484,8 @@ public class RatingFragment extends Fragment {
                             } else {
                                 // Must be called when an already established session is being loaded
                                 isSeekingFromLoadedValue = true;
-                                changeCurrentTrack(0, ratingManager.getTrackPointer());
                             }
+                            changeCurrentTrack(0, ratingManager.getTrackPointer());
                         });
 
                         // Hide the loading overlay
@@ -500,7 +501,7 @@ public class RatingFragment extends Fragment {
         if (checkResult.getBoolean(DIRCHECK_RESULT_IS_OK)) {
             // Directory is ok and we can proceed to actual rating 😊
             Log.i(TAG, "manageDirectory: Complex directory check passed!");
-        } else { // Directory check was not ok
+        } else { // Directory check was NOT ok
             Spanned message = null;
             RatingManager.FileCheckError err = RatingManager.FileCheckError.valueOf(
                     checkResult.getString(DIRCHECK_RESULT_ERROR_TYPE));
@@ -723,12 +724,16 @@ public class RatingFragment extends Fragment {
         }
     }
 
-    private void hideLoading() {
+    private void changeLoadingVisibility(boolean show) {
         if (loadingContainer != null) {
-            requireActivity().runOnUiThread(() -> loadingContainer.setVisibility(View.GONE));
+            requireActivity().runOnUiThread(() -> loadingContainer.setVisibility(
+                    show ? View.VISIBLE : View.GONE
+            ));
         }
-        loadingFinishedFlag = true;
+        loadingFinishedFlag = !show;
     }
+    private void hideLoading() { changeLoadingVisibility(false);}
+    private void showLoading() { changeLoadingVisibility(true);}
 
     @Override
     public void onPause() {
