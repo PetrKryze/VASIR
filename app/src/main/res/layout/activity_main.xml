@@ -11,8 +11,7 @@
     tools:context=".MainActivity"
     android:theme="@style/AppTheme"
     android:fitsSystemWindows="true"
-    app:layout_dodgeInsetEdges="bottom"
-    android:animateLayoutChanges="true">
+    app:layout_dodgeInsetEdges="bottom">
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/toolbar_container"
@@ -41,20 +40,26 @@
         app:defaultNavHost="true"
         />
 
-    <RelativeLayout
-        android:id="@+id/general_loading_container"
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/scrim"
-        android:elevation="20dp"
-        android:clickable="true"
-        android:visibility="gone">
+        android:animateLayoutChanges="true">
+        <RelativeLayout
+            android:id="@+id/general_loading_container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/scrim"
+            android:elevation="20dp"
+            android:clickable="true"
+            android:visibility="gone"
+            tools:ignore="UselessParent">
 
-        <ProgressBar
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:indeterminate="true"/>
+            <ProgressBar
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:indeterminate="true"/>
+        </RelativeLayout>
+    </FrameLayout>
 
-    </RelativeLayout>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
