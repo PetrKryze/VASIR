@@ -542,7 +542,8 @@ public class RatingManager {
                 .putInt(KEY_PREFERENCES_SAVED_PLAY_PROGRESS, this.savedPlayProgress)
                 .apply();
 
-        Log.i(TAG, "saveSession: Saving current session data: " +
+        Log.i(TAG, "saveSession: Saving current session");
+        Log.d(TAG, "saveSession: Data: " + "\n" +
                 "Session ID = " + session_ID + "\n" +
                 "Seed = " + seed + "\n" +
                 "Generator Message = " + generatorMessage + "\n" +
