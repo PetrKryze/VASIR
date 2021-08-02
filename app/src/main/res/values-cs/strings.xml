@@ -213,6 +213,8 @@
     <string name="snackbar_share_all_excel_failed">Tvorba excel souborů selhala!</string>
     <string name="snackbar_share_all_text_failed">Sdílení výsledků selhalo!</string>
     <string name="snackbar_share_current_session_text_failed">Sdílení aktuálního sezení selhalo!</string>
+    <string name="snackbar_share_rating_detail_text_failed">Sdílení sezení selhalo!</string>
     <string name="current_session_share_title">Aktuální sezení: %s</string>
+    <string name="rating_detail_share_title">Sezení: %s</string>
     <string name="snackbar_rating_player_track_load_failed">Nahrávku nebylo možné načíst.</string>
 </resources>

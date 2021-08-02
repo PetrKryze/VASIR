@@ -252,8 +252,6 @@ public class RatingFragment extends Fragment {
             new SelectDirectory(),
             resultUri -> {
                 if (resultUri != null) {
-                    // DELETEME legacy Approach
-                    //  String fullPath = getFullPathFromTreeUri(resultUri, RatingFragment.this.requireContext());
                     String fullPath = resultUri.getPath();
                     if (fullPath == null || fullPath.equals("")) { // Bad returned path somehow
                         new MaterialAlertDialogBuilder(RatingFragment.this.requireContext())

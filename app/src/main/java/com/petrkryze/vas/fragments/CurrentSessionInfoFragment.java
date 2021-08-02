@@ -73,9 +73,9 @@ public class CurrentSessionInfoFragment extends Fragment {
     private CheckedTextView headerRating;
     private RecordingsRecyclerViewAdapter recyclerViewAdapter;
 
-    private RecordingListSortBy currentSort = RecordingListSortBy.GROUP; // Default sort
     private RatingResult currentSession;
     private List<Recording> recordingsToDisplay;
+    private RecordingListSortBy currentSort = RecordingListSortBy.GROUP; // Default sort
 
     private Vibrator vibrator;
     private static int VIBRATE_BUTTON_MS;
@@ -295,6 +295,28 @@ public class CurrentSessionInfoFragment extends Fragment {
         headerRating.setChecked(false);
     }
 
+    private void startShareActivity(Uri uri, String description) {
+        String mimeType = "text/plain";
+        String[] mimeTypeArray = new String[] { mimeType };
+
+        ClipDescription clipDescription = new ClipDescription(description, mimeTypeArray);
+        ClipData clipData = new ClipData(clipDescription, new ClipData.Item(uri));
+
+        // Note possible duplicate mimetype and data declaration, maybe fix when ClipData framework
+        // is not a complete joke
+        Intent sharingIntent = new Intent(Intent.ACTION_SEND);
+        sharingIntent.setClipData(clipData);
+        sharingIntent.setType(mimeType)
+                .addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
+                .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                .putExtra(Intent.EXTRA_STREAM, uri)
+                .putExtra(Intent.EXTRA_TITLE, description)
+                .putExtra(Intent.EXTRA_SUBJECT, description);
+
+        requireContext().startActivity(Intent.createChooser(sharingIntent,
+                requireContext().getString(R.string.share_using)));
+    }
+
     @Override
     public void onPrepareOptionsMenu(@NonNull @NotNull Menu menu) {
         super.onPrepareOptionsMenu(menu);
@@ -369,28 +391,6 @@ public class CurrentSessionInfoFragment extends Fragment {
         }
 
         ExcelUtils.dumpTempFolder(requireContext());
-    }
-
-    private void startShareActivity(Uri uri, String description) {
-        String mimeType = "text/plain";
-        String[] mimeTypeArray = new String[] { mimeType };
-
-        ClipDescription clipDescription = new ClipDescription(description, mimeTypeArray);
-        ClipData clipData = new ClipData(clipDescription, new ClipData.Item(uri));
-
-        // Note possible duplicate mimetype and data declaration, maybe fix when ClipData framework
-        // is not a complete joke
-        Intent sharingIntent = new Intent(Intent.ACTION_SEND);
-        sharingIntent.setClipData(clipData);
-        sharingIntent.setType(mimeType)
-                .addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
-                .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                .putExtra(Intent.EXTRA_STREAM, uri)
-                .putExtra(Intent.EXTRA_TITLE, description)
-                .putExtra(Intent.EXTRA_SUBJECT, description);
-
-        requireContext().startActivity(Intent.createChooser(sharingIntent,
-                requireContext().getString(R.string.share_using)));
     }
 
     class SortColumnListener implements View.OnClickListener {
