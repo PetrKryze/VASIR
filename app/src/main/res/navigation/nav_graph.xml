@@ -202,4 +202,9 @@
             app:popEnterAnim="@anim/fade_in_fast"
             app:popExitAnim="@anim/fade_out_fast"/>
     </fragment>
+
+    <fragment
+        android:id="@+id/action_menu_settings"
+        android:name="com.petrkryze.vas.fragments.SettingsFragment"
+        android:label="@string/fragment_header_settings_fragment" />
 </navigation>

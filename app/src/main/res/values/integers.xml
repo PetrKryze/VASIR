@@ -7,7 +7,7 @@
     <integer name="VIBRATE_LONG_CLICK_MS">140</integer>
 
     <integer name="DEFAULT_PROGRESS_CENTER">50</integer>
-    <integer name="SAVE_FILE_BACKUPS_NUMBER">2</integer>
+    <integer name="SAVE_FILE_BACKUPS_NUMBER_DEFAULT">2</integer>
     <integer name="ENABLED_ICON_ALPHA">222</integer>
     <integer name="DISABLED_ICON_ALPHA">98</integer>
     <integer name="SNACKBAR_HINT_DELAY_MS">3000</integer>

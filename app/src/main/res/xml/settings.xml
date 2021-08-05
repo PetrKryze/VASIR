@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <SwitchPreferenceCompat
+        app:key="@string/SETTING_KEY_SHOW_WELCOME_SCREEN"
+        app:title="@string/setting_show_welcome_screen_title"
+        app:summaryOn="@string/setting_show_welcome_screen_summary_on"
+        app:summaryOff="@string/setting_show_welcome_screen_summary_off"
+        app:icon="@drawable/ic_setting_welcome"
+
+        app:defaultValue="@bool/setting_show_welcome_screen_default"
+        app:singleLineTitle="false"
+        app:persistent="true"/>
+
+    <EditTextPreference
+        app:key="@string/SETTING_KEY_BACKUPS_NUMBER"
+        app:title="@string/setting_number_of_backups_title"
+        app:icon="@drawable/ic_setting_backup"
+
+        app:useSimpleSummaryProvider="true"
+        app:defaultValue="@integer/SAVE_FILE_BACKUPS_NUMBER_DEFAULT"
+        app:persistent="true"/>
+
+    <Preference
+        app:key="@string/SETTING_KEY_VERSION_INFO"
+        app:title="@string/setting_version_info_title"
+        app:summary="@string/setting_version_info_summary"
+        app:icon="@drawable/ic_setting_version" />
+
+    <Preference
+        app:key="@string/SETTING_KEY_FEEDBACK"
+        app:title="@string/setting_feedback_title"
+        app:summary="@string/setting_feedback_summary"
+        app:icon="@drawable/ic_setting_feedback" />
+
+</PreferenceScreen>

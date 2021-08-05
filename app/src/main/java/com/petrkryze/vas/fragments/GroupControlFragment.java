@@ -211,8 +211,8 @@ public class GroupControlFragment extends Fragment {
     public void onPrepareOptionsMenu(@NonNull @NotNull Menu menu) {
         super.onPrepareOptionsMenu(menu);
         int[] toDisable = { R.id.action_menu_save, R.id.action_menu_show_saved_results,
-                R.id.action_menu_reset_ratings, R.id.action_menu_show_session_info};
-        int[] toEnable = {R.id.action_menu_help, R.id.action_menu_quit};
+                R.id.action_menu_new_session, R.id.action_menu_show_session_info};
+        int[] toEnable = {R.id.action_menu_help, R.id.action_menu_quit, R.id.action_menu_settings};
 
         for (int item : toDisable) MainActivity.disableMenuItem(menu, item);
         for (int item : toEnable) MainActivity.enableMenuItem(menu, item);

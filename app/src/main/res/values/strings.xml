@@ -1,16 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Visual Analog Scale</string>
+    <string name="feedback_email_address" translatable="false">kryzepet@fel.cvut.cz</string>
+    <string name="feedback_email_subject" translatable="false">VASIR App Feedback</string>
+
     <string name="DIRECTORY_NAME_RESULTS" translatable="false">Results</string>
     <string name="DIRECTORY_NAME_TEMP" translatable="false">temp</string>
     <string name="PREFERENCES_SETTINGS" translatable="false">settings</string>
-    <string name="KEY_PREFERENCES_SETTINGS_WELCOME_SHOW" translatable="false">welcome_screen_show</string>
     <string name="RATING_FILE_NAME" translatable="false">
         RATING_%d_%s.txt
     </string>
     <string name="RATING_EXCEL_FILE_NAME" translatable="false">
         RATING_%d_%s.xlsx
     </string>
+    <string name="excel_title_label" translatable="false">VASIR - Visual Analog Scale Intelligibility Rating</string>
+
+    <string name="SETTING_KEY_SHOW_WELCOME_SCREEN" translatable="false">setting_show_welcome_screen</string>
+    <string name="SETTING_KEY_BACKUPS_NUMBER" translatable="false">setting_number_of_backups</string>
+    <string name="SETTING_KEY_VERSION_INFO" translatable="false">setting_version_info</string>
+    <string name="SETTING_KEY_FEEDBACK" translatable="false">setting_feedback</string>
 
     <string name="placeholder" translatable="false">placeholder</string>
     <string name="placeholder_number" translatable="false">##</string>
@@ -22,6 +30,9 @@
     <string name="result_detail_recording_list_row_index_placeholder" translatable="false">index</string>
     <string name="result_detail_recording_list_row_rating_placeholder" translatable="false">rating</string>
     <string name="track_time_placeholder" translatable="false">00:00</string>
+    <string name="current_session_info_rated_fraction_placeholder" translatable="false">0/0</string>
+    <string name="group_control_group_folder_list_row_group_name_input_placeholder" translatable="false">Group name placeholder</string>
+    <string name="group_control_group_folder_list_row_folder_name_placeholder" translatable="false">Folder name placeholder</string>
     <string name="track_counter" translatable="false">%s: %d/%d</string>
 
     <string name="dialog_corrupted_session_title">Corrupted session</string>
@@ -145,7 +156,7 @@
     <string name="button_share_label">Share</string>
     <string name="snackbar_results_select_hint">Select result from the list to view detailed info.</string>
     <string name="current_session_info_sessionID">Session %d</string>
-    <string name="current_session_info_rated_fraction_placeholder" translatable="false">0/0</string>
+
 
     <!-- Help Strings-->
     <string name="help_context_body_rating_fragment">BODY HELP RATING FRAGMENT</string>
@@ -168,18 +179,17 @@
     <string name="fragment_header_group_control_fragment">Group Control</string>
 
     <string name="action_quit">Quit</string>
-    <string name="action_reset_ratings">Create a New Session</string>
+    <string name="action_new_session">Create a New Session</string>
     <string name="action_help">Help</string>
     <string name="action_show_session_info">Session Info</string>
-    <string name="action_show_saved_results">Saved Rating</string>
+    <string name="action_show_saved_results">Saved Ratings</string>
     <string name="action_save">Save</string>
 
     <string name="button_confirm_label">Confirm</string>
     <string name="group_control_group_folder_list_row_found_audio_files">Contains %d eligible audio files.</string>
     <string name="group_control_group_folder_list_row_folder_name_label">Folder:</string>
     <string name="group_control_group_folder_list_row_group_name_label">Group name:</string>
-    <string name="group_control_group_folder_list_row_group_name_input_placeholder" translatable="false">Group name placeholder</string>
-    <string name="group_control_group_folder_list_row_folder_name_placeholder" translatable="false">Folder name placeholder</string>
+
     <string name="group_control_invalid_input"><![CDATA[Group name must not contain these characters: ~#^|$%&*!?<>/]]></string>
 
     <string name="dialog_make_new_session_title">Leave current session?</string>
@@ -233,7 +243,7 @@
         &lt;b>Reason: &lt;i>%s&lt;/i>&lt;/b></string>
 
     <string name="excel_sheet_name">Session %1$d - %2$s</string>
-    <string name="excel_title_label" translatable="false">VASIR - Visual Analog Scale Intelligibility Rating</string>
+
     <string name="excel_session_id_label">Session ID</string>
     <string name="excel_seed_label">Seed</string>
     <string name="excel_generator_date_label">Date created</string>
@@ -252,5 +262,28 @@
     <string name="current_session_share_title">Current session: %s</string>
     <string name="rating_detail_share_title">Session: %s</string>
     <string name="snackbar_rating_player_track_load_failed">Track could not be loaded.</string>
+    <string name="action_settings">Settings</string>
+    <string name="fragment_header_settings_fragment">Settings</string>
+    <string name="action_new_session_condensed">New Session</string>
+
+    <string name="setting_show_welcome_screen_title">Show welcome screen</string>
+    <string name="setting_show_welcome_screen_summary_on">App will show the welcome screen on startup</string>
+    <string name="setting_show_welcome_screen_summary_off">App will show the rating screen on startup</string>
+
+    <string name="setting_number_of_backups_title">Number of backup result save files</string>
+
+    <string name="setting_feedback_title">Send feedback</string>
+    <string name="setting_feedback_summary">Report technical issues or suggest new features</string>
+
+    <string name="setting_version_info_title">Show version information</string>
+    <string name="setting_version_info_summary">Current version: %s</string>
+    <string name="setting_version_info_unknown_version">Unknown version</string>
+    <string name="setting_number_of_backups_summary">Maximum number of backups: %s</string>
+    <string name="version_info_dialog_text1_placeholder" translatable="false">Version Number</string>
+    <string name="version_info_dialog_text2_placeholder" translatable="false">Version Info</string>
+    <string name="version_info_dialog_version_number">App Version %s</string>
+    <string name="version_info_dialog_subtitle" translatable="false">Beta 08/2021\n© 2021 Petr Krýže</string>
+
+
 
 </resources>

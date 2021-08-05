@@ -327,9 +327,6 @@ public class RatingFragment extends Fragment {
         // Initialize the audio player and rating manager
         player = new Player(requireContext(), getPlayerListener());
         ratingManager = new RatingManager(requireActivity());
-
-        // Normal startup
-        new Thread(this::manageLoading, "RatingLoadingThread").start();
     }
 
     @Nullable
@@ -340,7 +337,6 @@ public class RatingFragment extends Fragment {
         binding = FragmentRatingBinding.inflate(inflater, container, false);
         return binding.getRoot();
     }
-
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
@@ -377,6 +373,9 @@ public class RatingFragment extends Fragment {
         VASratingBar.setOnSeekBarChangeListener(VASratingBarListener);
         playerProgressBar.setOnSeekBarChangeListener(playerSeekBarListener);
 
+        // Normal startup
+        new Thread(this::manageLoading, "RatingLoadingThread").start();
+
         // If loading view was not available when loading actually finished, hide it now
         if (loadingFinishedFlag) hideLoading();
     }
@@ -405,23 +404,6 @@ public class RatingFragment extends Fragment {
             }
             return false;
         });
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        if (initDone) {
-            /*
-            Sets the active track in cases when user is returning to this fragment from elsewhere
-            in the app the chain:
-                onCreate > manageLoading > manageDirectory > checkDataDirectoryPath callback > changeCurrentTrack()
-            would not trigger, therefore we need to do it here
-            + it also works when user gets back from GroupControlFragment when creating a new
-            session, so the changeCurrentTrack does not have to be in the callback
-            */
-            isSeekingFromLoadedValue = true;
-            changeCurrentTrack(0, ratingManager.getTrackPointer());
-        }
     }
 
     private void manageLoading() {
@@ -496,7 +478,9 @@ public class RatingFragment extends Fragment {
                                     // Must be called when an already established session is being loaded
                                     isSeekingFromLoadedValue = true;
                                 }
-                                changeCurrentTrack(0, ratingManager.getTrackPointer());
+                                if (getView() != null) { // Fragment view is created
+                                    changeCurrentTrack(0, ratingManager.getTrackPointer());
+                                }
                             });
 
                             // Hide the loading overlay
@@ -753,6 +737,25 @@ public class RatingFragment extends Fragment {
     private void showLoading() { changeLoadingVisibility(true);}
 
     @Override
+    public void onResume() {
+        super.onResume();
+        if (initDone) {
+            /*
+            Sets the active track in cases when user is returning to this fragment from elsewhere
+            in the app the chain:
+                onCreate > manageLoading > manageDirectory > checkDataDirectoryPath callback > changeCurrentTrack()
+            would not trigger, therefore we need to do it here
+            + it also works when user gets back from GroupControlFragment when creating a new
+            session, so the changeCurrentTrack does not have to be in the callback
+            */
+            isSeekingFromLoadedValue = true;
+            if (getView() != null) { // Fragment view is created
+                changeCurrentTrack(0, ratingManager.getTrackPointer());
+            }
+        }
+    }
+
+    @Override
     public void onPause() {
         super.onPause();
         if (player != null) {
@@ -793,8 +796,8 @@ public class RatingFragment extends Fragment {
     public void onPrepareOptionsMenu(@NonNull @NotNull Menu menu) {
         super.onPrepareOptionsMenu(menu);
         int[] toEnable = {R.id.action_menu_help, R.id.action_menu_save,
-                R.id.action_menu_show_session_info, R.id.action_menu_reset_ratings,
-                R.id.action_menu_show_saved_results, R.id.action_menu_quit};
+                R.id.action_menu_show_session_info, R.id.action_menu_new_session,
+                R.id.action_menu_show_saved_results, R.id.action_menu_quit, R.id.action_menu_settings};
 
         for (int item : toEnable) MainActivity.enableMenuItem(menu, item);
     }
@@ -871,7 +874,7 @@ public class RatingFragment extends Fragment {
                     }
             ), "SessionLoadingThread").start();
             return true;
-        } else if (itemID == R.id.action_menu_reset_ratings && initDone) {
+        } else if (itemID == R.id.action_menu_new_session && initDone) {
             new MaterialAlertDialogBuilder(requireContext())
                     .setTitle(getString(R.string.dialog_make_new_session_title))
                     .setMessage(getString(R.string.dialog_make_new_session_message))

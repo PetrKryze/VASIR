@@ -100,7 +100,7 @@
         <item name="materialThemeOverlay">@style/ThemeOverlay.App.Button.TextButton</item>
     </style>
     <style name="ThemeOverlay.App.Button.TextButton" parent="">
-        <item name="colorPrimary">?attr/colorPrimarySurface</item>
+        <item name="android:colorPrimary">?attr/colorPrimarySurface</item>
     </style>
 
 

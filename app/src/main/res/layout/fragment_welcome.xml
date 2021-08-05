@@ -88,7 +88,8 @@
                 android:layout_height="30dp"
                 android:layout_marginTop="5dp"
                 android:text="@string/welcome_checkbox_do_not_show_again"
-                android:textAppearance="@style/TextAppearance.MdcTypographyStyles.Caption" />
+                android:textAppearance="@style/TextAppearance.MdcTypographyStyles.Caption"
+                android:saveEnabled="false"/>
 
             <Button
                 android:id="@+id/welcome_fragment_start_button"

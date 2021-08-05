@@ -6,7 +6,6 @@ import android.animation.AnimatorSet;
 import android.animation.ArgbEvaluator;
 import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -47,6 +46,7 @@ import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavDirections;
 import androidx.navigation.fragment.NavHostFragment;
+import androidx.preference.PreferenceManager;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -78,7 +78,7 @@ public class WelcomeFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         loadingVisibility(true);
-        preferences = requireContext().getSharedPreferences(getString(R.string.PREFERENCES_SETTINGS), Context.MODE_PRIVATE);
+        preferences = PreferenceManager.getDefaultSharedPreferences(requireContext());
     }
 
     @Override
@@ -147,13 +147,13 @@ public class WelcomeFragment extends Fragment {
         });
 
         // Checkbox logic
-        boolean showWelcomeScreen = preferences.getBoolean(getString(R.string.KEY_PREFERENCES_SETTINGS_WELCOME_SHOW), false);
+        boolean showWelcomeScreen = preferences.getBoolean(getString(R.string.SETTING_KEY_SHOW_WELCOME_SCREEN), false);
         checkBox.setChecked(!showWelcomeScreen);
         checkBox.setAlpha(checkBox.isChecked() ? 1 : (float) 0.5);
         checkBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
             checkBox.setAlpha(isChecked ? 1 : (float) 0.5);
             SharedPreferences.Editor editor = preferences.edit();
-            editor.putBoolean(getString(R.string.KEY_PREFERENCES_SETTINGS_WELCOME_SHOW), !checkBox.isChecked());
+            editor.putBoolean(getString(R.string.SETTING_KEY_SHOW_WELCOME_SCREEN), !checkBox.isChecked());
             editor.apply();
         });
 

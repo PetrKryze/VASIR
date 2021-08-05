@@ -136,7 +136,7 @@
 
 
     <string name="action_quit">Odejít</string>
-    <string name="action_reset_ratings">Vytvořit Nové Sezení</string>
+    <string name="action_new_session">Vytvořit Nové Sezení</string>
     <string name="action_help">Nápověda</string>
     <string name="action_show_session_info">Aktuální Sezení</string>
     <string name="action_show_saved_results">Uložená Hodnocení</string>
@@ -217,4 +217,22 @@
     <string name="current_session_share_title">Aktuální sezení: %s</string>
     <string name="rating_detail_share_title">Sezení: %s</string>
     <string name="snackbar_rating_player_track_load_failed">Nahrávku nebylo možné načíst.</string>
+    <string name="action_settings">Nastavení</string>
+    <string name="fragment_header_settings_fragment">Nastavení</string>
+    <string name="action_new_session_condensed">Nové Sezení</string>
+
+    <string name="setting_show_welcome_screen_title">Zobrazovat domovskou obrazovku</string>
+    <string name="setting_show_welcome_screen_summary_on">Aplikace po spuštení zobrazí úvodní obrazovku</string>
+    <string name="setting_show_welcome_screen_summary_off">Aplikace po spuštění zobrazí obrazovku s hodnocením</string>
+
+    <string name="setting_number_of_backups_title">Počet záložních souborů s výsledky</string>
+
+    <string name="setting_feedback_title">Poslat zpětnou vazbu</string>
+    <string name="setting_feedback_summary">Nahlaste problémy s aplikací nebo dejte tipy na nové funkce</string>
+
+    <string name="setting_version_info_title">Zobrazit informace o verzi</string>
+    <string name="setting_version_info_summary">Aktuální verze aplikace: %s</string>
+    <string name="setting_version_info_unknown_version">Neznámá verze</string>
+    <string name="setting_number_of_backups_summary">Maximální počet záloh: %s</string>
+    <string name="version_info_dialog_version_number">Verze Aplikace %s</string>
 </resources>

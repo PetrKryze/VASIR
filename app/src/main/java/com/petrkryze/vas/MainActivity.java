@@ -30,9 +30,11 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.NavGraph;
 import androidx.navigation.NavInflater;
+import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
+import androidx.preference.PreferenceManager;
 
 import static com.petrkryze.vas.RatingManager.SESSION_INFO_BUNDLE_SESSION;
 
@@ -83,8 +85,8 @@ public class MainActivity extends AppCompatActivity {
         alphaDisabled = getResources().getInteger(R.integer.DISABLED_ICON_ALPHA);
         alphaEnabled = getResources().getInteger(R.integer.ENABLED_ICON_ALPHA);
 
-        SharedPreferences preferences = getSharedPreferences(getString(R.string.PREFERENCES_SETTINGS), MODE_PRIVATE);
-        boolean showWelcomeScreen = preferences.getBoolean(getString(R.string.KEY_PREFERENCES_SETTINGS_WELCOME_SHOW), true);
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        boolean showWelcomeScreen = preferences.getBoolean(getString(R.string.SETTING_KEY_SHOW_WELCOME_SCREEN), true);
 
         NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.nav_host_fragment);
@@ -93,7 +95,6 @@ public class MainActivity extends AppCompatActivity {
         NavInflater navInflater = navController.getNavInflater();
         NavGraph navGraph = navInflater.inflate(R.navigation.nav_graph);
 
-        showWelcomeScreen = true; // DELETEME DEVELOPMENT ONLY, delete later!
         navGraph.setStartDestination(showWelcomeScreen ? R.id.welcome_fragment : R.id.rating_fragment);
         navController.setGraph(navGraph);
 
@@ -136,7 +137,10 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         int itemID = item.getItemId();
-        if (itemID == R.id.action_menu_quit) {
+        if (itemID == R.id.action_menu_settings) {
+            NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
+            return NavigationUI.onNavDestinationSelected(item, navController);
+        } else if (itemID == R.id.action_menu_quit) {
             new MaterialAlertDialogBuilder(this)
                     .setTitle(getString(R.string.dialog_quit_title))
                     .setMessage(getString(R.string.dialog_quit_message))
@@ -195,7 +199,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
-            Log.d("BroadcastReceiver", "onReceive: Action = " + action);
+            Log.i("BroadcastReceiver", "onReceive: Action = " + action);
             if (action.equals(ACTION_HIDE_LOADING)) {
                 hideLoading();
             } else if (action.equals(ACTION_SHOW_LOADING)) {

@@ -31,6 +31,7 @@ import androidx.annotation.NonNull;
 import androidx.documentfile.provider.DocumentFile;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
+import androidx.preference.PreferenceManager;
 
 import static com.petrkryze.vas.RatingResult.LABEL_GENERATOR_MESSAGE;
 import static com.petrkryze.vas.RatingResult.LABEL_SAVE_DATE;
@@ -777,7 +778,9 @@ public class RatingManager {
         Log.i(TAG, "saveResults: File: <" + newResultFile.getName() + "> written successfully.");
 
         // Remove old save files for this session ID
-        int backupsNumber = context.getResources().getInteger(R.integer.SAVE_FILE_BACKUPS_NUMBER);
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        int backupsNumber = Integer.parseInt(preferences.getString(context.getString(R.string.SETTING_KEY_BACKUPS_NUMBER),
+                String.valueOf(context.getResources().getInteger(R.integer.SAVE_FILE_BACKUPS_NUMBER_DEFAULT))));
         if (existingSaveFiles.size() > backupsNumber) {
             Collections.sort(existingSaveFiles); // Sorts ascending - oldest files are first
 
