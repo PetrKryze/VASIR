@@ -107,13 +107,13 @@
 
         <Button
             android:id="@+id/rating_fragment_player_button_previous"
-            style="@style/Widget.MaterialComponents.Button.TextButton"
+            style="@style/Widget.App.Button.TextButton"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
 
             android:drawableTop="@drawable/ic_previous_sized"
-            android:drawableTint="@color/primaryColor"
+            android:drawableTint="?attr/colorPrimarySurface"
 
             android:longClickable="true"
 
@@ -123,13 +123,13 @@
 
         <Button
             android:id="@+id/rating_fragment_player_button_play_pause"
-            style="@style/Widget.MaterialComponents.Button.TextButton"
+            style="@style/Widget.App.Button.TextButton"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
 
             android:drawableTop="@drawable/ic_play_sized"
-            android:drawableTint="@color/primaryColor"
+            android:drawableTint="?attr/colorPrimarySurface"
 
             android:text="@string/button_play_label"
             android:textColor="@color/textPrimaryOnBackground"
@@ -137,13 +137,13 @@
 
         <Button
             android:id="@+id/rating_fragment_player_button_next"
-            style="@style/Widget.MaterialComponents.Button.TextButton"
+            style="@style/Widget.App.Button.TextButton"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
 
             android:drawableTop="@drawable/ic_next_sized"
-            android:drawableTint="@color/primaryColor"
+            android:drawableTint="?attr/colorPrimarySurface"
 
             android:longClickable="true"
 
@@ -159,6 +159,7 @@
         android:layout_height="5dp"
         android:layout_above="@id/rating_box"
         android:background="?android:attr/listDivider"
+        android:visibility="gone"
 
         app:layout_constraintBottom_toTopOf="@id/rating_box"
         app:layout_constraintStart_toStartOf="parent"
@@ -169,9 +170,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:background="@color/primaryColor"
+        android:background="?attr/colorPrimarySurface"
 
         android:padding="8dp"
+        android:elevation="4dp"
 
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -188,7 +190,7 @@
             android:minLines="2"
             android:text="@string/rating_label_lowest"
             android:textAlignment="viewStart"
-            android:textColor="@color/textPrimaryOnPrimary"
+            android:textColor="?attr/colorOnPrimarySurface"
 
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
@@ -205,7 +207,7 @@
             android:minLines="2"
             android:text="@string/rating_label_highest"
             android:textAlignment="viewEnd"
-            android:textColor="@color/textPrimaryOnPrimary"
+            android:textColor="?attr/colorOnPrimarySurface"
 
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"

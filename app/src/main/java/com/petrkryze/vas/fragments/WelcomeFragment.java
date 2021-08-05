@@ -12,6 +12,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.Html;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -41,6 +42,7 @@ import java.util.ArrayList;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavDirections;
@@ -97,7 +99,17 @@ public class WelcomeFragment extends Fragment {
         ImageView scrollIcon = binding.welcomeFragmentScrollHintArrow;
         NestedScrollView scrollView = binding.welcomeFragmentScrollContainer;
 
-        int colorFrom = getResources().getColor(R.color.primaryColor, null);
+        // Get colorPrimarySurface - resolve the ?attr
+        TypedValue typedValue = new TypedValue();
+        requireActivity().getTheme().resolveAttribute(R.attr.colorPrimarySurface, typedValue, true);
+
+        int colorFrom;
+        if (typedValue.data != TypedValue.DATA_NULL_EMPTY &&
+                (typedValue.type == TypedValue.TYPE_INT_COLOR_ARGB8 || typedValue.type == TypedValue.TYPE_INT_COLOR_RGB8)) {
+            colorFrom = typedValue.data;
+        } else {
+            colorFrom = ContextCompat.getColor(requireContext(), R.color.primaryColor);
+        }
         int colorTo = getResources().getColor(R.color.secondaryColor, null);
 
         // App startup logo animation
@@ -204,9 +216,9 @@ public class WelcomeFragment extends Fragment {
     public void onPrepareOptionsMenu(@NonNull Menu menu) {
         super.onPrepareOptionsMenu(menu);
         int[] toDisable = {R.id.action_menu_help, R.id.action_menu_save,
-                R.id.action_menu_reset_ratings};
+                R.id.action_menu_new_session};
         int[] toEnable = {R.id.action_menu_show_saved_results, R.id.action_menu_quit,
-                R.id.action_menu_show_session_info};
+                R.id.action_menu_show_session_info, R.id.action_menu_settings};
 
         for (int item : toDisable) MainActivity.disableMenuItem(menu, item);
         for (int item : toEnable) MainActivity.enableMenuItem(menu, item);

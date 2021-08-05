@@ -1,25 +1,26 @@
 <resources>
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
+    <style name="AppTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <!-- Colors for Material Theme -->
         <item name="colorPrimary">@color/primaryColor</item>
         <item name="colorPrimaryDark">@color/primaryDarkColor</item>
         <item name="colorPrimaryVariant">@color/primaryDarkColor</item>
-        <item name="colorPrimarySurface">@color/primaryColor</item>
         <item name="colorAccent">@color/secondaryColor</item>
         <item name="colorSecondary">@color/secondaryColor</item>
         <item name="colorSecondaryVariant">@color/secondaryDarkColor</item>
         <item name="colorSurface">@color/surfaceColor</item>
         <item name="colorError">@color/errorColor</item>
         <item name="colorOnPrimary">@color/textPrimaryOnPrimary</item>
-        <item name="colorOnPrimarySurface">@color/textPrimaryOnPrimary</item>
-        <item name="colorOnSurface">@color/textPrimaryOnSurface</item>
+        <item name="colorOnSurface">@color/onSurfaceColor</item>
         <item name="colorOnSecondary">@color/textPrimaryOnSecondary</item>
         <item name="colorOnError">@color/textPrimaryOnError</item>
         <item name="colorOnBackground">@color/textPrimaryOnBackground</item>
 
         <item name="android:textColorHighlight">@color/highlightColor</item>
-        <item name="android:colorEdgeEffect">@color/primaryLightColor</item>
+        <item name="android:colorEdgeEffect">?attr/rippleColor</item>
+
+        <!-- Toolbar Look -->
+        <item name="toolbarStyle">@style/Widget.App.Toolbar</item>
 
         <!-- Default Button Look -->
         <item name="materialButtonStyle">@style/Widget.App.Button</item>
@@ -36,7 +37,6 @@
         <item name="android:windowExitTransition">@transition/fade_out</item>
 
         <!-- Top Status Bar Color and Navigation Bar Color -->
-        <item name="android:statusBarColor">@color/primaryDarkColor</item>
         <item name="android:navigationBarColor">@color/primaryDarkColor</item>
 
         <!-- Default List Item Text Appearance -->
@@ -63,6 +63,17 @@
     </style>
 
 
+    <!-- Toolbar Look -->
+    <style name="Widget.App.Toolbar" parent="Widget.MaterialComponents.Toolbar.PrimarySurface">
+        <item name="materialThemeOverlay">@style/ThemeOverlay.App.Toolbar</item>
+        <item name="titleTextColor">@color/topBarTextColor</item>
+    </style>
+
+    <style name="ThemeOverlay.App.Toolbar" parent="">
+        <item name="colorControlNormal">@color/topBarTextColor</item>
+    </style>
+
+
     <!-- Default Text View Look -->
     <style name="Widget.App.TextView" parent="Widget.MaterialComponents.TextView">
         <item name="android:textAppearance">@style/TextAppearance.MdcTypographyStyles.Body1</item>
@@ -81,6 +92,15 @@
     </style>
     <style name="TextAppearance.App.Button" parent="TextAppearance.MdcTypographyStyles.Button">
         <item name="android:textSize">18sp</item>
+    </style>
+
+
+    <!-- Default Player Button Style -->
+    <style name="Widget.App.Button.TextButton" parent="Widget.MaterialComponents.Button.TextButton">
+        <item name="materialThemeOverlay">@style/ThemeOverlay.App.Button.TextButton</item>
+    </style>
+    <style name="ThemeOverlay.App.Button.TextButton" parent="">
+        <item name="colorPrimary">?attr/colorPrimarySurface</item>
     </style>
 
 
@@ -112,7 +132,7 @@
         <item name="shapeAppearance">@style/Widget.App.Button.TextButton.Dialog.ShapeAppearance</item>
     </style>
     <style name="ThemeOverlay.App.Button.TextButton.Dialog" parent="">
-        <item name="colorPrimary">@color/primaryColor</item>
+        <item name="colorPrimary">@color/alertDialogButtonsTextColor</item>
     </style>
     <style name="Widget.App.Button.TextButton.Dialog.ShapeAppearance" parent="ShapeAppearance.MaterialComponents.SmallComponent">
         <item name="cornerFamily">rounded</item>
@@ -128,6 +148,7 @@
 
         <item name="android:maxLines">1</item>
         <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/column_header_text_color</item>
 
         <item name="android:clickable">true</item>
         <item name="android:checkable">true</item>

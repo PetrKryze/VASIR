@@ -22,8 +22,6 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            style="@style/Widget.MaterialComponents.Toolbar.Primary"
-            app:titleTextAppearance="@style/TextAppearance.MdcTypographyStyles.Headline6"
 
             app:title="@string/main_title_placeholder"
             app:menu="@menu/toolbar_menu" />
@@ -43,13 +41,13 @@
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:animateLayoutChanges="true">
+        android:animateLayoutChanges="true"
+        android:elevation="100dp">
         <RelativeLayout
             android:id="@+id/general_loading_container"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="@color/scrim"
-            android:elevation="20dp"
             android:clickable="true"
             android:visibility="gone"
             tools:ignore="UselessParent">

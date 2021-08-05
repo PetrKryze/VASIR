@@ -14,6 +14,7 @@ import android.os.Vibrator;
 import android.text.Html;
 import android.text.Spanned;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -307,8 +308,18 @@ public class RatingFragment extends Fragment {
         VIBRATE_BUTTON_LONG_MS = getResources().getInteger(R.integer.VIBRATE_LONG_CLICK_MS);
         VIBRATE_RATING_START_MS = getResources().getInteger(R.integer.VIBRATE_RATING_BAR_START_MS);
 
+        // Get colorPrimarySurface - resolve the ?attr
+        TypedValue typedValue = new TypedValue();
+        requireActivity().getTheme().resolveAttribute(R.attr.colorPrimarySurface, typedValue, true);
+
+        int colorFrom;
+        if (typedValue.data != TypedValue.DATA_NULL_EMPTY &&
+                (typedValue.type == TypedValue.TYPE_INT_COLOR_ARGB8 || typedValue.type == TypedValue.TYPE_INT_COLOR_RGB8)) {
+            colorFrom = typedValue.data;
+        } else {
+            colorFrom = ContextCompat.getColor(requireContext(), R.color.primaryColor);
+        }
         // Setup long click animation
-        int colorFrom = ContextCompat.getColor(requireContext(), R.color.primaryColor);
         int colorTo = ContextCompat.getColor(requireContext(), R.color.secondaryColor);
         playerButtonClickAnimation = ValueAnimator.ofObject(new ArgbEvaluator(), colorFrom, colorTo)
                 .setDuration(100);

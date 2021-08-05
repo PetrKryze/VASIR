@@ -40,7 +40,7 @@
                     android:padding="16dp"
 
                     android:text="@string/help"
-                    android:textColor="@color/textPrimaryOnPrimary"
+                    android:textColor="@color/textOnPrimaryDarkSurface"
 
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toStartOf="@+id/help_title_image"
@@ -55,7 +55,8 @@
 
                     android:adjustViewBounds="true"
                     android:contentDescription="@string/welcome_title_image_desc"
-                    android:src="@drawable/vas_app_welcome_icon_no_text"
+                    android:src="@drawable/vas_app_welcome_icon_no_background_no_text"
+                    android:background="?attr/colorPrimarySurface"
 
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"

@@ -2,6 +2,6 @@
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:state_hovered="true" android:drawable="@color/listItemHover" />
     <item android:state_focused="true" android:drawable="@color/listItemFocus" />
-    <item android:state_pressed="true" android:drawable="@color/primaryLightColor" />
+    <item android:state_pressed="true" android:drawable="@color/listItemPressed" />
     <item android:drawable="@color/backgroundColor" />
 </selector>

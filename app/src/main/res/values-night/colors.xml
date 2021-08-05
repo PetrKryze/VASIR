@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="primaryColor">#2196f3</color>
+    <color name="primaryLightColor">#202020</color>
+    <color name="primaryDarkColor">#202020</color>
+
+    <color name="secondaryColor">#FFD54F</color>
+    <color name="secondaryLightColor">#FFECB3</color>
+    <color name="secondaryDarkColor">#9E8237</color>
+
+    <color name="textPrimaryOnSurface">#DDFFFFFF</color>
+    <color name="textPrimaryOnPrimary">#000000</color>
+    <color name="textPrimaryOnSecondary">#DD000000</color>
+    <color name="textPrimaryOnError">#000000</color>
+    <color name="textPrimaryOnBackground">#DFFFFFFF</color>
+
+    <color name="textSecondaryOnSurface">#99FFFFFF</color>
+    <color name="textSecondaryOnPrimary">#DF000000</color>
+    <color name="textSecondaryOnSecondary">#9A000000</color>
+    <color name="textSecondaryOnError">#DF000000</color>
+    <color name="textSecondaryOnBackground">#9AFFFFFF</color>
+
+    <color name="backgroundColor">#121212</color>
+    <color name="surfaceColor">#353535</color>
+    <color name="errorColor">#CF6679</color>
+    <color name="onSurfaceColor">#FFFFFF</color>
+
+    <color name="highlightColor">@color/secondaryDarkColor</color>
+    <color name="textOnPrimaryDarkSurface">#DDFFFFFF</color>
+
+    <!-- DELETE ME LATER??? -->
+    <color name="alertDialogButtonsTextColor">@color/secondaryColor</color>
+
+    <color name="listItemHover">#0AFFFFFF</color>
+    <color name="listItemFocus">#1FFFFFFF</color>
+    <color name="listItemPressed">#1AFFFFFF</color>
+
+    <color name="excelGreen">#1EBD65</color>
+    <color name="invisible">#00FFFFFF</color>
+
+    <color name="scrim">#99000000</color>
+</resources>

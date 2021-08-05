@@ -23,7 +23,7 @@
         android:paddingEnd="10dp"
 
         android:text="@string/result_detail_sessionID"
-        android:textColor="@color/textPrimaryOnSurface"
+        android:textColor="@color/textPrimaryOnSecondary"
         android:textIsSelectable="true"
 
         app:layout_constraintEnd_toEndOf="parent"
@@ -181,7 +181,7 @@
         android:layout_height="wrap_content"
 
         android:elevation="5dp"
-        android:background="@color/primaryColor"
+        android:background="?attr/colorPrimarySurface"
         android:paddingHorizontal="5dp"
         android:paddingVertical="5dp"
 
