@@ -28,6 +28,7 @@ import com.petrkryze.vas.R;
 import com.petrkryze.vas.RatingManager;
 import com.petrkryze.vas.RatingResult;
 import com.petrkryze.vas.Recording;
+import com.petrkryze.vas.Session;
 import com.petrkryze.vas.adapters.RecordingsRecyclerViewAdapter;
 import com.petrkryze.vas.databinding.FragmentCurrentSessionInfoBinding;
 
@@ -221,8 +222,10 @@ public class CurrentSessionInfoFragment extends Fragment {
         super.onCreate(savedInstanceState);
         loadingVisibility(true);
         if (getArguments() != null) {
-            currentSession = CurrentSessionInfoFragmentArgs.fromBundle(getArguments()).getRatingResult();
-            recordingsToDisplay = new ArrayList<>(currentSession.getRecordings());
+            Session session = CurrentSessionInfoFragmentArgs.fromBundle(getArguments()).getCurrentSession();
+
+            currentSession = new RatingResult(session);
+            recordingsToDisplay = new ArrayList<>(currentSession.getRecordingList());
             recordingsToDisplay.sort(Recording.sortByGroup);
         }
 
@@ -254,7 +257,7 @@ public class CurrentSessionInfoFragment extends Fragment {
         buttonShareAsText.setOnClickListener(shareAsTextListener);
         buttonShareAsExcel.setOnClickListener(shareAsExcelListener);
 
-        binding.currentSessionInfoSessionID.setText(getString(R.string.current_session_info_sessionID, currentSession.getSession_ID()));
+        binding.currentSessionInfoSessionID.setText(getString(R.string.current_session_info_sessionID, currentSession.getSessionID()));
         binding.currentSessionInfoRatedFraction.setText(currentSession.getRatedFractionString());
         binding.currentSessionInfoSeed.setText(String.valueOf(currentSession.getSeed()));
         binding.currentSessionInfoGeneratorDate.setText(currentSession.getGeneratorMessage().replace("-","."));

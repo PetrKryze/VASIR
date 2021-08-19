@@ -10,6 +10,7 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.text.Html;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -36,7 +37,7 @@ import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 import androidx.preference.PreferenceManager;
 
-import static com.petrkryze.vas.RatingManager.SESSION_INFO_BUNDLE_SESSION;
+import static com.petrkryze.vas.RatingManager.SESSION_INFO_LOADED_SESSION;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -162,7 +163,7 @@ public class MainActivity extends AppCompatActivity {
         menu.findItem(itemID).setEnabled(true).getIcon().setAlpha(alphaEnabled);
     }
 
-    public interface navigateToCSIInterface { void sailTheShip(RatingResult session); }
+    public interface navigateToCSIInterface { void sailTheShip(Session session); }
     public static void navigateToCurrentSessionInfo(Fragment fragment,
                                                     navigateToCSIInterface callback) {
         Context context = fragment.requireContext();
@@ -173,7 +174,7 @@ public class MainActivity extends AppCompatActivity {
 
         switch ((LoadResult) bundle.getSerializable(RatingManager.GET_SESSION_INFO_LOAD_RESULT_KEY)) {
             case OK:
-                callback.sailTheShip((RatingResult) bundle.getSerializable(SESSION_INFO_BUNDLE_SESSION));
+                callback.sailTheShip((Session) bundle.getSerializable(SESSION_INFO_LOADED_SESSION));
                 return;
             case NO_SESSION:
                 title = context.getString(R.string.dialog_no_session_found_title);
@@ -193,6 +194,10 @@ public class MainActivity extends AppCompatActivity {
         new MaterialAlertDialogBuilder(context)
                 .setTitle(title).setMessage(message).setIcon(icon)
                 .setPositiveButton(context.getString(R.string.dialog_quit_confirm), null).show();
+    }
+
+    public static String html(String string) {
+        return Html.fromHtml(string, Html.FROM_HTML_MODE_LEGACY).toString();
     }
 
     public class LoadingReceiver extends BroadcastReceiver {

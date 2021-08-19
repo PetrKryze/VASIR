@@ -40,7 +40,7 @@ public class ExcelUtils {
                                      RatingResult ratingResult) throws IOException {
         // Prepare sheet name
         String sheetName = context.getString(R.string.excel_sheet_name,
-                ratingResult.getSession_ID(), ratingResult.getSaveDate().replace(':','-'));
+                ratingResult.getSessionID(), ratingResult.getSaveDate().replace(':','-'));
 
         // Create new workbook and sheet
         Workbook workbook = new XSSFWorkbook();
@@ -55,7 +55,7 @@ public class ExcelUtils {
 
         titleRow.createCell(COLUMN_HEADER_LABEL,CellType.STRING).setCellValue(context.getString(R.string.excel_title_label));
         sessionIDrow.createCell(COLUMN_HEADER_LABEL,CellType.STRING).setCellValue(context.getString(R.string.excel_session_id_label));
-        sessionIDrow.createCell(COLUMN_HEADER_VALUE,CellType.NUMERIC).setCellValue(String.valueOf(ratingResult.getSession_ID()));
+        sessionIDrow.createCell(COLUMN_HEADER_VALUE,CellType.NUMERIC).setCellValue(String.valueOf(ratingResult.getSessionID()));
         seedRow.createCell(COLUMN_HEADER_LABEL,CellType.STRING).setCellValue(context.getString(R.string.excel_seed_label));
         seedRow.createCell(COLUMN_HEADER_VALUE,CellType.NUMERIC).setCellValue(String.valueOf(ratingResult.getSeed()));
         generatorDateRow.createCell(COLUMN_HEADER_LABEL,CellType.STRING).setCellValue(context.getString(R.string.excel_generator_date_label));
@@ -71,7 +71,7 @@ public class ExcelUtils {
         recordingsHeaderRow.createCell(COLUMN_RECORDING_RATING,CellType.STRING).setCellValue(context.getString(R.string.excel_recording_rating_header));
 
         // Write recordings values
-        ArrayList<Recording> recordings = new ArrayList<>(ratingResult.getRecordings());
+        ArrayList<Recording> recordings = new ArrayList<>(ratingResult.getRecordingList());
         for (int i = 0; i < recordings.size(); i++) {
             Row row = sheet.createRow(ROW_RECORDING_HEADER + 1 + i);
 
@@ -93,7 +93,7 @@ public class ExcelUtils {
 
         // Create new file name for the new save
         String fileName = context.getString(R.string.RATING_EXCEL_FILE_NAME,
-                ratingResult.getSession_ID(), ratingResult.getSaveDate().replace(':','-').replace(' ', '_'));
+                ratingResult.getSessionID(), ratingResult.getSaveDate().replace(':','-').replace(' ', '_'));
 
         File newExcelFile = new File(tempDir, fileName);
         // If the file already exists, delete it

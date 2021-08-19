@@ -217,7 +217,7 @@ public class ResultDetailFragment extends Fragment {
         loadingVisibility(true);
         if (getArguments() != null) {
             resultToDisplay = ResultDetailFragmentArgs.fromBundle(getArguments()).getRatingResult();
-            recordingsToDisplay = new ArrayList<>(resultToDisplay.getRecordings());
+            recordingsToDisplay = new ArrayList<>(resultToDisplay.getRecordingList());
             recordingsToDisplay.sort(Recording.sortByGroup);
         }
 
@@ -249,7 +249,7 @@ public class ResultDetailFragment extends Fragment {
         buttonShareAsText.setOnClickListener(shareAsTextListener);
         buttonShareAsExcel.setOnClickListener(shareAsExcelListener);
 
-        binding.resultDetailSessionID.setText(getString(R.string.result_detail_sessionID, resultToDisplay.getSession_ID()));
+        binding.resultDetailSessionID.setText(getString(R.string.result_detail_sessionID, resultToDisplay.getSessionID()));
         binding.resultDetailSaveDate.setText(formatDateTime(resultToDisplay.getSaveDate()));
         binding.resultDetailSeed.setText(String.valueOf(resultToDisplay.getSeed()));
         binding.resultDetailGeneratorDate.setText(resultToDisplay.getGeneratorMessage().replace("-","."));

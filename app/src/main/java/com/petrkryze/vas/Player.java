@@ -122,11 +122,6 @@ public class Player {
         this.handler = new Handler(handlerThread.getLooper());
     }
 
-    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
-    public boolean isSeeking() {
-        return isSeeking;
-    }
-
     public boolean isPlaying() {
         if (mediaPlayer != null) {
             if (!isStateAnyOf(State.ERROR)) {
