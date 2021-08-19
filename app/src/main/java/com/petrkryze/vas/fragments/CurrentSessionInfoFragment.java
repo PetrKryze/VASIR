@@ -9,7 +9,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
-import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -50,6 +49,7 @@ import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import static com.petrkryze.vas.MainActivity.html;
 import static com.petrkryze.vas.fragments.ResultDetailFragment.RecordingListSortBy;
 
 /**
@@ -321,60 +321,6 @@ public class CurrentSessionInfoFragment extends Fragment {
     }
 
     @Override
-    public void onPrepareOptionsMenu(@NonNull @NotNull Menu menu) {
-        super.onPrepareOptionsMenu(menu);
-        int[] toDisable = { R.id.action_menu_save, R.id.action_menu_new_session,
-                R.id.action_menu_show_session_info};
-        int[] toEnable = {R.id.action_menu_help, R.id.action_menu_quit,
-                R.id.action_menu_show_saved_results, R.id.action_menu_settings};
-
-        for (int item : toDisable) MainActivity.disableMenuItem(menu, item);
-        for (int item : toEnable) MainActivity.enableMenuItem(menu, item);
-    }
-
-    @SuppressLint("ShowToast")
-    @Override
-    public boolean onOptionsItemSelected(@NonNull @NotNull MenuItem item) {
-        int itemID = item.getItemId();
-        if (itemID == R.id.action_menu_help) {
-            String contextHelpMessage = getString(R.string.help_context_body_current_session_info_fragment);
-            String contextHelpTitle = getString(R.string.help_context_title_current_session_info_fragment);
-
-            NavDirections directions =
-                    CurrentSessionInfoFragmentDirections.
-                            actionCurrentSessionInfoFragmentToHelpFragment(contextHelpMessage, contextHelpTitle);
-            NavHostFragment.findNavController(this).navigate(directions);
-            return true;
-        } else if (itemID == R.id.action_menu_show_saved_results) {
-            loadingVisibility(true);
-            new Thread(() -> { // Threading for slow loading times
-                try {
-                    ArrayList<RatingResult> ratings = RatingManager.loadResults(requireContext());
-                    loadingVisibility(false);
-                    requireActivity().runOnUiThread(() -> {
-                        NavDirections directions =
-                                CurrentSessionInfoFragmentDirections.actionCurrentSessionInfoFragmentToResultFragment(ratings);
-                        NavHostFragment.findNavController(this).navigate(directions);
-                    });
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    loadingVisibility(false);
-                    requireActivity().runOnUiThread(() -> Snackbar.make(requireActivity().findViewById(R.id.coordinator),
-                            Html.fromHtml(getString(R.string.snackbar_ratings_loading_failed, e.getMessage()),Html.FROM_HTML_MODE_LEGACY),
-                            BaseTransientBottomBar.LENGTH_LONG)
-                            .setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE).show()
-                    );
-                }
-            }, "ResultsLoadingThread").start();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
-    private void loadingVisibility(boolean show) {requireContext().sendBroadcast(
-            new Intent().setAction(show ? MainActivity.ACTION_SHOW_LOADING : MainActivity.ACTION_HIDE_LOADING));}
-
-    @Override
     public void onResume() {
         super.onResume();
         if (isExcelSharing) {
@@ -394,6 +340,69 @@ public class CurrentSessionInfoFragment extends Fragment {
         }
 
         ExcelUtils.dumpTempFolder(requireContext());
+    }
+
+    @Override
+    public void onPrepareOptionsMenu(@NonNull @NotNull Menu menu) {
+        super.onPrepareOptionsMenu(menu);
+        int[] toDisable = { R.id.action_menu_save, R.id.action_menu_new_session,
+                R.id.action_menu_show_session_info};
+        int[] toEnable = {R.id.action_menu_help, R.id.action_menu_quit,
+                R.id.action_menu_show_saved_results, R.id.action_menu_settings};
+
+        for (int item : toDisable) MainActivity.disableMenuItem(menu, item);
+        for (int item : toEnable) MainActivity.enableMenuItem(menu, item);
+    }
+
+    @SuppressLint("ShowToast")
+    @Override
+    public boolean onOptionsItemSelected(@NonNull @NotNull MenuItem item) {
+        int itemID = item.getItemId();
+        if (itemID == R.id.action_menu_help) {
+            String contextHelpMessage = getString(R.string.help_context_body_current_session_info_fragment);
+            String contextHelpTitle = getString(R.string.help_context_title_current_session_info_fragment);
+
+            NavDirections directions = CurrentSessionInfoFragmentDirections.
+                            actionCurrentSessionInfoFragmentToHelpFragment(contextHelpMessage, contextHelpTitle);
+            NavHostFragment.findNavController(this).navigate(directions);
+            return true;
+        } else if (itemID == R.id.action_menu_show_saved_results) {
+            onShowSavedResults();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @SuppressLint("ShowToast")
+    private void onShowSavedResults() {
+        loadingVisibility(true);
+        new Thread(() -> { // Threading for slow loading times
+            try {
+                ArrayList<RatingResult> ratings = RatingManager.loadResults(requireContext());
+
+                requireActivity().runOnUiThread(() -> {
+                    loadingVisibility(false);
+                    NavDirections directions =
+                            CurrentSessionInfoFragmentDirections.actionCurrentSessionInfoFragmentToResultFragment(ratings);
+                    NavHostFragment.findNavController(this).navigate(directions);
+                });
+            } catch (Exception e) {
+                e.printStackTrace();
+
+                requireActivity().runOnUiThread(() -> {
+                    loadingVisibility(false);
+                    String message = html(getString(R.string.snackbar_ratings_loading_failed, e.getMessage()));
+                    Snackbar.make(requireActivity().findViewById(R.id.coordinator),
+                            message, BaseTransientBottomBar.LENGTH_LONG)
+                            .setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE).show();
+                });
+            }
+        }, "ResultsLoadingThread").start();
+    }
+
+    private void loadingVisibility(boolean show) {
+        requireActivity().findViewById(R.id.general_loading_container)
+                .setVisibility(show ? View.VISIBLE : View.GONE);
     }
 
     class SortColumnListener implements View.OnClickListener {

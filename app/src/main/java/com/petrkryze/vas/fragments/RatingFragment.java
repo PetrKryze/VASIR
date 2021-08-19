@@ -11,8 +11,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
-import android.text.Html;
-import android.text.Spanned;
 import android.util.Log;
 import android.util.Pair;
 import android.util.TypedValue;
@@ -62,6 +60,7 @@ import androidx.navigation.NavDirections;
 import androidx.navigation.fragment.NavHostFragment;
 
 import static com.petrkryze.vas.MainActivity.applyTintFilter;
+import static com.petrkryze.vas.MainActivity.html;
 import static com.petrkryze.vas.RatingModel.PLAYER_CURRENT_OUT_OF;
 import static com.petrkryze.vas.RatingModel.PLAYER_LIST_ON_END;
 import static com.petrkryze.vas.RatingModel.PLAYER_LIST_ON_START;
@@ -245,7 +244,7 @@ public class RatingFragment extends Fragment {
                         RatingFragment.this.requireContext().getContentResolver()
                                 .takePersistableUriPermission(resultUri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
                         // Go check the selected directory and it's contents
-                        showLoading();
+                        loadingVisibility(true);
                         model.checkDirectoryFromUri(requireContext(), resultUri);
                     }
                 } else {
@@ -273,7 +272,7 @@ public class RatingFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        showLoading();
+        loadingVisibility(true);
 
         initDone = false;
         isTouchingSeekBar = false;
@@ -348,13 +347,8 @@ public class RatingFragment extends Fragment {
 
         model = new ViewModelProvider(this).get(RatingModel.class);
 
-        model.getLoadingFinished().observe(getViewLifecycleOwner(), aBoolean -> {
-            if ((Boolean) aBoolean)  {
-                hideLoading();
-            } else {
-                showLoading();
-            }
-        });
+        model.getLoadingFinished().observe(getViewLifecycleOwner(), aBoolean ->
+                loadingVisibility(!((Boolean) aBoolean)));
 
         model.getSession().observe(getViewLifecycleOwner(), this::onSessionLoaded);
         model.getDirectoryCheckError().observe(getViewLifecycleOwner(),
@@ -434,7 +428,7 @@ public class RatingFragment extends Fragment {
             }
 
             // This branch is finished here, hide the loading view
-            hideLoading();
+            loadingVisibility(false);
 
             String finalTitle = title;
             String finalMessage = message;
@@ -606,25 +600,25 @@ public class RatingFragment extends Fragment {
 
     private void onDirectoryCheckError(DirectoryCheckError errorInfo) {
         creatingNewSession = false;
-        Spanned message = null;
+        String message = null;
         String dirname = errorInfo.dirName;
 
         switch (errorInfo.errorType) {
             case NOT_EXIST:
-                message = Html.fromHtml(getString(R.string.dialog_invalid_directory_not_exist, dirname), Html.FROM_HTML_MODE_LEGACY); break;
+                message = html(getString(R.string.dialog_invalid_directory_not_exist, dirname)); break;
             case NOT_DIRECTORY:
-                message = Html.fromHtml(getString(R.string.dialog_invalid_directory_not_directory, dirname), Html.FROM_HTML_MODE_LEGACY); break;
+                message = html(getString(R.string.dialog_invalid_directory_not_directory, dirname)); break;
             case NOT_READABLE:
-                message = Html.fromHtml(getString(R.string.dialog_invalid_directory_not_readable, dirname), Html.FROM_HTML_MODE_LEGACY); break;
+                message = html(getString(R.string.dialog_invalid_directory_not_readable, dirname)); break;
             case NO_FILES:
-                message = Html.fromHtml(getString(R.string.dialog_invalid_directory_no_files, dirname), Html.FROM_HTML_MODE_LEGACY); break;
+                message = html(getString(R.string.dialog_invalid_directory_no_files, dirname)); break;
             case MISSING_FILES:
-                message = Html.fromHtml(getString(R.string.dialog_invalid_directory_missing_files,
-                        errorInfo.missingCnt, dirname, errorInfo.missingList), Html.FROM_HTML_MODE_LEGACY);
+                message = html(getString(R.string.dialog_invalid_directory_missing_files,
+                        errorInfo.missingCnt, dirname, errorInfo.missingList));
                 break;
         }
 
-        Spanned finalMessage = message;
+        String finalMessage = message;
         new MaterialAlertDialogBuilder(requireContext())
                 .setTitle(getString(R.string.dialog_invalid_directory_title))
                 .setMessage(finalMessage)
@@ -675,14 +669,6 @@ public class RatingFragment extends Fragment {
                     ":" +
                     (sec >= 10 ? String.valueOf(sec) : "0" + sec);
         }
-    }
-
-    private void hideLoading() {
-        requireActivity().findViewById(R.id.general_loading_container).setVisibility(View.GONE);
-    }
-
-    private void showLoading() {
-        requireActivity().findViewById(R.id.general_loading_container).setVisibility(View.VISIBLE);
     }
 
     @Override
@@ -747,93 +733,106 @@ public class RatingFragment extends Fragment {
             });
             return true;
         } else if (itemID == R.id.action_menu_show_saved_results && initDone) {
-            showLoading();
-            new Thread(() -> { // Threading for slow loading times
-                try {
-                    ArrayList<RatingResult> ratings = RatingManager.loadResults(requireContext());
-
-                    hideLoading();
-                    requireActivity().runOnUiThread(() -> {
-                        NavDirections directions =
-                                RatingFragmentDirections.actionRatingFragmentToResultFragment(ratings);
-                        NavHostFragment.findNavController(this).navigate(directions);
-                    });
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    hideLoading();
-                    requireActivity().runOnUiThread(() -> Snackbar.make(requireActivity().findViewById(R.id.coordinator),
-                            Html.fromHtml(getString(R.string.snackbar_ratings_loading_failed, e.getMessage()),Html.FROM_HTML_MODE_LEGACY),
-                            BaseTransientBottomBar.LENGTH_LONG)
-                            .setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE).show()
-                    );
-                }
-            }, "ResultsLoadingThread").start();
-
+            onShowSavedResults();
             return true;
         } else if (itemID == R.id.action_menu_show_session_info && initDone) {
-            showLoading();
-            new Thread(() -> MainActivity.navigateToCurrentSessionInfo(
-                    this, session -> {
-                        hideLoading();
-                        requireActivity().runOnUiThread(() -> {
-                            NavDirections directions = RatingFragmentDirections
-                                    .actionRatingFragmentToCurrentSessionInfoFragment(session);
-                            NavHostFragment.findNavController(RatingFragment.this)
-                                    .navigate(directions);
-                        });
-                    }
-            ), "SessionLoadingThread").start();
+            onShowSessionInfo();
             return true;
         } else if (itemID == R.id.action_menu_new_session && initDone) {
-            new MaterialAlertDialogBuilder(requireContext())
-                    .setTitle(getString(R.string.dialog_make_new_session_title))
-                    .setMessage(getString(R.string.dialog_make_new_session_message))
-                    .setIcon(applyTintFilter(
-                            ContextCompat.getDrawable(requireContext(), R.drawable.ic_warning),
-                            requireContext().getColor(R.color.secondaryColor)))
-                    .setPositiveButton(R.string.dialog_make_new_session_positive_button_label,
-                            (dialog, which) -> {
-                                showLoading();
-                                if (model.isSessionFinished()) { // If the rating is finished, try saving it
-                                    model.saveResults(requireContext(), new SaveResultsCallback() {
-                                        @Override
-                                        public void onSuccess() {
-                                            fireSelectDirectory();
-                                        }
-
-                                        @Override
-                                        public void onError(String errorMessage) {
-                                            onSaveFailedOnNewSession(errorMessage);
-                                        }
-                                    });
-                                } else { // Session is not complete, just proceed with selection
-                                    fireSelectDirectory();
-                                }
-                            })
-                    .setNegativeButton(R.string.dialog_quit_cancel, null).show();
+            onNewSession();
             return true;
         }
         return super.onOptionsItemSelected(item);
     }
 
+    @SuppressLint("ShowToast")
+    private void onShowSavedResults() {
+        loadingVisibility(true);
+        new Thread(() -> { // Threading for slow loading times
+            try {
+                ArrayList<RatingResult> ratings = RatingManager.loadResults(requireContext());
+
+                requireActivity().runOnUiThread(() -> {
+                    loadingVisibility(false);
+                    NavDirections directions =
+                            RatingFragmentDirections.actionRatingFragmentToResultFragment(ratings);
+                    NavHostFragment.findNavController(this).navigate(directions);
+                });
+            } catch (Exception e) {
+                e.printStackTrace();
+
+                requireActivity().runOnUiThread(() -> {
+                    loadingVisibility(false);
+                    String message = html(getString(R.string.snackbar_ratings_loading_failed, e.getMessage()));
+                    Snackbar.make(requireActivity().findViewById(R.id.coordinator),
+                            message, BaseTransientBottomBar.LENGTH_LONG)
+                            .setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE).show();
+                });
+            }
+        }, "ResultsLoadingThread").start();
+    }
+
+    private void onShowSessionInfo() {
+        loadingVisibility(true);
+        new Thread(() ->
+                MainActivity.navigateToCurrentSessionInfo(this,
+                        session -> requireActivity().runOnUiThread(() -> {
+                            loadingVisibility(false);
+                            NavDirections directions = RatingFragmentDirections
+                                    .actionRatingFragmentToCurrentSessionInfoFragment(session);
+                            NavHostFragment.findNavController(RatingFragment.this)
+                                    .navigate(directions);
+                        })
+                ), "SessionLoadingThread").start();
+    }
+
+    private void onNewSession() {
+        new MaterialAlertDialogBuilder(requireContext())
+                .setTitle(getString(R.string.dialog_make_new_session_title))
+                .setMessage(getString(R.string.dialog_make_new_session_message))
+                .setIcon(applyTintFilter(
+                        ContextCompat.getDrawable(requireContext(), R.drawable.ic_warning),
+                        requireContext().getColor(R.color.secondaryColor)))
+                .setPositiveButton(R.string.dialog_make_new_session_positive_button_label,
+                        (dialog, which) -> {
+                            loadingVisibility(true);
+                            // If the rating is finished, try saving it
+                            if (model.isSessionFinished()) {
+                                model.saveResults(requireContext(), new SaveResultsCallback() {
+                                    @Override
+                                    public void onSuccess() {
+                                        fireSelectDirectory();
+                                    }
+
+                                    @Override
+                                    public void onError(String errorMessage) {
+                                        onSaveFailedOnNewSession(errorMessage);
+                                    }
+                                });
+                            } else { // Session is not complete, just proceed with selection
+                                fireSelectDirectory();
+                            }
+                        })
+                .setNegativeButton(R.string.dialog_quit_cancel, null).show();
+    }
+
     private void onSaveFailed(String errorMessage) {
-        String message = (errorMessage == null ?
+        String errorString = (errorMessage == null ?
                 getString(R.string.snackbar_save_failed_error_unknown) : errorMessage);
-        Snackbar.make(requireActivity().findViewById(R.id.coordinator),
-                Html.fromHtml(getString(R.string.snackbar_save_failed, message), Html.FROM_HTML_MODE_LEGACY),
+        String message = html(getString(R.string.snackbar_save_failed, errorString));
+        Snackbar.make(requireActivity().findViewById(R.id.coordinator), message,
                 BaseTransientBottomBar.LENGTH_LONG)
                 .setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE).show();
     }
 
     private void onSaveFailedOnNewSession(String errorMessage) {
-        String message = (errorMessage == null ?
+        String errorString = (errorMessage == null ?
                 getString(R.string.dialog_save_failed_continue_error_unknown) : errorMessage);
-        hideLoading();
+        String message = html(getString(R.string.dialog_save_failed_continue_message, errorString));
+        loadingVisibility(false);
         new MaterialAlertDialogBuilder(requireContext())
                 .setTitle(getString(R.string.dialog_save_failed_continue_title))
-                .setMessage(Html.fromHtml(
-                        getString(R.string.dialog_save_failed_continue_message, message),
-                        Html.FROM_HTML_MODE_LEGACY))
+                .setMessage(message)
                 .setIcon(applyTintFilter(
                         ContextCompat.getDrawable(requireContext(), R.drawable.ic_error),
                         requireContext().getColor(R.color.errorColor)))
@@ -854,5 +853,10 @@ public class RatingFragment extends Fragment {
                     | Intent.FLAG_GRANT_PREFIX_URI_PERMISSION);
             return intent;
         }
+    }
+
+    private void loadingVisibility(boolean show) {
+        requireActivity().findViewById(R.id.general_loading_container)
+                .setVisibility(show ? View.VISIBLE : View.GONE);
     }
 }

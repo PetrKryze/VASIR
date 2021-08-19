@@ -24,10 +24,12 @@ import java.util.List;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import static com.petrkryze.vas.adapters.RecordingsRecyclerViewAdapter.ViewHolder;
+
 /**
  * {@link RecyclerView.Adapter} that can display a {@link Recording}.
  */
-public class RecordingsRecyclerViewAdapter extends RecyclerView.Adapter<RecordingsRecyclerViewAdapter.ViewHolder> {
+public class RecordingsRecyclerViewAdapter extends RecyclerView.Adapter<ViewHolder> {
 
     private final Context context;
     private final List<Recording> recordings;

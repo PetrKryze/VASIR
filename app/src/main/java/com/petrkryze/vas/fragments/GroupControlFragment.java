@@ -1,7 +1,6 @@
 package com.petrkryze.vas.fragments;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
@@ -43,6 +42,7 @@ import static com.petrkryze.vas.fragments.RatingFragment.GROUP_CHECK_RESULT_REQU
  * A fragment representing a list of Items.
  */
 public class GroupControlFragment extends Fragment {
+
     private static final String TAG = "GroupControlFragment";
     public static final String GroupControlConfirmedKey = "groupControlConfirmedKey";
     public static final String GroupControlSourceRootURI = "sourceRootUri";
@@ -230,8 +230,7 @@ public class GroupControlFragment extends Fragment {
             String contextHelpMessage = getString(R.string.help_context_body_group_control_fragment);
             String contextHelpTitle = getString(R.string.help_context_title_group_control_fragment);
 
-            NavDirections directions =
-                    GroupControlFragmentDirections.
+            NavDirections directions = GroupControlFragmentDirections.
                             actionGroupControlFragmentToHelpFragment(contextHelpMessage, contextHelpTitle);
             NavHostFragment.findNavController(this).navigate(directions);
             return true;
@@ -240,6 +239,9 @@ public class GroupControlFragment extends Fragment {
         return super.onOptionsItemSelected(item);
     }
 
-    private void loadingVisibility(boolean show) {requireContext().sendBroadcast(
-            new Intent().setAction(show ? MainActivity.ACTION_SHOW_LOADING : MainActivity.ACTION_HIDE_LOADING));}
+    private void loadingVisibility(boolean show) {
+        requireActivity().findViewById(R.id.general_loading_container)
+                .setVisibility(show ? View.VISIBLE : View.GONE);
+    }
+
 }

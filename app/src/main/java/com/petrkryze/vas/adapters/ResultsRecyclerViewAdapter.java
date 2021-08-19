@@ -20,10 +20,12 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.util.Pair;
 import androidx.recyclerview.widget.RecyclerView;
 
+import static com.petrkryze.vas.adapters.ResultsRecyclerViewAdapter.ViewHolder;
+
 /**
  * {@link RecyclerView.Adapter} that can display a {@link RatingResult}.
  */
-public class ResultsRecyclerViewAdapter extends RecyclerView.Adapter<ResultsRecyclerViewAdapter.ViewHolder> {
+public class ResultsRecyclerViewAdapter extends RecyclerView.Adapter<ViewHolder> {
 
     private final Context context;
     private final List<RatingResult> ratingResults;

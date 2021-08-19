@@ -277,12 +277,6 @@ public class ResultDetailFragment extends Fragment {
         loadingVisibility(false);
     }
 
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        binding = null;
-    }
-
     private void uncheckAll() {
         headerID.setChecked(false);
         headerGroup.setChecked(false);
@@ -344,26 +338,26 @@ public class ResultDetailFragment extends Fragment {
             NavHostFragment.findNavController(this).navigateUp();
             return true;
         } else if (itemID == R.id.action_menu_show_session_info) {
-            loadingVisibility(true);
-            new Thread(() -> MainActivity.navigateToCurrentSessionInfo(
-                    this, session -> {
-                        loadingVisibility(false);
-                        requireActivity().runOnUiThread(() -> {
-                            NavDirections directions = ResultDetailFragmentDirections
-                                    .actionResultDetailFragmentToCurrentSessionInfoFragment(session);
-                            NavHostFragment.findNavController(ResultDetailFragment.this)
-                                    .navigate(directions);
-                        });
-                    }
-            ), "SessionLoadingThread").start();
+            onShowSessionInfo();
             return true;
         }
 
         return super.onOptionsItemSelected(item);
     }
 
-    private void loadingVisibility(boolean show) {requireContext().sendBroadcast(
-            new Intent().setAction(show ? MainActivity.ACTION_SHOW_LOADING : MainActivity.ACTION_HIDE_LOADING));}
+    private void onShowSessionInfo() {
+        loadingVisibility(true);
+        new Thread(() ->
+                MainActivity.navigateToCurrentSessionInfo(this,
+                        session -> requireActivity().runOnUiThread(() -> {
+                            loadingVisibility(false);
+                            NavDirections directions = ResultDetailFragmentDirections
+                                    .actionResultDetailFragmentToCurrentSessionInfoFragment(session);
+                            NavHostFragment.findNavController(ResultDetailFragment.this)
+                                    .navigate(directions);
+                        })
+                ), "SessionLoadingThread").start();
+    }
 
     @Override
     public void onResume() {
@@ -385,6 +379,17 @@ public class ResultDetailFragment extends Fragment {
         }
 
         ExcelUtils.dumpTempFolder(requireContext());
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        binding = null;
+    }
+
+    private void loadingVisibility(boolean show) {
+        requireActivity().findViewById(R.id.general_loading_container)
+                .setVisibility(show ? View.VISIBLE : View.GONE);
     }
 
     public enum RecordingListSortBy {
