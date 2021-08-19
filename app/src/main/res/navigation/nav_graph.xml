@@ -209,5 +209,12 @@
     <fragment
         android:id="@+id/action_menu_settings"
         android:name="com.petrkryze.vas.fragments.SettingsFragment"
-        android:label="@string/fragment_header_settings_fragment" />
+        android:label="@string/fragment_header_settings_fragment" >
+        <action
+            android:id="@+id/action_action_menu_settings_to_currentSessionInfoFragment"
+            app:destination="@id/currentSessionInfoFragment" />
+        <action
+            android:id="@+id/action_action_menu_settings_to_result_fragment"
+            app:destination="@id/result_fragment" />
+    </fragment>
 </navigation>
