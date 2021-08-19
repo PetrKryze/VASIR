@@ -1,7 +1,6 @@
 package com.petrkryze.vas;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.media.MediaScannerConnection;
@@ -12,113 +11,80 @@ import android.util.Pair;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.petrkryze.vas.fragments.GroupControlFragment;
 
 import org.apache.commons.io.FilenameUtils;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.Random;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.documentfile.provider.DocumentFile;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
 import androidx.preference.PreferenceManager;
 
 import static com.petrkryze.vas.RatingResult.LABEL_GENERATOR_MESSAGE;
 import static com.petrkryze.vas.RatingResult.LABEL_SAVE_DATE;
 import static com.petrkryze.vas.RatingResult.LABEL_SEED;
 import static com.petrkryze.vas.RatingResult.LABEL_SESSION_ID;
-import static com.petrkryze.vas.Recording.DEFAULT_UNSET_RATING;
+import static com.petrkryze.vas.Session.State.STATE_IDLE;
+import static com.petrkryze.vas.Session.State.STATE_IN_PROGRESS;
 
 /**
  * Created by Petr on 09.02.2020. Yay!
  */
 public class RatingManager {
 
-    public enum State {STATE_IN_PROGRESS, STATE_FINISHED, STATE_IDLE}
     public enum LoadResult {OK, NO_SESSION, CORRUPTED_SESSION}
     public enum FileCheckError {NOT_EXIST, NOT_DIRECTORY, NOT_FILE, NOT_READABLE, NOT_WRITABLE,
         NO_FILES, MISSING_FILES, OK}
 
-    public interface GroupFoldersUserCheckCallback {
-        void groupCheckFinished(boolean confirmed);
-        void groupCheckStart(ArrayList<GroupFolder> groupFolders);
+    public interface DirectoryCheckCallback {
+        void onError(DirectoryCheckError errorInfo);
+        void onSuccess();
+        void onGroupCheckNeeded(Uri rootDirUri, ArrayList<GroupFolder> groupFolders);
     }
-
-    // Session defining variables
-    private int session_ID;
-    private long seed;
-    private String generatorMessage;
-    private List<Recording> trackList;
-    private ArrayList<Integer> ratings;
-    private String currentSessionFilePath;
-
-    private ArrayList<Uri> fileList = null; // For file consistency check in storage
-
-    private State state;
-    private Uri dataDirPath;
-    private int trackPointer = -1;
-    private int savedPlayProgress = Player.SAVED_PROGRESS_DEFAULT;
 
     private final SharedPreferences preferences;
 
     private static final String KEY_PREFERENCES_CURRENT_SESSION = "current_session";
-    private static final String KEY_PREFERENCES_STATE = "state";
-    private static final String KEY_PREFERENCES_DATADIR_PATH = "datadir";
-    private static final String KEY_PREFERENCES_TRACK_POINTER = "track_pointer";
-    private static final String KEY_PREFERENCES_SAVED_PLAY_PROGRESS = "saved_play_progress";
 
     public static final char separator = ';';
     public static final char headerTag = '#';
     private static final String[] SUPPORTED_EXTENSIONS = {"wav","mp3"};
-    public static final String DIRCHECK_RESULT_IS_OK = "dircheck_result_is_ok";
-    public static final String DIRCHECK_RESULT_ERROR_TYPE = "dircheck_result_error_type";
-    public static final String DIRCHECK_RESULT_DIRECTORY = "dircheck_result_directory";
-    public static final String DIRCHECK_RESULT_MISSING_CNT = "dircheck_result_missing_cnt";
-    public static final String DIRCHECK_RESULT_MISSING_LIST = "dircheck_result_missing_list";
 
     private static final String TAG = "RatingManager";
 
-    public RatingManager(@NonNull Activity context) {
-        this.preferences = context.getPreferences(Context.MODE_PRIVATE);
-        this.state = State.STATE_IDLE;
-
-        // DELETEME Delet dis after production version is done
-        //  SharedPreferences.Editor editor = preferences.edit();
-        //  editor.clear();
-        //  editor.commit();
+    public RatingManager(@NonNull Context context) {
+        this.preferences = PreferenceManager.getDefaultSharedPreferences(context);
     }
 
-    public static final String GROUP_CHECK_RESULT_REQUEST_KEY = "group_check_result";
-    @SuppressWarnings("unchecked")
-    public Bundle checkDataDirectoryPath(Uri rootDataUri, boolean newSession, Fragment caller,
-                                         GroupFoldersUserCheckCallback callback) {
-        DocumentFile rootDataDir = DocumentFile.fromTreeUri(caller.requireContext(), rootDataUri);
+    public Session makeNewSession(Uri newRootUri, ArrayList<GroupFolder> newGroupFolders) throws URISyntaxException {
+        return new Session(getNewSessionID(), newRootUri, newGroupFolders);
+    }
+
+    private void checkDataDirectoryPath(Context context, Uri rootDataUri, @Nullable Session session,
+                                         DirectoryCheckCallback callback) {
+        DocumentFile rootDataDir = DocumentFile.fromTreeUri(context, rootDataUri);
         assert rootDataDir != null;
 
         DocumentFile[] documentFiles = rootDataDir.listFiles();
-        for (DocumentFile document : documentFiles) {
+        for (DocumentFile document : documentFiles) { // Logging only
             Log.d(TAG, "checkDataDirectoryPath: File: " + document.getName());
         }
-
-        Bundle ret = new Bundle();
-        ret.putBoolean(DIRCHECK_RESULT_IS_OK, false); // Default on false, when ok overwrite
-        ret.putString(DIRCHECK_RESULT_DIRECTORY, rootDataDir.getName());
 
         // Basic checks for root directory
         Pair<Boolean, FileCheckError> rootCheck = existsIsDirCanRead(rootDataDir);
         if (!rootCheck.first) {
-            ret.putString(DIRCHECK_RESULT_ERROR_TYPE, rootCheck.second.toString());
-            return ret;
+            callback.onError(new DirectoryCheckError(rootDataDir.getName(), rootCheck.second, null, null));
+            return;
         }
         // Assess group folders placed directly in root
         ArrayList<GroupFolder> groupFolders = getGroupFolderList(rootDataDir);
@@ -135,17 +101,17 @@ public class RatingManager {
 
         // If no suitable audio files have been found even in root, exit with error
         if (groupFolders.isEmpty()) {
-            ret.putString(DIRCHECK_RESULT_ERROR_TYPE, FileCheckError.NO_FILES.toString());
+            callback.onError(new DirectoryCheckError(rootDataDir.getName(), FileCheckError.NO_FILES, null, null));
         } else {
             for (GroupFolder gf : groupFolders) { // Just logging
                 Log.d(TAG, "checkDataDirectoryPath: Group folder: " +
                         gf.getFolderName() + ", Files: " + gf.getNaudioFiles() + " - PASSED");
             }
 
-            if (!newSession) { // Previous session found, check consistency
-                ArrayList<Uri> lastSessionFiles = new ArrayList<>(this.fileList);
+            if (session != null) { // Previous session found, check consistency
+                ArrayList<Uri> lastSessionFiles = new ArrayList<>(session.getRecordingUriList());
 
-                for (Uri filePath : this.fileList) {
+                for (Uri filePath : session.getRecordingUriList()) {
                     for (GroupFolder gf : groupFolders) {
                         if (gf.getFileList().contains(filePath)) {
                             lastSessionFiles.remove(filePath);
@@ -155,54 +121,34 @@ public class RatingManager {
 
                 // All files from saved file list are accounted for in the storage
                 if (lastSessionFiles.isEmpty()) {
-                    ret.putBoolean(DIRCHECK_RESULT_IS_OK, true);
                     // Use callback to signal that the previous session data is checked and ok
-                    callback.groupCheckFinished(true);
-                } else {
-                    ret.putString(DIRCHECK_RESULT_ERROR_TYPE, FileCheckError.MISSING_FILES.toString());
-                    ret.putInt(DIRCHECK_RESULT_MISSING_CNT, lastSessionFiles.size());
+                    // Sets the "in progress" state if the session is not finished
+                    if (session.getState() == STATE_IDLE) session.setState(STATE_IN_PROGRESS);
+                    callback.onSuccess();
+                } else { // Some files are missing
                     StringBuilder sb = new StringBuilder();
-
                     for (Uri uri : lastSessionFiles) {
                         sb.append(uri).append("\n");
                     }
-                    ret.putString(DIRCHECK_RESULT_MISSING_LIST, sb.toString());
+                    callback.onError(new DirectoryCheckError(rootDataDir.getName(), FileCheckError.MISSING_FILES,
+                            lastSessionFiles.size(), sb.toString()));
                 }
             } else { // No previous session found, fire GroupFolder user check fragment
-                // Callback for the user check fragment, after check is confirmed, make new session
-                FragmentActivity activity = caller.requireActivity();
-                activity.runOnUiThread(() ->
-                        caller.getParentFragmentManager().setFragmentResultListener(
-                                GROUP_CHECK_RESULT_REQUEST_KEY, caller,
-                                // This callback is what happens when GroupCheckFragment is exited
-                                (requestKey, result) -> {
-                                    if (requestKey.equals(GROUP_CHECK_RESULT_REQUEST_KEY)) {
-                                        // The GroupCheck was confirmed, we can make a new session
-                                        if (result.getBoolean(GroupControlFragment.GroupControlConfirmedKey)) {
-                                            ArrayList<GroupFolder> validGroupFolders =
-                                                    (ArrayList<GroupFolder>) result.getSerializable(
-                                                            GroupControlFragment.GroupFolderListSerializedKey
-                                                    );
-
-                                            new Thread(() -> {
-                                                wipeCurrentSession();
-                                                makeNewSession(rootDataDir, validGroupFolders, callback);
-                                            }, "GroupControlConfirmedThread").start();
-                                        } else { // GroupControlFragment exit without confirm
-                                            // Signal to RatingFragment that the process was cancelled
-                                            callback.groupCheckFinished(false);
-                                        }
-                                    }
-                                }
-                        ));
-
-                // Bring up the fragment for user to check the found folders
                 groupFolders.sort(GroupFolder.groupComparator);
-                activity.runOnUiThread(() -> callback.groupCheckStart(groupFolders));
-                ret.putBoolean(DIRCHECK_RESULT_IS_OK, true);
+                // Callback to start the user Group check, make new session after confirmation
+                callback.onGroupCheckNeeded(rootDataUri, groupFolders);
             }
         }
-        return ret;
+    }
+
+    // For saved sessions from loaded Session object
+    public void checkSavedDataDirectoryPath(Context context, Session loadedSession, DirectoryCheckCallback callback) {
+        checkDataDirectoryPath(context, loadedSession.getSourceDataRootUri(), loadedSession, callback);
+    }
+
+    // For new sessions from user selected directory
+    public void checkNewDataDirectoryPath(Context context, Uri rootDataUri, DirectoryCheckCallback callback) {
+        checkDataDirectoryPath(context, rootDataUri, null, callback);
     }
 
     /**
@@ -316,66 +262,8 @@ public class RatingManager {
         return paths;
     }
 
-    void makeNewSession(DocumentFile rootDirectory,
-                        ArrayList<GroupFolder> validGroupFolders,
-                        GroupFoldersUserCheckCallback callback) {
-        this.session_ID = getNewSessionID(); // Increments last existing session number
-        this.seed = System.nanoTime();
-        Log.i(TAG, "RatingManager: Newly created seed: " + seed);
-        @SuppressLint("SimpleDateFormat") SimpleDateFormat format =
-                new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
-        this.generatorMessage = format.format(new Date(System.currentTimeMillis()));
-        this.currentSessionFilePath = null; // Will be filled when result is saved
-
-        this.dataDirPath = rootDirectory.getUri();
-        this.state = State.STATE_IDLE;
-        this.trackPointer = 0;
-        this.savedPlayProgress = 0;
-
-        // GroupFolders and FileLists in them are already sorted alphabetically in previous steps!
-        int Nrec = 0; // Get total number of recordings
-        for (GroupFolder gf : validGroupFolders) {
-            Nrec = Nrec + gf.getFileList().size();
-        }
-
-        // Create list of random indexes by shuffling a list of integers from 1 to Nrec
-        // Use the newly generated random seed for that
-        List<Integer> rNums = linspace(1, Nrec);
-        Collections.shuffle(rNums, new Random(this.seed));
-
-        // Create Recording objects for each file and assign a random index to it
-        int counter = 0;
-        ArrayList<Recording> joinedRecordingsList = new ArrayList<>();
-        for (GroupFolder gf : validGroupFolders) {
-            for (Uri fileUri : gf.getFileList()) {
-                joinedRecordingsList.add(new Recording(
-                        fileUri, gf.getLabel(), rNums.get(counter), DEFAULT_UNSET_RATING
-                ));
-                counter++;
-            }
-        }
-        assert (Nrec == counter); // Sanity check, I hope this works jesus christ
-
-        // Sorts using the random index (basically randomizing the files) for easy player access
-        joinedRecordingsList.sort(Recording.sortByRandomIndex);
-        this.trackList = joinedRecordingsList;
-
-        ArrayList<Integer> newRatings = new ArrayList<>();
-        ArrayList<Uri> newJoinedFileList = new ArrayList<>();
-        for (Recording r : this.trackList) {
-            newRatings.add(r.getRating());
-            newJoinedFileList.add(r.getUri());
-        }
-        this.ratings = newRatings;
-        Collections.sort(newJoinedFileList);
-        this.fileList = newJoinedFileList;
-
-        saveSession();
-        callback.groupCheckFinished(true);
-    }
-
     @SuppressWarnings("SameParameterValue")
-    private List<Integer> linspace(int start, int end) {
+    public static List<Integer> linspace(int start, int end) {
         if (end < start) {
             Log.e(TAG, "linspace: Invalid input parameters!");
             return new ArrayList<>();
@@ -386,88 +274,12 @@ public class RatingManager {
         }
     }
 
-    public void wipeCurrentSession() {
-        Log.i(TAG, "wipeCurrentSession: Wiping session " + this.session_ID +
-                ", (seed: " + this.seed + ")");
-        this.session_ID = -1;
-        this.seed = -1;
-        this.generatorMessage = null;
-        this.currentSessionFilePath = null;
-        this.ratings = null;
-        this.dataDirPath = null;
-        this.fileList = null;
-        this.trackList = null;
-        this.state = null;
-        this.trackPointer = -1;
-        this.savedPlayProgress = Player.SAVED_PROGRESS_DEFAULT;
-    }
-
-    public State getState() {
-        return state;
-    }
-
-    public void setState(State state) {
-        this.state = state;
-    }
-
-    private void setState(String state) {
-        if (State.STATE_FINISHED.toString().equals(state)) {
-            this.state = State.STATE_FINISHED;
-        } else if (State.STATE_IDLE.toString().equals(state)) {
-            this.state = State.STATE_IDLE;
-        } else if (State.STATE_IN_PROGRESS.toString().equals(state)) {
-            this.state = State.STATE_IN_PROGRESS;
-        } else {
-            this.state = State.STATE_IDLE;
-        }
-    }
-
-    public int getTrackPointer() {
-        return trackPointer;
-    }
-
-    public void trackIncrement() {
-        int current = this.trackPointer;
-        this.trackPointer = current + 1;
-    }
-
-    public void trackDecrement() {
-        int current = this.trackPointer;
-        this.trackPointer = current - 1;
-    }
-
-    public void trackToFirst() {
-        this.trackPointer = 0;
-    }
-
-    public void trackToLast() {
-        this.trackPointer = trackList.size() - 1;
-    }
-
-    public int getSavedPlayProgress() {
-        return savedPlayProgress;
-    }
-
-    public void setPlayProgress(int savedPlayProgress) {
-        this.savedPlayProgress = savedPlayProgress;
-    }
-
-    public List<Recording> getTrackList() {
-        return trackList;
-    }
-
-    public int getTrackN() {
-        return trackList.size();
-    }
-
-    public Uri getDataDirPath() { return dataDirPath; }
-
     public static final String GET_SESSION_INFO_LOAD_RESULT_KEY = "LoadResult";
-    public static final String SESSION_INFO_BUNDLE_SESSION = "session";
+    public static final String SESSION_INFO_LOADED_SESSION = "session";
 
-    public static Bundle getSessionInfo(Activity context) {
+    public static Bundle getSessionInfo(Context context) {
         Bundle out = new Bundle();
-        SharedPreferences preferences = context.getPreferences(Context.MODE_PRIVATE);
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
 
         // Load last saved session - returns LoadResult.NO_SESSION when no previous session is in memory
         String json = preferences.getString(KEY_PREFERENCES_CURRENT_SESSION, "");
@@ -478,9 +290,9 @@ public class RatingManager {
         }
 
         try {
-            RatingResult currentSession = new Gson().fromJson(json,
-                    new TypeToken<RatingResult>(){}.getType());
-            out.putSerializable(SESSION_INFO_BUNDLE_SESSION, currentSession);
+            Session loadedSession = new Gson().fromJson(json, new TypeToken<Session>(){}.getType());
+
+            out.putSerializable(SESSION_INFO_LOADED_SESSION, loadedSession);
             out.putSerializable(GET_SESSION_INFO_LOAD_RESULT_KEY, LoadResult.OK);
         } catch (Exception e) {
             e.printStackTrace();
@@ -492,150 +304,52 @@ public class RatingManager {
     }
 
     private int getNewSessionID() {
-        // TODO Check if this works properly once the preferences wont change
         String json = preferences.getString(KEY_PREFERENCES_CURRENT_SESSION, "");
         if (json.equals("")) {
-            Log.w(TAG, "getNewSessionID: No key for session ID found in preferences.");
+            Log.w(TAG, "loadSession: No session found in preferences.");
             return 1;
         } else {
-            Gson gson = new Gson();
-            RatingResult currentSession = gson.fromJson(json,
-                    new TypeToken<RatingResult>(){}.getType());
+            Session loadedSession = new Gson().fromJson(json, new TypeToken<Session>(){}.getType());
 
-            int lastSessionID = currentSession.getSession_ID();
-            Log.i(TAG, "getNewSessionID: NEW SESSION ID = " + (lastSessionID + 1));
-            return lastSessionID + 1;
-        }
-    }
-
-    public boolean isRatingFinished() {
-        if (trackList != null) {
-            for (Recording rec : trackList) {
-                if (rec.getRating() == DEFAULT_UNSET_RATING) {
-                    return false;
-                }
+            if (loadedSession != null) {
+                int lastSessionID = loadedSession.getSessionID();
+                Log.i(TAG, "getNewSessionID: NEW SESSION ID = " + (lastSessionID + 1));
+                return lastSessionID + 1;
+            } else {
+                Log.w(TAG, "getNewSessionID: Session failed to load from JSON String.");
+                return 1;
             }
-            return true;
-        } else {
-            return false;
         }
     }
 
-    public void saveSession() {
-        @SuppressLint("SimpleDateFormat") SimpleDateFormat format =
-                new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss");
-        String saveDate = format.format(new Date(System.currentTimeMillis()));
-
-        RatingResult currentSession = new RatingResult(
-                this.session_ID,
-                this.seed,
-                this.generatorMessage,
-                saveDate,
-                this.trackList,
-                this.currentSessionFilePath
-        );
-
+    public void saveSession(Session session) {
         SharedPreferences.Editor editor = preferences.edit();
-        editor.putString(KEY_PREFERENCES_CURRENT_SESSION, new Gson().toJson(currentSession))
-                .putString(KEY_PREFERENCES_STATE, this.state.toString())
-                .putString(KEY_PREFERENCES_DATADIR_PATH, this.dataDirPath.toString())
-                .putInt(KEY_PREFERENCES_TRACK_POINTER, this.trackPointer)
-                .putInt(KEY_PREFERENCES_SAVED_PLAY_PROGRESS, this.savedPlayProgress)
+        editor.putString(KEY_PREFERENCES_CURRENT_SESSION, new Gson().toJson(session))
                 .apply();
 
-        Log.i(TAG, "saveSession: Saving current session");
-        Log.d(TAG, "saveSession: Data: " + "\n" +
-                "Session ID = " + session_ID + "\n" +
-                "Seed = " + seed + "\n" +
-                "Generator Message = " + generatorMessage + "\n" +
-                "Save Date = " + saveDate + "\n" +
-                "State = " + state + "\n" +
-                "Recordings: " + trackList.size() + " files\n" +
-                "Current Session File Path: " + currentSessionFilePath);
-
+        Log.i(TAG, "saveSession: Saving Session >\n" + session.toString());
     }
 
-    public LoadResult loadSession() {
+    public Pair<LoadResult, Session> loadSession() {
         // Load last saved session - returns LoadResult.NO_SESSION when no previous session is in memory
         String json = preferences.getString(KEY_PREFERENCES_CURRENT_SESSION, "");
         if (json.equals("")) {
             Log.w(TAG, "loadSession: No session found in preferences.");
-            return LoadResult.NO_SESSION;
+            return Pair.create(LoadResult.NO_SESSION, null);
         }
-
-        // Load last rating state
-        String lastState = preferences.getString(KEY_PREFERENCES_STATE, "");
-        if (lastState.equals("")) {
-            Log.e(TAG, "loadSession: Error! Session saved without state!");
-            return LoadResult.CORRUPTED_SESSION;
-        }
-
-        // Load data directory path
-        String datadirPath = preferences.getString(KEY_PREFERENCES_DATADIR_PATH, "");
-        if (datadirPath.equals("")) {
-            Log.e(TAG, "loadSession: Error! Session saved without data directory path!");
-            return LoadResult.CORRUPTED_SESSION;
-        }
-
-        // Load track pointer
-        int trackPointer = preferences.getInt(KEY_PREFERENCES_TRACK_POINTER, -1);
-        if (trackPointer == -1) {
-            Log.e(TAG, "loadSession: Error! Session saved without track pointer value!");
-            return LoadResult.CORRUPTED_SESSION;
-        }
-
-        // Load saved play progress
-        int savedPlayProgress = preferences.getInt(KEY_PREFERENCES_SAVED_PLAY_PROGRESS, -1);
-        if (savedPlayProgress == -1) {
-            Log.e(TAG, "loadSession: Error! Session saved without saved play progress!");
-            return LoadResult.CORRUPTED_SESSION;
-        }
-
-        RatingResult currentSession = new Gson().fromJson(json,
-                new TypeToken<RatingResult>(){}.getType());
-
         try {
-            this.session_ID = currentSession.getSession_ID();
-            this.seed = currentSession.getSeed();
-            this.generatorMessage = currentSession.getGeneratorMessage();
-            this.currentSessionFilePath = currentSession.getPath();
+            Session loadedSession = new Gson().fromJson(json, new TypeToken<Session>(){}.getType());
+            if (loadedSession == null) throw new NullPointerException("Session failed to load from JSON String.");
 
-            // Re-sort by random index to ensure the same sequence in the player
-            List<Recording> currentTrackList = new ArrayList<>(currentSession.getRecordings());
-            currentTrackList.sort(Recording.sortByRandomIndex);
-            this.trackList = currentTrackList;
+            loadedSession.resortLists(); // Just to be sure
+            loadedSession.validateSession();
 
-            ArrayList<Integer> lastRatings = new ArrayList<>();
-            ArrayList<Uri> lastFileList = new ArrayList<>();
-            for (Recording r : this.trackList) {
-                lastRatings.add(r.getRating());
-                lastFileList.add(r.getUri());
-            }
-            this.ratings = lastRatings;
-            Collections.sort(lastFileList); // Ensures the same, alphabetical order after loading
-            this.fileList = lastFileList;
-
-            setState(lastState);
-            this.dataDirPath = Uri.parse(datadirPath);
-            this.trackPointer = trackPointer;
-            this.savedPlayProgress = savedPlayProgress;
+            Log.d(TAG, "loadSession: Loaded Session >\n" + loadedSession.toString());
+            return Pair.create(LoadResult.OK, loadedSession);
         } catch (Exception e) {
             e.printStackTrace();
-            return LoadResult.CORRUPTED_SESSION;
+            return Pair.create(LoadResult.CORRUPTED_SESSION, null);
         }
-
-        String loadLog = "Retrieved session ID: " + this.session_ID + "\n" +
-                "Retrieved seed: " + this.seed + "\n" +
-                "Retrieved generator message: " + this.generatorMessage + "\n" +
-                "Retrieved track list: " + this.trackList.toString() + "\n" +
-                "Retrieved ratings: " + this.ratings.toString() + "\n" +
-                "Retrieved file list: " + this.fileList.toString() + "\n" +
-                "Retrieved state: " + this.state + "\n" +
-                "Retrieved local data directory path: " + this.dataDirPath + "\n" +
-                "Retrieved track pointer value: " + this.trackPointer + "\n" +
-                "Retrieved saved play progress: " + this.savedPlayProgress;
-        Log.d(TAG, "loadSession: " + loadLog);
-        return LoadResult.OK;
     }
 
     static void checkResultsDirectory(File resultsDirectory) throws IOException {
@@ -695,7 +409,7 @@ public class RatingManager {
     }
 
     @SuppressLint("SimpleDateFormat")
-    public void saveResults(Context context) throws Exception {
+    public void saveResults(Context context, Session session) throws Exception {
         File resultsDir = new File(context.getFilesDir(), context.getString(R.string.DIRECTORY_NAME_RESULTS));
         checkResultsDirectory(resultsDir);
 
@@ -719,7 +433,7 @@ public class RatingManager {
                         String[] split = foundResultFile.getName().split("_");
                         if (split.length > 2) {
                             String foundSessionId = split[1];
-                            if (Integer.parseInt(foundSessionId) == session_ID) {
+                            if (Integer.parseInt(foundSessionId) == session.getSessionID()) {
                                 existingSaveFiles.add(foundResultFile);
                             }
                         }
@@ -729,49 +443,37 @@ public class RatingManager {
                 }
             }
             Log.i(TAG, "saveResults: Found " + existingSaveFiles.size() +
-                    " existing save files for session ID " + session_ID);
+                    " existing save files for session ID " + session.getSessionID());
         }
 
         // Sort and log the randomized recordings
-        this.trackList.sort(Recording.sortAlphabetically);
+        List<Recording> toLog = new ArrayList<>(session.getRecordingList());
+        toLog.sort(Recording.sortAlphabetically);
         Log.d(TAG, "saveResults: Saving! -> Sorted recordings:");
-        for (Recording r : this.trackList) {
-            Log.d(TAG, "saveResults: " + r.toString());
+        for (Recording recording : toLog) {
+            Log.d(TAG, "saveResults: " + recording.toString());
         }
 
         // Create new date
         Date currentDateTime = new Date(System.currentTimeMillis());
         SimpleDateFormat dateFormatFileName = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
-        SimpleDateFormat dateFormatText = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
 
         // Create new file name for the new save
         String newResultFileName = context.getString(R.string.RATING_FILE_NAME,
-                this.session_ID, dateFormatFileName.format(currentDateTime));
+                session.getSessionID(), dateFormatFileName.format(currentDateTime));
 
         // Start writing to the file
         File newResultFile = new File(resultsDir, newResultFileName);
         FileWriter writer = new FileWriter(newResultFile);
 
-        // Write file header
-        String header = headerTag + LABEL_SESSION_ID + separator + this.session_ID + "\n" +
-                headerTag + LABEL_SEED + separator + this.seed + "\n" +
-                headerTag + LABEL_GENERATOR_MESSAGE + separator + this.generatorMessage + "\n" +
-                headerTag + LABEL_SAVE_DATE + separator + dateFormatText.format(currentDateTime) + "\n";
-        writer.append(header);
-
-        // Row format: id;group;random_number;rating
-        for (Recording recording : this.trackList) {
-            writer.append(recording.getID()).append(separator)
-                    .append(recording.getGroupName()).append(separator)
-                    .append(String.valueOf(recording.getRandomIndex())).append(separator)
-                    .append(String.valueOf(recording.getRating())).append("\n");
-        }
+        // Write file content
+        writer.write(session.generateSaveContent(currentDateTime));
         writer.flush();
         writer.close();
 
         // This is important for sharing the current session info
-        this.currentSessionFilePath = newResultFile.getAbsolutePath();
-        saveSession();
+        session.setRatingResultFilePath(newResultFile.getAbsolutePath());
+        saveSession(session);
 
         MediaScannerConnection.scanFile(context, new String[]{newResultFile.getPath()}, null,
                 (path, uri) -> Log.d(TAG, "onScanCompleted: SCAN OF FILE <" + path + "> completed!"));
@@ -807,7 +509,7 @@ public class RatingManager {
         }
 
         // Sort recordings
-        List<Recording> trackList = new ArrayList<>(ratingResult.getRecordings());
+        List<Recording> trackList = new ArrayList<>(ratingResult.getRecordingList());
         trackList.sort(Recording.sortAlphabetically);
 
         // Create new date
@@ -817,12 +519,12 @@ public class RatingManager {
 
         // Start writing to the file
         String tempResultFileName = context.getString(R.string.RATING_FILE_NAME,
-                ratingResult.getSession_ID(), dateFormatFileName.format(currentDateTime));
+                ratingResult.getSessionID(), dateFormatFileName.format(currentDateTime));
         File newTempResultFile = new File(tempDir, tempResultFileName);
         FileWriter writer = new FileWriter(newTempResultFile);
 
         // Write file header
-        String header = headerTag + LABEL_SESSION_ID + separator + ratingResult.getSession_ID() + "\n" +
+        String header = headerTag + LABEL_SESSION_ID + separator + ratingResult.getSessionID() + "\n" +
                 headerTag + LABEL_SEED + separator + ratingResult.getSeed() + "\n" +
                 headerTag + LABEL_GENERATOR_MESSAGE + separator + ratingResult.getGeneratorMessage() + "\n" +
                 headerTag + LABEL_SAVE_DATE + separator + dateFormatText.format(currentDateTime) + "\n";
@@ -852,4 +554,19 @@ public class RatingManager {
         return sb.toString();
     }
     */
+
+    public static class DirectoryCheckError {
+        public String dirName;
+        public FileCheckError errorType;
+        public @Nullable Integer missingCnt;
+        public @Nullable String missingList;
+
+        public DirectoryCheckError(String dirName, FileCheckError errorType,
+                                   @Nullable Integer missingCnt, @Nullable String missingList) {
+            this.dirName = dirName;
+            this.errorType = errorType;
+            this.missingCnt = missingCnt;
+            this.missingList = missingList;
+        }
+    }
 }

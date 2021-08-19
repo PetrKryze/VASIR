@@ -1,5 +1,6 @@
 package com.petrkryze.vas.fragments;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
@@ -12,33 +13,59 @@ import android.text.InputType;
 import android.text.Spanned;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.snackbar.BaseTransientBottomBar;
+import com.google.android.material.snackbar.Snackbar;
 import com.petrkryze.vas.MainActivity;
 import com.petrkryze.vas.R;
+import com.petrkryze.vas.RatingManager;
+import com.petrkryze.vas.RatingResult;
+
+import org.jetbrains.annotations.NotNull;
+
+import java.util.ArrayList;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
+import androidx.navigation.NavDirections;
+import androidx.navigation.fragment.NavHostFragment;
 import androidx.preference.EditTextPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.SwitchPreferenceCompat;
 
 import static com.petrkryze.vas.MainActivity.applyTintFilter;
+import static com.petrkryze.vas.MainActivity.html;
 
 /**
  * Created by Petr on 04.08.2021. Yay!
  */
 public class SettingsFragment extends PreferenceFragmentCompat {
-
-    private static final String TAG = "SettingsFragment";
+    // private static final String TAG = "SettingsFragment";
 
     private Context context;
 
     public SettingsFragment() {
         // Required empty public constructor
+    }
+
+    @SuppressWarnings("unused")
+    public static SettingsFragment newInstance() {
+        SettingsFragment fragment = new SettingsFragment();
+        Bundle args = new Bundle();
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
+        context = requireContext();
     }
 
     @Override
@@ -47,9 +74,6 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 
         SwitchPreferenceCompat welcomeScreenShowPreference = findPreference(getString(R.string.SETTING_KEY_SHOW_WELCOME_SCREEN));
         if (welcomeScreenShowPreference != null) {
-
-
-
             welcomeScreenShowPreference.setIcon(tintIcon(welcomeScreenShowPreference.getIcon()));
         }
 
@@ -88,21 +112,6 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         }
     }
 
-    @SuppressWarnings("unused")
-    public static SettingsFragment newInstance() {
-        SettingsFragment fragment = new SettingsFragment();
-        Bundle args = new Bundle();
-        fragment.setArguments(args);
-        return fragment;
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setHasOptionsMenu(true);
-        context = requireContext();
-    }
-
     private Drawable tintIcon(Drawable icon) {
         applyTintFilter(icon, ContextCompat.getColor(requireContext(), R.color.textPrimaryOnSurface));
         icon.setAlpha(255);
@@ -135,27 +144,77 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         return true;
     }
 
-
-
-
-
-
-
-
     @Override
     public void onPrepareOptionsMenu(@NonNull Menu menu) {
         super.onPrepareOptionsMenu(menu);
-        int[] toDisable = {R.id.action_menu_help, R.id.action_menu_save, R.id.action_menu_settings};
+        int[] toDisable = {R.id.action_menu_help, R.id.action_menu_save, R.id.action_menu_settings,
+                R.id.action_menu_new_session};
         int[] toEnable = {R.id.action_menu_show_saved_results, R.id.action_menu_quit,
-                R.id.action_menu_show_session_info, R.id.action_menu_new_session};
+                R.id.action_menu_show_session_info};
 
         for (int item : toDisable) MainActivity.disableMenuItem(menu, item);
         for (int item : toEnable) MainActivity.enableMenuItem(menu, item);
     }
 
+    @Override
+    public boolean onOptionsItemSelected(@NonNull @NotNull MenuItem item) {
+        int itemID = item.getItemId();
+        if (itemID == R.id.action_menu_show_saved_results) {
+            onShowSavedResults();
+            return true;
+        } else if (itemID == R.id.action_menu_show_session_info) {
+            onShowSessionInfo();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
 
+    @SuppressLint("ShowToast")
+    private void onShowSavedResults() {
+        loadingVisibility(true);
+        new Thread(() -> { // Threading for slow loading times
+            try {
+                ArrayList<RatingResult> ratings = RatingManager.loadResults(requireContext());
 
+                requireActivity().runOnUiThread(() -> {
+                    loadingVisibility(false);
+                    NavDirections directions =
+                            SettingsFragmentDirections.actionActionMenuSettingsToResultFragment(ratings);
+                    NavHostFragment.findNavController(this).navigate(directions);
+                });
+            } catch (Exception e) {
+                e.printStackTrace();
 
+                requireActivity().runOnUiThread(() -> {
+                    loadingVisibility(false);
+                    String message = html(getString(R.string.snackbar_ratings_loading_failed, e.getMessage()));
+                    Snackbar.make(requireActivity().findViewById(R.id.coordinator),
+                            message, BaseTransientBottomBar.LENGTH_LONG)
+                            .setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE).show();
+                });
+            }
+        }, "ResultsLoadingThread").start();
+    }
+
+    private void onShowSessionInfo() {
+        loadingVisibility(true);
+        new Thread(() ->
+                MainActivity.navigateToCurrentSessionInfo(this,
+                        session -> requireActivity().runOnUiThread(() -> {
+                            loadingVisibility(false);
+                            NavDirections directions =
+                                    SettingsFragmentDirections
+                                            .actionActionMenuSettingsToCurrentSessionInfoFragment(session);
+                            NavHostFragment.findNavController(SettingsFragment.this)
+                                    .navigate(directions);
+                        })
+                ), "SessionLoadingThread").start();
+    }
+
+    private void loadingVisibility(boolean show) {
+        requireActivity().findViewById(R.id.general_loading_container)
+                .setVisibility(show ? View.VISIBLE : View.GONE);
+    }
 
     // Input filter to restrict number of backups input
     static class InputFilterMinMax implements InputFilter {

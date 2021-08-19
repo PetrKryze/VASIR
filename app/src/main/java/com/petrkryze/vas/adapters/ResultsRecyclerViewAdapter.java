@@ -20,10 +20,12 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.util.Pair;
 import androidx.recyclerview.widget.RecyclerView;
 
+import static com.petrkryze.vas.adapters.ResultsRecyclerViewAdapter.ViewHolder;
+
 /**
  * {@link RecyclerView.Adapter} that can display a {@link RatingResult}.
  */
-public class ResultsRecyclerViewAdapter extends RecyclerView.Adapter<ResultsRecyclerViewAdapter.ViewHolder> {
+public class ResultsRecyclerViewAdapter extends RecyclerView.Adapter<ViewHolder> {
 
     private final Context context;
     private final List<RatingResult> ratingResults;
@@ -51,7 +53,7 @@ public class ResultsRecyclerViewAdapter extends RecyclerView.Adapter<ResultsRecy
 
         String index = (position + 1) >= 10 ? String.valueOf(position + 1) : "0" + (position + 1);
         holder.viewRowNumber.setText(index);
-        holder.viewSessionID.setText(context.getString(R.string.rating_list_row_sessionID, currentResult.getSession_ID()));
+        holder.viewSessionID.setText(context.getString(R.string.rating_list_row_sessionID, currentResult.getSessionID()));
 
         Pair<String, String> dateTime = formatDateTime(currentResult.getSaveDate());
         holder.viewSaveDate.setText(dateTime.first);
@@ -96,7 +98,7 @@ public class ResultsRecyclerViewAdapter extends RecyclerView.Adapter<ResultsRecy
         @Override
         public String toString() {
             return super.toString() + " Row number: " + viewRowNumber.getText() + ", " +
-                    "Session ID: " + viewSessionID.getText() + ", " +
+                    "com.petrkryze.vas.Session ID: " + viewSessionID.getText() + ", " +
                     "Save date: " + viewSaveDate.getText() + ", " +
                     "Save time: " + viewSaveTime.getText();
         }

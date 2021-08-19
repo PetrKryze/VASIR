@@ -217,7 +217,7 @@ public class ResultDetailFragment extends Fragment {
         loadingVisibility(true);
         if (getArguments() != null) {
             resultToDisplay = ResultDetailFragmentArgs.fromBundle(getArguments()).getRatingResult();
-            recordingsToDisplay = new ArrayList<>(resultToDisplay.getRecordings());
+            recordingsToDisplay = new ArrayList<>(resultToDisplay.getRecordingList());
             recordingsToDisplay.sort(Recording.sortByGroup);
         }
 
@@ -249,7 +249,7 @@ public class ResultDetailFragment extends Fragment {
         buttonShareAsText.setOnClickListener(shareAsTextListener);
         buttonShareAsExcel.setOnClickListener(shareAsExcelListener);
 
-        binding.resultDetailSessionID.setText(getString(R.string.result_detail_sessionID, resultToDisplay.getSession_ID()));
+        binding.resultDetailSessionID.setText(getString(R.string.result_detail_sessionID, resultToDisplay.getSessionID()));
         binding.resultDetailSaveDate.setText(formatDateTime(resultToDisplay.getSaveDate()));
         binding.resultDetailSeed.setText(String.valueOf(resultToDisplay.getSeed()));
         binding.resultDetailGeneratorDate.setText(resultToDisplay.getGeneratorMessage().replace("-","."));
@@ -275,12 +275,6 @@ public class ResultDetailFragment extends Fragment {
         headerGroup.setChecked(true);
 
         loadingVisibility(false);
-    }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        binding = null;
     }
 
     private void uncheckAll() {
@@ -344,26 +338,26 @@ public class ResultDetailFragment extends Fragment {
             NavHostFragment.findNavController(this).navigateUp();
             return true;
         } else if (itemID == R.id.action_menu_show_session_info) {
-            loadingVisibility(true);
-            new Thread(() -> MainActivity.navigateToCurrentSessionInfo(
-                    this, session -> {
-                        loadingVisibility(false);
-                        requireActivity().runOnUiThread(() -> {
-                            NavDirections directions = ResultDetailFragmentDirections
-                                    .actionResultDetailFragmentToCurrentSessionInfoFragment(session);
-                            NavHostFragment.findNavController(ResultDetailFragment.this)
-                                    .navigate(directions);
-                        });
-                    }
-            ), "SessionLoadingThread").start();
+            onShowSessionInfo();
             return true;
         }
 
         return super.onOptionsItemSelected(item);
     }
 
-    private void loadingVisibility(boolean show) {requireContext().sendBroadcast(
-            new Intent().setAction(show ? MainActivity.ACTION_SHOW_LOADING : MainActivity.ACTION_HIDE_LOADING));}
+    private void onShowSessionInfo() {
+        loadingVisibility(true);
+        new Thread(() ->
+                MainActivity.navigateToCurrentSessionInfo(this,
+                        session -> requireActivity().runOnUiThread(() -> {
+                            loadingVisibility(false);
+                            NavDirections directions = ResultDetailFragmentDirections
+                                    .actionResultDetailFragmentToCurrentSessionInfoFragment(session);
+                            NavHostFragment.findNavController(ResultDetailFragment.this)
+                                    .navigate(directions);
+                        })
+                ), "SessionLoadingThread").start();
+    }
 
     @Override
     public void onResume() {
@@ -385,6 +379,17 @@ public class ResultDetailFragment extends Fragment {
         }
 
         ExcelUtils.dumpTempFolder(requireContext());
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        binding = null;
+    }
+
+    private void loadingVisibility(boolean show) {
+        requireActivity().findViewById(R.id.general_loading_container)
+                .setVisibility(show ? View.VISIBLE : View.GONE);
     }
 
     public enum RecordingListSortBy {

@@ -19,13 +19,12 @@ import static com.petrkryze.vas.Recording.DEFAULT_UNSET_RATING;
  */
 public class RatingResult implements Serializable {
 
-    private int session_ID;
+    private int sessionID;
     private long seed;
     private String generatorMessage;
     private String saveDate;
-    private final List<Recording> recordings;
+    private final List<Recording> recordingList;
     private String path;
-    private final String rawContent;
 
     static final String LABEL_SESSION_ID = "Session ID";
     static final String LABEL_SEED = "Randomizer Seed";
@@ -35,16 +34,25 @@ public class RatingResult implements Serializable {
     public static Comparator<RatingResult> sortChronologically = (o1, o2) ->
             Integer.compare(0, o1.getSaveDate().compareTo(o2.getSaveDate()));
 
-    public RatingResult(int session_ID, long seed, String generatorMessage, String saveDate,
-                        List<Recording> recordings, String path) {
-        this.session_ID = session_ID;
+    public RatingResult(Session session) {
+        this.sessionID = session.getSessionID();
+        this.seed = session.getSeed();
+        this.generatorMessage = session.getGeneratorMessage();
+        this.saveDate = null;
+        this.recordingList = session.getRecordingList();
+
+        this.path = session.getRatingResultFilePath();
+    }
+
+    public RatingResult(int sessionID, long seed, String generatorMessage, String saveDate,
+                        List<Recording> recordingList, String path) {
+        this.sessionID = sessionID;
         this.seed = seed;
         this.generatorMessage = generatorMessage;
         this.saveDate = saveDate;
-        this.recordings = recordings;
+        this.recordingList = recordingList;
 
         this.path = path;
-        this.rawContent = null;
     }
 
     public RatingResult(File resultsTextFile) throws Exception {
@@ -77,7 +85,7 @@ public class RatingResult implements Serializable {
                 }
 
                 if (line.contains(LABEL_SESSION_ID)) {
-                    this.session_ID = Integer.parseInt(split[1]);
+                    this.sessionID = Integer.parseInt(split[1]);
                 } else if (line.contains(LABEL_SEED)) {
                     this.seed = Long.parseLong(split[1]);
                 } else if (line.contains(LABEL_GENERATOR_MESSAGE)) {
@@ -98,13 +106,12 @@ public class RatingResult implements Serializable {
         }
         br.close();
 
-        this.recordings = loadedRecordings;
+        this.recordingList = loadedRecordings;
         this.path = resultsTextFile.getAbsolutePath();
-        this.rawContent = sb.toString();
     }
 
-    public int getSession_ID() {
-        return session_ID;
+    public int getSessionID() {
+        return sessionID;
     }
 
     public long getSeed() {
@@ -119,8 +126,8 @@ public class RatingResult implements Serializable {
         return saveDate;
     }
 
-    public List<Recording> getRecordings() {
-        return recordings;
+    public List<Recording> getRecordingList() {
+        return recordingList;
     }
 
     public String getPath() {
@@ -131,21 +138,17 @@ public class RatingResult implements Serializable {
         this.path = path;
     }
 
-    public String getRawContent() {
-        return rawContent;
-    }
-
     public String getRatedFractionString() {
         int Nrated = 0;
-        for (Recording r : this.recordings) if (r.getRating() != DEFAULT_UNSET_RATING) Nrated++;
+        for (Recording r : this.recordingList) if (r.getRating() != DEFAULT_UNSET_RATING) Nrated++;
 
-        return Nrated + "/" + this.recordings.size();
+        return Nrated + "/" + this.recordingList.size();
     }
 
     @NonNull
     @Override
     public String toString() {
-        return "Rating: ID " + this.getSession_ID() +
+        return "Rating: ID " + this.getSessionID() +
                 " - Generated " + this.getGeneratorMessage();
     }
 }

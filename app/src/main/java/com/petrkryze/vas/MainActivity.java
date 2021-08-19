@@ -1,21 +1,16 @@
 package com.petrkryze.vas;
 
 import android.annotation.SuppressLint;
-import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.util.Log;
+import android.text.Html;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.RelativeLayout;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.petrkryze.vas.RatingManager.LoadResult;
@@ -36,17 +31,12 @@ import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 import androidx.preference.PreferenceManager;
 
-import static com.petrkryze.vas.RatingManager.SESSION_INFO_BUNDLE_SESSION;
+import static com.petrkryze.vas.RatingManager.SESSION_INFO_LOADED_SESSION;
 
 public class MainActivity extends AppCompatActivity {
 
     private static int alphaDisabled;
     private static int alphaEnabled;
-
-    private RelativeLayout loadingScrim;
-
-    public static final String ACTION_SHOW_LOADING = "com.petrkryze.vas.intent.SHOW_LOADING";
-    public static final String ACTION_HIDE_LOADING = "com.petrkryze.vas.intent.HIDE_LOADING";
 
     // This stuff needs to be here to make the excel creation work
     static {
@@ -72,14 +62,6 @@ public class MainActivity extends AppCompatActivity {
 
         // Toolbar setup
         setSupportActionBar(binding.toolbar);
-
-        // Loading scrim and BroadcastReceiver
-        loadingScrim = binding.generalLoadingContainer;
-        IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(ACTION_SHOW_LOADING);
-        intentFilter.addAction(ACTION_HIDE_LOADING);
-        intentFilter.addCategory("com.petrkryze.vas");
-        this.registerReceiver(new LoadingReceiver(), intentFilter);
 
         // Menu icon disabled look alpha
         alphaDisabled = getResources().getInteger(R.integer.DISABLED_ICON_ALPHA);
@@ -162,7 +144,7 @@ public class MainActivity extends AppCompatActivity {
         menu.findItem(itemID).setEnabled(true).getIcon().setAlpha(alphaEnabled);
     }
 
-    public interface navigateToCSIInterface { void sailTheShip(RatingResult session); }
+    public interface navigateToCSIInterface { void sailTheShip(Session session); }
     public static void navigateToCurrentSessionInfo(Fragment fragment,
                                                     navigateToCSIInterface callback) {
         Context context = fragment.requireContext();
@@ -173,7 +155,7 @@ public class MainActivity extends AppCompatActivity {
 
         switch ((LoadResult) bundle.getSerializable(RatingManager.GET_SESSION_INFO_LOAD_RESULT_KEY)) {
             case OK:
-                callback.sailTheShip((RatingResult) bundle.getSerializable(SESSION_INFO_BUNDLE_SESSION));
+                callback.sailTheShip((Session) bundle.getSerializable(SESSION_INFO_LOADED_SESSION));
                 return;
             case NO_SESSION:
                 title = context.getString(R.string.dialog_no_session_found_title);
@@ -195,26 +177,8 @@ public class MainActivity extends AppCompatActivity {
                 .setPositiveButton(context.getString(R.string.dialog_quit_confirm), null).show();
     }
 
-    public class LoadingReceiver extends BroadcastReceiver {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-            Log.i("BroadcastReceiver", "onReceive: Action = " + action);
-            if (action.equals(ACTION_HIDE_LOADING)) {
-                hideLoading();
-            } else if (action.equals(ACTION_SHOW_LOADING)) {
-                showLoading();
-            }
-        }
-
-        private void changeLoadingVisibility(boolean show) {
-            if (loadingScrim != null) {
-                runOnUiThread(() -> loadingScrim.setVisibility(
-                        show ? View.VISIBLE : View.GONE
-                ));
-            }
-        }
-        private void hideLoading() { changeLoadingVisibility(false);}
-        private void showLoading() { changeLoadingVisibility(true);}
+    public static String html(String string) {
+        return Html.fromHtml(string, Html.FROM_HTML_MODE_LEGACY).toString();
     }
+
 }

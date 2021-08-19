@@ -165,8 +165,8 @@
         android:label="@string/fragment_header_current_session_info"
         tools:layout="@layout/fragment_current_session_info" >
         <argument
-            android:name="rating_result"
-            app:argType="com.petrkryze.vas.RatingResult" />
+            android:name="current_session"
+            app:argType="com.petrkryze.vas.Session" />
 
         <action
             android:id="@+id/action_currentSessionInfoFragment_to_helpFragment"
@@ -193,6 +193,9 @@
         <argument
             android:name="group_folders"
             app:argType="java.util.ArrayList" />
+        <argument
+            android:name="source_root_uri"
+            app:argType="java.net.URI" />
 
         <action
             android:id="@+id/action_groupControlFragment_to_helpFragment"
@@ -206,5 +209,12 @@
     <fragment
         android:id="@+id/action_menu_settings"
         android:name="com.petrkryze.vas.fragments.SettingsFragment"
-        android:label="@string/fragment_header_settings_fragment" />
+        android:label="@string/fragment_header_settings_fragment" >
+        <action
+            android:id="@+id/action_action_menu_settings_to_currentSessionInfoFragment"
+            app:destination="@id/currentSessionInfoFragment" />
+        <action
+            android:id="@+id/action_action_menu_settings_to_result_fragment"
+            app:destination="@id/result_fragment" />
+    </fragment>
 </navigation>

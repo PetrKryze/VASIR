@@ -171,7 +171,7 @@
 
 
     <string name="dialog_no_session_found_message">Nebylo nalezeno žádné předešelé hodnocení. Vytvořte prosím nové sezení.</string>
-    <string name="dialog_corrupted_session_message">Data předešelého hodnocení jsou porušena. Vytvořte prosím nové sezení.</string>
+    <string name="dialog_corrupted_session_message">Data předešelého sezení jsou porušena. Vytvořte prosím nové sezení.</string>
     <string name="dialog_no_session_found_title">Nenalezeno žádné sezení</string>
     <string name="dialog_no_session_corrupted_session_create_new_session">Vytvořit nové sezení</string>
     <string name="dialog_no_session_corrupted_session_quit">Odejít</string>

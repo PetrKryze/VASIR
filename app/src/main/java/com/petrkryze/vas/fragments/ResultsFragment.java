@@ -244,17 +244,6 @@ public class ResultsFragment extends Fragment {
         }
     };
 
-    private Pair<Boolean, String> deleteResult(RatingResult toDelete) {
-        try {
-            Files.delete(new File(toDelete.getPath()).toPath());
-        } catch (IOException e) {
-            e.printStackTrace();
-            return Pair.create(false, getString(R.string.snackbar_result_deleted_failure, e.getMessage()));
-        }
-
-        return Pair.create(true, getString(R.string.snackbar_result_deleted_success));
-    }
-
     public ResultsFragment() {
         // Required empty public constructor
     }
@@ -271,7 +260,6 @@ public class ResultsFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        loadingVisibility(true);
         if (getArguments() != null) {
             //noinspection unchecked
             ratingResults = ResultsFragmentArgs.fromBundle(getArguments()).getRatings();
@@ -331,70 +319,6 @@ public class ResultsFragment extends Fragment {
             resultsListView.setVisibility(View.GONE);
             TWnoResults.setVisibility(View.VISIBLE);
         }
-
-        loadingVisibility(false);
-    }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        binding = null;
-    }
-
-    @Override
-    public void onPrepareOptionsMenu(@NonNull @NotNull Menu menu) {
-        super.onPrepareOptionsMenu(menu);
-        int[] toDisable = { R.id.action_menu_save, R.id.action_menu_show_saved_results,
-                R.id.action_menu_new_session};
-        int[] toEnable = {R.id.action_menu_help, R.id.action_menu_show_session_info,
-                R.id.action_menu_quit, R.id.action_menu_settings};
-
-        for (int item : toDisable) MainActivity.disableMenuItem(menu, item);
-        for (int item : toEnable) MainActivity.enableMenuItem(menu, item);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(@NonNull @NotNull MenuItem item) {
-        int itemID = item.getItemId();
-        if (itemID == R.id.action_menu_help) {
-            String contextHelpMessage = getString(R.string.help_context_body_results_fragment);
-            String contextHelpTitle = getString(R.string.help_context_title_results_fragment);
-
-            NavDirections directions =
-                    ResultsFragmentDirections.
-                            actionResultFragmentToHelpFragment(contextHelpMessage, contextHelpTitle);
-            NavHostFragment.findNavController(this).navigate(directions);
-            return true;
-        } else if (itemID == R.id.action_menu_show_session_info) {
-            loadingVisibility(true);
-            new Thread(() -> MainActivity.navigateToCurrentSessionInfo(
-                    this, session -> {
-                        loadingVisibility(false);
-                        requireActivity().runOnUiThread(() -> {
-                            NavDirections directions = ResultsFragmentDirections
-                                    .actionResultFragmentToCurrentSessionInfoFragment(session);
-                            NavHostFragment.findNavController(ResultsFragment.this)
-                                    .navigate(directions);
-                        });
-                    }
-            ), "SessionLoadingThread").start();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
-    private void loadingVisibility(boolean show) {requireContext().sendBroadcast(
-            new Intent().setAction(show ? MainActivity.ACTION_SHOW_LOADING : MainActivity.ACTION_HIDE_LOADING));}
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        if (hint != null) {
-            hint.dismiss();
-        }
-        if (handler != null) {
-            handler.removeCallbacksAndMessages(null);
-        }
     }
 
     private void startShareActivity(ArrayList<Uri> uris) {
@@ -424,9 +348,26 @@ public class ResultsFragment extends Fragment {
                 requireContext().getString(R.string.share_using)));
     }
 
+    private Pair<Boolean, String> deleteResult(RatingResult toDelete) {
+        try {
+            Files.delete(new File(toDelete.getPath()).toPath());
+        } catch (IOException e) {
+            e.printStackTrace();
+            return Pair.create(false, getString(R.string.snackbar_result_deleted_failure, e.getMessage()));
+        }
+
+        return Pair.create(true, getString(R.string.snackbar_result_deleted_success));
+    }
+
     public interface OnItemDetailListener {
         void onItemClick(RatingResult selectedResult);
         boolean onItemLongClick(RatingResult selectedResult, int position);
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        loadingVisibility(false);
     }
 
     @Override
@@ -449,5 +390,71 @@ public class ResultsFragment extends Fragment {
         }
 
         ExcelUtils.dumpTempFolder(requireContext());
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (hint != null) {
+            hint.dismiss();
+        }
+        if (handler != null) {
+            handler.removeCallbacksAndMessages(null);
+        }
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        binding = null;
+    }
+
+    @Override
+    public void onPrepareOptionsMenu(@NonNull @NotNull Menu menu) {
+        super.onPrepareOptionsMenu(menu);
+        int[] toDisable = { R.id.action_menu_save, R.id.action_menu_show_saved_results,
+                R.id.action_menu_new_session};
+        int[] toEnable = {R.id.action_menu_help, R.id.action_menu_show_session_info,
+                R.id.action_menu_quit, R.id.action_menu_settings};
+
+        for (int item : toDisable) MainActivity.disableMenuItem(menu, item);
+        for (int item : toEnable) MainActivity.enableMenuItem(menu, item);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull @NotNull MenuItem item) {
+        int itemID = item.getItemId();
+        if (itemID == R.id.action_menu_help) {
+            String contextHelpMessage = getString(R.string.help_context_body_results_fragment);
+            String contextHelpTitle = getString(R.string.help_context_title_results_fragment);
+
+            NavDirections directions = ResultsFragmentDirections.
+                            actionResultFragmentToHelpFragment(contextHelpMessage, contextHelpTitle);
+            NavHostFragment.findNavController(this).navigate(directions);
+            return true;
+        } else if (itemID == R.id.action_menu_show_session_info) {
+            onShowSessionInfo();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void onShowSessionInfo() {
+        loadingVisibility(true);
+        new Thread(() ->
+                MainActivity.navigateToCurrentSessionInfo(this,
+                        session -> requireActivity().runOnUiThread(() -> {
+                            loadingVisibility(false);
+                            NavDirections directions = ResultsFragmentDirections
+                                    .actionResultFragmentToCurrentSessionInfoFragment(session);
+                            NavHostFragment.findNavController(ResultsFragment.this)
+                                    .navigate(directions);
+                        })
+                ), "SessionLoadingThread").start();
+    }
+
+    private void loadingVisibility(boolean show) {
+        requireActivity().findViewById(R.id.general_loading_container)
+                .setVisibility(show ? View.VISIBLE : View.GONE);
     }
 }

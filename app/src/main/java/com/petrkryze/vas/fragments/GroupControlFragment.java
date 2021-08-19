@@ -1,7 +1,6 @@
 package com.petrkryze.vas.fragments;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
@@ -18,13 +17,13 @@ import android.widget.EditText;
 import com.petrkryze.vas.GroupFolder;
 import com.petrkryze.vas.MainActivity;
 import com.petrkryze.vas.R;
-import com.petrkryze.vas.RatingManager;
 import com.petrkryze.vas.adapters.GroupDirectoryRecyclerViewAdapter;
 import com.petrkryze.vas.adapters.GroupDirectoryRecyclerViewAdapter.ViewHolder;
 import com.petrkryze.vas.databinding.FragmentGroupControlBinding;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.net.URI;
 import java.util.ArrayList;
 
 import androidx.annotation.NonNull;
@@ -37,19 +36,23 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import static com.petrkryze.vas.adapters.GroupDirectoryRecyclerViewAdapter.AdapterListener;
+import static com.petrkryze.vas.fragments.RatingFragment.GROUP_CHECK_RESULT_REQUEST_KEY;
 
 /**
  * A fragment representing a list of Items.
  */
 public class GroupControlFragment extends Fragment {
+
     private static final String TAG = "GroupControlFragment";
     public static final String GroupControlConfirmedKey = "groupControlConfirmedKey";
+    public static final String GroupControlSourceRootURI = "sourceRootUri";
     public static final String GroupFolderListSerializedKey = "groupFolderList";
 
     private FragmentGroupControlBinding binding;
     private RecyclerView groupFoldersListView;
     private Button buttonConfirm;
 
+    private URI sourceRootURI;
     private ArrayList<GroupFolder> groupFolders;
 
     private Vibrator vibrator;
@@ -71,10 +74,11 @@ public class GroupControlFragment extends Fragment {
 
                         Bundle bundle = new Bundle();
                         bundle.putBoolean(GroupControlConfirmedKey, true);
+                        bundle.putSerializable(GroupControlSourceRootURI, sourceRootURI);
                         bundle.putSerializable(GroupFolderListSerializedKey, checkResults.second);
 
                         getParentFragmentManager()
-                                .setFragmentResult(RatingManager.GROUP_CHECK_RESULT_REQUEST_KEY, bundle);
+                                .setFragmentResult(GROUP_CHECK_RESULT_REQUEST_KEY, bundle);
                         NavHostFragment.findNavController(GroupControlFragment.this)
                                 .navigateUp();
                     }
@@ -110,12 +114,13 @@ public class GroupControlFragment extends Fragment {
         return fragment;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         loadingVisibility(true);
         if (getArguments() != null) {
-            //noinspection unchecked
+            sourceRootURI = GroupControlFragmentArgs.fromBundle(getArguments()).getSourceRootUri();
             groupFolders = GroupControlFragmentArgs.fromBundle(getArguments()).getGroupFolders();
         }
 
@@ -128,7 +133,7 @@ public class GroupControlFragment extends Fragment {
         bundle.putBoolean(GroupControlConfirmedKey, false);
         bundle.putSerializable(GroupFolderListSerializedKey, null); // Technically unnecessary
         getParentFragmentManager()
-                .setFragmentResult(RatingManager.GROUP_CHECK_RESULT_REQUEST_KEY, bundle);
+                .setFragmentResult(GROUP_CHECK_RESULT_REQUEST_KEY, bundle);
     }
 
     @Override
@@ -225,8 +230,7 @@ public class GroupControlFragment extends Fragment {
             String contextHelpMessage = getString(R.string.help_context_body_group_control_fragment);
             String contextHelpTitle = getString(R.string.help_context_title_group_control_fragment);
 
-            NavDirections directions =
-                    GroupControlFragmentDirections.
+            NavDirections directions = GroupControlFragmentDirections.
                             actionGroupControlFragmentToHelpFragment(contextHelpMessage, contextHelpTitle);
             NavHostFragment.findNavController(this).navigate(directions);
             return true;
@@ -235,6 +239,9 @@ public class GroupControlFragment extends Fragment {
         return super.onOptionsItemSelected(item);
     }
 
-    private void loadingVisibility(boolean show) {requireContext().sendBroadcast(
-            new Intent().setAction(show ? MainActivity.ACTION_SHOW_LOADING : MainActivity.ACTION_HIDE_LOADING));}
+    private void loadingVisibility(boolean show) {
+        requireActivity().findViewById(R.id.general_loading_container)
+                .setVisibility(show ? View.VISIBLE : View.GONE);
+    }
+
 }

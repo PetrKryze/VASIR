@@ -11,9 +11,8 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
-import android.text.Html;
-import android.text.Spanned;
 import android.util.Log;
+import android.util.Pair;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -32,17 +31,21 @@ import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
 import com.petrkryze.vas.GroupFolder;
 import com.petrkryze.vas.MainActivity;
-import com.petrkryze.vas.Player;
 import com.petrkryze.vas.R;
 import com.petrkryze.vas.RatingManager;
-import com.petrkryze.vas.RatingManager.State;
+import com.petrkryze.vas.RatingManager.DirectoryCheckError;
+import com.petrkryze.vas.RatingManager.LoadResult;
+import com.petrkryze.vas.RatingModel;
+import com.petrkryze.vas.RatingModel.SaveResultsCallback;
 import com.petrkryze.vas.RatingResult;
 import com.petrkryze.vas.Recording;
+import com.petrkryze.vas.Session;
 import com.petrkryze.vas.databinding.FragmentRatingBinding;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -52,18 +55,19 @@ import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.core.widget.TextViewCompat;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavDirections;
 import androidx.navigation.fragment.NavHostFragment;
 
 import static com.petrkryze.vas.MainActivity.applyTintFilter;
-import static com.petrkryze.vas.RatingManager.DIRCHECK_RESULT_DIRECTORY;
-import static com.petrkryze.vas.RatingManager.DIRCHECK_RESULT_ERROR_TYPE;
-import static com.petrkryze.vas.RatingManager.DIRCHECK_RESULT_IS_OK;
-import static com.petrkryze.vas.RatingManager.DIRCHECK_RESULT_MISSING_CNT;
-import static com.petrkryze.vas.RatingManager.DIRCHECK_RESULT_MISSING_LIST;
-import static com.petrkryze.vas.RatingManager.State.STATE_FINISHED;
-import static com.petrkryze.vas.RatingManager.State.STATE_IDLE;
-import static com.petrkryze.vas.RatingManager.State.STATE_IN_PROGRESS;
+import static com.petrkryze.vas.MainActivity.html;
+import static com.petrkryze.vas.RatingModel.PLAYER_CURRENT_OUT_OF;
+import static com.petrkryze.vas.RatingModel.PLAYER_LIST_ON_END;
+import static com.petrkryze.vas.RatingModel.PLAYER_LIST_ON_START;
+import static com.petrkryze.vas.RatingModel.PLAYER_PREPARED_SUCCESS;
+import static com.petrkryze.vas.RatingModel.PLAYER_SAVED_PLAY_PROGRESS;
+import static com.petrkryze.vas.RatingModel.PLAYER_TRACK_DURATION;
+import static com.petrkryze.vas.RatingModel.PLAYER_TRACK_RATING;
 
 /**
  * Created by Petr on 04.05.2021. Yay!
@@ -83,34 +87,27 @@ public class RatingFragment extends Fragment {
     private TextView headerText;
     private ImageView checkMarkIcon;
 
-    private Player player;
-    private RatingManager ratingManager;
-
-    private boolean loadingFinishedFlag = false;
+    private RatingModel model;
     private boolean initDone = false;
-    private boolean isSeekingFromLoadedValue = false;
+    private boolean creatingNewSession = false;
 
     private Vibrator vibrator;
     private static int VIBRATE_BUTTON_MS;
     private static int VIBRATE_BUTTON_LONG_MS;
     private static int VIBRATE_RATING_START_MS;
+    private void vibrate(int length) {
+        vibrator.vibrate(VibrationEffect.createOneShot(length, VibrationEffect.DEFAULT_AMPLITUDE));
+    }
 
-    private ButtonState playPauseButtonState = ButtonState.PAUSED;
-    private enum ButtonState {PLAYING, PAUSED}
-    private Drawable playIcon;
-    private Drawable pauseIcon;
+    // Play - Pause button Listeners
+    private Drawable playIcon, pauseIcon;
     private final View.OnClickListener playListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
             Log.d(TAG, "onClick: BUTTON PLAY CLICKED");
-            vibrator.vibrate(VibrationEffect.createOneShot(VIBRATE_BUTTON_MS,VibrationEffect.DEFAULT_AMPLITUDE));
-            if (initDone && !player.isSeeking() && playPauseButtonState == ButtonState.PAUSED) {
-                if (player.start()) {
-                    buttonPlayPause.setText(getString(R.string.button_pause_label));
-                    buttonPlayPause.setCompoundDrawablesWithIntrinsicBounds(null, pauseIcon, null, null);
-                    buttonPlayPause.setOnClickListener(pauseListener);
-                    playPauseButtonState = ButtonState.PLAYING;
-                }
+            if (v.getId() == buttonPlayPause.getId() && initDone) {
+                vibrate(VIBRATE_BUTTON_MS);
+                model.playerPlay();
             }
         }
     };
@@ -118,75 +115,56 @@ public class RatingFragment extends Fragment {
         @Override
         public void onClick(View v) {
             Log.d(TAG, "onClick: BUTTON PAUSE CLICKED");
-            vibrator.vibrate(VibrationEffect.createOneShot(VIBRATE_BUTTON_MS,VibrationEffect.DEFAULT_AMPLITUDE));
-            if (initDone && !player.isSeeking() && playPauseButtonState == ButtonState.PLAYING) {
-                if (player.pause()) {
-                    buttonPlayPause.setText(getString(R.string.button_play_label));
-                    buttonPlayPause.setCompoundDrawablesWithIntrinsicBounds(null, playIcon, null, null);
-                    buttonPlayPause.setOnClickListener(playListener);
-                    playPauseButtonState = ButtonState.PAUSED;
-                }
+            if (v.getId() == buttonPlayPause.getId() && initDone) {
+                vibrate(VIBRATE_BUTTON_MS);
+                model.playerPause();
             }
         }
     };
 
+    // Short player button Listeners
     private final View.OnClickListener previousListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
             Log.d(TAG, "onClick: BUTTON PREVIOUS CLICKED");
-            vibrator.vibrate(VibrationEffect.createOneShot(VIBRATE_BUTTON_MS,VibrationEffect.DEFAULT_AMPLITUDE));
-            int trackPointer = ratingManager.getTrackPointer();
-            if (initDone && trackPointer > 0) {
-                changeCurrentTrack(trackPointer, trackPointer-1);
-                ratingManager.trackDecrement();
+            if (v.getId() == buttonPrevious.getId() && initDone) {
+                vibrate(VIBRATE_BUTTON_MS);
+                model.decrementTrack(requireContext());
             }
         }
     };
-
     private final View.OnClickListener nextListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
             Log.d(TAG, "onClick: BUTTON NEXT CLICKED");
-            vibrator.vibrate(VibrationEffect.createOneShot(VIBRATE_BUTTON_MS,VibrationEffect.DEFAULT_AMPLITUDE));
-            int trackPointer = ratingManager.getTrackPointer();
-            if (initDone && trackPointer < ratingManager.getTrackN()-1) {
-                changeCurrentTrack(trackPointer, trackPointer+1);
-                ratingManager.trackIncrement();
+            if (v.getId() == buttonNext.getId() && initDone) {
+                vibrate(VIBRATE_BUTTON_MS);
+                model.incrementTrack(requireContext());
             }
         }
     };
 
+    // Long player button Listeners
     private ValueAnimator playerButtonClickAnimation;
     private final View.OnLongClickListener previousLongListener = new View.OnLongClickListener() {
         @Override
         public boolean onLongClick(View v) {
-            if (v.getId() == buttonPrevious.getId()) {
-                Log.d(TAG, "onLongClick: BUTTON PREVIOUS LONG CLICKED");
-                vibrator.vibrate(VibrationEffect.createOneShot(VIBRATE_BUTTON_LONG_MS, VibrationEffect.DEFAULT_AMPLITUDE));
-
-                int trackPointer = ratingManager.getTrackPointer();
-                if (initDone && trackPointer > 0) {
-                    changeCurrentTrack(trackPointer, 0);
-                    ratingManager.trackToFirst();
-                }
+            Log.d(TAG, "onLongClick: BUTTON PREVIOUS LONG CLICKED");
+            if (v.getId() == buttonPrevious.getId() && initDone) {
+                vibrate(VIBRATE_BUTTON_LONG_MS);
+                model.changeTrackToFirst(requireContext());
                 return true;
             }
             return false;
         }
     };
-
     private final View.OnLongClickListener nextLongListener = new View.OnLongClickListener() {
         @Override
         public boolean onLongClick(View v) {
-            if (v.getId() == buttonNext.getId()) {
-                Log.d(TAG, "onLongClick: BUTTON NEXT LONG CLICKED");
-                vibrator.vibrate(VibrationEffect.createOneShot(VIBRATE_BUTTON_LONG_MS, VibrationEffect.DEFAULT_AMPLITUDE));
-
-                int trackPointer = ratingManager.getTrackPointer();
-                if (initDone && trackPointer < ratingManager.getTrackN()-1) {
-                    changeCurrentTrack(trackPointer, ratingManager.getTrackN() - 1);
-                    ratingManager.trackToLast();
-                }
+            Log.d(TAG, "onLongClick: BUTTON NEXT LONG CLICKED");
+            if (v.getId() == buttonNext.getId() && initDone) {
+                vibrate(VIBRATE_BUTTON_LONG_MS);
+                model.changeTrackToLast(requireContext());
                 return true;
             }
             return false;
@@ -201,7 +179,7 @@ public class RatingFragment extends Fragment {
 
         @Override
         public void onStartTrackingTouch(SeekBar seekBar) {
-            vibrator.vibrate(VibrationEffect.createOneShot(VIBRATE_RATING_START_MS,VibrationEffect.DEFAULT_AMPLITUDE));
+            vibrate(VIBRATE_RATING_START_MS);
         }
 
         @Override
@@ -209,15 +187,13 @@ public class RatingFragment extends Fragment {
             VASratingBar.playSoundEffect(SoundEffectConstants.CLICK);
 
             if (initDone) { // Set the rating
-                ratingManager.getTrackList().get(ratingManager.getTrackPointer()).setRating(seekBar.getProgress());
+                model.rate(seekBar.getProgress());
 
-                if (ratingManager.isRatingFinished()) { // Checks if all recordings have been rated
+                if (model.isSessionFinished()) { // Checks if all recordings have been rated
                     Log.i(TAG, "onStopTrackingTouch: All recording have been rated!");
-                    ratingManager.setState(STATE_FINISHED);
                     // Ratings will now save automatically on exit or new session
                 }
-                setCheckMarkDrawable(ratingManager.getTrackList().get(ratingManager.getTrackPointer()),
-                        ratingManager.getState());
+                setCheckMarkDrawable(model.getRating());
             }
         }
     };
@@ -233,17 +209,16 @@ public class RatingFragment extends Fragment {
 
         @Override
         public void onStartTrackingTouch(SeekBar seekBar) {
-            vibrator.vibrate(VibrationEffect.createOneShot(VIBRATE_BUTTON_MS,VibrationEffect.DEFAULT_AMPLITUDE));
+            vibrate(VIBRATE_BUTTON_MS);
             isTouchingSeekBar = true;
-            player.dontTick();
+            model.playerDontTick();
         }
 
         @Override
         public void onStopTrackingTouch(SeekBar seekBar) {
-            playerProgressBar.playSoundEffect(SoundEffectConstants.CLICK);
             if (initDone) {
-                player.seekTo(seekBar.getProgress());
-                ratingManager.setPlayProgress(seekBar.getProgress());
+                playerProgressBar.playSoundEffect(SoundEffectConstants.CLICK);
+                model.playerSeekTo(seekBar.getProgress());
             }
             isTouchingSeekBar = false;
         }
@@ -255,6 +230,7 @@ public class RatingFragment extends Fragment {
                 if (resultUri != null) {
                     String fullPath = resultUri.getPath();
                     if (fullPath == null || fullPath.equals("")) { // Bad returned path somehow
+                        creatingNewSession = false;
                         new MaterialAlertDialogBuilder(RatingFragment.this.requireContext())
                                 .setTitle(RatingFragment.this.getString(R.string.dialog_internal_error_title))
                                 .setMessage(RatingFragment.this.getString(R.string.dialog_internal_error_message))
@@ -268,14 +244,14 @@ public class RatingFragment extends Fragment {
                         RatingFragment.this.requireContext().getContentResolver()
                                 .takePersistableUriPermission(resultUri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
                         // Go check the selected directory and it's contents
-                        showLoading();
-                        new Thread(() -> RatingFragment.this.manageDirectory(resultUri, true)
-                                , "GroupControlCheckThread").start();
+                        loadingVisibility(true);
+                        model.checkDirectoryFromUri(requireContext(), resultUri);
                     }
                 } else {
                     Log.d(TAG, "onActivityResult: User left the directory selection activity without selecting.");
                     RatingFragment.this.fireSessionCreationCancelled();
-                    RatingFragment.this.manageLoading(); // Cycle back to the session check
+                    creatingNewSession = false;
+                    model.loadSession();
                 }
             }
     );
@@ -296,11 +272,10 @@ public class RatingFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        showLoading();
-        loadingFinishedFlag = false;
+        loadingVisibility(true);
+
         initDone = false;
         isTouchingSeekBar = false;
-        isSeekingFromLoadedValue = false;
 
         // Get vibrator service for UI vibration feedback
         vibrator = (Vibrator) requireContext().getSystemService(Context.VIBRATOR_SERVICE);
@@ -323,10 +298,6 @@ public class RatingFragment extends Fragment {
         int colorTo = ContextCompat.getColor(requireContext(), R.color.secondaryColor);
         playerButtonClickAnimation = ValueAnimator.ofObject(new ArgbEvaluator(), colorFrom, colorTo)
                 .setDuration(100);
-
-        // Initialize the audio player and rating manager
-        player = new Player(requireContext(), getPlayerListener());
-        ratingManager = new RatingManager(requireActivity());
     }
 
     @Nullable
@@ -335,12 +306,6 @@ public class RatingFragment extends Fragment {
                              @Nullable Bundle savedInstanceState) {
         setHasOptionsMenu(true);
         binding = FragmentRatingBinding.inflate(inflater, container, false);
-        return binding.getRoot();
-    }
-
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
 
         // UI Elements setup
         headerText = binding.ratingFragmentHeaderText;
@@ -373,11 +338,39 @@ public class RatingFragment extends Fragment {
         VASratingBar.setOnSeekBarChangeListener(VASratingBarListener);
         playerProgressBar.setOnSeekBarChangeListener(playerSeekBarListener);
 
-        // Normal startup
-        new Thread(this::manageLoading, "RatingLoadingThread").start();
+        return binding.getRoot();
+    }
 
-        // If loading view was not available when loading actually finished, hide it now
-        if (loadingFinishedFlag) hideLoading();
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        model = new ViewModelProvider(this).get(RatingModel.class);
+
+        model.getLoadingFinished().observe(getViewLifecycleOwner(), aBoolean ->
+                loadingVisibility(!((Boolean) aBoolean)));
+
+        model.getSession().observe(getViewLifecycleOwner(), this::onSessionLoaded);
+        model.getDirectoryCheckError().observe(getViewLifecycleOwner(),
+                directoryCheckError -> onDirectoryCheckError((DirectoryCheckError) directoryCheckError));
+        model.getGroupCheckNeeded().observe(getViewLifecycleOwner(), uriArrayListPair -> {
+            @SuppressWarnings("unchecked")
+            Pair<Uri, ArrayList<GroupFolder>> pair = (Pair<Uri, ArrayList<GroupFolder>>) uriArrayListPair;
+            onGroupCheckNeeded(pair.first, pair.second);
+        });
+        model.getSessionPrepared().observe(getViewLifecycleOwner(), aBoolean -> onSessionPrepared());
+
+        model.getPlayerPrepared().observe(getViewLifecycleOwner(), result -> onPlayerPrepared((Bundle) result));
+        model.getPlayerPlaying().observe(getViewLifecycleOwner(), playing -> onPlayerPlaying((Boolean) playing));
+        model.getPlayerTrackFinished().observe(getViewLifecycleOwner(), aBoolean -> onPlayerTrackFinished());
+        model.getPlayerHeadphonesMissing().observe(getViewLifecycleOwner(), aBoolean -> onPlayerHeadphonesMissing());
+        model.getPlayerVolumeDown().observe(getViewLifecycleOwner(), aBoolean -> onPlayerVolumeDown());
+        model.getPlayerTimeTick().observe(getViewLifecycleOwner(), time -> onPlayerTimeTick((Integer) time));
+        model.getPlayerProgress().observe(getViewLifecycleOwner(), currentMs -> onPlayerProgressUpdate((Integer) currentMs));
+        model.getPlayerError().observe(getViewLifecycleOwner(), aBoolean -> onPlayerError());
+
+        // Normal startup
+        model.loadSession();
     }
 
     @Override
@@ -406,311 +399,261 @@ public class RatingFragment extends Fragment {
         });
     }
 
-    private void manageLoading() {
-        String message = "";
-        String title = "";
-        Drawable icon = null;
+    private void onSessionLoaded(Session session) {
+        if (session != null) { // Session loaded
+            model.checkDirectoryFromSession(requireContext(), session);
+        } else { // Session loading failed
+            LoadResult loadResult = model.getSessionLoadResult();
 
-        switch (ratingManager.loadSession()) {
-            case OK:
-                manageDirectory(ratingManager.getDataDirPath(), false);
-                return;
-            case NO_SESSION:
-                title = getString(R.string.dialog_no_session_found_title);
-                message = getString(R.string.dialog_no_session_found_message);
-                icon = applyTintFilter(
-                        ContextCompat.getDrawable(requireContext(), R.drawable.ic_info),
-                        requireContext().getColor(R.color.secondaryColor));
-                break;
-            case CORRUPTED_SESSION:
-                title = getString(R.string.dialog_corrupted_session_title);
-                message = getString(R.string.dialog_corrupted_session_message);
-                icon = applyTintFilter(
-                        ContextCompat.getDrawable(requireContext(), R.drawable.ic_error),
-                        requireContext().getColor(R.color.errorColor));
-                break;
-        }
+            String message = "";
+            String title = "";
+            Drawable icon = null;
 
-        // This branch is finished here, hide the loading view
-        hideLoading();
-
-        String finalTitle = title;
-        String finalMessage = message;
-        Drawable finalIcon = icon;
-        requireActivity().runOnUiThread(() -> new MaterialAlertDialogBuilder(requireContext())
-                .setTitle(finalTitle)
-                .setMessage(finalMessage)
-                .setIcon(finalIcon)
-                .setPositiveButton(R.string.dialog_no_session_corrupted_session_create_new_session, (dialog, which) -> {
-                    // Go select directory and check it afterwards
-                    fireSelectDirectory();
-                })
-                .setNegativeButton(R.string.dialog_no_session_corrupted_session_quit, (dialog, which) -> requireActivity().finish())
-                .setCancelable(false).show());
-    }
-
-    private void manageDirectory(Uri selectedDir, boolean newSession) {
-        Bundle checkResult = ratingManager.checkDataDirectoryPath(
-                selectedDir, newSession, this, new RatingManager.GroupFoldersUserCheckCallback() {
-                    @Override
-                    public void groupCheckFinished(boolean confirmed) {
-                        Log.d(TAG, "manageDirectory: Group check done callback triggered!");
-
-                        if (confirmed) {
-                            Log.d(TAG, "groupCheckFinished: Group check exited via confirmation -" +
-                                    " Rating initiation complete!");
-                            initDone = true;
-
-                            // Sets the "in progress" state if the session is not finished
-                            if (ratingManager.getState() == STATE_IDLE) {
-                                ratingManager.setState(STATE_IN_PROGRESS);
-                            }
-
-                            requireActivity().runOnUiThread(() -> {
-                                if (newSession) {
-                                    // We don't have to call changeCurrentTrack here, it is already
-                                    // called in onResume when user gets back from GroupControlFragment
-                                    Snackbar.make(requireActivity().findViewById(R.id.coordinator),
-                                            getString(R.string.snackbar_new_session_created),
-                                            BaseTransientBottomBar.LENGTH_SHORT)
-                                            .setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE).show();
-                                } else {
-                                    // Must be called when an already established session is being loaded
-                                    isSeekingFromLoadedValue = true;
-                                }
-                                if (getView() != null) { // Fragment view is created
-                                    changeCurrentTrack(0, ratingManager.getTrackPointer());
-                                }
-                            });
-
-                            // Hide the loading overlay
-                            hideLoading();
-                        } else { // Group check cancelled - new session creation cancelled
-                            Log.d(TAG, "groupCheckFinished: Group check exited via cancel");
-                            fireSessionCreationCancelled();
-                            manageLoading(); // Cycle back to the session check
-                        }
-                    }
-
-                    @Override
-                    public void groupCheckStart(ArrayList<GroupFolder> groupFolders) {
-                        hideLoading();
-                        NavDirections directions =
-                                RatingFragmentDirections.actionRatingFragmentToGroupControlFragment(groupFolders);
-                        NavHostFragment.findNavController(RatingFragment.this).navigate(directions);
-                    }
-                }
-        );
-
-        if (checkResult.getBoolean(DIRCHECK_RESULT_IS_OK)) {
-            // Directory is ok and we can proceed to actual rating 😊
-            Log.i(TAG, "manageDirectory: Complex directory check passed!");
-        } else { // Directory check was NOT ok
-            Spanned message = null;
-            RatingManager.FileCheckError err = RatingManager.FileCheckError.valueOf(
-                    checkResult.getString(DIRCHECK_RESULT_ERROR_TYPE));
-            String dirname = checkResult.getString(DIRCHECK_RESULT_DIRECTORY, "???");
-            switch (err) {
-                case NOT_EXIST:
-                    message = Html.fromHtml(getString(R.string.dialog_invalid_directory_not_exist, dirname), Html.FROM_HTML_MODE_LEGACY); break;
-                case NOT_DIRECTORY:
-                    message = Html.fromHtml(getString(R.string.dialog_invalid_directory_not_directory, dirname), Html.FROM_HTML_MODE_LEGACY); break;
-                case NOT_READABLE:
-                    message = Html.fromHtml(getString(R.string.dialog_invalid_directory_not_readable, dirname), Html.FROM_HTML_MODE_LEGACY); break;
-                case NO_FILES:
-                    message = Html.fromHtml(getString(R.string.dialog_invalid_directory_no_files, dirname), Html.FROM_HTML_MODE_LEGACY); break;
-                case MISSING_FILES:
-                    int cnt_missing = checkResult.getInt(DIRCHECK_RESULT_MISSING_CNT);
-                    String list_missing = checkResult.getString(DIRCHECK_RESULT_MISSING_LIST);
-                    message = Html.fromHtml(getString(R.string.dialog_invalid_directory_missing_files,
-                            cnt_missing, dirname, list_missing), Html.FROM_HTML_MODE_LEGACY);
+            switch (loadResult) {
+                case OK: return; // This option will not happen with session == null
+                case NO_SESSION:
+                    title = getString(R.string.dialog_no_session_found_title);
+                    message = getString(R.string.dialog_no_session_found_message);
+                    icon = applyTintFilter(
+                            ContextCompat.getDrawable(requireContext(), R.drawable.ic_info),
+                            requireContext().getColor(R.color.secondaryColor));
+                    break;
+                case CORRUPTED_SESSION:
+                    title = getString(R.string.dialog_corrupted_session_title);
+                    message = getString(R.string.dialog_corrupted_session_message);
+                    icon = applyTintFilter(
+                            ContextCompat.getDrawable(requireContext(), R.drawable.ic_error),
+                            requireContext().getColor(R.color.errorColor));
                     break;
             }
-            hideLoading();
-            fireInvalidDirectory(message);
+
+            // This branch is finished here, hide the loading view
+            loadingVisibility(false);
+
+            String finalTitle = title;
+            String finalMessage = message;
+            Drawable finalIcon = icon;
+            new MaterialAlertDialogBuilder(requireContext())
+                    .setTitle(finalTitle)
+                    .setMessage(finalMessage)
+                    .setIcon(finalIcon)
+                    .setPositiveButton(R.string.dialog_no_session_corrupted_session_create_new_session,
+                            // Go select directory and check it afterwards
+                            (dialog, which) -> fireSelectDirectory())
+                    .setNegativeButton(R.string.dialog_no_session_corrupted_session_quit,
+                            (dialog, which) -> requireActivity().finish())
+                    .setCancelable(false).show();
         }
     }
 
-    private void fireSelectDirectory() {
-        // Fire up dialog to choose the data directory
-        initDone = false;
-        selectDirectory.launch(null);
+    public static final String GROUP_CHECK_RESULT_REQUEST_KEY = "group_check_result";
+    @SuppressWarnings("unchecked")
+    private void onGroupCheckNeeded(Uri rootUri, ArrayList<GroupFolder> groupFoldersToCheck) {
+        // This is the callback from when GroupCheckFragment is finished
+        getParentFragmentManager().setFragmentResultListener(
+                GROUP_CHECK_RESULT_REQUEST_KEY, this, (requestKey, result) -> {
+                    if (requestKey.equals(GROUP_CHECK_RESULT_REQUEST_KEY)) {
+                        // The GroupCheck was confirmed, we can make a new session
+                        if (result.getBoolean(GroupControlFragment.GroupControlConfirmedKey)) {
+                            URI resultURI = (URI) result.getSerializable(GroupControlFragment.GroupControlSourceRootURI);
+                            Uri sourceRootUri = Uri.parse(resultURI.toString());
+                            ArrayList<GroupFolder> validGroupFolders =
+                                    (ArrayList<GroupFolder>) result.getSerializable(
+                                            GroupControlFragment.GroupFolderListSerializedKey);
+
+                            Log.d(TAG, "groupCheckFinished: Group check exited via confirmation -" +
+                                    " Rating initiation complete!");
+                            // Go make new session from these groups
+                            model.onGroupsConfirmed(sourceRootUri, validGroupFolders);
+                        } else { // GroupControlFragment exit without confirm
+                            onGroupCheckCancelled();
+                        }
+                    }
+                });
+
+        try { // Start the group control fragment
+            URI outUri = new URI(rootUri.toString());
+            NavDirections directions =
+                    RatingFragmentDirections.actionRatingFragmentToGroupControlFragment(
+                            groupFoldersToCheck, outUri);
+            NavHostFragment.findNavController(RatingFragment.this).navigate(directions);
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
     }
 
-    private void fireInvalidDirectory(Spanned message) {
-        requireActivity().runOnUiThread(() ->
-                new MaterialAlertDialogBuilder(requireContext())
-                        .setTitle(getString(R.string.dialog_invalid_directory_title))
-                        .setMessage(message)
-                        .setIcon(applyTintFilter(
-                                ContextCompat.getDrawable(requireContext(), R.drawable.ic_error),
-                                requireContext().getColor(R.color.errorColor)))
-                        .setPositiveButton(R.string.dialog_invalid_directory_choose_valid_data_directory, (dialog, which) -> fireSelectDirectory())
-                        .setNegativeButton(R.string.dialog_invalid_directory_cancel, (dialog, which) -> {
-                            Log.d(TAG, "fireInvalidDirectory: Invalid directory dialog cancelled");
-                            manageLoading();
-                        })
-                        .setCancelable(false).show());
+    private void onGroupCheckCancelled() {
+        Log.d(TAG, "onGroupCheckCancelled: Group check exited via cancel");
+        creatingNewSession = false;
+        fireSessionCreationCancelled();
+        model.loadSession(); // Cycle back to the session check
     }
 
-    private void fireSessionCreationCancelled() {
-        requireActivity().runOnUiThread(() ->
-                Snackbar.make(requireActivity().findViewById(R.id.coordinator),
-                        getString(R.string.snackbar_directory_selection_canceled),
-                        BaseTransientBottomBar.LENGTH_SHORT)
-                        .setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE).show());
-    }
-
-    private void changeCurrentTrack(int current, int changeTo) {
-        if (ratingManager.getTrackN() <= 0) {
-            Log.w(TAG, "changeCurrentTrack: Error! Invalid number of tracks!");
+    private void onSessionPrepared() {
+        if (creatingNewSession) {
+            Snackbar.make(requireActivity().findViewById(R.id.coordinator),
+                    getString(R.string.snackbar_new_session_created),
+                    BaseTransientBottomBar.LENGTH_SHORT)
+                    .setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE).show();
+            creatingNewSession = false;
         } else {
-            // Get the recording that is to be made active
-            Recording selectedRecording = ratingManager.getTrackList().get(changeTo);
-            if (player.isPlaying()) { // Pause player on track change
-                buttonPlayPause.callOnClick();
-            }
+            model.loadPlayerProgress();
+        }
 
-            // Calls the player instance to try to set a new active track
-            try {
-                // Track progress timer and bar will be set when the track is prepared by the player
-                if (!player.setCurrentTrack(requireContext(), selectedRecording.getUri())) {
-                    return;
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-                Log.e(TAG, "changeCurrentTrack: Player could not be initialized with a track!", e);
-                Snackbar.make(requireActivity().findViewById(R.id.coordinator),
-                        getString(R.string.snackbar_rating_player_track_load_failed),
-                        BaseTransientBottomBar.LENGTH_LONG)
-                        .setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE).show();
-                return;
-            }
+        initDone = true;
+        model.changeTrackToPointer(requireContext());
+    }
 
+    private void onPlayerPrepared(Bundle result) {
+        if (result.getBoolean(PLAYER_PREPARED_SUCCESS)) {
             // Manages visibility of player buttons according to the track being selected
-            int indexLastTrack = ratingManager.getTrackN()-1;
-            if (changeTo == 0) {
-                buttonPrevious.setVisibility(View.INVISIBLE); // Hide previous button
-            } else if (changeTo == indexLastTrack) {
-                buttonNext.setVisibility(View.INVISIBLE); // Hide next button
-            }
-            if (current == 0 && changeTo > 0) {
-                buttonPrevious.setVisibility(View.VISIBLE); // Show previous button
-            } else if (current == indexLastTrack && changeTo < indexLastTrack) {
-                buttonNext.setVisibility(View.VISIBLE); // Show next button
-            }
+            boolean hidePrevious = result.getBoolean(PLAYER_LIST_ON_START);
+            buttonPrevious.setVisibility(hidePrevious ? View.INVISIBLE : View.VISIBLE);
+
+            boolean hideNext = result.getBoolean(PLAYER_LIST_ON_END);
+            buttonNext.setVisibility(hideNext ? View.INVISIBLE : View.VISIBLE);
 
             // Sets the header text - Recording n/N
-            headerText.setText(getString(R.string.track_counter, getString(R.string.track), changeTo+1, indexLastTrack+1));
+            headerText.setText(getString(R.string.track_counter,
+                    getString(R.string.track), result.getString(PLAYER_CURRENT_OUT_OF)));
 
             // Sets rating bar position to default or saved
-            int savedRating = selectedRecording.getRating();
+            int savedRating = result.getInt(PLAYER_TRACK_RATING);
             int setTo = savedRating != Recording.DEFAULT_UNSET_RATING ? savedRating : getResources().getInteger(R.integer.DEFAULT_PROGRESS_CENTER);
             VASratingBar.setProgress(setTo, true);
 
             // Sets the checkmark depending on the current state (in progress or finished)
-            Log.d(TAG, "changeCurrentTrack: current state = " + ratingManager.getState());
-            setCheckMarkDrawable(selectedRecording, ratingManager.getState());
+            setCheckMarkDrawable(savedRating);
+
+            // Set maximum value for the player seek progress bar
+            int duration = result.getInt(PLAYER_TRACK_DURATION);
+            playerProgressBar.setMax(duration);
+            playerTimeTotal.setText(formatDuration(duration));
+
+            // Set the play progress to 0 or saved value if applicable
+            int savedProgress = result.getInt(PLAYER_SAVED_PLAY_PROGRESS);
+            playerTimeTracker.setText(formatDuration(savedProgress));
+        } else {
+            Log.e(TAG, "changeCurrentTrack: Player could not be initialized with a track!");
+            Snackbar.make(requireActivity().findViewById(R.id.coordinator),
+                    getString(R.string.snackbar_rating_player_track_load_failed),
+                    BaseTransientBottomBar.LENGTH_LONG)
+                    .setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE).show();
         }
     }
 
-    private void setCheckMarkDrawable(Recording recording, State state) {
+    private void onPlayerPlaying(Boolean playing) {
+        if (playing) {
+            buttonPlayPause.setText(getString(R.string.button_pause_label));
+            buttonPlayPause.setCompoundDrawablesWithIntrinsicBounds(null, pauseIcon, null, null);
+            buttonPlayPause.setOnClickListener(pauseListener);
+        } else {
+            buttonPlayPause.setText(getString(R.string.button_play_label));
+            buttonPlayPause.setCompoundDrawablesWithIntrinsicBounds(null, playIcon, null, null);
+            buttonPlayPause.setOnClickListener(playListener);
+        }
+    }
+
+    private void onPlayerTrackFinished() {
+        // "Force" set the play/pause button to the paused state
+        buttonPlayPause.setText(getString(R.string.button_play_label));
+        buttonPlayPause.setCompoundDrawablesWithIntrinsicBounds(null, playIcon, null, null);
+        buttonPlayPause.setOnClickListener(playListener);
+    }
+
+    private void onPlayerHeadphonesMissing() {
+        Snackbar.make(requireActivity().findViewById(R.id.coordinator),
+                getString(R.string.snackbar_connect_headphones),
+                BaseTransientBottomBar.LENGTH_LONG)
+                .setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE).show();
+    }
+
+    private void onPlayerVolumeDown() {
+        Snackbar.make(requireActivity().findViewById(R.id.coordinator),
+                getString(R.string.snackbar_increase_volume),
+                BaseTransientBottomBar.LENGTH_LONG)
+                .setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE).show();
+    }
+
+    private void onPlayerTimeTick(int time) {
+        playerTimeTracker.setText(formatDuration(time));
+    }
+
+    private void onPlayerProgressUpdate(int currentMs) {
+        if (!isTouchingSeekBar) {
+            playerProgressBar.setProgress(currentMs, true);
+        }
+    }
+
+    private void onPlayerError() {
+
+        // TODO do something else??
+        model.changeTrackToFirst(requireContext());
+    }
+
+    public void fireSelectDirectory() {
+        // Fire up dialog to choose the data directory
+        initDone = false;
+        creatingNewSession = true;
+        selectDirectory.launch(null);
+    }
+
+    private void onDirectoryCheckError(DirectoryCheckError errorInfo) {
+        creatingNewSession = false;
+        String message = null;
+        String dirname = errorInfo.dirName;
+
+        switch (errorInfo.errorType) {
+            case NOT_EXIST:
+                message = html(getString(R.string.dialog_invalid_directory_not_exist, dirname)); break;
+            case NOT_DIRECTORY:
+                message = html(getString(R.string.dialog_invalid_directory_not_directory, dirname)); break;
+            case NOT_READABLE:
+                message = html(getString(R.string.dialog_invalid_directory_not_readable, dirname)); break;
+            case NO_FILES:
+                message = html(getString(R.string.dialog_invalid_directory_no_files, dirname)); break;
+            case MISSING_FILES:
+                message = html(getString(R.string.dialog_invalid_directory_missing_files,
+                        errorInfo.missingCnt, dirname, errorInfo.missingList));
+                break;
+        }
+
+        String finalMessage = message;
+        new MaterialAlertDialogBuilder(requireContext())
+                .setTitle(getString(R.string.dialog_invalid_directory_title))
+                .setMessage(finalMessage)
+                .setIcon(applyTintFilter(
+                        ContextCompat.getDrawable(requireContext(), R.drawable.ic_error),
+                        requireContext().getColor(R.color.errorColor)))
+                .setPositiveButton(R.string.dialog_invalid_directory_choose_valid_data_directory,
+                        (dialog, which) -> fireSelectDirectory())
+                .setNegativeButton(R.string.dialog_invalid_directory_cancel, (dialog, which) -> {
+                    Log.d(TAG, "fireInvalidDirectory: Invalid directory dialog cancelled");
+                    model.loadSession();
+                })
+                .setCancelable(false).show();
+    }
+
+    private void fireSessionCreationCancelled() {
+        Snackbar.make(requireActivity().findViewById(R.id.coordinator),
+                getString(R.string.snackbar_directory_selection_canceled),
+                BaseTransientBottomBar.LENGTH_SHORT)
+                .setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE).show();
+    }
+
+    private void setCheckMarkDrawable(int rating) {
         if (checkMarkIcon != null) {
-            if (recording.getRating() == Recording.DEFAULT_UNSET_RATING) {
+            if (rating == Recording.DEFAULT_UNSET_RATING) {
                 checkMarkIcon.setVisibility(View.INVISIBLE);
             } else {
-                if (state == STATE_FINISHED) {
-                    checkMarkIcon.setImageDrawable(ContextCompat.getDrawable(requireContext(),
-                            R.drawable.ic_double_checkmark));
-                } else {
-                    checkMarkIcon.setImageDrawable(ContextCompat.getDrawable(requireContext(),
-                            R.drawable.ic_checkmark));
-                }
+                checkMarkIcon.setImageDrawable(ContextCompat.getDrawable(requireContext(),
+                        (model.isSessionFinished() ?
+                                R.drawable.ic_double_checkmark : R.drawable.ic_checkmark)));
                 checkMarkIcon.setVisibility(View.VISIBLE);
             }
         } else {
             Log.w(TAG, "setCheckMarkDrawable: Not able to find checkmark view!");
         }
-    }
-
-    private Player.PlayerListener getPlayerListener() {
-        return new Player.PlayerListener() {
-            @Override
-            public void onTrackPrepared(int duration) {
-                // Track is ready, set maximum value for the player seek progress bar
-                playerProgressBar.setMax(duration);
-                playerTimeTotal.setText(formatDuration(duration));
-
-                int savedProgress = ratingManager.getSavedPlayProgress();
-                if (isSeekingFromLoadedValue && savedProgress != Player.SAVED_PROGRESS_DEFAULT) {
-                    player.seekTo(savedProgress);
-                    playerTimeTracker.setText(formatDuration(savedProgress));
-
-                    isSeekingFromLoadedValue = false;
-                } else {
-                    player.seekTo(0);
-                    ratingManager.setPlayProgress(0);
-                    playerTimeTracker.setText(formatDuration(0));
-                }
-
-                // Failsafe so we dont accidentally end up with buttons invisible when they shouldnt
-                if (buttonNext.getVisibility() == View.INVISIBLE) {
-                    if (ratingManager.getTrackPointer() < ratingManager.getTrackN()-1) {
-                        buttonNext.setVisibility(View.VISIBLE);
-                    }
-                }
-                if (buttonPrevious.getVisibility() == View.INVISIBLE) {
-                    if (ratingManager.getTrackPointer() > 0) {
-                        buttonPrevious.setVisibility(View.VISIBLE);
-                    }
-                }
-            }
-
-            @Override
-            public void onTrackFinished() {
-                // "Force" set the play/pause button to the paused state
-                buttonPlayPause.setText(getString(R.string.button_play_label));
-                buttonPlayPause.setCompoundDrawablesWithIntrinsicBounds(null, playIcon, null, null);
-                buttonPlayPause.setOnClickListener(playListener);
-                playPauseButtonState = ButtonState.PAUSED;
-                player.rewind();
-                ratingManager.setPlayProgress(0);
-            }
-
-            @Override
-            public void onHeadphonesMissing() {
-                Snackbar.make(requireActivity().findViewById(R.id.coordinator),
-                        getString(R.string.snackbar_connect_headphones),
-                        BaseTransientBottomBar.LENGTH_LONG)
-                        .setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE).show();
-            }
-
-            @Override
-            public void onVolumeDown() {
-                Snackbar.make(requireActivity().findViewById(R.id.coordinator),
-                        getString(R.string.snackbar_increase_volume),
-                        BaseTransientBottomBar.LENGTH_LONG)
-                        .setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE).show();
-            }
-
-            @Override
-            public void onTimeTick(final int time) {
-                requireActivity().runOnUiThread(() -> playerTimeTracker.setText(formatDuration(time)));
-            }
-
-            @Override
-            public void onUpdateProgress(int current_ms) {
-                if (!isTouchingSeekBar) {
-                    playerProgressBar.setProgress(current_ms, true);
-                    ratingManager.setPlayProgress(current_ms);
-                }
-            }
-
-            @Override
-            public void onError() {
-                changeCurrentTrack(0, ratingManager.getTrackPointer());
-            }
-        };
     }
 
     private String formatDuration(int time_ms) {
@@ -728,67 +671,26 @@ public class RatingFragment extends Fragment {
         }
     }
 
-    private void changeLoadingVisibility(boolean show) {
-        requireContext().sendBroadcast(
-                new Intent().setAction(show ? MainActivity.ACTION_SHOW_LOADING : MainActivity.ACTION_HIDE_LOADING));
-        loadingFinishedFlag = !show;
-    }
-    private void hideLoading() { changeLoadingVisibility(false);}
-    private void showLoading() { changeLoadingVisibility(true);}
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        if (initDone) {
-            /*
-            Sets the active track in cases when user is returning to this fragment from elsewhere
-            in the app the chain:
-                onCreate > manageLoading > manageDirectory > checkDataDirectoryPath callback > changeCurrentTrack()
-            would not trigger, therefore we need to do it here
-            + it also works when user gets back from GroupControlFragment when creating a new
-            session, so the changeCurrentTrack does not have to be in the callback
-            */
-            isSeekingFromLoadedValue = true;
-            if (getView() != null) { // Fragment view is created
-                changeCurrentTrack(0, ratingManager.getTrackPointer());
-            }
-        }
-    }
-
     @Override
     public void onPause() {
         super.onPause();
-        if (player != null) {
-            player.dontTick();
-            if (playPauseButtonState == ButtonState.PLAYING) {
-                buttonPlayPause.callOnClick();
-            }
-        }
+        Log.i(TAG, "onPause: ");
+        model.onPausePlayer();
 
         // Saves the session on every Pause occasion (change app, phone lock, change screen, ...)
         if (initDone) {
-            ratingManager.saveSession();
+            model.saveSession();
         }
     }
 
     @Override
     public void onDestroy() {
+        Log.i(TAG, "onDestroy: ");
         super.onDestroy();
         // Saves the results to the .txt file in memory if the rating is in a finished state
-        if (ratingManager.getState() == STATE_FINISHED) {
-            try {
-                ratingManager.saveResults(requireContext());
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
+        if (model.isSessionFinished()) model.saveResults(requireContext(), null);
 
-        if (player != null) {
-            player.clean();
-            player = null;
-        }
         vibrator = null;
-        ratingManager = null;
         initDone = false;
     }
 
@@ -815,107 +717,129 @@ public class RatingFragment extends Fragment {
             NavHostFragment.findNavController(this).navigate(directions);
             return true;
         } else if (itemID == R.id.action_menu_save && initDone) {
-            new Thread(() -> {
-                try {
-                    ratingManager.saveResults(requireContext());
-                    requireActivity().runOnUiThread(() ->
-                            Snackbar.make(requireActivity().findViewById(R.id.coordinator),
-                                    getString(R.string.snackbar_save_success),
-                                    BaseTransientBottomBar.LENGTH_SHORT)
-                                    .setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE).show()
-                    );
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    String errorMessage = (e.getMessage() == null ? getString(R.string.snackbar_save_failed_error_unknown) : e.getMessage());
-                    requireActivity().runOnUiThread(() ->
-                            Snackbar.make(requireActivity().findViewById(R.id.coordinator),
-                                    Html.fromHtml(getString(R.string.snackbar_save_failed, errorMessage),Html.FROM_HTML_MODE_LEGACY),
-                                    BaseTransientBottomBar.LENGTH_LONG)
-                                    .setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE).show()
-                    );
+            model.saveResults(requireContext(), new SaveResultsCallback() {
+                @Override
+                public void onSuccess() {
+                    Snackbar.make(requireActivity().findViewById(R.id.coordinator),
+                            getString(R.string.snackbar_save_success),
+                            BaseTransientBottomBar.LENGTH_SHORT)
+                            .setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE).show();
                 }
-            }, "SaveResultsThread").start();
+
+                @Override
+                public void onError(String errorMessage) {
+                    onSaveFailed(errorMessage);
+                }
+            });
             return true;
         } else if (itemID == R.id.action_menu_show_saved_results && initDone) {
-            showLoading();
-            new Thread(() -> { // Threading for slow loading times
-                try {
-                    ArrayList<RatingResult> ratings = RatingManager.loadResults(requireContext());
-
-                    hideLoading();
-                    requireActivity().runOnUiThread(() -> {
-                        NavDirections directions =
-                                RatingFragmentDirections.actionRatingFragmentToResultFragment(ratings);
-                        NavHostFragment.findNavController(this).navigate(directions);
-                    });
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    hideLoading();
-                    requireActivity().runOnUiThread(() -> Snackbar.make(requireActivity().findViewById(R.id.coordinator),
-                            Html.fromHtml(getString(R.string.snackbar_ratings_loading_failed, e.getMessage()),Html.FROM_HTML_MODE_LEGACY),
-                            BaseTransientBottomBar.LENGTH_LONG)
-                            .setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE).show()
-                    );
-                }
-            }, "ResultsLoadingThread").start();
-
+            onShowSavedResults();
             return true;
         } else if (itemID == R.id.action_menu_show_session_info && initDone) {
-            showLoading();
-            new Thread(() -> MainActivity.navigateToCurrentSessionInfo(
-                    this, session -> {
-                        hideLoading();
-                        requireActivity().runOnUiThread(() -> {
+            onShowSessionInfo();
+            return true;
+        } else if (itemID == R.id.action_menu_new_session && initDone) {
+            onNewSession();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @SuppressLint("ShowToast")
+    private void onShowSavedResults() {
+        loadingVisibility(true);
+        new Thread(() -> { // Threading for slow loading times
+            try {
+                ArrayList<RatingResult> ratings = RatingManager.loadResults(requireContext());
+
+                requireActivity().runOnUiThread(() -> {
+                    loadingVisibility(false);
+                    NavDirections directions =
+                            RatingFragmentDirections.actionRatingFragmentToResultFragment(ratings);
+                    NavHostFragment.findNavController(this).navigate(directions);
+                });
+            } catch (Exception e) {
+                e.printStackTrace();
+
+                requireActivity().runOnUiThread(() -> {
+                    loadingVisibility(false);
+                    String message = html(getString(R.string.snackbar_ratings_loading_failed, e.getMessage()));
+                    Snackbar.make(requireActivity().findViewById(R.id.coordinator),
+                            message, BaseTransientBottomBar.LENGTH_LONG)
+                            .setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE).show();
+                });
+            }
+        }, "ResultsLoadingThread").start();
+    }
+
+    private void onShowSessionInfo() {
+        loadingVisibility(true);
+        new Thread(() ->
+                MainActivity.navigateToCurrentSessionInfo(this,
+                        session -> requireActivity().runOnUiThread(() -> {
+                            loadingVisibility(false);
                             NavDirections directions = RatingFragmentDirections
                                     .actionRatingFragmentToCurrentSessionInfoFragment(session);
                             NavHostFragment.findNavController(RatingFragment.this)
                                     .navigate(directions);
-                        });
-                    }
-            ), "SessionLoadingThread").start();
-            return true;
-        } else if (itemID == R.id.action_menu_new_session && initDone) {
-            new MaterialAlertDialogBuilder(requireContext())
-                    .setTitle(getString(R.string.dialog_make_new_session_title))
-                    .setMessage(getString(R.string.dialog_make_new_session_message))
-                    .setIcon(applyTintFilter(
-                            ContextCompat.getDrawable(requireContext(), R.drawable.ic_warning),
-                            requireContext().getColor(R.color.secondaryColor)))
-                    .setPositiveButton(R.string.dialog_make_new_session_positive_button_label, (dialog, which) -> {
-                        showLoading();
-                        new Thread(() -> {
+                        })
+                ), "SessionLoadingThread").start();
+    }
+
+    private void onNewSession() {
+        new MaterialAlertDialogBuilder(requireContext())
+                .setTitle(getString(R.string.dialog_make_new_session_title))
+                .setMessage(getString(R.string.dialog_make_new_session_message))
+                .setIcon(applyTintFilter(
+                        ContextCompat.getDrawable(requireContext(), R.drawable.ic_warning),
+                        requireContext().getColor(R.color.secondaryColor)))
+                .setPositiveButton(R.string.dialog_make_new_session_positive_button_label,
+                        (dialog, which) -> {
+                            loadingVisibility(true);
                             // If the rating is finished, try saving it
-                            if (ratingManager.getState() == STATE_FINISHED) {
-                                try {
-                                    ratingManager.saveResults(requireContext());
-                                    fireSelectDirectory();
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                    String errorMessage = (e.getMessage() == null ? getString(R.string.dialog_save_failed_continue_error_unknown) : e.getMessage());
-                                    hideLoading();
-                                    requireActivity().runOnUiThread(() ->
-                                            new MaterialAlertDialogBuilder(requireContext())
-                                                    .setTitle(getString(R.string.dialog_save_failed_continue_title))
-                                                    .setMessage(Html.fromHtml(getString(R.string.dialog_save_failed_continue_message, errorMessage), Html.FROM_HTML_MODE_LEGACY))
-                                                    .setIcon(applyTintFilter(
-                                                            ContextCompat.getDrawable(requireContext(), R.drawable.ic_error),
-                                                            requireContext().getColor(R.color.errorColor)))
-                                                    .setPositiveButton(R.string.dialog_save_failed_continue_continue,
-                                                            (dialog1, which1) -> fireSelectDirectory())
-                                                    .setNegativeButton(R.string.dialog_save_failed_continue_return, null)
-                                                    .setCancelable(false)
-                                                    .show()
-                                    );
-                                }
+                            if (model.isSessionFinished()) {
+                                model.saveResults(requireContext(), new SaveResultsCallback() {
+                                    @Override
+                                    public void onSuccess() {
+                                        fireSelectDirectory();
+                                    }
+
+                                    @Override
+                                    public void onError(String errorMessage) {
+                                        onSaveFailedOnNewSession(errorMessage);
+                                    }
+                                });
                             } else { // Session is not complete, just proceed with selection
                                 fireSelectDirectory();
                             }
-                        }, "SaveResultsThread").start();
-                    })
-                    .setNegativeButton(R.string.dialog_quit_cancel, null).show();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
+                        })
+                .setNegativeButton(R.string.dialog_quit_cancel, null).show();
+    }
+
+    private void onSaveFailed(String errorMessage) {
+        String errorString = (errorMessage == null ?
+                getString(R.string.snackbar_save_failed_error_unknown) : errorMessage);
+        String message = html(getString(R.string.snackbar_save_failed, errorString));
+        Snackbar.make(requireActivity().findViewById(R.id.coordinator), message,
+                BaseTransientBottomBar.LENGTH_LONG)
+                .setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE).show();
+    }
+
+    private void onSaveFailedOnNewSession(String errorMessage) {
+        String errorString = (errorMessage == null ?
+                getString(R.string.dialog_save_failed_continue_error_unknown) : errorMessage);
+        String message = html(getString(R.string.dialog_save_failed_continue_message, errorString));
+        loadingVisibility(false);
+        new MaterialAlertDialogBuilder(requireContext())
+                .setTitle(getString(R.string.dialog_save_failed_continue_title))
+                .setMessage(message)
+                .setIcon(applyTintFilter(
+                        ContextCompat.getDrawable(requireContext(), R.drawable.ic_error),
+                        requireContext().getColor(R.color.errorColor)))
+                .setPositiveButton(R.string.dialog_save_failed_continue_continue,
+                        (dialog1, which1) -> fireSelectDirectory())
+                .setNegativeButton(R.string.dialog_save_failed_continue_return, null)
+                .setCancelable(false).show();
     }
 
     private static class SelectDirectory extends ActivityResultContracts.OpenDocumentTree {
@@ -929,5 +853,10 @@ public class RatingFragment extends Fragment {
                     | Intent.FLAG_GRANT_PREFIX_URI_PERMISSION);
             return intent;
         }
+    }
+
+    private void loadingVisibility(boolean show) {
+        requireActivity().findViewById(R.id.general_loading_container)
+                .setVisibility(show ? View.VISIBLE : View.GONE);
     }
 }

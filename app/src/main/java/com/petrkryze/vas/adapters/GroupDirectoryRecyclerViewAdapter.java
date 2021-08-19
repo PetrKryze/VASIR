@@ -67,9 +67,6 @@ public class GroupDirectoryRecyclerViewAdapter extends RecyclerView.Adapter<Grou
         holder.viewRowGroupNameInput.setText(currentGFolder.getLabel(),
                 TextView.BufferType.EDITABLE);
 
-        // TODO anything else to do with this edit text??
-
-
         holder.checkBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
             checks.set(position, isChecked);
             if (isSomethingChecked()) {
