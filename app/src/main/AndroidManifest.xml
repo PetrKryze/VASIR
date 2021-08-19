@@ -4,7 +4,6 @@
     package="com.petrkryze.vas">
 
     <uses-permission android:name="android.permission.VIBRATE" />
-    <uses-permission android:name="android.permission.WAKE_LOCK" />
 
     <application
         android:allowBackup="true"
@@ -14,6 +13,7 @@
         android:supportsRtl="false"
         android:theme="@style/AppTheme"
         tools:ignore="AllowBackup,GoogleAppIndexingWarning">
+
         <activity android:name="com.petrkryze.vas.MainActivity"
             android:label="@string/app_name"
             android:theme="@style/AppTheme">
