@@ -577,8 +577,11 @@ public class RatingFragment extends VASFragment {
     }
 
     private void onPlayerError() {
+        Snackbar.make(requireActivity().findViewById(R.id.coordinator),
+                getString(R.string.snackbar_player_error),
+                BaseTransientBottomBar.LENGTH_LONG)
+                .setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE).show();
 
-        // TODO do something else??
         model.changeTrackToFirst(requireContext());
     }
 

@@ -283,7 +283,7 @@
     <string name="version_info_dialog_text2_placeholder" translatable="false">Version Info</string>
     <string name="version_info_dialog_version_number">App Version %s</string>
     <string name="version_info_dialog_subtitle" translatable="false">Beta 08/2021\n© 2021 Petr Krýže</string>
-
+    <string name="snackbar_player_error">Player encountered an error. Resetting the player...</string>
 
 
 </resources>

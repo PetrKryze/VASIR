@@ -235,4 +235,5 @@
     <string name="setting_version_info_unknown_version">Neznámá verze</string>
     <string name="setting_number_of_backups_summary">Maximální počet záloh: %s</string>
     <string name="version_info_dialog_version_number">Verze Aplikace %s</string>
+    <string name="snackbar_player_error">Player encountered an error. Resetting the player...</string>
 </resources>
