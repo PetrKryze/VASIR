@@ -1,14 +1,10 @@
 package com.petrkryze.vas.fragments;
 
 import android.annotation.SuppressLint;
-import android.content.ClipData;
-import android.content.ClipDescription;
 import android.content.Context;
-import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.VibrationEffect;
-import android.os.Vibrator;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -53,7 +49,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
  * Use the {@link ResultDetailFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class ResultDetailFragment extends Fragment {
+public class ResultDetailFragment extends VASFragment {
     private static final String TAG = "ResultDetailFragment";
     private static final String RESULT_TO_DISPLAY = "result_to_display";
 
@@ -74,10 +70,10 @@ public class ResultDetailFragment extends Fragment {
     private List<Recording> recordingsToDisplay;
     private RecordingListSortBy currentSort = RecordingListSortBy.GROUP; // Default sort
 
-    private Vibrator vibrator;
-    private static int VIBRATE_BUTTON_MS;
     private boolean isExcelSharing = false;
     private boolean isTextSharing = false;
+    private Thread textThread;
+    private Thread excelThread;
 
     private final View.OnClickListener shareListener = new View.OnClickListener() {
         @Override
@@ -103,7 +99,7 @@ public class ResultDetailFragment extends Fragment {
                         VIBRATE_BUTTON_MS, VibrationEffect.DEFAULT_AMPLITUDE));
 
                 // Do work in separate thread
-                Thread textThread = new Thread(() -> {
+                textThread = new Thread(() -> {
                     isTextSharing = true;
 
                     Uri uri = null;
@@ -125,16 +121,18 @@ public class ResultDetailFragment extends Fragment {
                         e.printStackTrace();
                     }
 
-                    if (uri == null) {
-                        requireActivity().runOnUiThread(() ->
-                                Snackbar.make(requireActivity().findViewById(R.id.coordinator),
-                                        R.string.snackbar_share_rating_detail_text_failed, BaseTransientBottomBar.LENGTH_LONG)
-                                        .setAnchorView(buttonBar)
-                                        .setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE)
-                                        .show());
-                    } else {
-                        startShareActivity(uri,
-                                getString(R.string.rating_detail_share_title, resultToDisplay.toString()));
+                    if (!Thread.currentThread().isInterrupted() || getActivity() != null) {
+                        if (uri == null) {
+                            requireActivity().runOnUiThread(() ->
+                                    Snackbar.make(requireActivity().findViewById(R.id.coordinator),
+                                            R.string.snackbar_share_rating_detail_text_failed, BaseTransientBottomBar.LENGTH_LONG)
+                                            .setAnchorView(buttonBar)
+                                            .setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE)
+                                            .show());
+                        } else {
+                            startShareActivity(uri,
+                                    getString(R.string.rating_detail_share_title, resultToDisplay.toString()));
+                        }
                     }
                 });
 
@@ -159,7 +157,7 @@ public class ResultDetailFragment extends Fragment {
                         VIBRATE_BUTTON_MS, VibrationEffect.DEFAULT_AMPLITUDE));
 
                 // Do work in separate thread
-                Thread excelThread = new Thread(() -> {
+                excelThread = new Thread(() -> {
                     isExcelSharing = true;
 
                     Uri uri = null;
@@ -175,16 +173,18 @@ public class ResultDetailFragment extends Fragment {
                         e.printStackTrace();
                     }
 
-                    if (uri == null) {
-                        requireActivity().runOnUiThread(() ->
-                                Snackbar.make(requireActivity().findViewById(R.id.coordinator),
-                                        R.string.snackbar_share_rating_detail_text_failed, BaseTransientBottomBar.LENGTH_LONG)
-                                        .setAnchorView(buttonBar)
-                                        .setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE)
-                                        .show());
-                    } else {
-                        startShareActivity(uri,
-                                getString(R.string.rating_detail_share_title, resultToDisplay.toString()));
+                    if (!Thread.currentThread().isInterrupted() || getActivity() != null) {
+                        if (uri == null) {
+                            requireActivity().runOnUiThread(() ->
+                                    Snackbar.make(requireActivity().findViewById(R.id.coordinator),
+                                            R.string.snackbar_share_rating_detail_text_failed, BaseTransientBottomBar.LENGTH_LONG)
+                                            .setAnchorView(buttonBar)
+                                            .setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE)
+                                            .show());
+                        } else {
+                            startShareActivity(uri,
+                                    getString(R.string.rating_detail_share_title, resultToDisplay.toString()));
+                        }
                     }
                 });
 
@@ -214,21 +214,17 @@ public class ResultDetailFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        loadingVisibility(true);
         if (getArguments() != null) {
             resultToDisplay = ResultDetailFragmentArgs.fromBundle(getArguments()).getRatingResult();
             recordingsToDisplay = new ArrayList<>(resultToDisplay.getRecordingList());
             recordingsToDisplay.sort(Recording.sortByGroup);
         }
-
-        vibrator = (Vibrator) requireContext().getSystemService(Context.VIBRATOR_SERVICE);
-        VIBRATE_BUTTON_MS = getResources().getInteger(R.integer.VIBRATE_BUTTON_MS);
     }
 
     @Override
     public View onCreateView(@NotNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        setHasOptionsMenu(true);
+        super.onCreateView(inflater, container, savedInstanceState);
         binding = FragmentResultDetailBinding.inflate(inflater, container, false);
         return binding.getRoot();
     }
@@ -273,8 +269,6 @@ public class ResultDetailFragment extends Fragment {
         headerRating.setOnClickListener(new SortColumnListener(RecordingListSortBy.RATING));
 
         headerGroup.setChecked(true);
-
-        loadingVisibility(false);
     }
 
     private void uncheckAll() {
@@ -287,28 +281,6 @@ public class ResultDetailFragment extends Fragment {
     private String formatDateTime(String rawDateTime) {
         String[] split = rawDateTime.split(" ");
         return split[0].replace("-", ".") + " " + split[1];
-    }
-
-    private void startShareActivity(Uri uri, String description) {
-        String mimeType = "text/plain";
-        String[] mimeTypeArray = new String[] { mimeType };
-
-        ClipDescription clipDescription = new ClipDescription(description, mimeTypeArray);
-        ClipData clipData = new ClipData(clipDescription, new ClipData.Item(uri));
-
-        // Note possible duplicate mimetype and data declaration, maybe fix when ClipData framework
-        // is not a complete joke
-        Intent sharingIntent = new Intent(Intent.ACTION_SEND);
-        sharingIntent.setClipData(clipData);
-        sharingIntent.setType(mimeType)
-                .addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
-                .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                .putExtra(Intent.EXTRA_STREAM, uri)
-                .putExtra(Intent.EXTRA_TITLE, description)
-                .putExtra(Intent.EXTRA_SUBJECT, description);
-
-        requireContext().startActivity(Intent.createChooser(sharingIntent,
-                requireContext().getString(R.string.share_using)));
     }
 
     @Override
@@ -329,8 +301,7 @@ public class ResultDetailFragment extends Fragment {
             String contextHelpMessage = getString(R.string.help_context_body_result_detail_fragment);
             String contextHelpTitle = getString(R.string.help_context_title_result_detail_fragment);
 
-            NavDirections directions =
-                    ResultDetailFragmentDirections.
+            NavDirections directions = ResultDetailFragmentDirections.
                             actionResultDetailFragmentToHelpFragment(contextHelpMessage, contextHelpTitle);
             NavHostFragment.findNavController(this).navigate(directions);
             return true;
@@ -338,25 +309,15 @@ public class ResultDetailFragment extends Fragment {
             NavHostFragment.findNavController(this).navigateUp();
             return true;
         } else if (itemID == R.id.action_menu_show_session_info) {
-            onShowSessionInfo();
+            onShowSessionInfo(session -> {
+                NavDirections directions = ResultDetailFragmentDirections
+                        .actionResultDetailFragmentToCurrentSessionInfoFragment(session);
+                NavHostFragment.findNavController(ResultDetailFragment.this).navigate(directions);
+            });
             return true;
         }
 
         return super.onOptionsItemSelected(item);
-    }
-
-    private void onShowSessionInfo() {
-        loadingVisibility(true);
-        new Thread(() ->
-                MainActivity.navigateToCurrentSessionInfo(this,
-                        session -> requireActivity().runOnUiThread(() -> {
-                            loadingVisibility(false);
-                            NavDirections directions = ResultDetailFragmentDirections
-                                    .actionResultDetailFragmentToCurrentSessionInfoFragment(session);
-                            NavHostFragment.findNavController(ResultDetailFragment.this)
-                                    .navigate(directions);
-                        })
-                ), "SessionLoadingThread").start();
     }
 
     @Override
@@ -382,14 +343,20 @@ public class ResultDetailFragment extends Fragment {
     }
 
     @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (textThread != null && textThread.isAlive()) {
+            textThread.interrupt();
+        }
+        if (excelThread != null && excelThread.isAlive()) {
+            excelThread.interrupt();
+        }
+    }
+
+    @Override
     public void onDestroyView() {
         super.onDestroyView();
         binding = null;
-    }
-
-    private void loadingVisibility(boolean show) {
-        requireActivity().findViewById(R.id.general_loading_container)
-                .setVisibility(show ? View.VISIBLE : View.GONE);
     }
 
     public enum RecordingListSortBy {

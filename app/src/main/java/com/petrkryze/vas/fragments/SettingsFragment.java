@@ -24,12 +24,14 @@ import com.petrkryze.vas.MainActivity;
 import com.petrkryze.vas.R;
 import com.petrkryze.vas.RatingManager;
 import com.petrkryze.vas.RatingResult;
+import com.petrkryze.vas.Session;
 
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 import androidx.navigation.NavDirections;
 import androidx.navigation.fragment.NavHostFragment;
@@ -40,6 +42,7 @@ import androidx.preference.SwitchPreferenceCompat;
 
 import static com.petrkryze.vas.MainActivity.applyTintFilter;
 import static com.petrkryze.vas.MainActivity.html;
+import static com.petrkryze.vas.RatingManager.SESSION_INFO_LOADED_SESSION;
 
 /**
  * Created by Petr on 04.08.2021. Yay!
@@ -48,6 +51,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     // private static final String TAG = "SettingsFragment";
 
     private Context context;
+    private AlertDialog dialog;
 
     public SettingsFragment() {
         // Required empty public constructor
@@ -198,22 +202,63 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 
     private void onShowSessionInfo() {
         loadingVisibility(true);
-        new Thread(() ->
-                MainActivity.navigateToCurrentSessionInfo(this,
-                        session -> requireActivity().runOnUiThread(() -> {
-                            loadingVisibility(false);
-                            NavDirections directions =
-                                    SettingsFragmentDirections
-                                            .actionActionMenuSettingsToCurrentSessionInfoFragment(session);
-                            NavHostFragment.findNavController(SettingsFragment.this)
-                                    .navigate(directions);
-                        })
-                ), "SessionLoadingThread").start();
+
+        new Thread(() -> {
+            Context context = requireContext();
+            Bundle bundle = RatingManager.getSessionInfo(requireActivity());
+            String message = "";
+            String title = "";
+            Drawable icon = null;
+
+            switch ((RatingManager.LoadResult) bundle.getSerializable(RatingManager.GET_SESSION_INFO_LOAD_RESULT_KEY)) {
+                case OK:
+                    requireActivity().runOnUiThread(() -> {
+                        loadingVisibility(false);
+                        Session session = (Session) bundle.getSerializable(SESSION_INFO_LOADED_SESSION);
+                        NavDirections directions =
+                                SettingsFragmentDirections
+                                        .actionActionMenuSettingsToCurrentSessionInfoFragment(session);
+                        NavHostFragment.findNavController(SettingsFragment.this)
+                                .navigate(directions);
+                    });
+                    return;
+                case NO_SESSION:
+                    title = context.getString(R.string.dialog_no_session_found_title);
+                    message = context.getString(R.string.dialog_no_session_found_message);
+                    icon = applyTintFilter(
+                            ContextCompat.getDrawable(context, R.drawable.ic_info),
+                            context.getColor(R.color.secondaryColor));
+                    break;
+                case CORRUPTED_SESSION:
+                    title = context.getString(R.string.dialog_corrupted_session_title);
+                    message = context.getString(R.string.dialog_corrupted_session_message);
+                    icon = applyTintFilter(
+                            ContextCompat.getDrawable(context, R.drawable.ic_error),
+                            context.getColor(R.color.errorColor));
+                    break;
+            }
+
+            String finalTitle = title;
+            String finalMessage = message;
+            Drawable finalIcon = icon;
+            requireActivity().runOnUiThread(() -> dialog = new MaterialAlertDialogBuilder(context)
+                    .setTitle(finalTitle).setMessage(finalMessage).setIcon(finalIcon)
+                    .setPositiveButton(context.getString(R.string.dialog_quit_confirm), null)
+                    .show());
+        }, "SessionLoadingThread").start();
     }
 
     private void loadingVisibility(boolean show) {
         requireActivity().findViewById(R.id.general_loading_container)
                 .setVisibility(show ? View.VISIBLE : View.GONE);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (dialog != null && dialog.isShowing()) {
+            dialog.dismiss();
+        }
     }
 
     // Input filter to restrict number of backups input

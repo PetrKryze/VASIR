@@ -8,17 +8,11 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.google.android.material.snackbar.BaseTransientBottomBar;
-import com.google.android.material.snackbar.Snackbar;
 import com.petrkryze.vas.MainActivity;
 import com.petrkryze.vas.R;
-import com.petrkryze.vas.RatingManager;
-import com.petrkryze.vas.RatingResult;
 import com.petrkryze.vas.databinding.FragmentHelpBinding;
 
 import org.jetbrains.annotations.NotNull;
-
-import java.util.ArrayList;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -26,14 +20,12 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.NavDirections;
 import androidx.navigation.fragment.NavHostFragment;
 
-import static com.petrkryze.vas.MainActivity.html;
-
 /**
  * A simple {@link Fragment} subclass.
  * Use the {@link HelpFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class HelpFragment extends Fragment {
+public class HelpFragment extends VASFragment {
     private static final String KEY_HELP_TITLE = "help_title";
     private static final String KEY_HELP_CONTEXT_MSG = "help_body";
 
@@ -67,7 +59,7 @@ public class HelpFragment extends Fragment {
     @Override
     public View onCreateView(@NotNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        setHasOptionsMenu(true);
+        super.onCreateView(inflater, container, savedInstanceState);
         binding = FragmentHelpBinding.inflate(inflater, container, false);
         return binding.getRoot();
     }
@@ -102,60 +94,22 @@ public class HelpFragment extends Fragment {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         int itemID = item.getItemId();
         if (itemID == R.id.action_menu_show_saved_results) {
-            onShowSavedResults();
+            onShowSavedResults(results -> {
+                NavDirections directions =
+                        HelpFragmentDirections.actionHelpFragmentToResultFragment(results);
+                NavHostFragment.findNavController(this).navigate(directions);
+            });
             return true;
         } else if (itemID == R.id.action_menu_show_session_info) {
-            onShowSessionInfo();
+            onShowSessionInfo(session -> {
+                NavDirections directions = HelpFragmentDirections
+                        .actionHelpFragmentToCurrentSessionInfoFragment(session);
+                NavHostFragment.findNavController(HelpFragment.this).navigate(directions);
+            });
             return true;
         }
 
         return super.onOptionsItemSelected(item);
-    }
-
-    @SuppressLint("ShowToast")
-    private void onShowSavedResults() {
-        loadingVisibility(true);
-        new Thread(() -> { // Threading for slow loading times
-            try {
-                ArrayList<RatingResult> ratings = RatingManager.loadResults(requireContext());
-
-                requireActivity().runOnUiThread(() -> {
-                    loadingVisibility(false);
-                    NavDirections directions =
-                            HelpFragmentDirections.actionHelpFragmentToResultFragment(ratings);
-                    NavHostFragment.findNavController(this).navigate(directions);
-                });
-            } catch (Exception e) {
-                e.printStackTrace();
-
-                requireActivity().runOnUiThread(() -> {
-                    loadingVisibility(false);
-                    String message = html(getString(R.string.snackbar_ratings_loading_failed, e.getMessage()));
-                    Snackbar.make(requireActivity().findViewById(R.id.coordinator),
-                            message, BaseTransientBottomBar.LENGTH_LONG)
-                            .setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE).show();
-                });
-            }
-        }, "ResultsLoadingThread").start();
-    }
-
-    private void onShowSessionInfo() {
-        loadingVisibility(true);
-        new Thread(() ->
-                MainActivity.navigateToCurrentSessionInfo(this,
-                        session -> requireActivity().runOnUiThread(() -> {
-                            loadingVisibility(false);
-                            NavDirections directions = HelpFragmentDirections
-                                    .actionHelpFragmentToCurrentSessionInfoFragment(session);
-                            NavHostFragment.findNavController(HelpFragment.this)
-                                    .navigate(directions);
-                        })
-                ), "SessionLoadingThread").start();
-    }
-
-    private void loadingVisibility(boolean show) {
-        requireActivity().findViewById(R.id.general_loading_container)
-                .setVisibility(show ? View.VISIBLE : View.GONE);
     }
 
 }

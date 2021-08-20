@@ -25,17 +25,11 @@ import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.google.android.material.snackbar.BaseTransientBottomBar;
-import com.google.android.material.snackbar.Snackbar;
 import com.petrkryze.vas.MainActivity;
 import com.petrkryze.vas.R;
-import com.petrkryze.vas.RatingManager;
-import com.petrkryze.vas.RatingResult;
 import com.petrkryze.vas.databinding.FragmentWelcomeBinding;
 
 import org.jetbrains.annotations.NotNull;
-
-import java.util.ArrayList;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -46,14 +40,12 @@ import androidx.navigation.NavDirections;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.preference.PreferenceManager;
 
-import static com.petrkryze.vas.MainActivity.html;
-
 /**
  * A simple {@link Fragment} subclass.
  * Use the {@link WelcomeFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class WelcomeFragment extends Fragment {
+public class WelcomeFragment extends VASFragment {
 //    private static final String TAG = "WelcomeFragment";
 
     private FragmentWelcomeBinding binding;
@@ -77,14 +69,13 @@ public class WelcomeFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        loadingVisibility(true);
         preferences = PreferenceManager.getDefaultSharedPreferences(requireContext());
     }
 
     @Override
-    public View onCreateView(@NotNull LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        setHasOptionsMenu(true);
+    public View onCreateView(@NotNull LayoutInflater inflater, @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
+        super.onCreateView(inflater, container, savedInstanceState);
         binding = FragmentWelcomeBinding.inflate(inflater, container, false);
         return binding.getRoot();
     }
@@ -211,12 +202,6 @@ public class WelcomeFragment extends Fragment {
     }
 
     @Override
-    public void onStart() {
-        super.onStart();
-        loadingVisibility(false);
-    }
-
-    @Override
     public void onPrepareOptionsMenu(@NonNull Menu menu) {
         super.onPrepareOptionsMenu(menu);
         int[] toDisable = {R.id.action_menu_help, R.id.action_menu_save,
@@ -232,59 +217,21 @@ public class WelcomeFragment extends Fragment {
     public boolean onOptionsItemSelected(@NonNull @NotNull MenuItem item) {
         int itemID = item.getItemId();
         if (itemID == R.id.action_menu_show_saved_results) {
-            onShowSavedResults();
+            onShowSavedResults(results -> {
+                NavDirections directions =
+                        WelcomeFragmentDirections.actionWelcomeFragmentToResultFragment(results);
+                NavHostFragment.findNavController(this).navigate(directions);
+            });
             return true;
         } else if (itemID == R.id.action_menu_show_session_info) {
-            onShowSessionInfo();
+            onShowSessionInfo(session -> {
+                NavDirections directions =
+                        WelcomeFragmentDirections.actionWelcomeFragmentToCurrentSessionInfoFragment(session);
+                NavHostFragment.findNavController(WelcomeFragment.this).navigate(directions);
+            });
             return true;
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    @SuppressLint("ShowToast")
-    private void onShowSavedResults() {
-        loadingVisibility(true);
-        new Thread(() -> { // Threading for slow loading times
-            try {
-                ArrayList<RatingResult> ratings = RatingManager.loadResults(requireContext());
-
-                requireActivity().runOnUiThread(() -> {
-                    loadingVisibility(false);
-                    NavDirections directions =
-                            WelcomeFragmentDirections.actionWelcomeFragmentToResultFragment(ratings);
-                    NavHostFragment.findNavController(this).navigate(directions);
-                });
-            } catch (Exception e) {
-                e.printStackTrace();
-
-                requireActivity().runOnUiThread(() -> {
-                    loadingVisibility(false);
-                    String message = html(getString(R.string.snackbar_ratings_loading_failed, e.getMessage()));
-                    Snackbar.make(requireActivity().findViewById(R.id.coordinator),
-                            message, BaseTransientBottomBar.LENGTH_LONG)
-                            .setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE).show();
-                });
-            }
-        }, "ResultsLoadingThread").start();
-    }
-
-    private void onShowSessionInfo() {
-        loadingVisibility(true);
-        new Thread(() ->
-                MainActivity.navigateToCurrentSessionInfo(this,
-                        session -> requireActivity().runOnUiThread(() -> {
-                            loadingVisibility(false);
-                            NavDirections directions = WelcomeFragmentDirections
-                                    .actionWelcomeFragmentToCurrentSessionInfoFragment(session);
-                            NavHostFragment.findNavController(WelcomeFragment.this)
-                                    .navigate(directions);
-                        })
-                ), "SessionLoadingThread").start();
-    }
-
-    private void loadingVisibility(boolean show) {
-        requireActivity().findViewById(R.id.general_loading_container)
-                .setVisibility(show ? View.VISIBLE : View.GONE);
     }
 
 }

@@ -1,7 +1,6 @@
 package com.petrkryze.vas;
 
 import android.annotation.SuppressLint;
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
@@ -13,15 +12,14 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.petrkryze.vas.RatingManager.LoadResult;
 import com.petrkryze.vas.databinding.ActivityMainBinding;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.view.menu.MenuBuilder;
 import androidx.core.content.ContextCompat;
-import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.NavGraph;
 import androidx.navigation.NavInflater;
@@ -31,12 +29,12 @@ import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 import androidx.preference.PreferenceManager;
 
-import static com.petrkryze.vas.RatingManager.SESSION_INFO_LOADED_SESSION;
-
 public class MainActivity extends AppCompatActivity {
 
     private static int alphaDisabled;
     private static int alphaEnabled;
+
+    private AlertDialog dialog;
 
     // This stuff needs to be here to make the excel creation work
     static {
@@ -123,7 +121,7 @@ public class MainActivity extends AppCompatActivity {
             NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
             return NavigationUI.onNavDestinationSelected(item, navController);
         } else if (itemID == R.id.action_menu_quit) {
-            new MaterialAlertDialogBuilder(this)
+            dialog = new MaterialAlertDialogBuilder(this)
                     .setTitle(getString(R.string.dialog_quit_title))
                     .setMessage(getString(R.string.dialog_quit_message))
                     .setIcon(applyTintFilter(
@@ -144,41 +142,15 @@ public class MainActivity extends AppCompatActivity {
         menu.findItem(itemID).setEnabled(true).getIcon().setAlpha(alphaEnabled);
     }
 
-    public interface navigateToCSIInterface { void sailTheShip(Session session); }
-    public static void navigateToCurrentSessionInfo(Fragment fragment,
-                                                    navigateToCSIInterface callback) {
-        Context context = fragment.requireContext();
-        Bundle bundle = RatingManager.getSessionInfo(fragment.requireActivity());
-        String message = "";
-        String title = "";
-        Drawable icon = null;
-
-        switch ((LoadResult) bundle.getSerializable(RatingManager.GET_SESSION_INFO_LOAD_RESULT_KEY)) {
-            case OK:
-                callback.sailTheShip((Session) bundle.getSerializable(SESSION_INFO_LOADED_SESSION));
-                return;
-            case NO_SESSION:
-                title = context.getString(R.string.dialog_no_session_found_title);
-                message = context.getString(R.string.dialog_no_session_found_message);
-                icon = applyTintFilter(
-                        ContextCompat.getDrawable(context, R.drawable.ic_info),
-                        context.getColor(R.color.secondaryColor));
-                break;
-            case CORRUPTED_SESSION:
-                title = context.getString(R.string.dialog_corrupted_session_title);
-                message = context.getString(R.string.dialog_corrupted_session_message);
-                icon = applyTintFilter(
-                        ContextCompat.getDrawable(context, R.drawable.ic_error),
-                        context.getColor(R.color.errorColor));
-                break;
-        }
-        new MaterialAlertDialogBuilder(context)
-                .setTitle(title).setMessage(message).setIcon(icon)
-                .setPositiveButton(context.getString(R.string.dialog_quit_confirm), null).show();
-    }
-
     public static String html(String string) {
         return Html.fromHtml(string, Html.FROM_HTML_MODE_LEGACY).toString();
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (dialog != null && dialog.isShowing()) {
+            dialog.dismiss();
+        }
+    }
 }

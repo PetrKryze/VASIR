@@ -3,7 +3,6 @@ package com.petrkryze.vas.fragments;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.VibrationEffect;
-import android.os.Vibrator;
 import android.util.Log;
 import android.util.Pair;
 import android.view.LayoutInflater;
@@ -28,7 +27,6 @@ import java.util.ArrayList;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
 import androidx.navigation.NavDirections;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.DividerItemDecoration;
@@ -41,7 +39,7 @@ import static com.petrkryze.vas.fragments.RatingFragment.GROUP_CHECK_RESULT_REQU
 /**
  * A fragment representing a list of Items.
  */
-public class GroupControlFragment extends Fragment {
+public class GroupControlFragment extends VASFragment {
 
     private static final String TAG = "GroupControlFragment";
     public static final String GroupControlConfirmedKey = "groupControlConfirmedKey";
@@ -54,9 +52,6 @@ public class GroupControlFragment extends Fragment {
 
     private URI sourceRootURI;
     private ArrayList<GroupFolder> groupFolders;
-
-    private Vibrator vibrator;
-    public static int VIBRATE_BUTTON_MS;
 
     private final View.OnClickListener confirmListener = new View.OnClickListener() {
         @Override
@@ -118,28 +113,23 @@ public class GroupControlFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        loadingVisibility(true);
         if (getArguments() != null) {
             sourceRootURI = GroupControlFragmentArgs.fromBundle(getArguments()).getSourceRootUri();
             groupFolders = GroupControlFragmentArgs.fromBundle(getArguments()).getGroupFolders();
         }
-
-        vibrator = (Vibrator) requireContext().getSystemService(Context.VIBRATOR_SERVICE);
-        VIBRATE_BUTTON_MS = getResources().getInteger(R.integer.VIBRATE_BUTTON_MS);
 
         // Important! Set default return bundle, so it can signal there was no confirmation on exit
         // (navigateUp event) to the RatingManager and RatingFragment above in the hierarchy
         Bundle bundle = new Bundle();
         bundle.putBoolean(GroupControlConfirmedKey, false);
         bundle.putSerializable(GroupFolderListSerializedKey, null); // Technically unnecessary
-        getParentFragmentManager()
-                .setFragmentResult(GROUP_CHECK_RESULT_REQUEST_KEY, bundle);
+        getParentFragmentManager().setFragmentResult(GROUP_CHECK_RESULT_REQUEST_KEY, bundle);
     }
 
     @Override
     public View onCreateView(@NotNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        setHasOptionsMenu(true);
+        super.onCreateView(inflater, container, savedInstanceState);
         binding = FragmentGroupControlBinding.inflate(inflater, container, false);
         return binding.getRoot();
     }
@@ -165,8 +155,6 @@ public class GroupControlFragment extends Fragment {
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(context,
                 DividerItemDecoration.VERTICAL);
         groupFoldersListView.addItemDecoration(dividerItemDecoration);
-
-        loadingVisibility(false);
     }
 
     @Override
@@ -237,11 +225,6 @@ public class GroupControlFragment extends Fragment {
         }
 
         return super.onOptionsItemSelected(item);
-    }
-
-    private void loadingVisibility(boolean show) {
-        requireActivity().findViewById(R.id.general_loading_container)
-                .setVisibility(show ? View.VISIBLE : View.GONE);
     }
 
 }

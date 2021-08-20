@@ -10,7 +10,6 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.VibrationEffect;
-import android.os.Vibrator;
 import android.util.Log;
 import android.util.Pair;
 import android.util.TypedValue;
@@ -32,12 +31,10 @@ import com.google.android.material.snackbar.Snackbar;
 import com.petrkryze.vas.GroupFolder;
 import com.petrkryze.vas.MainActivity;
 import com.petrkryze.vas.R;
-import com.petrkryze.vas.RatingManager;
 import com.petrkryze.vas.RatingManager.DirectoryCheckError;
 import com.petrkryze.vas.RatingManager.LoadResult;
 import com.petrkryze.vas.RatingModel;
 import com.petrkryze.vas.RatingModel.SaveResultsCallback;
-import com.petrkryze.vas.RatingResult;
 import com.petrkryze.vas.Recording;
 import com.petrkryze.vas.Session;
 import com.petrkryze.vas.databinding.FragmentRatingBinding;
@@ -54,7 +51,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.core.widget.TextViewCompat;
-import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavDirections;
 import androidx.navigation.fragment.NavHostFragment;
@@ -73,7 +69,7 @@ import static com.petrkryze.vas.RatingModel.PLAYER_TRACK_RATING;
  * Created by Petr on 04.05.2021. Yay!
  */
 @SuppressLint("ShowToast")
-public class RatingFragment extends Fragment {
+public class RatingFragment extends VASFragment {
     private static final String TAG = "RatingFragment";
 
     private FragmentRatingBinding binding;
@@ -91,10 +87,6 @@ public class RatingFragment extends Fragment {
     private boolean initDone = false;
     private boolean creatingNewSession = false;
 
-    private Vibrator vibrator;
-    private static int VIBRATE_BUTTON_MS;
-    private static int VIBRATE_BUTTON_LONG_MS;
-    private static int VIBRATE_RATING_START_MS;
     private void vibrate(int length) {
         vibrator.vibrate(VibrationEffect.createOneShot(length, VibrationEffect.DEFAULT_AMPLITUDE));
     }
@@ -231,7 +223,7 @@ public class RatingFragment extends Fragment {
                     String fullPath = resultUri.getPath();
                     if (fullPath == null || fullPath.equals("")) { // Bad returned path somehow
                         creatingNewSession = false;
-                        new MaterialAlertDialogBuilder(RatingFragment.this.requireContext())
+                        dialog = new MaterialAlertDialogBuilder(RatingFragment.this.requireContext())
                                 .setTitle(RatingFragment.this.getString(R.string.dialog_internal_error_title))
                                 .setMessage(RatingFragment.this.getString(R.string.dialog_internal_error_message))
                                 .setIcon(applyTintFilter(
@@ -272,16 +264,8 @@ public class RatingFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        loadingVisibility(true);
-
         initDone = false;
         isTouchingSeekBar = false;
-
-        // Get vibrator service for UI vibration feedback
-        vibrator = (Vibrator) requireContext().getSystemService(Context.VIBRATOR_SERVICE);
-        VIBRATE_BUTTON_MS = getResources().getInteger(R.integer.VIBRATE_BUTTON_MS);
-        VIBRATE_BUTTON_LONG_MS = getResources().getInteger(R.integer.VIBRATE_LONG_CLICK_MS);
-        VIBRATE_RATING_START_MS = getResources().getInteger(R.integer.VIBRATE_RATING_BAR_START_MS);
 
         // Get colorPrimarySurface - resolve the ?attr
         TypedValue typedValue = new TypedValue();
@@ -304,7 +288,7 @@ public class RatingFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        setHasOptionsMenu(true);
+        super.onCreateView(inflater, container, savedInstanceState);
         binding = FragmentRatingBinding.inflate(inflater, container, false);
 
         // UI Elements setup
@@ -374,6 +358,13 @@ public class RatingFragment extends Fragment {
     }
 
     @Override
+    public void onStart() {
+        int loadingVisibility = requireActivity().findViewById(R.id.general_loading_container).getVisibility();
+        super.onStart();
+        loadingVisibility(loadingVisibility != View.VISIBLE);
+    }
+
+    @Override
     public void onDestroyView() {
         super.onDestroyView();
         binding = null;
@@ -433,7 +424,7 @@ public class RatingFragment extends Fragment {
             String finalTitle = title;
             String finalMessage = message;
             Drawable finalIcon = icon;
-            new MaterialAlertDialogBuilder(requireContext())
+            dialog = new MaterialAlertDialogBuilder(requireContext())
                     .setTitle(finalTitle)
                     .setMessage(finalMessage)
                     .setIcon(finalIcon)
@@ -619,7 +610,7 @@ public class RatingFragment extends Fragment {
         }
 
         String finalMessage = message;
-        new MaterialAlertDialogBuilder(requireContext())
+        dialog = new MaterialAlertDialogBuilder(requireContext())
                 .setTitle(getString(R.string.dialog_invalid_directory_title))
                 .setMessage(finalMessage)
                 .setIcon(applyTintFilter(
@@ -674,7 +665,6 @@ public class RatingFragment extends Fragment {
     @Override
     public void onPause() {
         super.onPause();
-        Log.i(TAG, "onPause: ");
         model.onPausePlayer();
 
         // Saves the session on every Pause occasion (change app, phone lock, change screen, ...)
@@ -685,10 +675,10 @@ public class RatingFragment extends Fragment {
 
     @Override
     public void onDestroy() {
-        Log.i(TAG, "onDestroy: ");
         super.onDestroy();
-        // Saves the results to the .txt file in memory if the rating is in a finished state
-        if (model.isSessionFinished()) model.saveResults(requireContext(), null);
+        if (model != null && model.isSessionFinished()) { // Failsafe
+            model.saveResults(requireContext(), null);
+        }
 
         vibrator = null;
         initDone = false;
@@ -733,10 +723,18 @@ public class RatingFragment extends Fragment {
             });
             return true;
         } else if (itemID == R.id.action_menu_show_saved_results && initDone) {
-            onShowSavedResults();
+            onShowSavedResults(results -> {
+                NavDirections directions =
+                        RatingFragmentDirections.actionRatingFragmentToResultFragment(results);
+                NavHostFragment.findNavController(this).navigate(directions);
+            });
             return true;
         } else if (itemID == R.id.action_menu_show_session_info && initDone) {
-            onShowSessionInfo();
+            onShowSessionInfo(session -> {
+                NavDirections directions = RatingFragmentDirections
+                        .actionRatingFragmentToCurrentSessionInfoFragment(session);
+                NavHostFragment.findNavController(RatingFragment.this).navigate(directions);
+            });
             return true;
         } else if (itemID == R.id.action_menu_new_session && initDone) {
             onNewSession();
@@ -745,49 +743,8 @@ public class RatingFragment extends Fragment {
         return super.onOptionsItemSelected(item);
     }
 
-    @SuppressLint("ShowToast")
-    private void onShowSavedResults() {
-        loadingVisibility(true);
-        new Thread(() -> { // Threading for slow loading times
-            try {
-                ArrayList<RatingResult> ratings = RatingManager.loadResults(requireContext());
-
-                requireActivity().runOnUiThread(() -> {
-                    loadingVisibility(false);
-                    NavDirections directions =
-                            RatingFragmentDirections.actionRatingFragmentToResultFragment(ratings);
-                    NavHostFragment.findNavController(this).navigate(directions);
-                });
-            } catch (Exception e) {
-                e.printStackTrace();
-
-                requireActivity().runOnUiThread(() -> {
-                    loadingVisibility(false);
-                    String message = html(getString(R.string.snackbar_ratings_loading_failed, e.getMessage()));
-                    Snackbar.make(requireActivity().findViewById(R.id.coordinator),
-                            message, BaseTransientBottomBar.LENGTH_LONG)
-                            .setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE).show();
-                });
-            }
-        }, "ResultsLoadingThread").start();
-    }
-
-    private void onShowSessionInfo() {
-        loadingVisibility(true);
-        new Thread(() ->
-                MainActivity.navigateToCurrentSessionInfo(this,
-                        session -> requireActivity().runOnUiThread(() -> {
-                            loadingVisibility(false);
-                            NavDirections directions = RatingFragmentDirections
-                                    .actionRatingFragmentToCurrentSessionInfoFragment(session);
-                            NavHostFragment.findNavController(RatingFragment.this)
-                                    .navigate(directions);
-                        })
-                ), "SessionLoadingThread").start();
-    }
-
     private void onNewSession() {
-        new MaterialAlertDialogBuilder(requireContext())
+        dialog = new MaterialAlertDialogBuilder(requireContext())
                 .setTitle(getString(R.string.dialog_make_new_session_title))
                 .setMessage(getString(R.string.dialog_make_new_session_message))
                 .setIcon(applyTintFilter(
@@ -830,7 +787,7 @@ public class RatingFragment extends Fragment {
                 getString(R.string.dialog_save_failed_continue_error_unknown) : errorMessage);
         String message = html(getString(R.string.dialog_save_failed_continue_message, errorString));
         loadingVisibility(false);
-        new MaterialAlertDialogBuilder(requireContext())
+        dialog = new MaterialAlertDialogBuilder(requireContext())
                 .setTitle(getString(R.string.dialog_save_failed_continue_title))
                 .setMessage(message)
                 .setIcon(applyTintFilter(
@@ -855,8 +812,4 @@ public class RatingFragment extends Fragment {
         }
     }
 
-    private void loadingVisibility(boolean show) {
-        requireActivity().findViewById(R.id.general_loading_container)
-                .setVisibility(show ? View.VISIBLE : View.GONE);
-    }
 }

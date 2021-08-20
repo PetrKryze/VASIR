@@ -257,7 +257,7 @@
             android:layout_marginBottom="10dp"
 
             android:backgroundTint="@color/excelGreen"
-            android:textColor="@color/textPrimaryOnSecondary"
+            android:textColor="@color/textPrimaryOnPrimary"
             android:text="@string/button_share_as_excel_label"
 
             app:layout_constraintBottom_toBottomOf="parent"

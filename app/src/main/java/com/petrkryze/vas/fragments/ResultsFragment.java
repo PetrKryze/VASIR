@@ -1,15 +1,11 @@
 package com.petrkryze.vas.fragments;
 
 import android.annotation.SuppressLint;
-import android.content.ClipData;
-import android.content.ClipDescription;
 import android.content.Context;
-import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.VibrationEffect;
-import android.os.Vibrator;
 import android.util.Log;
 import android.util.Pair;
 import android.view.LayoutInflater;
@@ -43,7 +39,6 @@ import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
-import androidx.fragment.app.Fragment;
 import androidx.navigation.NavDirections;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.DividerItemDecoration;
@@ -56,7 +51,7 @@ import static com.petrkryze.vas.MainActivity.applyTintFilter;
  * A fragment representing a list of Items.
  */
 @SuppressLint("ShowToast")
-public class ResultsFragment extends Fragment {
+public class ResultsFragment extends VASFragment {
     private static final String TAG = "ResultFragment";
     public static final String ResultListSerializedKey = "resultsList";
 
@@ -76,10 +71,8 @@ public class ResultsFragment extends Fragment {
     private Handler handler;
     private boolean isExcelSharing = false;
     private boolean isTextSharing = false;
-
-    private Vibrator vibrator;
-    private static int VIBRATE_BUTTON_MS;
-    private static int VIBRATE_BUTTON_LONG_MS;
+    private Thread excelThread;
+    private Thread textThread;
 
     private final View.OnClickListener shareAllListener = new View.OnClickListener() {
         @Override
@@ -106,10 +99,10 @@ public class ResultsFragment extends Fragment {
                         VIBRATE_BUTTON_MS, VibrationEffect.DEFAULT_AMPLITUDE));
 
                 // Do work in separate thread
-                Thread textThread = new Thread(() -> {
+                textThread = new Thread(() -> {
                     isTextSharing = true;
                     ArrayList<Uri> uris = new ArrayList<>();
-                    for (RatingResult r : ratingResults) {
+                    for (RatingResult r : new ArrayList<>(ratingResults)) {
                         File resultFile = new File(r.getPath());
                         try {
                             uris.add(FileProvider.getUriForFile(
@@ -121,15 +114,17 @@ public class ResultsFragment extends Fragment {
                         }
                     }
 
-                    if (uris.isEmpty()) {
-                        requireActivity().runOnUiThread(() ->
-                                Snackbar.make(requireActivity().findViewById(R.id.coordinator),
-                                R.string.snackbar_share_all_text_failed, BaseTransientBottomBar.LENGTH_LONG)
-                                .setAnchorView(buttonBar)
-                                .setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE)
-                                .show());
-                    } else {
-                        startShareActivity(uris);
+                    if (!Thread.currentThread().isInterrupted() || getActivity() != null) {
+                        if (uris.isEmpty()) {
+                            requireActivity().runOnUiThread(() ->
+                                    Snackbar.make(requireActivity().findViewById(R.id.coordinator),
+                                            R.string.snackbar_share_all_text_failed, BaseTransientBottomBar.LENGTH_LONG)
+                                            .setAnchorView(buttonBar)
+                                            .setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE)
+                                            .show());
+                        } else {
+                            startShareActivity(uris);
+                        }
                     }
                 });
 
@@ -153,10 +148,10 @@ public class ResultsFragment extends Fragment {
                         VIBRATE_BUTTON_MS, VibrationEffect.DEFAULT_AMPLITUDE));
 
                 // Do work in separate thread
-                Thread excelThread = new Thread(() -> {
+                excelThread = new Thread(() -> {
                     isExcelSharing = true;
                     ArrayList<Uri> uris = new ArrayList<>();
-                    for (RatingResult result : ratingResults) {
+                    for (RatingResult result : new ArrayList<>(ratingResults)) {
                         try {
                             File excelFile = ExcelUtils.makeExcelFile(context, result);
                             uris.add(FileProvider.getUriForFile(
@@ -172,15 +167,17 @@ public class ResultsFragment extends Fragment {
                         }
                     }
 
-                    if (uris.isEmpty()) {
-                        requireActivity().runOnUiThread(() ->
-                                Snackbar.make(requireActivity().findViewById(R.id.coordinator),
-                                R.string.snackbar_share_all_excel_failed, BaseTransientBottomBar.LENGTH_LONG)
-                                .setAnchorView(buttonBar)
-                                .setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE)
-                                .show());
-                    } else {
-                        startShareActivity(uris);
+                    if (!Thread.currentThread().isInterrupted() || getActivity() != null) {
+                        if (uris.isEmpty()) {
+                            requireActivity().runOnUiThread(() ->
+                                    Snackbar.make(requireActivity().findViewById(R.id.coordinator),
+                                            R.string.snackbar_share_all_excel_failed, BaseTransientBottomBar.LENGTH_LONG)
+                                            .setAnchorView(buttonBar)
+                                            .setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE)
+                                            .show());
+                        } else {
+                            startShareActivity(uris);
+                        }
                     }
                 });
 
@@ -266,16 +263,13 @@ public class ResultsFragment extends Fragment {
             ratingResults.sort(RatingResult.sortChronologically);
         }
 
-        vibrator = (Vibrator) requireContext().getSystemService(Context.VIBRATOR_SERVICE);
-        VIBRATE_BUTTON_MS = getResources().getInteger(R.integer.VIBRATE_BUTTON_MS);
-        VIBRATE_BUTTON_LONG_MS = getResources().getInteger(R.integer.VIBRATE_LONG_CLICK_MS);
         this.handler = new Handler();
     }
 
     @Override
     public View onCreateView(@NotNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        setHasOptionsMenu(true);
+        super.onCreateView(inflater, container, savedInstanceState);
         binding = FragmentResultsBinding.inflate(inflater, container, false);
         return binding.getRoot();
     }
@@ -321,33 +315,6 @@ public class ResultsFragment extends Fragment {
         }
     }
 
-    private void startShareActivity(ArrayList<Uri> uris) {
-        String mimeType = "text/plain";
-        String[] mimeTypeArray = new String[] { mimeType };
-
-        ArrayList<ClipData.Item> items = new ArrayList<>();
-        for (Uri uri : uris) items.add(new ClipData.Item(uri));
-
-        ClipDescription clipDescription = new ClipDescription(getString(R.string.result_share_title), mimeTypeArray);
-        ClipData clipData = new ClipData(clipDescription, items.get(0));
-        items.remove(0);
-        for (ClipData.Item item : items) clipData.addItem(item);
-
-        // Note possible duplicate mimetype and data declaration, maybe fix when ClipData framework
-        // is not a complete joke
-        Intent sharingIntent = new Intent(Intent.ACTION_SEND_MULTIPLE);
-        sharingIntent.setClipData(clipData);
-        sharingIntent.setType(mimeType)
-                .addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
-                .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                .putParcelableArrayListExtra(Intent.EXTRA_STREAM, uris)
-                .putExtra(Intent.EXTRA_TITLE, getString(R.string.result_share_title, uris.size()))
-                .putExtra(Intent.EXTRA_SUBJECT, getString(R.string.result_share_title, uris.size()));
-
-        requireContext().startActivity(Intent.createChooser(sharingIntent,
-                requireContext().getString(R.string.share_using)));
-    }
-
     private Pair<Boolean, String> deleteResult(RatingResult toDelete) {
         try {
             Files.delete(new File(toDelete.getPath()).toPath());
@@ -362,12 +329,6 @@ public class ResultsFragment extends Fragment {
     public interface OnItemDetailListener {
         void onItemClick(RatingResult selectedResult);
         boolean onItemLongClick(RatingResult selectedResult, int position);
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        loadingVisibility(false);
     }
 
     @Override
@@ -404,6 +365,17 @@ public class ResultsFragment extends Fragment {
     }
 
     @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (textThread != null && textThread.isAlive()) {
+            textThread.interrupt();
+        }
+        if (excelThread != null && excelThread.isAlive()) {
+            excelThread.interrupt();
+        }
+    }
+
+    @Override
     public void onDestroyView() {
         super.onDestroyView();
         binding = null;
@@ -433,28 +405,14 @@ public class ResultsFragment extends Fragment {
             NavHostFragment.findNavController(this).navigate(directions);
             return true;
         } else if (itemID == R.id.action_menu_show_session_info) {
-            onShowSessionInfo();
+            onShowSessionInfo(session -> {
+                NavDirections directions = ResultsFragmentDirections
+                        .actionResultFragmentToCurrentSessionInfoFragment(session);
+                NavHostFragment.findNavController(ResultsFragment.this).navigate(directions);
+            });
             return true;
         }
         return super.onOptionsItemSelected(item);
     }
 
-    private void onShowSessionInfo() {
-        loadingVisibility(true);
-        new Thread(() ->
-                MainActivity.navigateToCurrentSessionInfo(this,
-                        session -> requireActivity().runOnUiThread(() -> {
-                            loadingVisibility(false);
-                            NavDirections directions = ResultsFragmentDirections
-                                    .actionResultFragmentToCurrentSessionInfoFragment(session);
-                            NavHostFragment.findNavController(ResultsFragment.this)
-                                    .navigate(directions);
-                        })
-                ), "SessionLoadingThread").start();
-    }
-
-    private void loadingVisibility(boolean show) {
-        requireActivity().findViewById(R.id.general_loading_container)
-                .setVisibility(show ? View.VISIBLE : View.GONE);
-    }
 }

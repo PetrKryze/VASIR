@@ -1,13 +1,17 @@
 package com.petrkryze.vas;
 
+import android.annotation.SuppressLint;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 
 import androidx.annotation.NonNull;
@@ -42,17 +46,6 @@ public class RatingResult implements Serializable {
         this.recordingList = session.getRecordingList();
 
         this.path = session.getRatingResultFilePath();
-    }
-
-    public RatingResult(int sessionID, long seed, String generatorMessage, String saveDate,
-                        List<Recording> recordingList, String path) {
-        this.sessionID = sessionID;
-        this.seed = seed;
-        this.generatorMessage = generatorMessage;
-        this.saveDate = saveDate;
-        this.recordingList = recordingList;
-
-        this.path = path;
     }
 
     public RatingResult(File resultsTextFile) throws Exception {
@@ -122,8 +115,15 @@ public class RatingResult implements Serializable {
         return generatorMessage;
     }
 
+    @SuppressLint("SimpleDateFormat")
     public String getSaveDate() {
-        return saveDate;
+        if (saveDate == null || saveDate.equals("")) {
+            Date currentDateTime = new Date(System.currentTimeMillis());
+            SimpleDateFormat dateFormatText = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+            return dateFormatText.format(currentDateTime);
+        } else {
+            return saveDate;
+        }
     }
 
     public List<Recording> getRecordingList() {
