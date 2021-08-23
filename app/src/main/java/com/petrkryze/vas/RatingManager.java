@@ -58,7 +58,7 @@ public class RatingManager {
 
     public static final char separator = ';';
     public static final char headerTag = '#';
-    private static final String[] SUPPORTED_EXTENSIONS = {"wav","mp3"};
+    private static final String[] SUPPORTED_EXTENSIONS = {"wav","mp3","aac","flac","m4a","ogg","opus"};
 
     private static final String TAG = "RatingManager";
 
