@@ -136,13 +136,17 @@
         tools:layout="@layout/fragment_help" >
 
         <argument
-            android:name="context__body"
-            app:argType="string"
-            />
-        <argument
             android:name="context_title"
             app:argType="string"
             />
+        <argument
+            android:name="context_descriptions"
+            app:argType="string[]" />
+        <argument
+            android:name="context_body"
+            app:argType="string"
+            />
+
         <action
             android:id="@+id/action_helpFragment_to_currentSessionInfoFragment"
             app:destination="@id/currentSessionInfoFragment"
@@ -157,6 +161,9 @@
             app:exitAnim="@anim/fade_out_medium"
             app:popEnterAnim="@anim/fade_in_medium"
             app:popExitAnim="@anim/slide_out_to_right" />
+        <argument
+            android:name="context_image_resource"
+            app:argType="integer" />
     </fragment>
 
     <fragment
@@ -216,5 +223,8 @@
         <action
             android:id="@+id/action_action_menu_settings_to_result_fragment"
             app:destination="@id/result_fragment" />
+        <action
+            android:id="@+id/action_action_menu_settings_to_helpFragment"
+            app:destination="@id/helpFragment" />
     </fragment>
 </navigation>
