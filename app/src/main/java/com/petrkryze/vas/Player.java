@@ -69,7 +69,7 @@ public class Player {
         void onVolumeDown();
         void onTimeTick(int tick_ms);
         void onUpdateProgress(int current_ms);
-        void onError();
+        void onError(int what, int extra);
     }
 
     public Player(Context context, final PlayerListener listener) {
@@ -110,7 +110,7 @@ public class Player {
         mediaPlayer.setOnErrorListener((mp, what, extra) -> {
             state = State.ERROR;
             Log.e(TAG, "Player: Error! Reseting the player.");
-            listener.onError();
+            listener.onError(what, extra);
             return true;
         });
         state = State.IDLE;

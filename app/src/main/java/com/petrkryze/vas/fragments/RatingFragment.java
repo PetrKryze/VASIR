@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.drawable.Drawable;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.VibrationEffect;
@@ -242,8 +243,6 @@ public class RatingFragment extends VASFragment {
                 } else {
                     Log.d(TAG, "onActivityResult: User left the directory selection activity without selecting.");
                     RatingFragment.this.fireSessionCreationCancelled();
-                    creatingNewSession = false;
-                    model.loadSession();
                 }
             }
     );
@@ -351,17 +350,16 @@ public class RatingFragment extends VASFragment {
         model.getPlayerVolumeDown().observe(getViewLifecycleOwner(), aBoolean -> onPlayerVolumeDown());
         model.getPlayerTimeTick().observe(getViewLifecycleOwner(), time -> onPlayerTimeTick((Integer) time));
         model.getPlayerProgress().observe(getViewLifecycleOwner(), currentMs -> onPlayerProgressUpdate((Integer) currentMs));
-        model.getPlayerError().observe(getViewLifecycleOwner(), aBoolean -> onPlayerError());
+        model.getPlayerError().observe(getViewLifecycleOwner(), o -> {
+            @SuppressWarnings("unchecked")
+            Pair<Integer, Integer> error = (Pair<Integer, Integer>) o;
+            onPlayerError(error.first, error.second);
+        });
 
-        // Normal startup
-        model.loadSession();
-    }
-
-    @Override
-    public void onStart() {
-        int loadingVisibility = requireActivity().findViewById(R.id.general_loading_container).getVisibility();
-        super.onStart();
-        loadingVisibility(loadingVisibility != View.VISIBLE);
+        if (!creatingNewSession) {
+            // Normal startup
+            model.loadSession();
+        }
     }
 
     @Override
@@ -391,49 +389,51 @@ public class RatingFragment extends VASFragment {
     }
 
     private void onSessionLoaded(Session session) {
-        if (session != null) { // Session loaded
-            model.checkDirectoryFromSession(requireContext(), session);
-        } else { // Session loading failed
-            LoadResult loadResult = model.getSessionLoadResult();
+        if (!creatingNewSession) {
+            if (session != null) { // Session loaded
+                model.checkDirectoryFromSession(requireContext(), session);
+            } else { // Session loading failed
+                LoadResult loadResult = model.getSessionLoadResult();
 
-            String message = "";
-            String title = "";
-            Drawable icon = null;
+                String message = "";
+                String title = "";
+                Drawable icon = null;
 
-            switch (loadResult) {
-                case OK: return; // This option will not happen with session == null
-                case NO_SESSION:
-                    title = getString(R.string.dialog_no_session_found_title);
-                    message = getString(R.string.dialog_no_session_found_message);
-                    icon = applyTintFilter(
-                            ContextCompat.getDrawable(requireContext(), R.drawable.ic_info),
-                            requireContext().getColor(R.color.secondaryColor));
-                    break;
-                case CORRUPTED_SESSION:
-                    title = getString(R.string.dialog_corrupted_session_title);
-                    message = getString(R.string.dialog_corrupted_session_message);
-                    icon = applyTintFilter(
-                            ContextCompat.getDrawable(requireContext(), R.drawable.ic_error),
-                            requireContext().getColor(R.color.errorColor));
-                    break;
+                switch (loadResult) {
+                    case OK: return; // This option will not happen with session == null
+                    case NO_SESSION:
+                        title = getString(R.string.dialog_no_session_found_title);
+                        message = getString(R.string.dialog_no_session_found_message);
+                        icon = applyTintFilter(
+                                ContextCompat.getDrawable(requireContext(), R.drawable.ic_info),
+                                requireContext().getColor(R.color.secondaryColor));
+                        break;
+                    case CORRUPTED_SESSION:
+                        title = getString(R.string.dialog_corrupted_session_title);
+                        message = getString(R.string.dialog_corrupted_session_message);
+                        icon = applyTintFilter(
+                                ContextCompat.getDrawable(requireContext(), R.drawable.ic_error),
+                                requireContext().getColor(R.color.errorColor));
+                        break;
+                }
+
+                // This branch is finished here, hide the loading view
+                loadingVisibility(false);
+
+                String finalTitle = title;
+                String finalMessage = message;
+                Drawable finalIcon = icon;
+                dialog = new MaterialAlertDialogBuilder(requireContext())
+                        .setTitle(finalTitle)
+                        .setMessage(finalMessage)
+                        .setIcon(finalIcon)
+                        .setPositiveButton(R.string.dialog_no_session_corrupted_session_create_new_session,
+                                // Go select directory and check it afterwards
+                                (dialog, which) -> fireSelectDirectory())
+                        .setNegativeButton(R.string.dialog_no_session_corrupted_session_quit,
+                                (dialog, which) -> requireActivity().finish())
+                        .setCancelable(false).show();
             }
-
-            // This branch is finished here, hide the loading view
-            loadingVisibility(false);
-
-            String finalTitle = title;
-            String finalMessage = message;
-            Drawable finalIcon = icon;
-            dialog = new MaterialAlertDialogBuilder(requireContext())
-                    .setTitle(finalTitle)
-                    .setMessage(finalMessage)
-                    .setIcon(finalIcon)
-                    .setPositiveButton(R.string.dialog_no_session_corrupted_session_create_new_session,
-                            // Go select directory and check it afterwards
-                            (dialog, which) -> fireSelectDirectory())
-                    .setNegativeButton(R.string.dialog_no_session_corrupted_session_quit,
-                            (dialog, which) -> requireActivity().finish())
-                    .setCancelable(false).show();
         }
     }
 
@@ -476,8 +476,10 @@ public class RatingFragment extends VASFragment {
     private void onGroupCheckCancelled() {
         Log.d(TAG, "onGroupCheckCancelled: Group check exited via cancel");
         creatingNewSession = false;
-        fireSessionCreationCancelled();
-        model.loadSession(); // Cycle back to the session check
+        Snackbar.make(requireActivity().findViewById(R.id.coordinator),
+                getString(R.string.snackbar_directory_check_canceled),
+                BaseTransientBottomBar.LENGTH_SHORT)
+                .setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE).show();
     }
 
     private void onSessionPrepared() {
@@ -576,13 +578,52 @@ public class RatingFragment extends VASFragment {
         }
     }
 
-    private void onPlayerError() {
-        Snackbar.make(requireActivity().findViewById(R.id.coordinator),
-                getString(R.string.snackbar_player_error),
-                BaseTransientBottomBar.LENGTH_LONG)
-                .setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE).show();
+    private void onPlayerError(int what, int extra) {
+        StringBuilder sb = new StringBuilder();
 
-        model.changeTrackToFirst(requireContext());
+        switch (what) {
+            case MediaPlayer.MEDIA_ERROR_UNKNOWN: break;
+            case MediaPlayer.MEDIA_ERROR_SERVER_DIED:
+                sb.append(getString(R.string.player_error_server_died)).append(": "); break;
+            default: sb.append(getString(R.string.player_error_unknown)).append(": ");
+        }
+
+        switch (extra) {
+            case MediaPlayer.MEDIA_ERROR_TIMED_OUT: sb.append(getString(R.string.player_error_timeout)); break;
+            case MediaPlayer.MEDIA_ERROR_IO: sb.append(getString(R.string.player_error_io)); break;
+            case MediaPlayer.MEDIA_ERROR_UNSUPPORTED: sb.append(getString(R.string.player_error_unsupported)); break;
+            case MediaPlayer.MEDIA_ERROR_MALFORMED: sb.append(getString(R.string.player_error_malformed)); break;
+            default: sb.append(getString(R.string.player_error_unknown));
+        }
+
+        String message;
+        Runnable action;
+        if (what == MediaPlayer.MEDIA_ERROR_SERVER_DIED) { // We need to release and load player again
+            message = getString(R.string.dialog_player_error_reset, sb.toString());
+            action = () -> model.resetPlayer(requireContext());
+            model.resetPlayer(requireContext());
+        } else if (extra == MediaPlayer.MEDIA_ERROR_UNSUPPORTED) {
+            if (model.changeToValid(requireContext())) {
+                message = getString(R.string.dialog_player_error, sb.toString());
+                action = null;
+            } else { // Total corner case, just one file and it is not supported
+                message = getString(R.string.dialog_player_error_only_one_file_not_supported);
+                action = this::fireSelectDirectory;
+            }
+        } else {
+            message = getString(R.string.dialog_player_error_refresh, sb.toString());
+            action = () -> model.changeTrackToPointer(requireContext());
+        }
+
+        dialog = new MaterialAlertDialogBuilder(requireContext())
+                .setTitle(getString(R.string.dialog_player_error_title))
+                .setMessage(message)
+                .setIcon(applyTintFilter(
+                        ContextCompat.getDrawable(requireContext(), R.drawable.ic_error),
+                        requireContext().getColor(R.color.errorColor)))
+                .setPositiveButton(getString(R.string.dialog_player_error_confirm), (dialog, which) -> {
+                    if (action != null) action.run();
+                }).setCancelable(false).show();
     }
 
     public void fireSelectDirectory() {
@@ -629,10 +670,12 @@ public class RatingFragment extends VASFragment {
     }
 
     private void fireSessionCreationCancelled() {
+        creatingNewSession = false;
         Snackbar.make(requireActivity().findViewById(R.id.coordinator),
                 getString(R.string.snackbar_directory_selection_canceled),
                 BaseTransientBottomBar.LENGTH_SHORT)
                 .setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE).show();
+        model.loadSession(); // Cycle back to the session check
     }
 
     private void setCheckMarkDrawable(int rating) {
@@ -701,13 +744,7 @@ public class RatingFragment extends VASFragment {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         int itemID = item.getItemId();
         if (itemID == R.id.action_menu_help && initDone) {
-            String contextHelpMessage = getString(R.string.help_context_body_rating_fragment);
-            String contextHelpTitle = getString(R.string.help_context_title_rating_fragment);
-
-            NavDirections directions =
-                    RatingFragmentDirections.
-                            actionRatingFragmentToHelpFragment(contextHelpMessage, contextHelpTitle);
-            NavHostFragment.findNavController(this).navigate(directions);
+            onShowHelp();
             return true;
         } else if (itemID == R.id.action_menu_save && initDone) {
             model.saveResults(requireContext(), new SaveResultsCallback() {
@@ -744,6 +781,17 @@ public class RatingFragment extends VASFragment {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void onShowHelp() {
+        String contextHelpTitle = getString(R.string.help_context_title_rating_fragment);
+        String[] contextHelpDescriptions = getResources().getStringArray(R.array.help_tag_description_rating_fragment);
+        String contextHelpBody = getString(R.string.help_context_body_rating_fragment);
+
+        NavDirections directions = RatingFragmentDirections.
+                actionRatingFragmentToHelpFragment(contextHelpTitle, contextHelpDescriptions,
+                        contextHelpBody, R.drawable.help_screen_rating_fragment);
+        NavHostFragment.findNavController(this).navigate(directions);
     }
 
     private void onNewSession() {

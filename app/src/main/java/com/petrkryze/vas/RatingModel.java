@@ -50,7 +50,7 @@ public class RatingModel extends AndroidViewModel {
     private final MutableEventLiveData<Boolean> playerVolumeDown = new MutableEventLiveData<>();
     private final MutableEventLiveData<Integer> playerTimeTick = new MutableEventLiveData<>();
     private final MutableEventLiveData<Integer> playerProgress = new MutableEventLiveData<>();
-    private final MutableEventLiveData<Boolean> playerError = new MutableEventLiveData<>();
+    private final MutableEventLiveData<Pair<Integer, Integer>> playerError = new MutableEventLiveData<>();
 
     public RatingModel(@NonNull Application application) {
         super(application);
@@ -120,7 +120,7 @@ public class RatingModel extends AndroidViewModel {
         return playerProgress;
     }
 
-    public EventLiveData<Boolean> getPlayerError() {
+    public EventLiveData<Pair<Integer, Integer>> getPlayerError() {
         return playerError;
     }
 
@@ -134,6 +134,8 @@ public class RatingModel extends AndroidViewModel {
                 this.sessionLoadResult = loadResult.first;
                 currentSession.postValue(loadResult.second);
             }, "SessionLoadingThread").start();
+        } else {
+            currentSession.postValue(session);
         }
     }
 
@@ -384,10 +386,35 @@ public class RatingModel extends AndroidViewModel {
             }
 
             @Override
-            public void onError() {
-                playerError.postValue(true);
+            public void onError(int what, int extra) {
+                playerError.postValue(Pair.create(what, extra));
             }
         };
+    }
+
+    public void resetPlayer(Context context) {
+        if (player != null) player.clean(); player = null;
+
+        player = new Player(context, getPlayerListener());
+        changeTrackToFirst(context);
+    }
+
+    public boolean changeToValid(Context context) {
+        int pointer = session().getTrackPointer();
+        int trackN = session().getTrackN();
+
+        if (trackN == 1) { // Fuck, only one track, nowhere to go
+            return false;
+        } else { // trackN > 1, More than one track
+            if (pointer == 0) { // First in list, must switch to second
+                changeCurrentTrack(context, 1);
+                session().trackToFirst();
+                session().trackIncrement();
+            } else { // Anywhere else, switch to previous
+                decrementTrack(context);
+            }
+            return true;
+        }
     }
 
     @Override
