@@ -39,7 +39,7 @@
                     android:layout_height="wrap_content"
                     android:padding="16dp"
 
-                    android:text="@string/help"
+                    android:text="@string/help_header_placeholder"
                     android:textColor="@color/textOnPrimaryDarkSurface"
 
                     app:layout_constraintBottom_toBottomOf="parent"
@@ -78,18 +78,35 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/help_header_container" />
 
-            <TextView
-                android:id="@+id/help_body_textview1"
+            <ImageView
+                android:id="@+id/help_imageview"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginHorizontal="70dp"
+
+                android:background="@color/textPrimaryOnSurface"
+                android:padding="2dp"
+                android:adjustViewBounds="true"
+                android:src="@drawable/help_screen_rating_fragment"
+
+                app:layout_constraintTop_toBottomOf="@id/help_divider1"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:contentDescription="@string/help_tag_description_content_description" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/help_imageview_descriptions"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
 
-                android:justificationMode="inter_word"
-                android:text="@string/help_message1"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                tools:listitem="@layout/help_imageview_description_row"
 
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/help_divider1" />
+                app:layout_constraintTop_toBottomOf="@id/help_imageview" />
 
             <LinearLayout
                 android:id="@+id/help_divider2"
@@ -103,17 +120,16 @@
 
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/help_body_textview1" />
+                app:layout_constraintTop_toBottomOf="@id/help_imageview_descriptions" />
 
             <TextView
-                android:id="@+id/help_body_textview2"
+                android:id="@+id/help_body_textview"
                 style="@style/TextAppearance.MdcTypographyStyles.Body2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
 
-                android:justificationMode="inter_word"
-                android:text="@string/help_message2"
+                android:text="@string/help_message2_placeholder"
 
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
