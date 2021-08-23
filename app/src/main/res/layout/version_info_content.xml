@@ -23,7 +23,7 @@
         android:id="@+id/version_info_content_text1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/version_info_dialog_text1_placeholder"
+        android:text="@string/dialog_version_info_text1_placeholder"
 
         android:gravity="center_horizontal"
         android:textAppearance="@style/TextAppearance.MdcTypographyStyles.Headline4"
@@ -38,7 +38,7 @@
         android:id="@+id/version_info_content_text2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/version_info_dialog_text2_placeholder"
+        android:text="@string/dialog_version_info_text2_placeholder"
 
         android:gravity="center_horizontal"
 

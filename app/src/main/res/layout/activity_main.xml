@@ -23,7 +23,7 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
 
-            app:title="@string/main_title_placeholder"
+            app:title="@string/rating_title_placeholder"
             app:menu="@menu/toolbar_menu" />
 
     </com.google.android.material.appbar.AppBarLayout>
