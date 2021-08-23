@@ -10,15 +10,21 @@ import android.view.ViewGroup;
 
 import com.petrkryze.vas.MainActivity;
 import com.petrkryze.vas.R;
+import com.petrkryze.vas.adapters.HelpDescriptionsRecyclerViewAdapter;
 import com.petrkryze.vas.databinding.FragmentHelpBinding;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Arrays;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavDirections;
 import androidx.navigation.fragment.NavHostFragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -27,22 +33,29 @@ import androidx.navigation.fragment.NavHostFragment;
  */
 public class HelpFragment extends VASFragment {
     private static final String KEY_HELP_TITLE = "help_title";
-    private static final String KEY_HELP_CONTEXT_MSG = "help_body";
+    private static final String KEY_HELP_DESCRIPTIONS = "help_descriptions";
+    private static final String KEY_HELP_BODY = "help_body";
+    private static final String KEY_HELP_IMAGE_RESOURCE = "help_image_resource";
 
     private FragmentHelpBinding binding;
     private String helpTitle;
+    private String[] helpDescriptions;
     private String helpBody;
+    private int helpImageResource;
 
     public HelpFragment() {
         // Required empty public constructor
     }
 
     @SuppressWarnings("unused")
-    public static HelpFragment newInstance(String title, String contextMessage) {
+    public static HelpFragment newInstance(String title, String[] descriptions, String body,
+                                           int imageResource) {
         HelpFragment fragment = new HelpFragment();
         Bundle args = new Bundle();
         args.putString(KEY_HELP_TITLE, title);
-        args.putString(KEY_HELP_CONTEXT_MSG, contextMessage);
+        args.putStringArray(KEY_HELP_DESCRIPTIONS, descriptions);
+        args.putString(KEY_HELP_BODY, body);
+        args.putInt(KEY_HELP_IMAGE_RESOURCE, imageResource);
         fragment.setArguments(args);
         return fragment;
     }
@@ -52,7 +65,9 @@ public class HelpFragment extends VASFragment {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             helpTitle = HelpFragmentArgs.fromBundle(getArguments()).getContextTitle();
+            helpDescriptions = HelpFragmentArgs.fromBundle(getArguments()).getContextDescriptions();
             helpBody = HelpFragmentArgs.fromBundle(getArguments()).getContextBody();
+            helpImageResource = HelpFragmentArgs.fromBundle(getArguments()).getContextImageResource();
         }
     }
 
@@ -68,7 +83,15 @@ public class HelpFragment extends VASFragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         binding.helpTitleTextview.setText(helpTitle);
-        binding.helpBodyTextview2.setText(helpBody);
+
+        RecyclerView list = binding.helpImageviewDescriptions;
+        list.setAdapter(new HelpDescriptionsRecyclerViewAdapter(
+                requireContext(), Arrays.asList(helpDescriptions)));
+        list.setLayoutManager(new LinearLayoutManager(view.getContext()));
+
+        binding.helpBodyTextview.setText(helpBody);
+        binding.helpImageview.setImageDrawable(
+                ResourcesCompat.getDrawable(getResources(), helpImageResource, null));
     }
 
     @Override

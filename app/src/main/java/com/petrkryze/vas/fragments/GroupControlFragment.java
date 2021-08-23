@@ -215,16 +215,22 @@ public class GroupControlFragment extends VASFragment {
     public boolean onOptionsItemSelected(@NonNull @NotNull MenuItem item) {
         int itemID = item.getItemId();
         if (itemID == R.id.action_menu_help) {
-            String contextHelpMessage = getString(R.string.help_context_body_group_control_fragment);
-            String contextHelpTitle = getString(R.string.help_context_title_group_control_fragment);
-
-            NavDirections directions = GroupControlFragmentDirections.
-                            actionGroupControlFragmentToHelpFragment(contextHelpMessage, contextHelpTitle);
-            NavHostFragment.findNavController(this).navigate(directions);
+            onShowHelp();
             return true;
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private void onShowHelp() {
+        String contextHelpTitle = getString(R.string.help_context_title_group_control_fragment);
+        String[] contextHelpDescriptions = getResources().getStringArray(R.array.help_tag_description_group_control_fragment);
+        String contextHelpBody = getString(R.string.help_context_body_group_control_fragment);
+
+        NavDirections directions = GroupControlFragmentDirections.
+                actionGroupControlFragmentToHelpFragment(contextHelpTitle, contextHelpDescriptions,
+                        contextHelpBody, R.drawable.help_screen_group_check_fragment);
+        NavHostFragment.findNavController(this).navigate(directions);
     }
 
 }

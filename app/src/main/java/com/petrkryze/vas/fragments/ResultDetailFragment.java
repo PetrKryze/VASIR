@@ -131,7 +131,7 @@ public class ResultDetailFragment extends VASFragment {
                                             .show());
                         } else {
                             startShareActivity(uri,
-                                    getString(R.string.rating_detail_share_title, resultToDisplay.toString()));
+                                    getString(R.string.share_rating_detail_title, resultToDisplay.toString()));
                         }
                     }
                 });
@@ -183,7 +183,7 @@ public class ResultDetailFragment extends VASFragment {
                                             .show());
                         } else {
                             startShareActivity(uri,
-                                    getString(R.string.rating_detail_share_title, resultToDisplay.toString()));
+                                    getString(R.string.share_rating_detail_title, resultToDisplay.toString()));
                         }
                     }
                 });
@@ -298,12 +298,7 @@ public class ResultDetailFragment extends VASFragment {
     public boolean onOptionsItemSelected(@NonNull @NotNull MenuItem item) {
         int itemID = item.getItemId();
         if (itemID == R.id.action_menu_help) {
-            String contextHelpMessage = getString(R.string.help_context_body_result_detail_fragment);
-            String contextHelpTitle = getString(R.string.help_context_title_result_detail_fragment);
-
-            NavDirections directions = ResultDetailFragmentDirections.
-                            actionResultDetailFragmentToHelpFragment(contextHelpMessage, contextHelpTitle);
-            NavHostFragment.findNavController(this).navigate(directions);
+            onShowHelp();
             return true;
         } else if (itemID == R.id.action_menu_show_saved_results) {
             NavHostFragment.findNavController(this).navigateUp();
@@ -318,6 +313,17 @@ public class ResultDetailFragment extends VASFragment {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private void onShowHelp() {
+        String contextHelpTitle = getString(R.string.help_context_title_result_detail_fragment);
+        String[] contextHelpDescriptions = getResources().getStringArray(R.array.help_tag_description_result_detail_fragment);
+        String contextHelpBody = getString(R.string.help_context_body_result_detail_fragment);
+
+        NavDirections directions = ResultDetailFragmentDirections.
+                actionResultDetailFragmentToHelpFragment(contextHelpTitle, contextHelpDescriptions,
+                        contextHelpBody, R.drawable.help_screen_rating_detail_fragment);
+        NavHostFragment.findNavController(this).navigate(directions);
     }
 
     @Override

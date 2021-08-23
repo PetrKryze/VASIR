@@ -92,7 +92,7 @@ public class VASFragment extends Fragment {
         ArrayList<ClipData.Item> items = new ArrayList<>();
         for (Uri uri : uris) items.add(new ClipData.Item(uri));
 
-        ClipDescription clipDescription = new ClipDescription(getString(R.string.result_share_title), mimeTypeArray);
+        ClipDescription clipDescription = new ClipDescription(getString(R.string.share_result_title), mimeTypeArray);
         ClipData clipData = new ClipData(clipDescription, items.get(0));
         items.remove(0);
         for (ClipData.Item item : items) clipData.addItem(item);
@@ -105,8 +105,8 @@ public class VASFragment extends Fragment {
                 .addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
                 .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                 .putParcelableArrayListExtra(Intent.EXTRA_STREAM, uris)
-                .putExtra(Intent.EXTRA_TITLE, getString(R.string.result_share_title, uris.size()))
-                .putExtra(Intent.EXTRA_SUBJECT, getString(R.string.result_share_title, uris.size()));
+                .putExtra(Intent.EXTRA_TITLE, getString(R.string.share_result_title, uris.size()))
+                .putExtra(Intent.EXTRA_SUBJECT, getString(R.string.share_result_title, uris.size()));
 
         requireContext().startActivity(Intent.createChooser(sharingIntent,
                 requireContext().getString(R.string.share_using)));

@@ -5,6 +5,7 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.VibrationEffect;
 import android.util.Log;
 import android.util.Pair;
@@ -254,16 +255,16 @@ public class ResultsFragment extends VASFragment {
         return fragment;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            //noinspection unchecked
             ratingResults = ResultsFragmentArgs.fromBundle(getArguments()).getRatings();
             ratingResults.sort(RatingResult.sortChronologically);
         }
 
-        this.handler = new Handler();
+        this.handler = new Handler(Looper.getMainLooper());
     }
 
     @Override
@@ -397,12 +398,7 @@ public class ResultsFragment extends VASFragment {
     public boolean onOptionsItemSelected(@NonNull @NotNull MenuItem item) {
         int itemID = item.getItemId();
         if (itemID == R.id.action_menu_help) {
-            String contextHelpMessage = getString(R.string.help_context_body_results_fragment);
-            String contextHelpTitle = getString(R.string.help_context_title_results_fragment);
-
-            NavDirections directions = ResultsFragmentDirections.
-                            actionResultFragmentToHelpFragment(contextHelpMessage, contextHelpTitle);
-            NavHostFragment.findNavController(this).navigate(directions);
+            onShowHelp();
             return true;
         } else if (itemID == R.id.action_menu_show_session_info) {
             onShowSessionInfo(session -> {
@@ -415,4 +411,14 @@ public class ResultsFragment extends VASFragment {
         return super.onOptionsItemSelected(item);
     }
 
+    private void onShowHelp() {
+        String contextHelpTitle = getString(R.string.help_context_title_results_fragment);
+        String[] contextHelpDescriptions = getResources().getStringArray(R.array.help_tag_description_results_fragment);
+        String contextHelpBody = getString(R.string.help_context_body_results_fragment);
+
+        NavDirections directions = ResultsFragmentDirections.
+                actionResultFragmentToHelpFragment(contextHelpTitle, contextHelpDescriptions,
+                        contextHelpBody, R.drawable.help_screen_results_fragment);
+        NavHostFragment.findNavController(this).navigate(directions);
+    }
 }

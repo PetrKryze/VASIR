@@ -9,6 +9,7 @@ import android.annotation.SuppressLint;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -166,7 +167,7 @@ public class WelcomeFragment extends VASFragment {
         translateAnimation.setDuration(500);
 
         // After set delay shows the arrow and starts it's hopping animation
-        (new Handler()).postDelayed(() -> {
+        (new Handler(Looper.getMainLooper())).postDelayed(() -> {
             if (!hasScrolled) {
                 scrollIcon.setVisibility(View.VISIBLE);
                 scrollIcon.animate()

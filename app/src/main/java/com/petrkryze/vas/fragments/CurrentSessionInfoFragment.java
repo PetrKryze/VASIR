@@ -136,7 +136,7 @@ public class CurrentSessionInfoFragment extends VASFragment {
                                             .show());
                         } else {
                             startShareActivity(uri,
-                                    getString(R.string.current_session_share_title, currentSession.toString()));
+                                    getString(R.string.share_current_session_title, currentSession.toString()));
                         }
                     }
                 });
@@ -188,7 +188,7 @@ public class CurrentSessionInfoFragment extends VASFragment {
                                             .show());
                         } else {
                             startShareActivity(uri,
-                                    getString(R.string.current_session_share_title, currentSession.toString()));
+                                    getString(R.string.share_current_session_title, currentSession.toString()));
                         }
                     }
                 });
@@ -343,12 +343,7 @@ public class CurrentSessionInfoFragment extends VASFragment {
     public boolean onOptionsItemSelected(@NonNull @NotNull MenuItem item) {
         int itemID = item.getItemId();
         if (itemID == R.id.action_menu_help) {
-            String contextHelpMessage = getString(R.string.help_context_body_current_session_info_fragment);
-            String contextHelpTitle = getString(R.string.help_context_title_current_session_info_fragment);
-
-            NavDirections directions = CurrentSessionInfoFragmentDirections.
-                            actionCurrentSessionInfoFragmentToHelpFragment(contextHelpMessage, contextHelpTitle);
-            NavHostFragment.findNavController(this).navigate(directions);
+            onShowHelp();
             return true;
         } else if (itemID == R.id.action_menu_show_saved_results) {
             onShowSavedResults(results -> {
@@ -359,6 +354,17 @@ public class CurrentSessionInfoFragment extends VASFragment {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void onShowHelp() {
+        String contextHelpTitle = getString(R.string.help_context_title_current_session_info_fragment);
+        String[] contextHelpDescriptions = getResources().getStringArray(R.array.help_tag_description_current_session_info_fragment);
+        String contextHelpBody = getString(R.string.help_context_body_current_session_info_fragment);
+
+        NavDirections directions = CurrentSessionInfoFragmentDirections.
+                actionCurrentSessionInfoFragmentToHelpFragment(contextHelpTitle, contextHelpDescriptions,
+                        contextHelpBody, R.drawable.help_screen_current_session_fragment);
+        NavHostFragment.findNavController(this).navigate(directions);
     }
 
     class SortColumnListener implements View.OnClickListener {

@@ -139,8 +139,8 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 
         String[] split = versionString.split(" ");
         String versionNumber = split[split.length - 1];
-        contentText1.setText(getString(R.string.version_info_dialog_version_number, versionNumber));
-        contentText2.setText(getString(R.string.version_info_dialog_subtitle));
+        contentText1.setText(getString(R.string.dialog_version_info_version_number, versionNumber));
+        contentText2.setText(getString(R.string.dialog_version_info_subtitle));
 
         new MaterialAlertDialogBuilder(requireContext())
                 .setView(content)
@@ -151,10 +151,10 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     @Override
     public void onPrepareOptionsMenu(@NonNull Menu menu) {
         super.onPrepareOptionsMenu(menu);
-        int[] toDisable = {R.id.action_menu_help, R.id.action_menu_save, R.id.action_menu_settings,
+        int[] toDisable = {R.id.action_menu_save, R.id.action_menu_settings,
                 R.id.action_menu_new_session};
-        int[] toEnable = {R.id.action_menu_show_saved_results, R.id.action_menu_quit,
-                R.id.action_menu_show_session_info};
+        int[] toEnable = {R.id.action_menu_help, R.id.action_menu_show_saved_results,
+                R.id.action_menu_quit, R.id.action_menu_show_session_info};
 
         for (int item : toDisable) MainActivity.disableMenuItem(menu, item);
         for (int item : toEnable) MainActivity.enableMenuItem(menu, item);
@@ -163,6 +163,10 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     @Override
     public boolean onOptionsItemSelected(@NonNull @NotNull MenuItem item) {
         int itemID = item.getItemId();
+        if (itemID == R.id.action_menu_help) {
+            onShowHelp();
+            return true;
+        }
         if (itemID == R.id.action_menu_show_saved_results) {
             onShowSavedResults();
             return true;
@@ -171,6 +175,17 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void onShowHelp() {
+        String contextHelpTitle = getString(R.string.help_context_title_settings_fragment);
+        String[] contextHelpDescriptions = getResources().getStringArray(R.array.help_tag_description_settings_fragment);
+        String contextHelpBody = getString(R.string.help_context_body_settings_fragment);
+
+        NavDirections directions = SettingsFragmentDirections.
+                actionActionMenuSettingsToHelpFragment(contextHelpTitle, contextHelpDescriptions,
+                        contextHelpBody, R.drawable.help_screen_settings_fragment);
+        NavHostFragment.findNavController(this).navigate(directions);
     }
 
     @SuppressLint("ShowToast")

@@ -53,7 +53,7 @@ public class ResultsRecyclerViewAdapter extends RecyclerView.Adapter<ViewHolder>
 
         String index = (position + 1) >= 10 ? String.valueOf(position + 1) : "0" + (position + 1);
         holder.viewRowNumber.setText(index);
-        holder.viewSessionID.setText(context.getString(R.string.rating_list_row_sessionID, currentResult.getSessionID()));
+        holder.viewSessionID.setText(context.getString(R.string.results_list_row_sessionID, currentResult.getSessionID()));
 
         Pair<String, String> dateTime = formatDateTime(currentResult.getSaveDate());
         holder.viewSaveDate.setText(dateTime.first);
@@ -98,7 +98,7 @@ public class ResultsRecyclerViewAdapter extends RecyclerView.Adapter<ViewHolder>
         @Override
         public String toString() {
             return super.toString() + " Row number: " + viewRowNumber.getText() + ", " +
-                    "com.petrkryze.vas.Session ID: " + viewSessionID.getText() + ", " +
+                    "Session ID: " + viewSessionID.getText() + ", " +
                     "Save date: " + viewSaveDate.getText() + ", " +
                     "Save time: " + viewSaveTime.getText();
         }
