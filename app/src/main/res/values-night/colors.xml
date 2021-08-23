@@ -14,12 +14,6 @@
     <color name="textPrimaryOnError">#000000</color>
     <color name="textPrimaryOnBackground">#DFFFFFFF</color>
 
-    <color name="textSecondaryOnSurface">#99FFFFFF</color>
-    <color name="textSecondaryOnPrimary">#DF000000</color>
-    <color name="textSecondaryOnSecondary">#9A000000</color>
-    <color name="textSecondaryOnError">#DF000000</color>
-    <color name="textSecondaryOnBackground">#9AFFFFFF</color>
-
     <color name="backgroundColor">#121212</color>
     <color name="surfaceColor">#353535</color>
     <color name="errorColor">#CF6679</color>
