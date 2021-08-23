@@ -1,23 +1,128 @@
 <resources>
-    <string name="app_name">Visual Analog Scale</string>
+    <!-- Fragment Headers -->
+    <string name="fragment_header_rating">Hodnocení</string>
+    <string name="fragment_header_help">Nápověda</string>
+    <string name="fragment_header_current_session_info">Aktuální Sezení</string>
+    <string name="fragment_header_saved_ratings">Uložená hodnocení</string>
+    <string name="fragment_header_rating_detail">Detail hodnocení</string>
+    <string name="fragment_header_group_control_fragment">Kontrola Skupin</string>
+    <string name="fragment_header_settings_fragment">Nastavení</string>
 
-    <string name="dialog_corrupted_session_title">Sezení poškozeno</string>
+    <!-- Menu Actions -->
+    <string name="action_quit">Odejít</string>
+    <string name="action_new_session">Vytvořit Nové Sezení</string>
+    <string name="action_new_session_condensed">Nové Sezení</string>
+    <string name="action_help">Nápověda</string>
+    <string name="action_show_session_info">Aktuální Sezení</string>
+    <string name="action_show_saved_results">Uložená Hodnocení</string>
+    <string name="action_save">Uložit</string>
+    <string name="action_settings">Nastavení</string>
+
+    <!-- Buttons -->
     <string name="button_pause_label">Pozastavit</string>
     <string name="button_play_label">Přehrát</string>
-    <string name="dialog_quit_cancel">Zrušit</string>
-    <string name="checkmark">Fajfka</string>
+    <string name="button_next_label">Další</string>
+    <string name="button_previous_label">Předchozí</string>
+    <string name="button_share_label">Sdílet</string>
+    <string name="button_share_all_label">Sdílet vše</string>
+    <string name="button_confirm_label">V Pořádku</string>
+    <string name="button_share_as_text_label">Share as plain text</string>
+    <string name="button_share_as_excel_label">Share as excel file</string>
+
+    <!-- Dialogs -->
+    <string name="dialog_make_new_session_title">Opustit současné sezení?</string>
+    <string name="dialog_make_new_session_message">Chcete zahodit veškerá neuložená hodnocení v tomto sezení a vytvořit nové hodnotitelské sezení?</string>
+    <string name="dialog_make_new_session_positive_button_label">Ano</string>
+
+    <string name="dialog_invalid_directory_title">Neplatný adresář</string>
+    <string name="dialog_invalid_directory_not_exist">Adresář &lt;i>%s&lt;/i> neexistuje.</string>
+    <string name="dialog_invalid_directory_not_directory">Vybraná položka &lt;i>%s&lt;/i> není adresář.</string>
+    <string name="dialog_invalid_directory_not_readable">Adresář &lt;i>%s&lt;/i> nelze přečíst.</string>
+    <string name="dialog_invalid_directory_no_files">V adresáři &lt;i>%s&lt;/i> nebyly nalezeny žádné použitelné audio soubory.</string>
+    <string name="dialog_invalid_directory_missing_files">Nelze nalézt soubory (celkem %1$d) z uloženého sezení v adresáři %2$s:\n%3$s</string>
+    <string name="dialog_invalid_directory_choose_valid_data_directory">Vybrat platný adresář</string>
+    <string name="dialog_invalid_directory_cancel">Zpět</string>
+
+    <string name="dialog_internal_error_title">Interní chyba</string>
+    <string name="dialog_internal_error_message">Chybová zpráva: Extracting full path from document selection URI failed!</string>
+    <string name="dialog_internal_error_quit">Odejít</string>
+
+    <string name="dialog_no_session_found_title">Nenalezeno žádné sezení</string>
+    <string name="dialog_no_session_found_message">Nebylo nalezeno žádné předešelé hodnocení. Vytvořte prosím nové sezení.</string>
+    <string name="dialog_no_session_corrupted_session_quit">Odejít</string>
+    <string name="dialog_no_session_corrupted_session_create_new_session">Vytvořit nové sezení</string>
+    <string name="dialog_corrupted_session_title">Sezení poškozeno</string>
+    <string name="dialog_corrupted_session_message">Data předešelého sezení jsou porušena. Vytvořte prosím nové sezení.</string>
+
+    <string name="dialog_delete_result_title">Odstranit vybraný záznam?</string>
+    <string name="dialog_delete_result_message">Opravdu si přejete odstranit vybraný záznam ze zařízení? Tato operace je nevratná.</string>
+    <string name="dialog_delete_result_confirm">Ano, odstranit</string>
+    <string name="dialog_delete_result_cancel">Ne</string>
+
+    <string name="dialog_save_failed_continue_title">Ukládání nebylo úspěšné!</string>
+    <string name="dialog_save_failed_continue_message">Ukládání aktuálního sezení se nepodařilo.&lt;\br>&lt;b>Příčina: &lt;i>%s&lt;/i>&lt;/b>
+        &lt;\br>Chcete pokračovat ve vytváření nového sezení? &lt;b>Současná hodnocení budou ztracena.&lt;/b></string>
+    <string name="dialog_save_failed_continue_continue">Pokračovat</string>
+    <string name="dialog_save_failed_continue_return">Zpět</string>
+    <string name="dialog_save_failed_continue_error_unknown">Neznámá</string>
+
+    <string name="dialog_quit_title">Odejít?</string>
     <string name="dialog_quit_message">Opravdu si přejete odejít?</string>
-    <string name="main_title_placeholder">Srozumitelnost</string>
-    <string name="next_track">Další</string>
     <string name="dialog_quit_confirm">OK</string>
-    <string name="previous_track">Předchozí</string>
-    <string name="rating_label_highest">Dokonale\nsrozumitelné</string>
-    <string name="rating_label_lowest">Zcela\nnesrozumitelné</string>
-    <string name="reset_confirm_prompt">Opravdu chcete vynulovat veškerá současná hodnocení a vytvořit nové hodnotitelské sezení?</string>
-    <string name="session_info_title">Informace</string>
+    <string name="dialog_quit_cancel">Zrušit</string>
+
+    <string name="dialog_version_info_version_number">Verze Aplikace %s</string>
+
+    <string name="dialog_player_error_title">Chyba přehrávače</string>
+    <string name="dialog_player_error_reset">%s\nResetuji přehrávač…</string>
+    <string name="dialog_player_error_refresh">%s\nObnovuji přehrávač…</string>
+    <string name="dialog_player_error">%s</string>
+    <string name="dialog_player_error_only_one_file_not_supported">V sezení je pouze jediný soubor, a ten není podporovaný. Vyberte, prosím, jiný platný adresář.</string>
+    <string name="dialog_player_error_confirm">Pokračovat</string>
+
+    <!-- Snackbars -->
+    <string name="snackbar_result_deleted_success">Záznam úspěšně odstraněn.</string>
+    <string name="snackbar_result_deleted_failure">Záznam nemohl být odstraněn.\nPříčina: %s</string>
+    <string name="snackbar_results_select_hint">Podobné info o sezení zobrazíte výběrem ze seznamu.</string>
+    <string name="snackbar_directory_selection_canceled">Tvorba nového sezení zrušena - nebyl vybrán žádný adresář.</string>
+    <string name="snackbar_directory_check_canceled">Tvorba nového sezení zrušena - kontrola skupin přerušena.</string>
+    <string name="snackbar_save_success">Uložení úspěšné!</string>
+    <string name="snackbar_save_failed">Uložení nebylo úspěšné!&lt;\br>&lt;b>Příčina: &lt;i>%s&lt;/i>&lt;/b></string>
+    <string name="snackbar_save_failed_error_unknown">Neznámá</string>
+    <string name="snackbar_new_session_created">Nové sezení úspěšně vytvořeno!</string>
+    <string name="snackbar_ratings_loading_failed">Načítání uložených hodnocení selhalo!&lt;\br>&lt;b>Příčina: &lt;i>%s&lt;/i>&lt;/b></string>
+    <string name="snackbar_share_all_excel_failed">Tvorba excel souborů selhala!</string>
+    <string name="snackbar_share_all_text_failed">Sdílení výsledků selhalo!</string>
+    <string name="snackbar_share_current_session_text_failed">Sdílení aktuálního sezení selhalo!</string>
+    <string name="snackbar_share_rating_detail_text_failed">Sdílení sezení selhalo!</string>
+    <string name="snackbar_rating_player_track_load_failed">Nahrávku nebylo možné načíst.</string>
     <string name="snackbar_connect_headphones">Prosím, připojte k zařízení sluchátka.</string>
     <string name="snackbar_increase_volume">Audio výstup vašeho zařízení je ztlumený.</string>
-    <string name="track">Nahrávka</string>
+
+    <!-- Excel creation strings -->
+    <string name="excel_sheet_name">Sezení %1$d - %2$s</string>
+    <string name="excel_session_id_label">Session ID</string>
+    <string name="excel_seed_label">Seed</string>
+    <string name="excel_generator_date_label">Datum vytvoření</string>
+    <string name="excel_save_date_label">Datum uložení</string>
+    <string name="excel_recording_id_header">ID</string>
+    <string name="excel_recording_group_header">Group</string>
+    <string name="excel_recording_index_header">Index</string>
+    <string name="excel_recording_rating_header">Rating</string>
+
+    <!-- Settings Fragment -->
+    <string name="setting_show_welcome_screen_title">Zobrazovat domovskou obrazovku</string>
+    <string name="setting_show_welcome_screen_summary_on">Aplikace po spuštení zobrazí úvodní obrazovku</string>
+    <string name="setting_show_welcome_screen_summary_off">Aplikace po spuštění zobrazí obrazovku s hodnocením</string>
+    <string name="setting_number_of_backups_title">Počet záložních souborů s výsledky</string>
+    <string name="setting_feedback_title">Poslat zpětnou vazbu</string>
+    <string name="setting_feedback_summary">Nahlaste problémy s aplikací nebo dejte tipy na nové funkce</string>
+    <string name="setting_version_info_title">Zobrazit informace o verzi</string>
+    <string name="setting_version_info_summary">Aktuální verze aplikace: %s</string>
+    <string name="setting_version_info_unknown_version">Neznámá verze</string>
+    <string name="setting_number_of_backups_summary">Maximální počet záloh: %s</string>
+
+    <!-- Welcome Fragment -->
     <string name="welcome_title">Vítejte!</string>
     <string name="welcome_message">
         <i><b>VASIR</b></i> je aplikace, která používá <i>visual analog scales</i> (analogové obrazové stupnice) pro subjektivní hodnocení srozumitelnosti řeči.\n
@@ -37,64 +142,34 @@
         \n\n
         <i>Tato aplikace byla vyvinuta pro potřeby výzkumu a vývoje na katedře teorie obvodů, Fakultě elektrotechnické, ČVUT v Praze.</i>
     </string>
-    <string name="directory_selection_instructions">
-        Instrukce pro umístění audio souborů:\n
-        Umístěte soubory s audio nahrávkami ve formátu WAV nebo MP3 do přístupného adresáře
-        (například <i>Documents</i>) v interní paměti telefonu nebo na SD kartě.\n\n
-        Ve zvoleném adresáři musí být dodržena následující struktura složek:
-        <tt>\"HC\"</tt>, <tt>\"DBS_OFF\"</tt> a <tt>\"DBS_130\"</tt>\n
-        S audio soubory vloženými do příslušných adresářů.\n\n
-        Tato aplikace v současnosti podporuje pouze výše uvedené skupiny a pevnou strukturu adresářů,
-        nicméně bude v budoucnu implementovaná podpora automatického rozpoznávání skupin.
-    </string>
-    <string name="not_implemented">Tato funkce ještě není implementována.</string>
-    <string name="all_rated">Všechny nahrávky byly ohodnoceny!</string>
+    <string name="welcome_checkbox_do_not_show_again">Tuto obrazovku již nezobrazovat</string>
+    <string name="welcome_button_continue_label">Pokračovat k hodnocení</string>
+    <string name="welcome_title_image_desc">Logo aplikace VASIR, ikony osoby hovořící do ucha</string>
 
-    <string name="help">Nápověda</string>
-    <string name="help_message">
-        Tato aplikace slouží k pohodlnému subjektivnímu poslechovému hodnocení srozumitelnosti
-        řečových nahrávek. Použití aplikace závisí na konkrétním uživatelském experimentu, pro který
-        je vyžadováno zhodnocení nahrávek, nicméně aplikace byla vytvořena s cílem subjektivního zhodnocení
-        degradace řeči u pacientů trpících neurodegenerativními onemocněními.\n\n
-        Za předpokladu, že máte správně umístěná data řečových nahrávek v příslušné složce na
-        paměťové kartě ve vašem telefonu (jak je popsáno v dialogu, který aplikace zobrazí, pokud se
-        jí nepodaří nalézt žádná data), je ovládání aplikace velmi jednoduché.\n\n
-        Aplikace při vytvoření nového (a vynulování aktuálního) hodnotícího sezení automaticky randomizuje
-        (náhodně zamíchá) dodaná data. Nahrávky pak může (instruovaný) hodnotitel přehrávat pomocí
-        tlačítek na obrazovce (\"přehrát\", \"pozastavit\" a přetáčení nahrávky dotykem na posuvníku),
-        mezi nahrávkami se pohybuje tlačítky \"vpřed\" a \"zpět\". Celkový počet
-        nahrávek a číslo aktuální nahrávky je uvedeno v záhlaví.\n\n
-        Nahrávky se hodnotí pomocí obrazové analogové stupnice (Visual Analog Scale) v dolní části
-        obrazovky. Uživatel jednoduše posuvník umístí na zobrazené škále tak, aby jeho pozice
-        reflektovala subjektivně vnímanou srozumitelnost v rozmezí od \"zcela nesrozumitelné\" (nelze
-        rozumět ničemu v nahrávce) po \"dokonale srozumitelné\" (ekvivalent \"televizního hlasatele\").
-        Počet hodnocení ani zpětná úprava hodnocení není omezena, nicméně hodnotitelé by měli být
-        upozorněni, aby nahrávky neposlouchali více než dvakrát. Po úspěšném zhodnocení nahrávky
-        se objeví zelený symbol fajfky.\n\n
-        Po úspěšném zhodnocení všech nahrávek se zobrazí zpráva a symbol zelené dvojité fajfky.
-        Hodnocení se pak při odchodu z aplikace nebo vytvoření nového sezení automaticky uloží do
-        paměti telefonu v příslušné aplikační složce. Průběh hodnocení v rámci jednoho sezení aplikace
-        vždy ukládá do paměti při odchodu z ní i při jejím úplném vypnutí, do chvíle než se vytvoří
-        nové sezení, nebo bude aplikace přeinstalována.\n\n
-        Při problémech s použitím aplikace či jiných dotazech pošlete mail na adresu:\n
-        kryzepet@fel.cvut.cz
-    </string>
-    <string name="choose_data_dir">Zvolte datový adresář</string>
+    <!-- Rating Fragment -->
+    <string name="checkmark">Fajfka</string>
+    <string name="track">Nahrávka</string>
+    <string name="rating_title_placeholder">Srozumitelnost</string>
+    <string name="rating_label_highest">Dokonale\nsrozumitelné</string>
+    <string name="rating_label_lowest">Zcela\nnesrozumitelné</string>
+    <string name="player_error_unknown">Neznámá chyba</string>
+    <string name="player_error_server_died">Serverová smrt</string>
+    <string name="player_error_timeout">Timeout přehrávače</string>
+    <string name="player_error_io">IO chyba v síti nebo souboru</string>
+    <string name="player_error_unsupported">Soubor není podporován</string>
+    <string name="player_error_malformed">Bitstream nepodléhá příslušnému kódovému standardu nebo souborové specifikaci</string>
 
+    <!-- Results Fragment -->
     <string name="results_fragment_no_results">Zatím tu nejsou žádná uložená hodnocení! Sezení můžete manuálně uložit odpovídající volbou ve vysouvací nabídce.</string>
+    <string name="results_list_row_sessionID">Sezení %d</string>
 
-
-
-
-
-    <string name="button_close_label">Zavřít</string>
-    <string name="rating_list_row_sessionID">Sezení %d</string>
-
-    <string name="share_button_description">Share</string>
-    <string name="share_subject">Výsledky hodnocení pro sezení %d</string>
+    <!-- Sharing -->
     <string name="share_using">Sdílet na</string>
-    <string name="result_share_title">Výsledky hodnocení (%d)</string>
-    <string name="button_share_all_label">Sdílet vše</string>
+    <string name="share_result_title">Výsledky hodnocení (%d)</string>
+    <string name="share_current_session_title">Aktuální sezení: %s</string>
+    <string name="share_rating_detail_title">Sezení: %s</string>
+
+    <!-- Result Detail Fragment -->
     <string name="result_detail_sessionID">Sezení %d</string>
     <string name="result_detail_save_date_label">Datum uložení:</string>
     <string name="result_detail_seed_label">Seed:</string>
@@ -106,134 +181,106 @@
     <string name="result_detail_copy">ID: %1$s, Skupina: %2$s, Index: %3$s, Hodnocení: %4$s</string>
     <string name="result_detail_copy_copied">Informace o nahrávce zkopírovány do schránky!</string>
 
-    <string name="welcome_checkbox_do_not_show_again">Tuto obrazovku již nezobrazovat</string>
-    <string name="welcome_button_continue_label">Pokračovat k hodnocení</string>
-    <string name="welcome_title_image_desc">Logo aplikace VASIR, ikony osoby hovořící do ucha</string>
-    <string name="help_message1"><i><b>VASIR</b></i> je aplikace, která používá <i>visual analog scales</i> (analogové obrazové stupnice) pro subjektivní hodnocení srozumitelnosti řeči.\n</string>
-    <string name="help_message2">TODO</string>
-    <string name="button_share_label">Sdílet</string>
-    <string name="snackbar_results_select_hint">Podobné info o sezení zobrazíte výběrem ze seznamu.</string>
+    <!-- Current Session Info Fragment -->
     <string name="current_session_info_sessionID">Sezení %d</string>
 
-    <!-- Help strings-->
-    <string name="help_context_body_rating_fragment">BODY HELP RATING FRAGMENT</string>
-    <string name="help_context_title_rating_fragment">Nápověda: Hodnocení</string>
-    <string name="help_context_body_results_fragment">BODY HELP RESULTS FRAGMENT</string>
-    <string name="help_context_title_results_fragment">Nápověda: Uložená hodnocení</string>
-    <string name="help_context_body_result_detail_fragment">BODY HELP RESULTS DETAIL FRAGMENT</string>
-    <string name="help_context_title_result_detail_fragment">Nápověda: Detail hodnocení</string>
-    <string name="help_context_body_current_session_info_fragment">CURRENT SESSION INFO HELP BODY</string>
-    <string name="help_context_title_current_session_info_fragment">Nápověda: Aktuální sezení</string>
-    <string name="help_context_title_group_control_fragment">Help: Group Control</string>
-    <string name="help_context_body_group_control_fragment">BODY HELP GROUP CONTROL FRAGMENT</string>
-
-    <string name="fragment_header_rating">Hodnocení</string>
-    <string name="fragment_header_help">Nápověda</string>
-    <string name="fragment_header_current_session_info">Aktuální Sezení</string>
-    <string name="fragment_header_rating_detail">Detail hodnocení</string>
-    <string name="fragment_header_saved_ratings">Uložená hodnocení</string>
-    <string name="fragment_header_group_control_fragment">Kontrola Skupin</string>
-
-
-    <string name="action_quit">Odejít</string>
-    <string name="action_new_session">Vytvořit Nové Sezení</string>
-    <string name="action_help">Nápověda</string>
-    <string name="action_show_session_info">Aktuální Sezení</string>
-    <string name="action_show_saved_results">Uložená Hodnocení</string>
-    <string name="action_save">Uložit</string>
-
-
-    <string name="button_confirm_label">V Pořádku</string>
+    <!-- Group Check Fragment -->
     <string name="group_control_group_folder_list_row_found_audio_files">Obsahuje %d vhodných audio souborů.</string>
     <string name="group_control_group_folder_list_row_folder_name_label">Adresář:</string>
     <string name="group_control_group_folder_list_row_group_name_label">Název skupiny:</string>
     <string name="group_control_invalid_input"><![CDATA[Název skupiny nesmí obsahovat tyto znaky: ~#^|$%&*!?<>/]]></string>
 
-    <string name="dialog_make_new_session_title">Opustit současné sezení?</string>
-    <string name="dialog_make_new_session_message">Chcete zahodit veškerá neuložená hodnocení v tomto sezení a vytvořit nové hodnotitelské sezení?</string>
-    <string name="dialog_make_new_session_positive_button_label">Ano</string>
-    <string name="dialog_quit_title">Odejít?</string>
+    <!-- Help Fragment -->
+    <string name="help_context_title_rating_fragment">Nápověda: Hodnocení</string>
+    <string name="help_context_title_results_fragment">Nápověda: Uložená hodnocení</string>
+    <string name="help_context_title_result_detail_fragment">Nápověda: Detail hodnocení</string>
+    <string name="help_context_title_current_session_info_fragment">Nápověda: Aktuální sezení</string>
+    <string name="help_context_title_group_control_fragment">Nápověda: Kontrola skupin</string>
+    <string name="help_context_title_settings_fragment">Nápověda: Nastavení</string>
 
 
-    <string name="dialog_invalid_directory_title">Neplatný adresář</string>
-    <string name="dialog_invalid_directory_not_exist">Adresář &lt;i>%s&lt;/i> neexistuje.</string>
-    <string name="dialog_invalid_directory_not_directory">Vybraná položka &lt;i>%s&lt;/i> není adresář.</string>
-    <string name="dialog_invalid_directory_not_readable">Adresář &lt;i>%s&lt;/i> nelze přečíst.</string>
-    <string name="dialog_invalid_directory_no_files">V adresáři &lt;i>%s&lt;/i> nebyly nalezeny žádné použitelné audio soubory.</string>
-    <string name="dialog_invalid_directory_missing_files">Nelze nalézt soubory (celkem %1$d) z uloženého sezení v adresáři %2$s:\n%3$s</string>
-    <string name="dialog_invalid_directory_choose_valid_data_directory">Vybrat platný adresář</string>
-    <string name="dialog_invalid_directory_cancel">Zpět</string>
+
+    <string name="help_context_body_rating_fragment">
+        <b>Tato obrazovka slouží k hodnocení audio nahrávek v rámci hodnotitelského sezení.</b>\n
+
+        Při prvním startu aplikace budete vyzváni k vytvoření nového hodnotitelského sezení. Pomocí
+        výběrového menu zvolíte adresář, kde jsou uloženy audio soubory s nahrávkami, které chcete hodnotit.
+        Pokud chcete rozlišovat skupiny jednotlivých nahrávek (např. zdraví/nemocní), doporučujeme
+        vložit nahrávky od příslušných skupin do individuálních složek a vybrat nadřazený adresář.
+        Aplikace pak automaticky rozdělí a označí nahrávky pro potřeby následného zpracování výsledků.\n
+
+        Aplikace podporuje audio formáty
+
+        Pomocí tlačítek přehrávače se můžete pohybovat v seznamu nahrávek, nahrávky si pouštět nebo je přetáčet.
+        Počet přehrání jednotlivých nahrávek není omezen.
+        Po poslechu můžete jednotlivé nahrávky hodnotit za pomocí spojité škály ve spodní části obrazovky.
+        Po ohodnocení všech nahrávek se zobrazí ikona dvojité fajfky.
+        Sezení se ukládají do paměti aplikace automaticky, při každém opustění obrazovky.
+        Výsledky lze uložit buď manuálně pomocí rozbalovací nabídky v pravém horním rohu, nebo se po
+        ohodnocení všech nahrávek ukládají automaticky při opuštění aktivity.
+        Výsledky se ukládají do specifického aplikačního adresáře v paměti zařízení a dají se sdílet
+        ze sekce "Uložená hodnocení", do které se dostanete prostřednictvím rozbalovací nabídky.
+    </string>
+
+    <string name="help_context_body_results_fragment">BODY HELP RESULTS FRAGMENT</string>
+
+    <string name="help_context_body_result_detail_fragment">BODY HELP RESULTS DETAIL FRAGMENT</string>
+
+    <string name="help_context_body_current_session_info_fragment">CURRENT SESSION INFO HELP BODY</string>
+
+    <string name="help_context_body_group_control_fragment">BODY HELP GROUP CONTROL FRAGMENT</string>
+
+    <string name="help_context_body_settings_fragment">BODY HELP SETTINGS FRAGMENT</string>
 
 
-    <string name="dialog_internal_error_title">Interní chyba</string>
-    <string name="dialog_internal_error_message">Chybová zpráva: Extracting full path from document selection URI failed!</string>
-    <string name="dialog_internal_error_quit">Odejít</string>
+    <!-- Help Image Descriptions -->
+    <string name="help_tag_description_content_description">Obrázek zobrazující záznam obrazovky, na kterém je obsah aplikačního okna v závislosti na contextu zobrazené nápovědy.</string>
 
+    <string-array name="help_tag_description_rating_fragment">
+        <item>Číslo aktuální nahrávky z celkového počtu.</item>
+        <item>Ikona indikující, že tato nahrávka již byla ohodnocena. Po ohodnocení všech nahrávek se zde zobrazí ikona se dvěma fajfkami.</item>
+        <item>Aktuální čas přehrávání ve formátu [mm:ss].</item>
+        <item>Celkový čas přehrávání (délka nahrávky).</item>
+        <item>Posuvník umožňující libovolné přetáčení nahrávky.</item>
+        <item>Ovládání přehrávače. Dlouhým stisknutím tlačítka zpět/vpřed se přesunete na první/poslední nahrávku.</item>
+        <item>Posuvník pro hodnocení nahrávky. Hodnoty zcela vpravo zpravidla odpovídají nejlepšímu výkonu, zcela vlevo pak nejhoršímu.</item>
+    </string-array>
 
-    <string name="dialog_no_session_found_message">Nebylo nalezeno žádné předešelé hodnocení. Vytvořte prosím nové sezení.</string>
-    <string name="dialog_corrupted_session_message">Data předešelého sezení jsou porušena. Vytvořte prosím nové sezení.</string>
-    <string name="dialog_no_session_found_title">Nenalezeno žádné sezení</string>
-    <string name="dialog_no_session_corrupted_session_create_new_session">Vytvořit nové sezení</string>
-    <string name="dialog_no_session_corrupted_session_quit">Odejít</string>
+    <string-array name="help_tag_description_settings_fragment">
+        <item>Toto nastavení vám umožňuje obnovit zobrazování uvítací obrazovky, pokud jste dříve zaškrtli, že ji vidět nechcete.</item>
+        <item>Počet uložení sezení, které budou ponechány v paměti zařízení jako záloha. Povolený rozsah 0 až 100 záloh.</item>
+        <item>Zobrazí informace o aktuální verzi aplikace.</item>
+        <item>Umožňuje poslat zpětnou vazbu vývojářům aplikace.</item>
+    </string-array>
 
+    <string-array name="help_tag_description_results_fragment">
+        <item>Seznam uložených sezení, sežazený chronologicky od nejnovějšího záznamu. Položky v seznamu lze rozkliknout pro detailní náhled. Dlouhým stiskem lze jednotlivé položky smazat.</item>
+        <item>Datum a čas uložení daného sezení.</item>
+        <item>Nápověda udávající, že lze nahrávky v seznamu rozkliknout pro detailní náhled. Po chvíli automaticky zmizí.</item>
+        <item>Tlačítko pro sdílení všech uložených sezení. Po kliknutí lze vybrat typ sdílení (prostý text/excelový soubor) a následně cíl sdílení.</item>
+    </string-array>
 
-    <string name="dialog_delete_result_title">Odstranit vybraný záznam?</string>
-    <string name="dialog_delete_result_message">Opravdu si přejete odstranit vybraný záznam ze zařízení? Tato operace je nevratná.</string>
-    <string name="dialog_delete_result_confirm">Ano, odstranit</string>
-    <string name="dialog_delete_result_cancel">Ne</string>
+    <string-array name="help_tag_description_result_detail_fragment">
+        <item>Název sezení.</item>
+        <item>Informace o sezení: Datum uložení, randomizační seed, datum vytvoření sezení. Informace lze zkopírovat.</item>
+        <item>Seznam všech nahrávek v sezení. Seznam lze seřadit vzestupně či sestupně stisknutím hlaviček jednotlivých sloupců.</item>
+        <item>Položky seznamu: Identifikační název nahrávky, název skupiny, randomizační index, přidělené hodnocení nahrávky.</item>
+        <item>Tlačítko sdílení zobrazeného sezení. Po kliknutí lze vybrat typ sdílení (prostý text/excelový soubor) a následně cíl sdílení.</item>
+    </string-array>
 
+    <string-array name="help_tag_description_group_control_fragment">
+        <item>Seznam všech nalezených adresářů obsahujících použitelné nahrávky.</item>
+        <item>Název nalezeného adresáře a počet použitelných audio nahrávek uvnitř.</item>
+        <item>Označení skupiny, které bude přiděleno všem nahrávkám z daného adresáře. Výchozí hodnotou je název adresáře. Toto označení je používáno čistě jen pro účely zobrazení či dalšího zpracování a neovlivňuje nijak randomizaci nahrávek.</item>
+        <item>Zaškrtávací políčko, pomocí kterého lze vynechat (či ponechat) libovolnou skupinu z nově vytvářeného sezení.</item>
+        <item>Tlačítko pro potvrzení nalezených skupin. Je nutné ponechat alespoň jednu skupinu ze seznamu.</item>
+    </string-array>
 
-    <string name="dialog_save_failed_continue_message">Ukládání aktuálního sezení se nepodařilo.&lt;\br>&lt;b>Příčina: &lt;i>%s&lt;/i>&lt;/b>
-        &lt;\br>Chcete pokračovat ve vytváření nového sezení? &lt;b>Současná hodnocení budou ztracena.&lt;/b></string>
-    <string name="dialog_save_failed_continue_title">Ukládání nebylo úspěšné!</string>
-    <string name="dialog_save_failed_continue_continue">Pokračovat</string>
-    <string name="dialog_save_failed_continue_return">Zpět</string>
-    <string name="dialog_save_failed_continue_error_unknown">Neznámá</string>
-
-
-    <string name="snackbar_result_deleted_success">Záznam úspěšně odstraněn.</string>
-    <string name="snackbar_result_deleted_failure">Záznam nemohl být odstraněn.\nPříčina: %s</string>
-    <string name="snackbar_directory_selection_canceled">Tvorba nového sezení zrušena - nebyl vybrán žádný adresář.</string>
-    <string name="snackbar_save_success">Uložení úspěšné!</string>
-    <string name="snackbar_save_failed">Uložení nebylo úspěšné!&lt;\br>&lt;b>Příčina: &lt;i>%s&lt;/i>&lt;/b></string>
-    <string name="snackbar_save_failed_error_unknown">Neznámá</string>
-    <string name="snackbar_new_session_created">Nové sezení úspěšně vytvořeno!</string>
-    <string name="snackbar_ratings_loading_failed">Načítání uložených hodnocení selhalo!&lt;\br>&lt;b>Příčina: &lt;i>%s&lt;/i>&lt;/b></string>
-    <string name="excel_sheet_name">Sezení %1$d - %2$s</string>
-    <string name="excel_session_id_label">Session ID</string>
-    <string name="excel_seed_label">Seed</string>
-    <string name="excel_generator_date_label">Datum vytvoření</string>
-    <string name="excel_save_date_label">Datum uložení</string>
-    <string name="excel_recording_id_header">ID</string>
-    <string name="excel_recording_group_header">Group</string>
-    <string name="excel_recording_index_header">Index</string>
-    <string name="excel_recording_rating_header">Rating</string>
-    <string name="button_share_as_text_label">Share as plain text</string>
-    <string name="button_share_as_excel_label">Share as excel file</string>
-    <string name="snackbar_share_all_excel_failed">Tvorba excel souborů selhala!</string>
-    <string name="snackbar_share_all_text_failed">Sdílení výsledků selhalo!</string>
-    <string name="snackbar_share_current_session_text_failed">Sdílení aktuálního sezení selhalo!</string>
-    <string name="snackbar_share_rating_detail_text_failed">Sdílení sezení selhalo!</string>
-    <string name="current_session_share_title">Aktuální sezení: %s</string>
-    <string name="rating_detail_share_title">Sezení: %s</string>
-    <string name="snackbar_rating_player_track_load_failed">Nahrávku nebylo možné načíst.</string>
-    <string name="action_settings">Nastavení</string>
-    <string name="fragment_header_settings_fragment">Nastavení</string>
-    <string name="action_new_session_condensed">Nové Sezení</string>
-
-    <string name="setting_show_welcome_screen_title">Zobrazovat domovskou obrazovku</string>
-    <string name="setting_show_welcome_screen_summary_on">Aplikace po spuštení zobrazí úvodní obrazovku</string>
-    <string name="setting_show_welcome_screen_summary_off">Aplikace po spuštění zobrazí obrazovku s hodnocením</string>
-
-    <string name="setting_number_of_backups_title">Počet záložních souborů s výsledky</string>
-
-    <string name="setting_feedback_title">Poslat zpětnou vazbu</string>
-    <string name="setting_feedback_summary">Nahlaste problémy s aplikací nebo dejte tipy na nové funkce</string>
-
-    <string name="setting_version_info_title">Zobrazit informace o verzi</string>
-    <string name="setting_version_info_summary">Aktuální verze aplikace: %s</string>
-    <string name="setting_version_info_unknown_version">Neznámá verze</string>
-    <string name="setting_number_of_backups_summary">Maximální počet záloh: %s</string>
-    <string name="version_info_dialog_version_number">Verze Aplikace %s</string>
-    <string name="snackbar_player_error">Player encountered an error. Resetting the player...</string>
+    <string-array name="help_tag_description_current_session_info_fragment">
+        <item>Název aktuálního sezení.</item>
+        <item>Informace o sezení: Randomizační seed a datum vytvoření sezení. Informace lze zkopírovat.</item>
+        <item>Seznam všech nahrávek v aktuálním sezení. Seznam lze seřadit vzestupně či sestupně stisknutím hlaviček jednotlivých sloupců.</item>
+        <item>Položky seznamu: Identifikační název nahrávky, název skupiny, randomizační index, přidělené hodnocení nahrávky.</item>
+        <item>Tlačítko sdílení aktuálního sezení. Po kliknutí lze vybrat typ sdílení (prostý text/excelový soubor) a následně cíl sdílení.</item>
+    </string-array>
 </resources>

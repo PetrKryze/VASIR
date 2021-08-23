@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Visual Analog Scale</string>
+    <string name="app_name" translatable="false">VASIR</string>
+    <string name="dialog_version_info_subtitle" translatable="false">Beta 08/2021\n© 2021 Petr Krýže</string>
     <string name="feedback_email_address" translatable="false">kryzepet@fel.cvut.cz</string>
     <string name="feedback_email_subject" translatable="false">VASIR App Feedback</string>
 
+    <!-- Directory Names, File Names -->
     <string name="DIRECTORY_NAME_RESULTS" translatable="false">Results</string>
     <string name="DIRECTORY_NAME_TEMP" translatable="false">temp</string>
-    <string name="PREFERENCES_SETTINGS" translatable="false">settings</string>
     <string name="RATING_FILE_NAME" translatable="false">
         RATING_%d_%s.txt
     </string>
@@ -15,11 +16,13 @@
     </string>
     <string name="excel_title_label" translatable="false">VASIR - Visual Analog Scale Intelligibility Rating</string>
 
+    <!-- Settings Keys -->
     <string name="SETTING_KEY_SHOW_WELCOME_SCREEN" translatable="false">setting_show_welcome_screen</string>
     <string name="SETTING_KEY_BACKUPS_NUMBER" translatable="false">setting_number_of_backups</string>
     <string name="SETTING_KEY_VERSION_INFO" translatable="false">setting_version_info</string>
     <string name="SETTING_KEY_FEEDBACK" translatable="false">setting_feedback</string>
 
+    <!-- Placeholders -->
     <string name="placeholder" translatable="false">placeholder</string>
     <string name="placeholder_number" translatable="false">##</string>
     <string name="result_detail_save_date_placeholder" translatable="false">Save date placeholder</string>
@@ -33,25 +36,142 @@
     <string name="current_session_info_rated_fraction_placeholder" translatable="false">0/0</string>
     <string name="group_control_group_folder_list_row_group_name_input_placeholder" translatable="false">Group name placeholder</string>
     <string name="group_control_group_folder_list_row_folder_name_placeholder" translatable="false">Folder name placeholder</string>
-    <string name="track_counter" translatable="false">%s: %s</string>
+    <string name="dialog_version_info_text1_placeholder" translatable="false">Version Number</string>
+    <string name="dialog_version_info_text2_placeholder" translatable="false">Version Info</string>
+    <string name="help_header_placeholder" translatable="false">Help</string>
+    <string name="help_message2_placeholder" translatable="false">Help message 2</string>
 
-    <string name="dialog_corrupted_session_title">Corrupted session</string>
+    <!-- Number holders -->
+    <string name="track_counter" translatable="false">%s: %s</string>
+    <string name="group_control_group_folder_list_row_folder_name" translatable="false">/%s</string>
+    <string name="help_tag_description_row_number" translatable="false">%d.</string>
+
+    <!-- Fragment Headers -->
+    <string name="fragment_header_welcome" translatable="false">@string/app_name</string>
+    <string name="fragment_header_rating">Rating</string>
+    <string name="fragment_header_help">Help</string>
+    <string name="fragment_header_current_session_info">Current Session</string>
+    <string name="fragment_header_saved_ratings">Saved Ratings</string>
+    <string name="fragment_header_rating_detail">Rating Detail</string>
+    <string name="fragment_header_group_control_fragment">Group Control</string>
+    <string name="fragment_header_settings_fragment">Settings</string>
+
+    <!-- Menu Actions -->
+    <string name="action_quit">Quit</string>
+    <string name="action_new_session">Create a New Session</string>
+    <string name="action_new_session_condensed">New Session</string>
+    <string name="action_help">Help</string>
+    <string name="action_show_session_info">Session Info</string>
+    <string name="action_show_saved_results">Saved Ratings</string>
+    <string name="action_save">Save</string>
+    <string name="action_settings">Settings</string>
+
+    <!-- Buttons -->
     <string name="button_pause_label">Pause</string>
     <string name="button_play_label">Play</string>
-    <string name="dialog_quit_cancel">Cancel</string>
-    <string name="checkmark">Checkmark</string>
+    <string name="button_next_label">Next</string>
+    <string name="button_previous_label">Previous</string>
+    <string name="button_share_label">Share</string>
+    <string name="button_share_all_label">Share all</string>
+    <string name="button_confirm_label">Confirm</string>
+    <string name="button_share_as_text_label">Share as plain text</string>
+    <string name="button_share_as_excel_label">Share as excel file</string>
+
+    <!-- Dialogs -->
+    <string name="dialog_make_new_session_title">Leave current session?</string>
+    <string name="dialog_make_new_session_message">Do you want to discard unsaved ratings in this session and create a new rating session?</string>
+    <string name="dialog_make_new_session_positive_button_label">Yes</string>
+
+    <string name="dialog_invalid_directory_title">Invalid directory</string>
+    <string name="dialog_invalid_directory_not_exist">Directory &lt;i>%s&lt;/i> does not exist.</string>
+    <string name="dialog_invalid_directory_not_directory">Selection &lt;i>%s&lt;/i> is not a directory.</string>
+    <string name="dialog_invalid_directory_not_readable">Directory &lt;i>%s&lt;/i> is not readable.</string>
+    <string name="dialog_invalid_directory_no_files">No usable audio files were found in the &lt;i>%s&lt;/i> directory.</string>
+    <string name="dialog_invalid_directory_missing_files">The loaded session is missing the following files (total %1$d) in the directory %2$s:\n%3$s</string>
+    <string name="dialog_invalid_directory_choose_valid_data_directory">Choose valid data directory</string>
+    <string name="dialog_invalid_directory_cancel">Back</string>
+
+    <string name="dialog_internal_error_title">Internal error</string>
+    <string name="dialog_internal_error_message">Error message: Extracting full path from document selection URI failed!</string>
+    <string name="dialog_internal_error_quit">Quit</string>
+
+    <string name="dialog_no_session_found_title">No session found</string>
+    <string name="dialog_no_session_found_message">No previous rating session was found. Please create a new session.</string>
+    <string name="dialog_no_session_corrupted_session_quit">Quit</string>
+    <string name="dialog_no_session_corrupted_session_create_new_session">Create new session</string>
+    <string name="dialog_corrupted_session_title">Corrupted session</string>
+    <string name="dialog_corrupted_session_message">Previous session is corrupted. Please create a new session.</string>
+
+    <string name="dialog_delete_result_title">Delete selected result?</string>
+    <string name="dialog_delete_result_message">Are you sure you want to delete the selected result from the device? This operation is irreversible.</string>
+    <string name="dialog_delete_result_confirm">Yes, delete</string>
+    <string name="dialog_delete_result_cancel">No</string>
+
+    <string name="dialog_save_failed_continue_title">Saving failed!</string>
+    <string name="dialog_save_failed_continue_message">Current session could not be saved.&lt;\br>&lt;b>Reason: &lt;i>%s&lt;/i>&lt;/b>
+        &lt;\br>Do you want to continue with creating a new session? &lt;b>Current ratings will be lost.&lt;/b></string>
+    <string name="dialog_save_failed_continue_continue">Continue</string>
+    <string name="dialog_save_failed_continue_return">Return</string>
+    <string name="dialog_save_failed_continue_error_unknown">Unknown</string>
+
+    <string name="dialog_quit_title">Quit?</string>
     <string name="dialog_quit_message">Are you sure you want to quit\?</string>
-    <string name="main_title_placeholder">Intelligibility</string>
-    <string name="next_track">Next</string>
     <string name="dialog_quit_confirm">OK</string>
-    <string name="previous_track">Previous</string>
-    <string name="rating_label_highest">Perfectly\nintelligible</string>
-    <string name="rating_label_lowest">Completely\nunintelligible</string>
-    <string name="reset_confirm_prompt">Are you sure you want to reset all current ratings and start a new rating session\\?</string>
-    <string name="session_info_title">Info</string>
+    <string name="dialog_quit_cancel">Cancel</string>
+
+    <string name="dialog_version_info_version_number">App Version %s</string>
+
+    <string name="dialog_player_error_title">Player error</string>
+    <string name="dialog_player_error_reset">%s\nResetting the player…</string>
+    <string name="dialog_player_error_refresh">%s\nRefreshing the player…</string>
+    <string name="dialog_player_error">%s</string>
+    <string name="dialog_player_error_only_one_file_not_supported">There is only one file in session, and it is not supported. Please select some other valid directory.</string>
+    <string name="dialog_player_error_confirm">Proceed</string>
+
+    <!-- Snackbars -->
+    <string name="snackbar_result_deleted_success">Result deleted successfully.</string>
+    <string name="snackbar_result_deleted_failure">Result could not be deleted.\nReason: %s</string>
+    <string name="snackbar_results_select_hint">Select result from the list to view detailed info.</string>
+    <string name="snackbar_directory_selection_canceled">New session creation cancelled - no directory selected.</string>
+    <string name="snackbar_directory_check_canceled">New session creation cancelled - group check cancelled.</string>
+    <string name="snackbar_save_success">Saving successful!</string>
+    <string name="snackbar_save_failed">Saving failed!&lt;\br>&lt;b>Reason: &lt;i>%s&lt;/i>&lt;/b></string>
+    <string name="snackbar_save_failed_error_unknown">Unknown</string>
+    <string name="snackbar_new_session_created">New session created successfully!</string>
+    <string name="snackbar_ratings_loading_failed">Loading of saved rating files failed!&lt;\br>
+        &lt;b>Reason: &lt;i>%s&lt;/i>&lt;/b></string>
+    <string name="snackbar_share_all_excel_failed">Excel file(s) creation failed!</string>
+    <string name="snackbar_share_all_text_failed">Text results file(s) sharing failed!</string>
+    <string name="snackbar_share_current_session_text_failed">Current session sharing failed!</string>
+    <string name="snackbar_share_rating_detail_text_failed">Session sharing failed!</string>
+    <string name="snackbar_rating_player_track_load_failed">Track could not be loaded.</string>
     <string name="snackbar_connect_headphones">Please, plug in headphones.</string>
     <string name="snackbar_increase_volume">Audio volume is muted.</string>
-    <string name="track">Recording</string>
+
+    <!-- Excel creation strings -->
+    <string name="excel_sheet_name">Session %1$d - %2$s</string>
+    <string name="excel_session_id_label">Session ID</string>
+    <string name="excel_seed_label">Seed</string>
+    <string name="excel_generator_date_label">Date created</string>
+    <string name="excel_save_date_label">Date saved</string>
+    <string name="excel_recording_id_header">ID</string>
+    <string name="excel_recording_group_header">Group</string>
+    <string name="excel_recording_index_header">Index</string>
+    <string name="excel_recording_rating_header">Rating</string>
+
+    <!-- Settings Fragment -->
+    <string name="setting_show_welcome_screen_title">Show welcome screen</string>
+    <string name="setting_show_welcome_screen_summary_on">App will show the welcome screen on startup</string>
+    <string name="setting_show_welcome_screen_summary_off">App will show the rating screen on startup</string>
+    <string name="setting_number_of_backups_title">Number of backup result save files</string>
+    <string name="setting_feedback_title">Send feedback</string>
+    <string name="setting_feedback_summary">Report technical issues or suggest new features</string>
+    <string name="setting_version_info_title">Show version information</string>
+    <string name="setting_version_info_summary">Current version: %s</string>
+    <string name="setting_version_info_unknown_version">Unknown version</string>
+    <string name="setting_number_of_backups_summary">Maximum number of backups: %s</string>
+
+    <!-- Welcome Fragment -->
     <string name="welcome_title">Welcome!</string>
     <string name="welcome_message">
         \t<i><b>VASIR</b></i> is an application that utilizes visual analog scales for subjective speech intelligibility rating.\n
@@ -72,70 +192,34 @@
         \n\n
         This application was developed for use in research and development in the department of circuit theory, faculty of electrotechnics, CTU in Prague.\n
     </string>
+    <string name="welcome_checkbox_do_not_show_again">Do not show this screen again</string>
+    <string name="welcome_button_continue_label">Continue to rating</string>
+    <string name="welcome_title_image_desc">VASIR application logo, icons of a person speaking to an ear</string>
 
+    <!-- Rating Fragment -->
+    <string name="checkmark">Checkmark</string>
+    <string name="track">Recording</string>
+    <string name="rating_title_placeholder">Intelligibility</string>
+    <string name="rating_label_highest">Perfectly\nintelligible</string>
+    <string name="rating_label_lowest">Completely\nunintelligible</string>
+    <string name="player_error_unknown">Unknown error</string>
+    <string name="player_error_server_died">Server death error</string>
+    <string name="player_error_timeout">Player timeout</string>
+    <string name="player_error_io">File or network IO error</string>
+    <string name="player_error_unsupported">File not supported</string>
+    <string name="player_error_malformed">Bitstream is not conforming to the related coding standard or file specification</string>
 
-    <string name="directory_selection_instructions">
-        Audio file placement instructions:\n
-        Place your audio speech recordings saved as WAV or MP3-files in an accessible directory
-        (e.g. <i>Documents</i>) on internal memory or SD-card.\n\n
-        There have to be following folders in the selected directory:\n
-        <tt>\"HC\"</tt>, <tt>\"DBS_OFF\"</tt> and <tt>\"DBS_130\"</tt>\n
-        With audio files belonging to the groups placed within, accordingly.\n\n
-        This app <i>currently</i> only supports this predefined system, and will be
-        upgraded to auto-recognize group names in the future versions.
-    </string>
-    <string name="not_implemented">This function is not yet implemented.</string>
-    <string name="all_rated">All recordings have been rated!</string>
-    <string name="help">Help</string>
-    <string name="help_message">
-        This app is used for easy subjective scoring of speech recording intelligibility by listeners.
-        Precise use of the application depends on the experiment being conducted, but the general
-        aim of the application was to subjectively rate speech deterioration in patients suffering
-        from neurodegenerative diseases.\n\n
-        Assuming you have correctly placed the speech recording files into the specified folder on the
-        phone\'s SD card (as is described in the dialog shown in case the application was not able
-        to find any data), using the app is fairly simple.\n\n
-        The application automatically randomizes the loaded recordings during the creation of a new
-        rating session (resetting the current session). The recordings are then played using the
-        provided application interface. Listener uses the \"play\" and \"pause\" buttons and the seek bar
-        to listen to the recordings, changing between them using the \"next\" and \"previous\" buttons.
-        Total recording count as well as the number of the current recording is displayed in the
-        header.\n\n
-        Recordings are rated using the Visual Analog Scale in the lower part of the screen. User simply
-        places the seek button on the desired position on the track, which represents the subjectively
-        perceived speech intelligibility of the speaker\'s voice, in range from \"completely
-        unintelligible\" (no words comprehended) to \"perfectly intelligible\" (TV reporter level).
-        The number of ratings and backward editing of the ratings are not restricted, nevertheless
-        users should be instructed to listen to the recordings twice in maximum. After a recording
-        is successfully rated, a green checkmark sign will appear.\n\n
-        A double green checkmark sign will show up after all the provided recordings have been rated,
-        along with a brief message. The ratings will be automatically saved to the application folder
-        on the phone\'s memory card while the application is closed. The rating progress in the scope
-        of one rating session is also automatically preserved in the case of closing or exiting the app,
-        right until a new session is requested by the user, or up to the occasion of a reinstall.\n\n
-        If you encounter any problems using the app, please send a mail to:\n
-        kryzepet@fel.cvut.cz
-    </string>
-    <string name="choose_data_dir">Choose the data directory</string>
-
-
-
-
-
+    <!-- Results Fragment -->
     <string name="results_fragment_no_results">There are no saved ratings here yet! You can save a session manually via the corresponding option in the dropdown menu.</string>
+    <string name="results_list_row_sessionID">Session %d</string>
 
-
-
-
-    <string name="button_close_label">Close</string>
-    <string name="rating_list_row_sessionID">Session %d</string>
-
-
-    <string name="share_button_description">Share</string>
-    <string name="share_subject">Rating results for session %d</string>
+    <!-- Sharing -->
     <string name="share_using">Share to</string>
-    <string name="result_share_title">Rating results (%d)</string>
-    <string name="button_share_all_label">Share all</string>
+    <string name="share_result_title">Rating results (%d)</string>
+    <string name="share_current_session_title">Current session: %s</string>
+    <string name="share_rating_detail_title">Session: %s</string>
+
+    <!-- Result Detail Fragment -->
     <string name="result_detail_sessionID">Session %d</string>
     <string name="result_detail_save_date_label">Save date:</string>
     <string name="result_detail_seed_label">Seed:</string>
@@ -147,143 +231,89 @@
     <string name="result_detail_copy">ID: %1$s, Group: %2$s, Index: %3$s, Rating: %4$s</string>
     <string name="result_detail_copy_copied">Recording info copied to clipboard!</string>
 
-    <string name="welcome_checkbox_do_not_show_again">Do not show this screen again</string>
-    <string name="welcome_button_continue_label">Continue to rating</string>
-    <string name="welcome_title_image_desc">VASIR application logo, icons of a person speaking to an ear</string>
-
-    <string name="help_message1">\t<i><b>VASIR</b></i> is an application that utilizes visual analog scales for subjective speech intelligibility rating.\n</string>
-    <string name="help_message2">TODO</string>
-    <string name="button_share_label">Share</string>
-    <string name="snackbar_results_select_hint">Select result from the list to view detailed info.</string>
+    <!-- Current Session Info Fragment -->
     <string name="current_session_info_sessionID">Session %d</string>
 
-
-    <!-- Help Strings-->
-    <string name="help_context_body_rating_fragment">BODY HELP RATING FRAGMENT</string>
-    <string name="help_context_title_rating_fragment">Help: Rating</string>
-    <string name="help_context_body_results_fragment">BODY HELP RESULTS FRAGMENT</string>
-    <string name="help_context_title_results_fragment">Help: Saved ratings</string>
-    <string name="help_context_body_result_detail_fragment">BODY HELP RESULTS FRAGMENT</string>
-    <string name="help_context_title_result_detail_fragment">Help: Rating detail</string>
-    <string name="help_context_body_current_session_info_fragment">CURRENT SESSION INFO HELP BODY</string>
-    <string name="help_context_title_current_session_info_fragment">Help: Current session</string>
-    <string name="help_context_title_group_control_fragment">Help: Group Control</string>
-    <string name="help_context_body_group_control_fragment">BODY HELP GROUP CONTROL FRAGMENT</string>
-
-    <string name="fragment_header_rating">Rating</string>
-    <string name="fragment_header_help">Help</string>
-    <string name="fragment_header_current_session_info">Current Session</string>
-    <string name="fragment_header_saved_ratings">Saved Ratings</string>
-    <string name="fragment_header_rating_detail">Rating Detail</string>
-    <string name="fragment_header_welcome" translatable="false">VASIR</string>
-    <string name="fragment_header_group_control_fragment">Group Control</string>
-
-    <string name="action_quit">Quit</string>
-    <string name="action_new_session">Create a New Session</string>
-    <string name="action_help">Help</string>
-    <string name="action_show_session_info">Session Info</string>
-    <string name="action_show_saved_results">Saved Ratings</string>
-    <string name="action_save">Save</string>
-
-    <string name="button_confirm_label">Confirm</string>
+    <!-- Group Check Fragment -->
     <string name="group_control_group_folder_list_row_found_audio_files">Contains %d eligible audio files.</string>
     <string name="group_control_group_folder_list_row_folder_name_label">Folder:</string>
     <string name="group_control_group_folder_list_row_group_name_label">Group name:</string>
-
     <string name="group_control_invalid_input"><![CDATA[Group name must not contain these characters: ~#^|$%&*!?<>/]]></string>
 
-    <string name="dialog_make_new_session_title">Leave current session?</string>
-    <string name="dialog_make_new_session_message">Do you want to discard unsaved ratings in this session and create a new rating session?</string>
-    <string name="dialog_make_new_session_positive_button_label">Yes</string>
-    <string name="dialog_quit_title">Quit?</string>
-
-    <!-- Dialog invalid directory -->
-    <string name="dialog_invalid_directory_title">Invalid directory</string>
-    <string name="dialog_invalid_directory_not_exist">Directory &lt;i>%s&lt;/i> does not exist.</string>
-    <string name="dialog_invalid_directory_not_directory">Selection &lt;i>%s&lt;/i> is not a directory.</string>
-    <string name="dialog_invalid_directory_not_readable">Directory &lt;i>%s&lt;/i> is not readable.</string>
-    <string name="dialog_invalid_directory_no_files">No usable audio files were found in the &lt;i>%s&lt;/i> directory.</string>
-    <string name="dialog_invalid_directory_missing_files">The loaded session is missing the following files (total %1$d) in the directory %2$s:\n%3$s</string>
-    <string name="dialog_invalid_directory_choose_valid_data_directory">Choose valid data directory</string>
-    <string name="dialog_invalid_directory_cancel">Back</string>
-
-    <string name="dialog_internal_error_title">Internal error</string>
-    <string name="dialog_internal_error_message">Error message: Extracting full path from document selection URI failed!</string>
-    <string name="dialog_internal_error_quit">Quit</string>
-
-    <string name="dialog_no_session_found_title">No session found</string>
-    <string name="dialog_no_session_found_message">No previous rating session was found. Please create a new session.</string>
-    <string name="dialog_no_session_corrupted_session_quit">Quit</string>
-    <string name="dialog_corrupted_session_message">Previous session is corrupted. Please create a new session.</string>
-
-    <string name="dialog_no_session_corrupted_session_create_new_session">Create new session</string>
-
-    <string name="dialog_delete_result_title">Delete selected result?</string>
-    <string name="dialog_delete_result_message">Are you sure you want to delete the selected result from the device? This operation is irreversible.</string>
-    <string name="dialog_delete_result_confirm">Yes, delete</string>
-    <string name="dialog_delete_result_cancel">No</string>
-
-    <string name="dialog_save_failed_continue_title">Saving failed!</string>
-    <string name="dialog_save_failed_continue_message">Current session could not be saved.&lt;\br>&lt;b>Reason: &lt;i>%s&lt;/i>&lt;/b>
-        &lt;\br>Do you want to continue with creating a new session? &lt;b>Current ratings will be lost.&lt;/b></string>
-    <string name="dialog_save_failed_continue_continue">Continue</string>
-    <string name="dialog_save_failed_continue_return">Return</string>
-    <string name="dialog_save_failed_continue_error_unknown">Unknown</string>
+    <!-- Help Fragment -->
+    <string name="help_context_title_rating_fragment">Help: Rating</string>
+    <string name="help_context_title_results_fragment">Help: Saved ratings</string>
+    <string name="help_context_title_result_detail_fragment">Help: Rating detail</string>
+    <string name="help_context_title_current_session_info_fragment">Help: Current session</string>
+    <string name="help_context_title_group_control_fragment">Help: Group check</string>
+    <string name="help_context_title_settings_fragment">Help: Settings</string>
 
 
 
-    <string name="snackbar_result_deleted_success">Result deleted successfully.</string>
-    <string name="snackbar_result_deleted_failure">Result could not be deleted.\nReason: %s</string>
-    <string name="snackbar_directory_selection_canceled">New session creation cancelled - no directory selected.</string>
-    <string name="snackbar_save_success">Saving successful!</string>
-    <string name="snackbar_save_failed">Saving failed!&lt;\br>&lt;b>Reason: &lt;i>%s&lt;/i>&lt;/b></string>
-    <string name="snackbar_save_failed_error_unknown">Unknown</string>
-    <string name="snackbar_new_session_created">New session created successfully!</string>
-    <string name="snackbar_ratings_loading_failed">Loading of saved rating files failed!&lt;\br>
-        &lt;b>Reason: &lt;i>%s&lt;/i>&lt;/b></string>
 
-    <string name="excel_sheet_name">Session %1$d - %2$s</string>
+    <string name="help_context_body_rating_fragment">BODY HELP RATING FRAGMENT</string>
 
-    <string name="excel_session_id_label">Session ID</string>
-    <string name="excel_seed_label">Seed</string>
-    <string name="excel_generator_date_label">Date created</string>
-    <string name="excel_save_date_label">Date saved</string>
-    <string name="excel_recording_id_header">ID</string>
-    <string name="excel_recording_group_header">Group</string>
-    <string name="excel_recording_index_header">Index</string>
-    <string name="excel_recording_rating_header">Rating</string>
-    <string name="button_share_as_text_label">Share as plain text</string>
-    <string name="button_share_as_excel_label">Share as excel file</string>
-    <string name="snackbar_share_all_excel_failed">Excel file(s) creation failed!</string>
-    <string name="snackbar_share_all_text_failed">Text results file(s) sharing failed!</string>
-    <string name="group_control_group_folder_list_row_folder_name" translatable="false">/%s</string>
-    <string name="snackbar_share_current_session_text_failed">Current session sharing failed!</string>
-    <string name="snackbar_share_rating_detail_text_failed">Session sharing failed!</string>
-    <string name="current_session_share_title">Current session: %s</string>
-    <string name="rating_detail_share_title">Session: %s</string>
-    <string name="snackbar_rating_player_track_load_failed">Track could not be loaded.</string>
-    <string name="action_settings">Settings</string>
-    <string name="fragment_header_settings_fragment">Settings</string>
-    <string name="action_new_session_condensed">New Session</string>
+    <string name="help_context_body_results_fragment">BODY HELP RESULTS FRAGMENT</string>
 
-    <string name="setting_show_welcome_screen_title">Show welcome screen</string>
-    <string name="setting_show_welcome_screen_summary_on">App will show the welcome screen on startup</string>
-    <string name="setting_show_welcome_screen_summary_off">App will show the rating screen on startup</string>
+    <string name="help_context_body_result_detail_fragment">BODY HELP RESULTS FRAGMENT</string>
 
-    <string name="setting_number_of_backups_title">Number of backup result save files</string>
+    <string name="help_context_body_current_session_info_fragment">CURRENT SESSION INFO HELP BODY</string>
 
-    <string name="setting_feedback_title">Send feedback</string>
-    <string name="setting_feedback_summary">Report technical issues or suggest new features</string>
+    <string name="help_context_body_group_control_fragment">BODY HELP GROUP CONTROL FRAGMENT</string>
 
-    <string name="setting_version_info_title">Show version information</string>
-    <string name="setting_version_info_summary">Current version: %s</string>
-    <string name="setting_version_info_unknown_version">Unknown version</string>
-    <string name="setting_number_of_backups_summary">Maximum number of backups: %s</string>
-    <string name="version_info_dialog_text1_placeholder" translatable="false">Version Number</string>
-    <string name="version_info_dialog_text2_placeholder" translatable="false">Version Info</string>
-    <string name="version_info_dialog_version_number">App Version %s</string>
-    <string name="version_info_dialog_subtitle" translatable="false">Beta 08/2021\n© 2021 Petr Krýže</string>
-    <string name="snackbar_player_error">Player encountered an error. Resetting the player...</string>
+    <string name="help_context_body_settings_fragment">BODY HELP SETTINGS FRAGMENT</string>
 
+
+
+    <!-- Help Image Descriptions -->
+    <string name="help_tag_description_content_description">Image showing screenshot of application content relatex to the context of the help being displayed.</string>
+
+    <string-array name="help_tag_description_rating_fragment">
+        <item>Current position in the list of all recordings.</item>
+        <item>Icon indicating that the current recordings has already been rated. After all recordings have been rated, a double-checkmark icon will appear.</item>
+        <item>Current playback position in format [mm:ss].</item>
+        <item>Total playback time of the current recording.</item>
+        <item>Horizontal bar enabling seeking over the whole recording.</item>
+        <item>Player control buttons. Long-press on the previous/next button takes you to the first/last recording in the list.</item>
+        <item>Rating bar. Values furthest to the right typically represent best performance, furthest to the left represent the worst performance.</item>
+    </string-array>
+
+    <string-array name="help_tag_description_settings_fragment">
+        <item>This setting restores showing of the welcome screen on app\'s startup, in case you previously check you don\'t want to see it again.</item>
+        <item>Number of save file backups for every session, that will be kept in memory. Allowed input: 0–100 backups.</item>
+        <item>Shows information about the current version of the app.</item>
+        <item>Allows you to send feedback to the developers.</item>
+    </string-array>
+
+    <string-array name="help_tag_description_results_fragment">
+        <item>List of saved sessions, sorted chronologically with the lastest saved session on top. List items can be clicked on to display detailed session info. Long-press enables to delete the save.</item>
+        <item>Session\'s date and time of saving.</item>
+        <item>Message hinting at the option to click on list items to see detailed info. Automatically disappears after a while.</item>
+        <item>Share all saved sessions button. A share mode (plain text/excel file) and a share target can be selected after pressing.</item>
+    </string-array>
+
+    <string-array name="help_tag_description_result_detail_fragment">
+        <item>Session name.</item>
+        <item>Session info: Save date, randomization seed, creation date. Values can be copied.</item>
+        <item>List of all recordings in the session. List can be sorted both ascendingly or descendingly by pressing on the column headers.</item>
+        <item>List items: Recording\'s ID, group name, randomization index, set recording\'s rating.</item>
+        <item>Session share button. A share mode (plain text/excel file) and a share target can be selected after pressing.</item>
+    </string-array>
+
+    <string-array name="help_tag_description_group_control_fragment">
+        <item>List of all found folders that store eligible recordings.</item>
+        <item>Found folder\'s name and a number of eligible recordings within.</item>
+        <item>Group label, that will be assigned to all recordings from the specified folder. Default value is the folder\'s name. This label is used solely for display and export purposes and will not in any manned affect the randomization of the recordings.</item>
+        <item>Checkbox enabling exclusion (inclusion) of selected groups from the new session.</item>
+        <item>Confirm button. It is obligatory to leave at least one group enabled.</item>
+    </string-array>
+
+    <string-array name="help_tag_description_current_session_info_fragment">
+        <item>Current session\'s name.</item>
+        <item>Current session info: Randomization seed, creation date. Values can be copied.</item>
+        <item>List of all recordings in the current session. List can be sorted both ascendingly or descendingly by pressing on the column headers.</item>
+        <item>List items: Recording\'s ID, group name, randomization index, set recording\'s rating.</item>
+        <item>Current session share button. A share mode (plain text/excel file) and a share target can be selected after pressing.</item>
+    </string-array>
 
 </resources>
