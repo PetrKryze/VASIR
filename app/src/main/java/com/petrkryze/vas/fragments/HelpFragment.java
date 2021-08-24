@@ -1,14 +1,20 @@
 package com.petrkryze.vas.fragments;
 
 import android.annotation.SuppressLint;
+import android.graphics.Typeface;
 import android.os.Bundle;
+import android.text.SpannableStringBuilder;
+import android.text.Spanned;
+import android.text.style.BulletSpan;
+import android.text.style.LeadingMarginSpan;
+import android.text.style.StyleSpan;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
-import com.petrkryze.vas.MainActivity;
 import com.petrkryze.vas.R;
 import com.petrkryze.vas.adapters.HelpDescriptionsRecyclerViewAdapter;
 import com.petrkryze.vas.databinding.FragmentHelpBinding;
@@ -19,12 +25,16 @@ import java.util.Arrays;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavDirections;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import static com.petrkryze.vas.MainActivity.disableMenuItem;
+import static com.petrkryze.vas.MainActivity.enableMenuItem;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -89,7 +99,8 @@ public class HelpFragment extends VASFragment {
                 requireContext(), Arrays.asList(helpDescriptions)));
         list.setLayoutManager(new LinearLayoutManager(view.getContext()));
 
-        binding.helpBodyTextview.setText(helpBody);
+        binding.helpBodyTextview.setText(getRichBodyText(helpBody), TextView.BufferType.SPANNABLE);
+
         binding.helpImageview.setImageDrawable(
                 ResourcesCompat.getDrawable(getResources(), helpImageResource, null));
     }
@@ -100,6 +111,34 @@ public class HelpFragment extends VASFragment {
         binding = null;
     }
 
+    private SpannableStringBuilder getRichBodyText(String raw) {
+        SpannableStringBuilder sb = new SpannableStringBuilder();
+
+        String[] paragraphs = raw.split(";");
+
+        int start = 0;
+        for (int i = 0; i < paragraphs.length; i++) {
+            if (i == 0) {
+                sb.append(paragraphs[i], new StyleSpan(Typeface.BOLD), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                start = sb.length();
+            } else {
+                BulletSpan bullets;
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
+                    bullets = new BulletSpan(5,
+                            ContextCompat.getColor(requireContext(), R.color.textPrimaryOnSurface),
+                            8);
+                } else {
+                    bullets = new BulletSpan(5);
+                }
+
+                sb.append(paragraphs[i], bullets, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            }
+        }
+
+        sb.setSpan(new LeadingMarginSpan.Standard(0,26), start, sb.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        return sb;
+    }
+
     @Override
     public void onPrepareOptionsMenu(@NonNull Menu menu) {
         super.onPrepareOptionsMenu(menu);
@@ -108,8 +147,8 @@ public class HelpFragment extends VASFragment {
         int[] toEnable = {R.id.action_menu_show_saved_results, R.id.action_menu_quit,
                 R.id.action_menu_show_session_info, R.id.action_menu_settings};
 
-        for (int item : toDisable) MainActivity.disableMenuItem(menu, item);
-        for (int item : toEnable) MainActivity.enableMenuItem(menu, item);
+        for (int item : toDisable) disableMenuItem(menu, item);
+        for (int item : toEnable) enableMenuItem(menu, item);
     }
 
     @SuppressLint("ShowToast")

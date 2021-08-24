@@ -19,7 +19,6 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:gravity="center_horizontal"
-            android:orientation="vertical"
             android:padding="20dp">
 
             <androidx.constraintlayout.widget.ConstraintLayout
@@ -125,11 +124,12 @@
             <TextView
                 android:id="@+id/help_body_textview"
                 style="@style/TextAppearance.MdcTypographyStyles.Body2"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
 
                 android:text="@string/help_message2_placeholder"
+                android:lineSpacingExtra="-1dp"
 
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"

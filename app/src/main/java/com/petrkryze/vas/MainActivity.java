@@ -7,6 +7,7 @@ import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.text.Html;
+import android.text.Spanned;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -142,8 +143,8 @@ public class MainActivity extends AppCompatActivity {
         menu.findItem(itemID).setEnabled(true).getIcon().setAlpha(alphaEnabled);
     }
 
-    public static String html(String string) {
-        return Html.fromHtml(string, Html.FROM_HTML_MODE_LEGACY).toString();
+    public static Spanned html(String string) {
+        return Html.fromHtml(string, Html.FROM_HTML_MODE_LEGACY);
     }
 
     @Override

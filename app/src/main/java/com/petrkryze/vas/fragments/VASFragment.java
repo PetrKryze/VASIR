@@ -9,6 +9,7 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Vibrator;
+import android.text.Spanned;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -129,7 +130,7 @@ public class VASFragment extends Fragment {
 
                 requireActivity().runOnUiThread(() -> {
                     loadingVisibility(false);
-                    String message = html(getString(R.string.snackbar_ratings_loading_failed, e.getMessage()));
+                    Spanned message = html(getString(R.string.snackbar_ratings_loading_failed, e.getMessage()));
                     Snackbar.make(requireActivity().findViewById(R.id.coordinator),
                             message, BaseTransientBottomBar.LENGTH_LONG)
                             .setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE).show();

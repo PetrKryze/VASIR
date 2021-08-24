@@ -31,6 +31,7 @@
         style="@style/TextAppearance.MdcTypographyStyles.Body2"
         android:text="@string/placeholder"
         android:textColor="@color/textPrimaryOnSurface"
+        android:lineSpacingExtra="-1dp"
 
         app:layout_constraintStart_toEndOf="@id/help_imageview_description_row_number"
         app:layout_constraintTop_toTopOf="parent"

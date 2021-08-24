@@ -11,6 +11,7 @@ import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.VibrationEffect;
+import android.text.Spanned;
 import android.util.Log;
 import android.util.Pair;
 import android.util.TypedValue;
@@ -635,7 +636,7 @@ public class RatingFragment extends VASFragment {
 
     private void onDirectoryCheckError(DirectoryCheckError errorInfo) {
         creatingNewSession = false;
-        String message = null;
+        Spanned message = null;
         String dirname = errorInfo.dirName;
 
         switch (errorInfo.errorType) {
@@ -653,7 +654,7 @@ public class RatingFragment extends VASFragment {
                 break;
         }
 
-        String finalMessage = message;
+        Spanned finalMessage = message;
         dialog = new MaterialAlertDialogBuilder(requireContext())
                 .setTitle(getString(R.string.dialog_invalid_directory_title))
                 .setMessage(finalMessage)
@@ -827,7 +828,7 @@ public class RatingFragment extends VASFragment {
     private void onSaveFailed(String errorMessage) {
         String errorString = (errorMessage == null ?
                 getString(R.string.snackbar_save_failed_error_unknown) : errorMessage);
-        String message = html(getString(R.string.snackbar_save_failed, errorString));
+        Spanned message = html(getString(R.string.snackbar_save_failed, errorString));
         Snackbar.make(requireActivity().findViewById(R.id.coordinator), message,
                 BaseTransientBottomBar.LENGTH_LONG)
                 .setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE).show();
@@ -836,7 +837,7 @@ public class RatingFragment extends VASFragment {
     private void onSaveFailedOnNewSession(String errorMessage) {
         String errorString = (errorMessage == null ?
                 getString(R.string.dialog_save_failed_continue_error_unknown) : errorMessage);
-        String message = html(getString(R.string.dialog_save_failed_continue_message, errorString));
+        Spanned message = html(getString(R.string.dialog_save_failed_continue_message, errorString));
         loadingVisibility(false);
         dialog = new MaterialAlertDialogBuilder(requireContext())
                 .setTitle(getString(R.string.dialog_save_failed_continue_title))

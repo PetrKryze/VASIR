@@ -206,7 +206,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 
                 requireActivity().runOnUiThread(() -> {
                     loadingVisibility(false);
-                    String message = html(getString(R.string.snackbar_ratings_loading_failed, e.getMessage()));
+                    Spanned message = html(getString(R.string.snackbar_ratings_loading_failed, e.getMessage()));
                     Snackbar.make(requireActivity().findViewById(R.id.coordinator),
                             message, BaseTransientBottomBar.LENGTH_LONG)
                             .setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE).show();

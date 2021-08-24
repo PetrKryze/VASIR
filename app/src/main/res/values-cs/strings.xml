@@ -198,40 +198,97 @@
     <string name="help_context_title_group_control_fragment">Nápověda: Kontrola skupin</string>
     <string name="help_context_title_settings_fragment">Nápověda: Nastavení</string>
 
-
-
     <string name="help_context_body_rating_fragment">
-        <b>Tato obrazovka slouží k hodnocení audio nahrávek v rámci hodnotitelského sezení.</b>\n
+        Tato obrazovka slouží k hodnocení audio nahrávek v rámci hodnotitelského sezení.\n\n;
 
         Při prvním startu aplikace budete vyzváni k vytvoření nového hodnotitelského sezení. Pomocí
-        výběrového menu zvolíte adresář, kde jsou uloženy audio soubory s nahrávkami, které chcete hodnotit.
+        výběrového menu zvolíte adresář, kde jsou uloženy audio soubory s nahrávkami, které chcete hodnotit.\n\n;
+
         Pokud chcete rozlišovat skupiny jednotlivých nahrávek (např. zdraví/nemocní), doporučujeme
         vložit nahrávky od příslušných skupin do individuálních složek a vybrat nadřazený adresář.
-        Aplikace pak automaticky rozdělí a označí nahrávky pro potřeby následného zpracování výsledků.\n
+        Aplikace pak automaticky rozdělí a označí nahrávky pro potřeby následného zpracování výsledků.\n\n;
 
-        Aplikace podporuje audio formáty
+        Aplikace podporuje audio formáty AAC (.m4a, .aac), FLAC (.flac), MP3 (.mp3), Opus (.ogg), PCM/WAVE (.wav) a Vorbis (.ogg, .m4a).\n\n;
 
         Pomocí tlačítek přehrávače se můžete pohybovat v seznamu nahrávek, nahrávky si pouštět nebo je přetáčet.
-        Počet přehrání jednotlivých nahrávek není omezen.
+        Počet přehrání jednotlivých nahrávek není omezen.\n\n;
+
         Po poslechu můžete jednotlivé nahrávky hodnotit za pomocí spojité škály ve spodní části obrazovky.
-        Po ohodnocení všech nahrávek se zobrazí ikona dvojité fajfky.
-        Sezení se ukládají do paměti aplikace automaticky, při každém opustění obrazovky.
+        Po ohodnocení všech nahrávek se zobrazí ikona dvojité fajfky.\n\n;
+
+        Sezení se ukládají do paměti aplikace automaticky, při každém opustění obrazovky.\n\n;
         Výsledky lze uložit buď manuálně pomocí rozbalovací nabídky v pravém horním rohu, nebo se po
-        ohodnocení všech nahrávek ukládají automaticky při opuštění aktivity.
+        ohodnocení všech nahrávek ukládají automaticky při opuštění aktivity.\n\n;
+
         Výsledky se ukládají do specifického aplikačního adresáře v paměti zařízení a dají se sdílet
         ze sekce "Uložená hodnocení", do které se dostanete prostřednictvím rozbalovací nabídky.
     </string>
 
-    <string name="help_context_body_results_fragment">BODY HELP RESULTS FRAGMENT</string>
+    <string name="help_context_body_results_fragment">
+        V tomto seznamu můžete prohlížet a sdílet vaše uložená sezení.\n\n;
 
-    <string name="help_context_body_result_detail_fragment">BODY HELP RESULTS DETAIL FRAGMENT</string>
+        Každé sezení v seznamu lze rozkliknout a zobrazit tak náhled s podrobnějšími informacemi.
+        Sezení jsou řazena chronologicky od nejnovějšího.\n\n;
 
-    <string name="help_context_body_current_session_info_fragment">CURRENT SESSION INFO HELP BODY</string>
+        Dlouhým dotykem na sezení v seznamu lze dané sezení vymazat z paměti.\n\n;
 
-    <string name="help_context_body_group_control_fragment">BODY HELP GROUP CONTROL FRAGMENT</string>
+        Pomocí tlačítka v dolní části obrazovky lze všechny sezení sdílet ve formátu prostého textu (formátovaného pro případné
+        další zpracování v programech typu Matlab apod., soubor .txt) nebo ve formátu Microsoft® Excel®. (soubor .xlsx)\n\n;
 
-    <string name="help_context_body_settings_fragment">BODY HELP SETTINGS FRAGMENT</string>
+        Sezení jsou ukládána do aplikační složky ve vnitřní paměti zařízení. Počet ponechávaných záložních
+        souborů s výsledky pro aktivní sezení lze změnit v nastavení.
+    </string>
 
+    <string name="help_context_body_result_detail_fragment">
+        Tato obrazovka obsahuje detailní náhled vybraného sezení včetně seznamu jednotlivých nahrávek, jejich hodnocení a tlačítkem pro sdílení výsledků.\n\n;
+
+        Informace o sezení v hlavičce lze dotykem zkopírovat do schránky.\n\n;
+
+        Položky v seznamu nahrávek lze seřadit podle hodnot ve sloupcích dotykem na hlavičku daného sloupce.\n\n;
+
+        Dlouhým dotykem na položku v seznamu nahrávek lze zkopírovat informace o nahrávce do schránky.\n\n;
+
+        Zobrazené sezení lze sdílet pomocí tlačítka v dolní části obrazovky. Sezení lze sdílet ve formátu prostého textu (formátovaného pro případné
+        další zpracování v programech typu Matlab apod., soubor .txt) nebo ve formátu Microsoft® Excel®. (soubor .xlsx)
+    </string>
+
+    <string name="help_context_body_current_session_info_fragment">
+        Tato obrazovka obsahuje detailní náhled aktuálního sezení včetně seznamu jednotlivých nahrávek, jejich hodnocení a tlačítkem pro sdílení výsledků.\n\n;
+
+        Informace o aktuálním sezení v hlavičce lze dotykem zkopírovat do schránky.\n\n;
+
+        Položky v seznamu nahrávek lze seřadit podle hodnot ve sloupcích dotykem na hlavičku daného sloupce.\n\n;
+
+        Dlouhým dotykem na položku v seznamu nahrávek lze zkopírovat informace o nahrávce do schránky.\n\n;
+
+        Sezení lze sdílet pomocí tlačítka v dolní části obrazovky. Sezení lze sdílet ve formátu prostého textu (formátovaného pro případné
+        další zpracování v programech typu Matlab apod., soubor .txt) nebo ve formátu Microsoft® Excel®. (soubor .xlsx)
+    </string>
+
+    <string name="help_context_body_group_control_fragment">
+        Na této obrazovce lze zkontrolovat soubory a skupiny, které budete chtít použít pro nově vytvářené sezení.\n\n;
+
+        Hlavička ukazuje počet individuálních adresářů, ve kterých byly nalezeny použitelné audio soubory.\n\n;
+
+        Seznam adresářů zobrazuje název nalezeného adresáře, počet použitelných audio souborů, které adresář obsahuje a pole,
+        pomocí kterého lze měnit název skupiny, který bude přidělen všem souborům z daného adresáře. Výchozím názvem skupiny
+        je přímo název daného adresáře.\n\n;
+
+        Pokud byl vybrán adresář, ve kterém se nenachází žádné použitelné soubory (ani v podsložkách), bude zobrazena chybová hláška.\n\n;
+
+        Pokud byl vybrán adresář přímo obsahující pouze použitelné audio soubory (bez podsložek), bude použit přímo on a vytvořena jen jediná skupina.\n\n;
+
+        Pomocí zaškrtávacího pole v pravé části lze vybírat, zda-li bude daný adresář/skupina použit v právě vytvářeném sezení.
+    </string>
+
+    <string name="help_context_body_settings_fragment">
+        Zde lze měnit nastavení aplikace.\n\n;
+
+        Při změně počtu záložních souborů s výsledky se přebytek nad tento limit smaže vždy pouze pro
+        aktuální sezení v momentě, kdy bude sezení ukládáno (při opuštění obrazovky s hodnocením).\n\n;
+
+        Zpětnou vazbu (bugy, připomínky, nápady na vylepšení) můžete posílat emailem pomocí poskytnuté volby.
+    </string>
 
     <!-- Help Image Descriptions -->
     <string name="help_tag_description_content_description">Obrázek zobrazující záznam obrazovky, na kterém je obsah aplikačního okna v závislosti na contextu zobrazené nápovědy.</string>
@@ -254,7 +311,7 @@
     </string-array>
 
     <string-array name="help_tag_description_results_fragment">
-        <item>Seznam uložených sezení, sežazený chronologicky od nejnovějšího záznamu. Položky v seznamu lze rozkliknout pro detailní náhled. Dlouhým stiskem lze jednotlivé položky smazat.</item>
+        <item>Seznam uložených sezení, seřazený chronologicky od nejnovějšího záznamu. Položky v seznamu lze rozkliknout pro detailní náhled. Dlouhým stiskem lze jednotlivé položky smazat.</item>
         <item>Datum a čas uložení daného sezení.</item>
         <item>Nápověda udávající, že lze nahrávky v seznamu rozkliknout pro detailní náhled. Po chvíli automaticky zmizí.</item>
         <item>Tlačítko pro sdílení všech uložených sezení. Po kliknutí lze vybrat typ sdílení (prostý text/excelový soubor) a následně cíl sdílení.</item>
