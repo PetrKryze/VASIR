@@ -4,4 +4,8 @@
         <item quantity="one">Found %d folder containing eligible audio files.</item>
         <item quantity="other">Found %d folders containing eligible audio files.</item>
     </plurals>
+    <plurals name="group_control_group_folder_list_row_found_audio_files">
+        <item quantity="one">Contains %d eligible audio file.</item>
+        <item quantity="other">Contains %d eligible audio files.</item>
+    </plurals>
 </resources>

@@ -235,7 +235,6 @@
     <string name="current_session_info_sessionID">Session %d</string>
 
     <!-- Group Check Fragment -->
-    <string name="group_control_group_folder_list_row_found_audio_files">Contains %d eligible audio files.</string>
     <string name="group_control_group_folder_list_row_folder_name_label">Folder:</string>
     <string name="group_control_group_folder_list_row_group_name_label">Group name:</string>
     <string name="group_control_invalid_input"><![CDATA[Group name must not contain these characters: ~#^|$%&*!?<>/]]></string>
