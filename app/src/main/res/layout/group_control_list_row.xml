@@ -52,7 +52,7 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="2dp"
 
-        android:text="@string/group_control_group_folder_list_row_found_audio_files"
+        android:text="@string/placeholder"
         android:textColor="@color/textPrimaryOnSurface"
         android:textAppearance="@style/TextAppearance.MdcTypographyStyles.Caption"
         android:alpha="0.7"
