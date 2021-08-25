@@ -176,10 +176,13 @@ public class VASFragment extends Fragment {
             String finalTitle = title;
             String finalMessage = message;
             Drawable finalIcon = icon;
-            requireActivity().runOnUiThread(() -> dialog = new MaterialAlertDialogBuilder(context)
-                    .setTitle(finalTitle).setMessage(finalMessage).setIcon(finalIcon)
-                    .setPositiveButton(context.getString(R.string.dialog_quit_confirm), null)
-                    .show());
+            requireActivity().runOnUiThread(() -> {
+                loadingVisibility(false);
+                dialog = new MaterialAlertDialogBuilder(context)
+                        .setTitle(finalTitle).setMessage(finalMessage).setIcon(finalIcon)
+                        .setPositiveButton(context.getString(R.string.dialog_quit_confirm), null)
+                        .show();
+            });
         }, "SessionLoadingThread").start();
     }
 
