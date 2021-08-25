@@ -1,4 +1,4 @@
-package com.petrkryze.vas;
+package com.petrkryze.vas.livedata;
 
 public class MutableEventLiveData<T> extends EventLiveData<T> {
 

@@ -1,4 +1,4 @@
-package com.petrkryze.vas;
+package com.petrkryze.vas.livedata;
 
 import android.os.Looper;
 
@@ -59,7 +59,7 @@ import static androidx.lifecycle.Lifecycle.State.STARTED;
  * @param <T> The type of data held by this instance
  * @see ViewModel
  */
-@SuppressWarnings({"rawtypes", "unchecked", "TypeParameterHidesVisibleType", "ConstantConditions"})
+@SuppressWarnings({"rawtypes", "unchecked", "TypeParameterHidesVisibleType", "unused"})
 public  class EventLiveData<T> extends LiveData<T> {
 
     private final HashMap<Observer<? super T>, EventObserverWrapper> observers= new HashMap<>();
@@ -328,6 +328,7 @@ public  class EventLiveData<T> extends LiveData<T> {
     public boolean hasActiveObservers() {
         return mActiveCount > 0;
     }
+    @SuppressWarnings("unused")
     class EventLifecycleBoundEventObserver extends EventObserverWrapper implements LifecycleObserver {
         @NonNull
         private final LifecycleOwner mOwner;
@@ -380,6 +381,7 @@ public  class EventLiveData<T> extends LiveData<T> {
         }
     }
 
+    @SuppressWarnings("unused")
     private abstract class EventObserverWrapper {
         protected final Observer<? super T> mObserver;
         boolean mActive;
