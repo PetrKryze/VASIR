@@ -201,19 +201,19 @@
     <string name="help_context_body_rating_fragment">
         Tato obrazovka slouží k hodnocení audio nahrávek v rámci hodnotitelského sezení.\n\n;
 
-        Při prvním startu aplikace budete vyzváni k vytvoření nového hodnotitelského sezení. Pomocí
-        výběrového menu zvolíte adresář, kde jsou uloženy audio soubory s nahrávkami, které chcete hodnotit.\n\n;
+        Při prvním startu aplikace vyzve k vytvoření nového hodnotitelského sezení. Pomocí
+        výběrového menu zvolíte adresář, kde jsou uloženy audio soubory s nahrávkami, které si přejete hodnotit.\n\n;
 
-        Pokud chcete rozlišovat skupiny jednotlivých nahrávek (např. zdraví/nemocní), doporučujeme
+        Pokud si přejete rozlišovat skupiny jednotlivých nahrávek (např. zdraví/nemocní), doporučujeme
         vložit nahrávky od příslušných skupin do individuálních složek a vybrat nadřazený adresář.
         Aplikace pak automaticky rozdělí a označí nahrávky pro potřeby následného zpracování výsledků.\n\n;
 
         Aplikace podporuje audio formáty AAC (.m4a, .aac), FLAC (.flac), MP3 (.mp3), Opus (.ogg), PCM/WAVE (.wav) a Vorbis (.ogg, .m4a).\n\n;
 
-        Pomocí tlačítek přehrávače se můžete pohybovat v seznamu nahrávek, nahrávky si pouštět nebo je přetáčet.
+        Pomocí tlačítek přehrávače se lze pohybovat v seznamu nahrávek, nahrávky si pouštět nebo je přetáčet.
         Počet přehrání jednotlivých nahrávek není omezen.\n\n;
 
-        Po poslechu můžete jednotlivé nahrávky hodnotit za pomocí spojité škály ve spodní části obrazovky.
+        Po poslechu lze jednotlivé nahrávky hodnotit za pomocí spojité škály ve spodní části obrazovky.
         Po ohodnocení všech nahrávek se zobrazí ikona dvojité fajfky.\n\n;
 
         Sezení se ukládají do paměti aplikace automaticky, při každém opustění obrazovky.\n\n;
@@ -221,21 +221,22 @@
         ohodnocení všech nahrávek ukládají automaticky při opuštění aktivity.\n\n;
 
         Výsledky se ukládají do specifického aplikačního adresáře v paměti zařízení a dají se sdílet
-        ze sekce "Uložená hodnocení", do které se dostanete prostřednictvím rozbalovací nabídky.
+        ze sekce "Uložená hodnocení", do které se lze dostat prostřednictvím rozbalovací nabídky.
     </string>
 
     <string name="help_context_body_results_fragment">
-        V tomto seznamu můžete prohlížet a sdílet vaše uložená sezení.\n\n;
+        V této aktivitě můžete prohlížet a sdílet výsledky vašich uložených sezení.\n\n;
 
         Každé sezení v seznamu lze rozkliknout a zobrazit tak náhled s podrobnějšími informacemi.
         Sezení jsou řazena chronologicky od nejnovějšího.\n\n;
 
         Dlouhým dotykem na sezení v seznamu lze dané sezení vymazat z paměti.\n\n;
 
-        Pomocí tlačítka v dolní části obrazovky lze všechny sezení sdílet ve formátu prostého textu (formátovaného pro případné
-        další zpracování v programech typu Matlab apod., soubor .txt) nebo ve formátu Microsoft® Excel®. (soubor .xlsx)\n\n;
+        Pomocí tlačítka v dolní části obrazovky lze všechny výsledky sezení sdílet jako prostý text
+        (soubor .txt, formátovaný pro případné zpracování v programech typu Matlab apod.) nebo ve
+        formátu Microsoft® Excel® (soubor .xlsx).\n\n;
 
-        Sezení jsou ukládána do aplikační složky ve vnitřní paměti zařízení. Počet ponechávaných záložních
+        Výsledky sezení jsou ukládána do aplikační složky ve vnitřní paměti zařízení. Počet ponechávaných záložních
         souborů s výsledky pro aktivní sezení lze změnit v nastavení.
     </string>
 
@@ -249,7 +250,7 @@
         Dlouhým dotykem na položku v seznamu nahrávek lze zkopírovat informace o nahrávce do schránky.\n\n;
 
         Zobrazené sezení lze sdílet pomocí tlačítka v dolní části obrazovky. Sezení lze sdílet ve formátu prostého textu (formátovaného pro případné
-        další zpracování v programech typu Matlab apod., soubor .txt) nebo ve formátu Microsoft® Excel®. (soubor .xlsx)
+        další zpracování v programech typu Matlab apod., soubor .txt) nebo ve formátu Microsoft® Excel® (soubor .xlsx).
     </string>
 
     <string name="help_context_body_current_session_info_fragment">
@@ -262,7 +263,7 @@
         Dlouhým dotykem na položku v seznamu nahrávek lze zkopírovat informace o nahrávce do schránky.\n\n;
 
         Sezení lze sdílet pomocí tlačítka v dolní části obrazovky. Sezení lze sdílet ve formátu prostého textu (formátovaného pro případné
-        další zpracování v programech typu Matlab apod., soubor .txt) nebo ve formátu Microsoft® Excel®. (soubor .xlsx)
+        další zpracování v programech typu Matlab apod., soubor .txt) nebo ve formátu Microsoft® Excel® (soubor .xlsx).
     </string>
 
     <string name="help_context_body_group_control_fragment">
@@ -285,7 +286,7 @@
         Zde lze měnit nastavení aplikace.\n\n;
 
         Při změně počtu záložních souborů s výsledky se přebytek nad tento limit smaže vždy pouze pro
-        aktuální sezení v momentě, kdy bude sezení ukládáno (při opuštění obrazovky s hodnocením).\n\n;
+        aktuální sezení v momentě, kdy budou výsledky sezení ukládány.\n\n;
 
         Zpětnou vazbu (bugy, připomínky, nápady na vylepšení) můžete posílat emailem pomocí poskytnuté volby.
     </string>

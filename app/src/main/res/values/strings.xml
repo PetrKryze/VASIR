@@ -248,22 +248,104 @@
     <string name="help_context_title_group_control_fragment">Help: Group check</string>
     <string name="help_context_title_settings_fragment">Help: Settings</string>
 
+    <string name="help_context_body_rating_fragment">
+        Use this screen to rate audio recordings that are part of a rating session.\n\n;
 
+        The first time you start the application, you will be prompted to create a new rating session.
+        Select the directory containing the audio recordings to be rated using the selection screen.\n\n;
 
+        If it is desirable to distinguish groups of individual recordings (e.g. healthy/sick), we recommend
+        placing recordings from the respective groups into individual folders and selecting the parent directory.
+        The application will then automatically split and mark the recordings for optional post-processing.\n\n;
 
-    <string name="help_context_body_rating_fragment">BODY HELP RATING FRAGMENT</string>
+        The application supports these audio formats: AAC (.m4a, .aac), FLAC (.flac), MP3 (.mp3), Opus (.ogg), PCM / WAVE (.wav) and Vorbis (.ogg, .m4a).\n\n;
 
-    <string name="help_context_body_results_fragment">BODY HELP RESULTS FRAGMENT</string>
+        Use the player buttons to navigate the session recordings, play them or seek in them.
+        The number of plays of each recording is not limited.\n\n;
 
-    <string name="help_context_body_result_detail_fragment">BODY HELP RESULTS FRAGMENT</string>
+        After listening, each recording can be rated using a continuous scale at the bottom of the screen.
+        When all recordings have been rated, a double checkmark icon will be displayed.\n\n;
 
-    <string name="help_context_body_current_session_info_fragment">CURRENT SESSION INFO HELP BODY</string>
+        Sessions are stored in the app\'s memory and saved automatically each time you leave the rating screen.\n\n;
+        The results can be saved either manually using the drop-down menu in the upper right corner, or, in case all recordings have been rated,
+        they will be saved automatically when you leave the activity.\n\n;
 
-    <string name="help_context_body_group_control_fragment">BODY HELP GROUP CONTROL FRAGMENT</string>
+        The results are stored in a specific application directory in the device memory and can be shared
+        from the "Saved Ratings" section, which can be accessed via the drop-down menu.
+    </string>
 
-    <string name="help_context_body_settings_fragment">BODY HELP SETTINGS FRAGMENT</string>
+    <string name="help_context_body_results_fragment">
+        You can view and share your saved session results in this activity.\n\n;
 
+        Each session in the list can be clicked to display a screen containing detailed information
+        about the selected session. Sessions are sorted chronologically with the most recent one on top.\n\n;
 
+        A long touch on a session in the list can delete the session.\n\n;
+
+        All session results can be shared using the button at the bottom of the screen, either as a plain text file
+        (.txt, formatted for additional processing in programs such as Matlab, etc.) or
+        a Microsoft® Excel® file (.xlsx).\n\n;
+
+        Session results are stored in an application folder in the device\'s internal memory. The number
+        of backup session result files for the active session can be changed in the app\'s settings.
+    </string>
+
+    <string name="help_context_body_result_detail_fragment">
+        This screen displays a detailed preview of the selected session, including a list of all
+        individual recordings, their ratings, and a button to share the session results.\n\n;
+
+        The session information in the header can be copied to the clipboard by touching on it.\n\n;
+
+        Touching the column headers can sort the items in the recordings list using the respective column\'s values.\n\n;
+
+        Long touch on an item in the recordings list copies the recording\'s information to the clipboard.\n\n;
+
+        The displayed session can be shared using the button at the bottom of the screen.
+        Session can be shared either as a plain text file (.txt, formatted for additional
+        processing in programs such as Matlab, etc.) or as a Microsoft® Excel® file (.xlsx).
+    </string>
+
+    <string name="help_context_body_current_session_info_fragment">
+        This screen displays a detailed preview of the current session, including a list of all
+        individual recordings, their ratings, and a button to share the session results.\n\n;
+
+        The session information in the header can be copied to the clipboard by touching on it.\n\n;
+
+        Touching the column headers can sort the items in the recordings list using the respective column\'s values.\n\n;
+
+        Long touch on an item in the recordings list copies the recording\'s information to the clipboard.\n\n;
+
+        The current session can be shared using the button at the bottom of the screen.
+        Session can be shared either as a plain text file (.txt, formatted for additional
+        processing in programs such as Matlab, etc.) or as a Microsoft® Excel® file (.xlsx).
+    </string>
+
+    <string name="help_context_body_group_control_fragment">
+        From this screen, you can check the audio files and groups you want to use in the newly created session.\n\n;
+
+        The header shows the number of individual directories in which usable audio files were found.\n\n;
+
+        The directory list shows the name of the directory found, the number of usable audio files within,
+        and a field that can be used to change the group name that will be assigned to all files from that directory.
+        The default group name is the name of the containing directory.\n\n;
+
+        If a directory in which there are no usable files (including subfolders) has been selected,
+        an error message will be displayed.\n\n;
+
+        If only a directory directly containing usable audio files (no subfolders) has been selected,
+        it will be used and only one group will be created.\n\n;
+
+        Use the check box on the right to select whether the directory/group will be used in the session you are creating.
+    </string>
+
+    <string name="help_context_body_settings_fragment">
+        Here you can change the application settings.\n\n;
+
+        When changing the number of session\'s result backup files, the excess above this limit will be
+        deleted only for the current session upon it\'s results saving.\n\n;
+
+        You can send feedback (bugs, comments, ideas for improvement) by email using the provided option.
+    </string>
 
     <!-- Help Image Descriptions -->
     <string name="help_tag_description_content_description">Image showing screenshot of application content relatex to the context of the help being displayed.</string>
@@ -315,5 +397,4 @@
         <item>List items: Recording\'s ID, group name, randomization index, set recording\'s rating.</item>
         <item>Current session share button. A share mode (plain text/excel file) and a share target can be selected after pressing.</item>
     </string-array>
-
 </resources>
