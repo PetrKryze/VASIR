@@ -556,10 +556,12 @@ public class RatingManager {
     */
 
     public static class DirectoryCheckError {
-        public String dirName;
-        public FileCheckError errorType;
-        public @Nullable Integer missingCnt;
-        public @Nullable String missingList;
+        public final String dirName;
+        public final FileCheckError errorType;
+        public @Nullable
+        final Integer missingCnt;
+        public @Nullable
+        final String missingList;
 
         public DirectoryCheckError(String dirName, FileCheckError errorType,
                                    @Nullable Integer missingCnt, @Nullable String missingList) {

@@ -20,7 +20,7 @@ public class GroupFolder implements Serializable {
     private String label;
     private final ArrayList<Uri> fileList;
 
-    public static Comparator<GroupFolder> groupComparator = (o1, o2) -> Integer.
+    public static final Comparator<GroupFolder> groupComparator = (o1, o2) -> Integer.
             compare(o1.getLabel().compareToIgnoreCase(o2.getLabel()), 0);
 
     public GroupFolder(Uri uri, ArrayList<Uri> fileList) {

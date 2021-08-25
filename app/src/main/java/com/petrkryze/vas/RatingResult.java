@@ -35,7 +35,7 @@ public class RatingResult implements Serializable {
     static final String LABEL_GENERATOR_MESSAGE = "Generator Date";
     static final String LABEL_SAVE_DATE = "Save Date";
 
-    public static Comparator<RatingResult> sortChronologically = (o1, o2) ->
+    public static final Comparator<RatingResult> sortChronologically = (o1, o2) ->
             Integer.compare(0, o1.getSaveDate().compareTo(o2.getSaveDate()));
 
     public RatingResult(Session session) {

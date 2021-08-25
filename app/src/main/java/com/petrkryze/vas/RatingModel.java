@@ -10,6 +10,8 @@ import android.util.Pair;
 import com.petrkryze.vas.RatingManager.DirectoryCheckCallback;
 import com.petrkryze.vas.RatingManager.DirectoryCheckError;
 import com.petrkryze.vas.RatingManager.LoadResult;
+import com.petrkryze.vas.livedata.EventLiveData;
+import com.petrkryze.vas.livedata.MutableEventLiveData;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -139,7 +141,7 @@ public class RatingModel extends AndroidViewModel {
         }
     }
 
-    DirectoryCheckCallback directoryCheckCallback = new DirectoryCheckCallback() {
+    final DirectoryCheckCallback directoryCheckCallback = new DirectoryCheckCallback() {
         @Override
         public void onError(DirectoryCheckError errorInfo) {
             directoryCheckError.postValue(errorInfo);

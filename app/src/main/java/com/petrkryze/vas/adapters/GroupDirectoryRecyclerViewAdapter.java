@@ -61,7 +61,9 @@ public class GroupDirectoryRecyclerViewAdapter extends RecyclerView.Adapter<Grou
 
         holder.viewRowFolderName.setText(context.getString(R.string.group_control_group_folder_list_row_folder_name, currentGFolder.getFolderName()));
         holder.viewRowAudioFilesFound.setText(
-                context.getString(R.string.group_control_group_folder_list_row_found_audio_files, currentGFolder.getNaudioFiles())
+                context.getResources().getQuantityString(
+                        R.plurals.group_control_group_folder_list_row_found_audio_files,
+                        currentGFolder.getNaudioFiles(), currentGFolder.getNaudioFiles())
         );
 
         holder.viewRowGroupNameInput.setText(currentGFolder.getLabel(),

@@ -291,8 +291,6 @@ public class CurrentSessionInfoFragment extends VASFragment {
         headerRating.setChecked(false);
     }
 
-
-
     @Override
     public void onResume() {
         super.onResume();
