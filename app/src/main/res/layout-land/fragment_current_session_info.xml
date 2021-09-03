@@ -1,0 +1,313 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+
+    android:id="@+id/current_session_info_fragment_layout"
+    android:name="com.petrkryze.vas.fragments.CurrentSessionInfoFragment"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+
+    tools:context=".fragments.CurrentSessionInfoFragment">
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/current_session_info_share_button_bar">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/current_session_info_sessionID"
+                style="@style/TextAppearance.MdcTypographyStyles.Headline4"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:background="@color/secondaryColor"
+                android:elevation="5dp"
+                android:paddingStart="10dp"
+                android:paddingTop="5dp"
+                android:paddingEnd="5dp"
+
+                android:text="@string/result_detail_sessionID"
+                android:textColor="@color/textPrimaryOnSecondary"
+                android:textIsSelectable="true"
+
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/current_session_info_rated_fraction"
+                style="@style/TextAppearance.MdcTypographyStyles.Headline4"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:background="@color/secondaryColor"
+                android:elevation="5dp"
+                android:paddingStart="5dp"
+                android:paddingTop="5dp"
+                android:paddingEnd="10dp"
+
+                android:text="@string/current_session_info_rated_fraction_placeholder"
+                android:textColor="@color/textPrimaryOnSecondary"
+                android:gravity="end"
+
+                app:layout_constraintBottom_toBottomOf="@+id/current_session_info_sessionID"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/current_session_info_sessionID"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/current_session_info_seed"
+                style="@style/TextAppearance.MdcTypographyStyles.Headline6"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:background="@color/primaryLightColor"
+                android:gravity="end"
+                android:paddingStart="8dp"
+                android:paddingTop="4dp"
+                android:paddingEnd="8dp"
+
+                android:text="@string/result_detail_seed_placeholder"
+                android:textColor="@color/textPrimaryOnSurface"
+                android:textIsSelectable="true"
+
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/current_session_info_seed_label"
+                app:layout_constraintTop_toTopOf="@+id/current_session_info_seed_label" />
+
+            <TextView
+                android:id="@+id/current_session_info_generator_date"
+                style="@style/TextAppearance.MdcTypographyStyles.Headline6"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:background="@color/primaryLightColor"
+                android:gravity="end"
+                android:padding="8dp"
+
+                android:text="@string/result_detail_generator_date_placeholder"
+                android:textColor="@color/textPrimaryOnSurface"
+                android:textIsSelectable="true"
+
+                app:layout_constraintBottom_toTopOf="@id/barrier"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/current_session_info_generator_date_label"
+                app:layout_constraintTop_toTopOf="@+id/current_session_info_generator_date_label" />
+
+            <TextView
+                android:id="@+id/current_session_info_seed_label"
+                style="@style/TextAppearance.MdcTypographyStyles.Headline6"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@color/primaryLightColor"
+                android:paddingStart="8dp"
+                android:paddingTop="4dp"
+
+                android:text="@string/result_detail_seed_label"
+                android:textColor="@color/textPrimaryOnSurface"
+
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/current_session_info_sessionID" />
+
+            <TextView
+                android:id="@+id/current_session_info_generator_date_label"
+                style="@style/TextAppearance.MdcTypographyStyles.Headline6"
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:background="@color/primaryLightColor"
+                android:paddingStart="8dp"
+                android:paddingTop="8dp"
+
+                android:text="@string/result_detail_generator_date_label"
+                android:textColor="@color/textPrimaryOnSurface"
+
+                app:layout_constraintBottom_toTopOf="@+id/current_session_info_column_headers"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/barrierSeed" />
+
+            <androidx.constraintlayout.widget.Barrier
+                android:id="@+id/barrier"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:barrierDirection="bottom"
+                app:constraint_referenced_ids="current_session_info_generator_date,current_session_info_generator_date_label"
+                tools:layout_editor_absoluteX="10dp"
+                tools:layout_editor_absoluteY="721dp" />
+
+            <androidx.constraintlayout.widget.Barrier
+                android:id="@+id/barrierSeed"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:barrierDirection="bottom"
+                app:constraint_referenced_ids="current_session_info_seed,current_session_info_seed_label"
+                tools:layout_editor_absoluteX="10dp"
+                tools:layout_editor_absoluteY="93dp" />
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/current_session_info_column_headers"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+
+                android:elevation="5dp"
+                android:background="?attr/colorPrimarySurface"
+                android:paddingHorizontal="5dp"
+                android:paddingVertical="5dp"
+
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/barrier">
+
+                <CheckedTextView
+                    android:id="@+id/current_session_info_recording_list_column_id"
+                    style="@style/ColumnHeaderSortButton"
+                    android:text="@string/result_detail_recording_list_column_id_label"
+
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@id/current_session_info_recording_list_column_group"
+                    app:layout_constraintHorizontal_chainStyle="spread_inside"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <CheckedTextView
+                    android:id="@+id/current_session_info_recording_list_column_group"
+                    style="@style/ColumnHeaderSortButton"
+                    android:text="@string/result_detail_recording_list_column_group_label"
+
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@id/current_session_info_recording_list_column_index"
+                    app:layout_constraintStart_toEndOf="@id/current_session_info_recording_list_column_id"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <CheckedTextView
+                    android:id="@+id/current_session_info_recording_list_column_index"
+                    style="@style/ColumnHeaderSortButton"
+                    android:text="@string/result_detail_recording_list_column_index_label"
+
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@id/current_session_info_recording_list_column_rating"
+                    app:layout_constraintStart_toEndOf="@id/current_session_info_recording_list_column_group"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <CheckedTextView
+                    android:id="@+id/current_session_info_recording_list_column_rating"
+                    style="@style/ColumnHeaderSortButton"
+                    android:text="@string/result_detail_recording_list_column_rating_label"
+
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/current_session_info_recording_list_column_index"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/current_session_info_recordings_list"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+
+                android:fadingEdgeLength="15dp"
+                android:requiresFadingEdge="vertical"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/current_session_info_column_headers"
+                app:layout_constraintBottom_toBottomOf="parent"
+                tools:listitem="@layout/recordings_list_row" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.core.widget.NestedScrollView>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/current_session_info_share_button_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+
+        android:animateLayoutChanges="true"
+
+        android:paddingHorizontal="16dp"
+
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <Button
+            android:id="@+id/current_session_info_button_share"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+
+            android:layout_marginBottom="10dp"
+            android:text="@string/button_share_label"
+
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <Button
+            android:id="@+id/current_session_info_button_results_share_as_text"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="10dp"
+
+            android:text="@string/button_share_as_text_label"
+
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/current_session_info_button_results_share_as_excel"
+            app:layout_constraintHorizontal_chainStyle="spread"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <Button
+            android:id="@+id/current_session_info_button_results_share_as_excel"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+
+            android:layout_marginStart="8dp"
+            android:layout_marginBottom="10dp"
+
+            android:backgroundTint="@color/excelGreen"
+            android:textColor="@color/textPrimaryOnPrimary"
+            android:text="@string/button_share_as_excel_label"
+
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/current_session_info_button_results_share_as_text" />
+
+        <ProgressBar
+            android:id="@+id/current_session_info_text_loading"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+
+            android:indeterminate="true"
+            android:indeterminateTint="@color/textPrimaryOnSecondary"
+            android:elevation="5dp"
+
+            app:layout_constraintTop_toTopOf="@id/current_session_info_button_results_share_as_text"
+            app:layout_constraintBottom_toBottomOf="@id/current_session_info_button_results_share_as_text"
+            app:layout_constraintStart_toStartOf="@id/current_session_info_button_results_share_as_text"
+            app:layout_constraintEnd_toEndOf="@id/current_session_info_button_results_share_as_text" />
+
+        <ProgressBar
+            android:id="@+id/current_session_info_excel_loading"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+
+            android:indeterminate="true"
+            android:elevation="5dp"
+
+            app:layout_constraintTop_toTopOf="@id/current_session_info_button_results_share_as_excel"
+            app:layout_constraintBottom_toBottomOf="@id/current_session_info_button_results_share_as_excel"
+            app:layout_constraintStart_toStartOf="@id/current_session_info_button_results_share_as_excel"
+            app:layout_constraintEnd_toEndOf="@id/current_session_info_button_results_share_as_excel" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
