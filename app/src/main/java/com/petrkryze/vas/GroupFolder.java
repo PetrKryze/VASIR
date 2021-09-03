@@ -18,19 +18,20 @@ public class GroupFolder implements Serializable {
 
     private URI uri; // URI instead of Uri to make it serializable
     private String label;
-    private final ArrayList<Uri> fileList;
+    private final ArrayList<URI> fileList = new ArrayList<>();
 
     public static final Comparator<GroupFolder> groupComparator = (o1, o2) -> Integer.
             compare(o1.getLabel().compareToIgnoreCase(o2.getLabel()), 0);
 
-    public GroupFolder(Uri uri, ArrayList<Uri> fileList) {
+    public GroupFolder(Uri uri, ArrayList<Uri> uriList) {
         try {
             this.uri = new URI(uri.toString());
+
+            for (Uri u : uriList) this.fileList.add(new URI(u.toString()));
         } catch (URISyntaxException e) {
             e.printStackTrace();
         }
         this.label = this.getFolderName();
-        this.fileList = fileList;
     }
 
     public Uri getUri() {
@@ -46,7 +47,9 @@ public class GroupFolder implements Serializable {
     }
 
     public ArrayList<Uri> getFileList() {
-        return fileList;
+        ArrayList<Uri> output = new ArrayList<>();
+        for (URI u : fileList) output.add(Uri.parse(u.toString()));
+        return output;
     }
 
     public void setLabel(String label) {

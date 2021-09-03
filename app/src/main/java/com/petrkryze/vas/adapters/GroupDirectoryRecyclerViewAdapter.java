@@ -1,6 +1,8 @@
 package com.petrkryze.vas.adapters;
 
 import android.content.Context;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,11 +26,15 @@ import androidx.recyclerview.widget.RecyclerView;
  * {@link RecyclerView.Adapter} that can display a {@link GroupFolder}.
  */
 public class GroupDirectoryRecyclerViewAdapter extends RecyclerView.Adapter<GroupDirectoryRecyclerViewAdapter.ViewHolder> {
+    // private static final String TAG = "GroupDirectoryRecyclerViewAdapter";
     private final Context context;
     private final List<GroupFolder> groupFolders;
 
     private final ArrayList<Boolean> checks;
+    private final ArrayList<String> labels;
     private final AdapterListener adapterListener;
+
+    private final ArrayList<ViewHolder> viewHolders;
 
     public interface AdapterListener {
         void onAllUnchecked();
@@ -44,6 +50,11 @@ public class GroupDirectoryRecyclerViewAdapter extends RecyclerView.Adapter<Grou
         Arrays.fill(checksArray, true);
         this.checks = new ArrayList<>(Arrays.asList(checksArray));
         this.adapterListener = listener;
+
+        this.labels = new ArrayList<>(groupFolders.size());
+        for (GroupFolder gf : groupFolders) labels.add(gf.getLabel());
+
+        this.viewHolders = new ArrayList<>();
     }
 
     @NotNull
@@ -68,6 +79,7 @@ public class GroupDirectoryRecyclerViewAdapter extends RecyclerView.Adapter<Grou
 
         holder.viewRowGroupNameInput.setText(currentGFolder.getLabel(),
                 TextView.BufferType.EDITABLE);
+        holder.viewRowGroupNameInput.addTextChangedListener(new TextChangedListener(position));
 
         holder.checkBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
             checks.set(position, isChecked);
@@ -77,11 +89,25 @@ public class GroupDirectoryRecyclerViewAdapter extends RecyclerView.Adapter<Grou
                 adapterListener.onAllUnchecked();
             }
         });
+
+        viewHolders.add(position, holder);
     }
 
     @Override
     public int getItemCount() {
         return groupFolders.size();
+    }
+
+    public ArrayList<Boolean> getChecks() {
+        return checks;
+    }
+
+    public ArrayList<String> getLabels() {
+        return labels;
+    }
+
+    public void setError(int position, String error) {
+        viewHolders.get(position).viewRowGroupNameInput.setError(error);
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
@@ -109,6 +135,29 @@ public class GroupDirectoryRecyclerViewAdapter extends RecyclerView.Adapter<Grou
             return super.toString() + " Folder name: " + viewRowFolderName.getText() + ", " +
                     "Audio files found: " + viewRowAudioFilesFound.getText() + ", " +
                     "Group name: " + viewRowGroupNameInput.getText();
+        }
+    }
+
+    public class TextChangedListener implements TextWatcher {
+        private final int position;
+
+        public TextChangedListener(int position) {
+            this.position = position;
+        }
+
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+        }
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+        }
+
+        @Override
+        public void afterTextChanged(Editable s) {
+            labels.set(position, s.toString());
         }
     }
 

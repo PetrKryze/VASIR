@@ -11,13 +11,11 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.EditText;
 
 import com.petrkryze.vas.GroupFolder;
 import com.petrkryze.vas.MainActivity;
 import com.petrkryze.vas.R;
 import com.petrkryze.vas.adapters.GroupDirectoryRecyclerViewAdapter;
-import com.petrkryze.vas.adapters.GroupDirectoryRecyclerViewAdapter.ViewHolder;
 import com.petrkryze.vas.databinding.FragmentGroupControlBinding;
 
 import org.jetbrains.annotations.NotNull;
@@ -170,22 +168,20 @@ public class GroupControlFragment extends VASFragment {
         int nRows = groupFoldersListView.getAdapter().getItemCount();
         if (nRows <= 0) throw new Exception("Fatal error! RecyclerView adapter is empty.");
 
-        EditText firstWrong = null;
-        boolean flag = true;
+        boolean checkOK = true;
         ArrayList<GroupFolder> selectedFolders = new ArrayList<>();
 
         for (int i = 0; i < nRows; i++) {
-            ViewHolder row = (ViewHolder) groupFoldersListView.findViewHolderForAdapterPosition(i);
-            if (row == null) throw new NullPointerException("Fatal error! ViewHolder for row " + i + " is null.");
-            if (row.checkBox.isChecked()) {
-                String inputText = row.viewRowGroupNameInput.getText().toString();
+            if (adapter.getChecks().get(i)) {
+                String inputText = adapter.getLabels().get(i);
                 Log.d(TAG, "onClick: Edit text on row " + i + ": " + inputText);
 
                 // I fucking hate regex, but well, here we go - it should catch all of these chars
                 if (inputText.matches(".*[~#^|$%&*!/<>?\"\\\\].*")) {
-                    row.viewRowGroupNameInput.setError(getString(R.string.group_control_invalid_input));
-                    if (firstWrong == null) firstWrong = row.viewRowGroupNameInput;
-                    flag = false;
+                    groupFoldersListView.scrollToPosition(i);
+                    adapter.setError(i, getString(R.string.group_control_invalid_input));
+
+                    checkOK = false;
                 } else { // Input is OK
                     this.groupFolders.get(i).setLabel(inputText);
 
@@ -195,9 +191,8 @@ public class GroupControlFragment extends VASFragment {
                 }
             }
         }
-        if (!flag) firstWrong.requestFocus();
 
-        return new Pair<>(flag, selectedFolders);
+        return new Pair<>(checkOK, selectedFolders);
     }
 
     @Override
