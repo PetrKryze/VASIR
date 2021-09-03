@@ -55,6 +55,7 @@
                 android:layout_marginHorizontal="50dp"
                 android:layout_marginTop="20dp"
                 android:elevation="0dp"
+                android:maxWidth="300dp"
 
                 android:adjustViewBounds="true"
                 android:background="@color/primaryColor"
