@@ -89,6 +89,9 @@ public class RatingFragment extends VASFragment {
     private boolean initDone = false;
     private boolean creatingNewSession = false;
 
+    private enum State {NULL, LOADING, PREPARING, PREPARED, ERROR, SELECTING_DIRECTORY, CHECKING_GROUPS}
+    private State state = State.NULL;
+
     private void vibrate(int length) {
         vibrator.vibrate(VibrationEffect.createOneShot(length, VibrationEffect.DEFAULT_AMPLITUDE));
     }
@@ -224,6 +227,7 @@ public class RatingFragment extends VASFragment {
                 if (resultUri != null) {
                     String fullPath = resultUri.getPath();
                     if (fullPath == null || fullPath.equals("")) { // Bad returned path somehow
+                        state = State.ERROR;
                         creatingNewSession = false;
                         dialog = new MaterialAlertDialogBuilder(RatingFragment.this.requireContext())
                                 .setTitle(RatingFragment.this.getString(R.string.dialog_internal_error_title))
@@ -234,6 +238,7 @@ public class RatingFragment extends VASFragment {
                                 .setPositiveButton(R.string.dialog_internal_error_quit, (dialog, which) -> RatingFragment.this.requireActivity().finish())
                                 .setCancelable(false).show();
                     } else { // Returned path seems ok, start the checks
+                        state = State.PREPARING;
                         Log.d(TAG, "onActivityResult: Selected directory: " + fullPath);
                         RatingFragment.this.requireContext().getContentResolver()
                                 .takePersistableUriPermission(resultUri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
@@ -356,11 +361,6 @@ public class RatingFragment extends VASFragment {
             Pair<Integer, Integer> error = (Pair<Integer, Integer>) o;
             onPlayerError(error.first, error.second);
         });
-
-        if (!creatingNewSession) {
-            // Normal startup
-            model.loadSession();
-        }
     }
 
     @Override
@@ -392,8 +392,10 @@ public class RatingFragment extends VASFragment {
     private void onSessionLoaded(Session session) {
         if (!creatingNewSession) {
             if (session != null) { // Session loaded
+                state = State.PREPARING;
                 model.checkDirectoryFromSession(requireContext(), session);
             } else { // Session loading failed
+                state = State.ERROR;
                 LoadResult loadResult = model.getSessionLoadResult();
 
                 String message = "";
@@ -464,6 +466,7 @@ public class RatingFragment extends VASFragment {
                 });
 
         try { // Start the group control fragment
+            state = State.CHECKING_GROUPS;
             URI outUri = new URI(rootUri.toString());
             NavDirections directions =
                     RatingFragmentDirections.actionRatingFragmentToGroupControlFragment(
@@ -481,9 +484,11 @@ public class RatingFragment extends VASFragment {
                 getString(R.string.snackbar_directory_check_canceled),
                 BaseTransientBottomBar.LENGTH_SHORT)
                 .setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE).show();
+        model.loadSession(); // Cycle back to the session check
     }
 
     private void onSessionPrepared() {
+        state = State.PREPARED;
         if (creatingNewSession) {
             Snackbar.make(requireActivity().findViewById(R.id.coordinator),
                     getString(R.string.snackbar_new_session_created),
@@ -629,12 +634,14 @@ public class RatingFragment extends VASFragment {
 
     public void fireSelectDirectory() {
         // Fire up dialog to choose the data directory
+        state = State.SELECTING_DIRECTORY;
         initDone = false;
         creatingNewSession = true;
         selectDirectory.launch(null);
     }
 
     private void onDirectoryCheckError(DirectoryCheckError errorInfo) {
+        state = State.ERROR;
         creatingNewSession = false;
         Spanned message = null;
         String dirname = errorInfo.dirName;
@@ -710,6 +717,21 @@ public class RatingFragment extends VASFragment {
     }
 
     @Override
+    public void onStart() {
+        super.onStart();
+
+        if (state == State.PREPARED) {
+            onSessionPrepared();
+        } else {
+            if (!creatingNewSession) {
+                // Normal startup
+                state = State.LOADING;
+                model.loadSession();
+            }
+        }
+    }
+
+    @Override
     public void onPause() {
         super.onPause();
         model.onPausePlayer();
@@ -727,6 +749,7 @@ public class RatingFragment extends VASFragment {
             model.saveResults(requireContext(), null);
         }
 
+        state = State.NULL;
         vibrator = null;
         initDone = false;
     }
@@ -795,7 +818,9 @@ public class RatingFragment extends VASFragment {
         NavHostFragment.findNavController(this).navigate(directions);
     }
 
+    private State statePrior;
     private void onNewSession() {
+        statePrior = state;
         dialog = new MaterialAlertDialogBuilder(requireContext())
                 .setTitle(getString(R.string.dialog_make_new_session_title))
                 .setMessage(getString(R.string.dialog_make_new_session_message))
@@ -835,6 +860,7 @@ public class RatingFragment extends VASFragment {
     }
 
     private void onSaveFailedOnNewSession(String errorMessage) {
+        state = State.ERROR;
         String errorString = (errorMessage == null ?
                 getString(R.string.dialog_save_failed_continue_error_unknown) : errorMessage);
         Spanned message = html(getString(R.string.dialog_save_failed_continue_message, errorString));
@@ -847,7 +873,7 @@ public class RatingFragment extends VASFragment {
                         requireContext().getColor(R.color.errorColor)))
                 .setPositiveButton(R.string.dialog_save_failed_continue_continue,
                         (dialog1, which1) -> fireSelectDirectory())
-                .setNegativeButton(R.string.dialog_save_failed_continue_return, null)
+                .setNegativeButton(R.string.dialog_save_failed_continue_return, (dialog1, which) -> state = statePrior)
                 .setCancelable(false).show();
     }
 

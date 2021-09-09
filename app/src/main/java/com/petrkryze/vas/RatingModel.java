@@ -21,7 +21,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
 
 /**
  * Created by Petr on 06.08.2021. Yay!
@@ -34,7 +33,7 @@ public class RatingModel extends AndroidViewModel {
 
     private final MutableEventLiveData<Boolean> loadingFinished = new MutableEventLiveData<>();
 
-    private final MutableLiveData<Session> currentSession = new MutableLiveData<>();
+    private final MutableEventLiveData<Session> currentSession = new MutableEventLiveData<>();
     private LoadResult sessionLoadResult;
 
     private final MutableEventLiveData<Boolean> sessionPrepared =
