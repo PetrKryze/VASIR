@@ -92,22 +92,31 @@
                 android:padding="2dp"
                 android:src="@drawable/help_screen_rating_fragment"
 
-                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/help_divider1" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/help_imageview_descriptions"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
+                android:layout_marginStart="8dp"
 
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                tools:listitem="@layout/help_imageview_description_row"
 
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/help_imageview" />
+                app:layout_constraintStart_toEndOf="@id/help_imageview"
+                app:layout_constraintTop_toTopOf="@id/help_imageview"
+                tools:listitem="@layout/help_imageview_description_row" />
+
+            <androidx.constraintlayout.widget.Barrier
+                android:id="@+id/help_barrier1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:barrierDirection="bottom"
+
+                app:constraint_referenced_ids="help_imageview,help_imageview_descriptions"
+                tools:layout_editor_absoluteX="307dp"
+                tools:layout_editor_absoluteY="486dp" />
 
             <LinearLayout
                 android:id="@+id/help_divider2"
@@ -121,7 +130,7 @@
 
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/help_imageview_descriptions" />
+                app:layout_constraintTop_toBottomOf="@id/help_barrier1" />
 
             <TextView
                 android:id="@+id/help_body_textview"
@@ -136,6 +145,8 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/help_divider2" />
+
+
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.core.widget.NestedScrollView>
