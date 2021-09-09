@@ -71,8 +71,7 @@ public class Recording implements Serializable {
         }
     };
 
-    public static final Comparator<Recording> sortByRandomIndex = (o1, o2) -> Integer.
-            compare(o1.getRandomIndex(), o2.getRandomIndex());
+    public static final Comparator<Recording> sortByRandomIndex = Comparator.comparingInt(Recording::getRandomIndex);
 
     public static final Comparator<Recording> sortByRating = (o1, o2) -> {
         if (o1.getRating() == DEFAULT_UNSET_RATING && o2.getRating() == DEFAULT_UNSET_RATING) {
