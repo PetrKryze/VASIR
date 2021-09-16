@@ -44,9 +44,13 @@ public class GroupControlFragment extends VASFragment {
     public static final String GroupControlSourceRootURI = "sourceRootUri";
     public static final String GroupFolderListSerializedKey = "groupFolderList";
 
+    private static final String LABELS_KEY = "labels";
+
     private FragmentGroupControlBinding binding;
     private RecyclerView groupFoldersListView;
     private Button buttonConfirm;
+
+    private GroupDirectoryRecyclerViewAdapter adapter;
 
     private URI sourceRootURI;
     private ArrayList<GroupFolder> groupFolders;
@@ -116,6 +120,12 @@ public class GroupControlFragment extends VASFragment {
             groupFolders = GroupControlFragmentArgs.fromBundle(getArguments()).getGroupFolders();
         }
 
+        ArrayList<String> labels = null;
+        if (savedInstanceState != null) {
+            labels = (ArrayList<String>) savedInstanceState.getSerializable(LABELS_KEY);
+        }
+        adapter = new GroupDirectoryRecyclerViewAdapter(requireContext(), groupFolders, adapterListener, labels);
+
         // Important! Set default return bundle, so it can signal there was no confirmation on exit
         // (navigateUp event) to the RatingManager and RatingFragment above in the hierarchy
         Bundle bundle = new Bundle();
@@ -135,7 +145,7 @@ public class GroupControlFragment extends VASFragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        Context context = view.getContext();
+        Context context = requireContext();
 
         binding.groupControlFoundFolders.setText(getResources().
                 getQuantityString(R.plurals.group_control_found_folders_headline,
@@ -145,8 +155,6 @@ public class GroupControlFragment extends VASFragment {
         buttonConfirm.setOnClickListener(confirmListener);
 
         groupFoldersListView = binding.groupControlGroupFolderList;
-        GroupDirectoryRecyclerViewAdapter adapter =
-                new GroupDirectoryRecyclerViewAdapter(context, groupFolders, adapterListener);
         groupFoldersListView.setAdapter(adapter);
         groupFoldersListView.setLayoutManager(new LinearLayoutManager(context));
 
@@ -156,9 +164,25 @@ public class GroupControlFragment extends VASFragment {
     }
 
     @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        GroupDirectoryRecyclerViewAdapter adapter =
+                (GroupDirectoryRecyclerViewAdapter) groupFoldersListView.getAdapter();
+        if (adapter == null) throw new NullPointerException("Fatal error! RecyclerView is missing adapter.");
+        outState.putSerializable(LABELS_KEY, adapter.getLabels());
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override
     public void onDestroyView() {
         super.onDestroyView();
         binding = null;
+        adapter = null;
+    }
+
+    @Override
+    public void onPause() {
+        adapter.releaseFocus();
+        super.onPause();
     }
 
     private Pair<Boolean, ArrayList<GroupFolder>> checkEditTexts() throws Exception {
@@ -177,10 +201,13 @@ public class GroupControlFragment extends VASFragment {
                 Log.d(TAG, "onClick: Edit text on row " + i + ": " + inputText);
 
                 // I fucking hate regex, but well, here we go - it should catch all of these chars
-                if (inputText.matches(".*[~#^|$%&*!/<>?\"\\\\].*")) {
+                if (inputText.isEmpty()) {
+                    groupFoldersListView.scrollToPosition(i);
+                    adapter.setError(i, getString(R.string.group_control_empty_input));
+                    checkOK = false;
+                } else if (inputText.matches(".*[~#^|$%&*!/<>?\"\\\\].*")) {
                     groupFoldersListView.scrollToPosition(i);
                     adapter.setError(i, getString(R.string.group_control_invalid_input));
-
                     checkOK = false;
                 } else { // Input is OK
                     this.groupFolders.get(i).setLabel(inputText);

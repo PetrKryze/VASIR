@@ -87,9 +87,11 @@ public class RatingFragment extends VASFragment {
 
     private RatingModel model;
     private boolean creatingNewSession = false;
+    private static final String NewSessionFlagKey = "new_session_flag";
 
     private enum State {NULL, LOADING, PREPARING, PREPARED, ERROR, SELECTING_DIRECTORY, CHECKING_GROUPS}
     private State state = State.NULL;
+    private static final String StateKey = "state";
 
     private void vibrate(int length) {
         vibrator.vibrate(VibrationEffect.createOneShot(length, VibrationEffect.DEFAULT_AMPLITUDE));
@@ -268,7 +270,16 @@ public class RatingFragment extends VASFragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        state = State.NULL;
+        if (savedInstanceState != null) {
+            State savedState = (State) savedInstanceState.getSerializable(StateKey);
+            if (savedState != null) state = savedState;
+
+            creatingNewSession = savedInstanceState.getBoolean(NewSessionFlagKey);
+        } else {
+            state = State.NULL;
+        }
+
+        setGroupCheckCallback();
         isTouchingSeekBar = false;
 
         // Get colorPrimarySurface - resolve the ?attr
@@ -368,6 +379,13 @@ public class RatingFragment extends VASFragment {
         binding = null;
     }
 
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        outState.putSerializable(StateKey, state);
+        outState.putBoolean(NewSessionFlagKey, creatingNewSession);
+        super.onSaveInstanceState(outState);
+    }
+
     @SuppressLint("ClickableViewAccessibility")
     private void setPlayerButtonAnimation(Button button) {
         button.setOnTouchListener((v, event) -> {
@@ -439,12 +457,27 @@ public class RatingFragment extends VASFragment {
         }
     }
 
-    public static final String GROUP_CHECK_RESULT_REQUEST_KEY = "group_check_result";
-    @SuppressWarnings("unchecked")
+
     private void onGroupCheckNeeded(Uri rootUri, ArrayList<GroupFolder> groupFoldersToCheck) {
         // This is the callback from when GroupCheckFragment is finished
+        try { // Start the group control fragment
+            state = State.CHECKING_GROUPS;
+            URI outUri = new URI(rootUri.toString());
+            NavDirections directions =
+                    RatingFragmentDirections.actionRatingFragmentToGroupControlFragment(
+                            groupFoldersToCheck, outUri);
+            NavHostFragment.findNavController(RatingFragment.this).navigate(directions);
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static final String GROUP_CHECK_RESULT_REQUEST_KEY = "group_check_result";
+    @SuppressWarnings("unchecked")
+    private void setGroupCheckCallback() {
         getParentFragmentManager().setFragmentResultListener(
-                GROUP_CHECK_RESULT_REQUEST_KEY, this, (requestKey, result) -> {
+                GROUP_CHECK_RESULT_REQUEST_KEY, this,
+                (requestKey, result) -> {
                     if (requestKey.equals(GROUP_CHECK_RESULT_REQUEST_KEY)) {
                         // The GroupCheck was confirmed, we can make a new session
                         if (result.getBoolean(GroupControlFragment.GroupControlConfirmedKey)) {
@@ -462,18 +495,8 @@ public class RatingFragment extends VASFragment {
                             onGroupCheckCancelled();
                         }
                     }
-                });
-
-        try { // Start the group control fragment
-            state = State.CHECKING_GROUPS;
-            URI outUri = new URI(rootUri.toString());
-            NavDirections directions =
-                    RatingFragmentDirections.actionRatingFragmentToGroupControlFragment(
-                            groupFoldersToCheck, outUri);
-            NavHostFragment.findNavController(RatingFragment.this).navigate(directions);
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
-        }
+                }
+        );
     }
 
     private void onGroupCheckCancelled() {
@@ -741,7 +764,7 @@ public class RatingFragment extends VASFragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (model != null && model.isSessionFinished()) { // Failsafe
+        if (state == State.PREPARED && model != null && model.isSessionFinished()) { // Failsafe
             model.saveResults(requireContext(), null);
         }
 

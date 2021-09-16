@@ -241,6 +241,7 @@
     <string name="group_control_group_folder_list_row_folder_name_label">Folder:</string>
     <string name="group_control_group_folder_list_row_group_name_label">Group name:</string>
     <string name="group_control_invalid_input"><![CDATA[Group name must not contain these characters: ~#^|$%&*!?<>/]]></string>
+    <string name="group_control_empty_input">Group name cannot be empty</string>
 
     <!-- Help Fragment -->
     <string name="help_context_title_rating_fragment">Help: Rating</string>

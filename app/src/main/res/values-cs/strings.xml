@@ -191,6 +191,7 @@
     <string name="group_control_group_folder_list_row_folder_name_label">Adresář:</string>
     <string name="group_control_group_folder_list_row_group_name_label">Název skupiny:</string>
     <string name="group_control_invalid_input"><![CDATA[Název skupiny nesmí obsahovat tyto znaky: ~#^|$%&*!?<>/]]></string>
+    <string name="group_control_empty_input">Název skupiny nesmí být prázdný</string>
 
     <!-- Help Fragment -->
     <string name="help_context_title_rating_fragment">Nápověda: Hodnocení</string>

@@ -36,13 +36,15 @@ public class GroupDirectoryRecyclerViewAdapter extends RecyclerView.Adapter<Grou
 
     private final ArrayList<ViewHolder> viewHolders;
 
+    private View focusedView;
+
     public interface AdapterListener {
         void onAllUnchecked();
         void onSomethingChecked();
     }
 
     public GroupDirectoryRecyclerViewAdapter(Context context, List<GroupFolder> groupFolders,
-                                             AdapterListener listener) {
+                                             AdapterListener listener, ArrayList<String> inLabels) {
         this.context = context;
         this.groupFolders = groupFolders;
 
@@ -51,10 +53,15 @@ public class GroupDirectoryRecyclerViewAdapter extends RecyclerView.Adapter<Grou
         this.checks = new ArrayList<>(Arrays.asList(checksArray));
         this.adapterListener = listener;
 
-        this.labels = new ArrayList<>(groupFolders.size());
-        for (GroupFolder gf : groupFolders) labels.add(gf.getLabel());
+        if (inLabels != null && !inLabels.isEmpty() && inLabels.size() == groupFolders.size()) {
+            this.labels = inLabels;
+        } else {
+            this.labels = new ArrayList<>(groupFolders.size());
+            for (GroupFolder gf : groupFolders) labels.add(gf.getLabel());
+        }
 
-        this.viewHolders = new ArrayList<>();
+        this.viewHolders = new ArrayList<>(groupFolders.size());
+        for (GroupFolder ignored : groupFolders) viewHolders.add(null);
     }
 
     @NotNull
@@ -80,6 +87,9 @@ public class GroupDirectoryRecyclerViewAdapter extends RecyclerView.Adapter<Grou
         holder.viewRowGroupNameInput.setText(currentGFolder.getLabel(),
                 TextView.BufferType.EDITABLE);
         holder.viewRowGroupNameInput.addTextChangedListener(new TextChangedListener(position));
+        holder.viewRowGroupNameInput.setOnFocusChangeListener((v, hasFocus) -> {
+            if (hasFocus) focusedView = v;
+        });
 
         holder.checkBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
             checks.set(position, isChecked);
@@ -108,6 +118,12 @@ public class GroupDirectoryRecyclerViewAdapter extends RecyclerView.Adapter<Grou
 
     public void setError(int position, String error) {
         viewHolders.get(position).viewRowGroupNameInput.setError(error);
+    }
+
+    public void releaseFocus() {
+        if (focusedView != null) {
+            focusedView.clearFocus();
+        }
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
