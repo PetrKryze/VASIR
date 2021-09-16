@@ -124,13 +124,15 @@
 
     <!-- Welcome Fragment -->
     <string name="welcome_title">Vítejte!</string>
-    <string name="welcome_message">
-        <i><b>VASIR</b></i> je aplikace, která používá <i>visual analog scale</i> (analogovou obrazovou stupnici) pro subjektivní hodnocení srozumitelnosti řeči.\n
-        \tPokud již umíte s aplikací pracovat, pokračujte k hodnocení stiskem tlačítka.
-        Pro více informací o této aplikaci a jejím použití prosím sjeďte níže na této obrazovce pro rychlou nápovědu.
+    <string name="welcome_message1">
+        <b>VASIR</b> je aplikace, která používá <i>visual analog scale</i> (analogovou obrazovou stupnici) pro subjektivní hodnocení srozumitelnosti řeči.
+    </string>
+    <string name="welcome_message2">
+        Pro více informací o této aplikaci a jejím použití prosím sjeďte níže na této obrazovce pro rychlou nápovědu.\n
         Na jakékoliv obrazovce v aplikaci si lze také zobrazit kontextovou nápovědu pomocí rozbalovací nabídky v pravém horním rohu.
     </string>
     <string name="welcome_scroll_hint_description">Dolů mířící šipka vybízející ke scrollování</string>
+    <string name="welcome_message_further_info_header">Rychlá nápověda</string>
     <string name="welcome_message_further_info">
         \tPři pokračování dále vás aplikace vyzve k vybrání adresáře s uloženými audio soubory obsahující řeč k zhodnocení.
         Místo uložení souborů je libovolné, nicméně <i>doporučujeme</i> umístit soubory do standardního adresáře v interní paměti telefonu (např. adresář <i>Documents</i>).\n\n

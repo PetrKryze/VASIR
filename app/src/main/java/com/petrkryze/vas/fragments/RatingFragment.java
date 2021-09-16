@@ -605,7 +605,6 @@ public class RatingFragment extends VASFragment {
         if (what == MediaPlayer.MEDIA_ERROR_SERVER_DIED) { // We need to release and load player again
             message = getString(R.string.dialog_player_error_reset, sb.toString());
             action = () -> model.resetPlayer(requireContext());
-            model.resetPlayer(requireContext());
         } else if (extra == MediaPlayer.MEDIA_ERROR_UNSUPPORTED) {
             if (model.changeToValid(requireContext())) {
                 message = getString(R.string.dialog_player_error, sb.toString());

@@ -70,18 +70,28 @@
                 android:layout_marginBottom="5dp"
 
                 android:text="@string/welcome_title"
-                android:textAppearance="@style/TextAppearance.MdcTypographyStyles.Headline5" />
+                android:textAppearance="@style/TextAppearance.MdcTypographyStyles.Headline5"
+                android:textStyle="bold"/>
 
             <include layout="@layout/horizontal_divider" />
 
             <TextView
-                android:id="@+id/welcome_body_textview2"
+                android:id="@+id/welcome_header_textview1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:gravity="left"
-                android:justificationMode="inter_word"
-                android:text="@string/welcome_message"/>
+
+                android:text="@string/welcome_message1"/>
+
+            <TextView
+                android:id="@+id/welcome_header_textview2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+
+                android:text="@string/welcome_message2"
+                android:textAppearance="@style/TextAppearance.MdcTypographyStyles.Body2"
+                android:alpha="0.5"/>
 
             <CheckBox
                 android:id="@+id/welcome_fragment_checkbox"
@@ -104,11 +114,20 @@
             <include layout="@layout/horizontal_divider" />
 
             <TextView
+                android:id="@+id/welcome_body_header"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+
+                android:text="@string/welcome_message_further_info_header"
+                android:textAppearance="@style/TextAppearance.MdcTypographyStyles.Headline6"
+                android:textStyle="bold"/>
+            <TextView
                 android:id="@+id/welcome_body_textview"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:justificationMode="inter_word"
+                android:layout_marginTop="5dp"
+
                 android:text="@string/welcome_message_further_info"
                 android:textAppearance="@style/TextAppearance.MdcTypographyStyles.Body2" />
 

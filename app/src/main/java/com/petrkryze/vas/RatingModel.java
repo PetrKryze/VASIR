@@ -397,7 +397,7 @@ public class RatingModel extends AndroidViewModel {
         if (player != null) player.clean(); player = null;
 
         player = new Player(context, getPlayerListener());
-        changeTrackToFirst(context);
+        changeTrackToPointer(context);
     }
 
     public boolean changeToValid(Context context) {

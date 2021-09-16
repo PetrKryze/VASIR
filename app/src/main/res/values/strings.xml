@@ -173,13 +173,15 @@
 
     <!-- Welcome Fragment -->
     <string name="welcome_title">Welcome!</string>
-    <string name="welcome_message">
-        \t<i><b>VASIR</b></i> is an application that utilizes a visual analog scale for subjective speech intelligibility rating.\n
-        \tIf you\'re already familiar with this application, feel free to continue below and start rating.
-        To find out more info about how to use this app, scroll down on this screen for a quick reference.
+    <string name="welcome_message1">
+        <b>VASIR</b> is an application that utilizes a <i>visual analog scale</i> for subjective speech intelligibility rating.
+    </string>
+    <string name="welcome_message2">
+        To find out more info about how to use this app, scroll down on this screen for a quick reference.\n
         Every screen in the app has a contextual help that can be displayed using the dropdown menu in the top-right corner.
     </string>
     <string name="welcome_scroll_hint_description">Down facing arrow suggesting scrolling</string>
+    <string name="welcome_message_further_info_header">Quick reference</string>
     <string name="welcome_message_further_info">
         \tAfter proceeding, you will be asked to select a directory containing the audio files of speech recordings to be rated.
         The location of the files is arbitrary, but we <i>recommend</i> saving them to a standard directory
