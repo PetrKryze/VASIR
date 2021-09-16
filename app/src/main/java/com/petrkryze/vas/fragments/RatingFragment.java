@@ -86,7 +86,6 @@ public class RatingFragment extends VASFragment {
     private ImageView checkMarkIcon;
 
     private RatingModel model;
-    private boolean initDone = false;
     private boolean creatingNewSession = false;
 
     private enum State {NULL, LOADING, PREPARING, PREPARED, ERROR, SELECTING_DIRECTORY, CHECKING_GROUPS}
@@ -102,7 +101,7 @@ public class RatingFragment extends VASFragment {
         @Override
         public void onClick(View v) {
             Log.d(TAG, "onClick: BUTTON PLAY CLICKED");
-            if (v.getId() == buttonPlayPause.getId() && initDone) {
+            if (v.getId() == buttonPlayPause.getId() && state == State.PREPARED) {
                 vibrate(VIBRATE_BUTTON_MS);
                 model.playerPlay();
             }
@@ -112,7 +111,7 @@ public class RatingFragment extends VASFragment {
         @Override
         public void onClick(View v) {
             Log.d(TAG, "onClick: BUTTON PAUSE CLICKED");
-            if (v.getId() == buttonPlayPause.getId() && initDone) {
+            if (v.getId() == buttonPlayPause.getId() && state == State.PREPARED) {
                 vibrate(VIBRATE_BUTTON_MS);
                 model.playerPause();
             }
@@ -124,7 +123,7 @@ public class RatingFragment extends VASFragment {
         @Override
         public void onClick(View v) {
             Log.d(TAG, "onClick: BUTTON PREVIOUS CLICKED");
-            if (v.getId() == buttonPrevious.getId() && initDone) {
+            if (v.getId() == buttonPrevious.getId() && state == State.PREPARED) {
                 vibrate(VIBRATE_BUTTON_MS);
                 model.decrementTrack(requireContext());
             }
@@ -134,7 +133,7 @@ public class RatingFragment extends VASFragment {
         @Override
         public void onClick(View v) {
             Log.d(TAG, "onClick: BUTTON NEXT CLICKED");
-            if (v.getId() == buttonNext.getId() && initDone) {
+            if (v.getId() == buttonNext.getId() && state == State.PREPARED) {
                 vibrate(VIBRATE_BUTTON_MS);
                 model.incrementTrack(requireContext());
             }
@@ -147,7 +146,7 @@ public class RatingFragment extends VASFragment {
         @Override
         public boolean onLongClick(View v) {
             Log.d(TAG, "onLongClick: BUTTON PREVIOUS LONG CLICKED");
-            if (v.getId() == buttonPrevious.getId() && initDone) {
+            if (v.getId() == buttonPrevious.getId() && state == State.PREPARED) {
                 vibrate(VIBRATE_BUTTON_LONG_MS);
                 model.changeTrackToFirst(requireContext());
                 return true;
@@ -159,7 +158,7 @@ public class RatingFragment extends VASFragment {
         @Override
         public boolean onLongClick(View v) {
             Log.d(TAG, "onLongClick: BUTTON NEXT LONG CLICKED");
-            if (v.getId() == buttonNext.getId() && initDone) {
+            if (v.getId() == buttonNext.getId() && state == State.PREPARED) {
                 vibrate(VIBRATE_BUTTON_LONG_MS);
                 model.changeTrackToLast(requireContext());
                 return true;
@@ -183,7 +182,7 @@ public class RatingFragment extends VASFragment {
         public void onStopTrackingTouch(SeekBar seekBar) {
             VASratingBar.playSoundEffect(SoundEffectConstants.CLICK);
 
-            if (initDone) { // Set the rating
+            if (state == State.PREPARED) { // Set the rating
                 model.rate(seekBar.getProgress());
 
                 if (model.isSessionFinished()) { // Checks if all recordings have been rated
@@ -213,7 +212,7 @@ public class RatingFragment extends VASFragment {
 
         @Override
         public void onStopTrackingTouch(SeekBar seekBar) {
-            if (initDone) {
+            if (state == State.PREPARED) {
                 playerProgressBar.playSoundEffect(SoundEffectConstants.CLICK);
                 model.playerSeekTo(seekBar.getProgress());
             }
@@ -269,7 +268,7 @@ public class RatingFragment extends VASFragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        initDone = false;
+        state = State.NULL;
         isTouchingSeekBar = false;
 
         // Get colorPrimarySurface - resolve the ?attr
@@ -499,7 +498,6 @@ public class RatingFragment extends VASFragment {
             model.loadPlayerProgress();
         }
 
-        initDone = true;
         model.changeTrackToPointer(requireContext());
     }
 
@@ -635,7 +633,6 @@ public class RatingFragment extends VASFragment {
     public void fireSelectDirectory() {
         // Fire up dialog to choose the data directory
         state = State.SELECTING_DIRECTORY;
-        initDone = false;
         creatingNewSession = true;
         selectDirectory.launch(null);
     }
@@ -737,7 +734,7 @@ public class RatingFragment extends VASFragment {
         model.onPausePlayer();
 
         // Saves the session on every Pause occasion (change app, phone lock, change screen, ...)
-        if (initDone) {
+        if (state == State.PREPARED) {
             model.saveSession();
         }
     }
@@ -751,7 +748,6 @@ public class RatingFragment extends VASFragment {
 
         state = State.NULL;
         vibrator = null;
-        initDone = false;
     }
 
     @Override
@@ -767,10 +763,10 @@ public class RatingFragment extends VASFragment {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         int itemID = item.getItemId();
-        if (itemID == R.id.action_menu_help && initDone) {
+        if (itemID == R.id.action_menu_help && state == State.PREPARED) {
             onShowHelp();
             return true;
-        } else if (itemID == R.id.action_menu_save && initDone) {
+        } else if (itemID == R.id.action_menu_save && state == State.PREPARED) {
             model.saveResults(requireContext(), new SaveResultsCallback() {
                 @Override
                 public void onSuccess() {
@@ -786,21 +782,21 @@ public class RatingFragment extends VASFragment {
                 }
             });
             return true;
-        } else if (itemID == R.id.action_menu_show_saved_results && initDone) {
+        } else if (itemID == R.id.action_menu_show_saved_results && state == State.PREPARED) {
             onShowSavedResults(results -> {
                 NavDirections directions =
                         RatingFragmentDirections.actionRatingFragmentToResultFragment(results);
                 NavHostFragment.findNavController(this).navigate(directions);
             });
             return true;
-        } else if (itemID == R.id.action_menu_show_session_info && initDone) {
+        } else if (itemID == R.id.action_menu_show_session_info && state == State.PREPARED) {
             onShowSessionInfo(session -> {
                 NavDirections directions = RatingFragmentDirections
                         .actionRatingFragmentToCurrentSessionInfoFragment(session);
                 NavHostFragment.findNavController(RatingFragment.this).navigate(directions);
             });
             return true;
-        } else if (itemID == R.id.action_menu_new_session && initDone) {
+        } else if (itemID == R.id.action_menu_new_session && state == State.PREPARED) {
             onNewSession();
             return true;
         }
