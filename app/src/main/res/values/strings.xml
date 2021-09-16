@@ -93,7 +93,7 @@
 
     <string name="dialog_internal_error_title">Internal error</string>
     <string name="dialog_internal_error_message">Error message: Extracting full path from document selection URI failed!</string>
-    <string name="dialog_internal_error_quit">Quit</string>
+    <string name="dialog_internal_error_return">Return</string>
 
     <string name="dialog_no_session_found_title">No session found</string>
     <string name="dialog_no_session_found_message">No previous rating session was found. Please create a new session.</string>

@@ -45,7 +45,7 @@
 
     <string name="dialog_internal_error_title">Interní chyba</string>
     <string name="dialog_internal_error_message">Chybová zpráva: Extracting full path from document selection URI failed!</string>
-    <string name="dialog_internal_error_quit">Odejít</string>
+    <string name="dialog_internal_error_return">Zpět</string>
 
     <string name="dialog_no_session_found_title">Nenalezeno žádné sezení</string>
     <string name="dialog_no_session_found_message">Nebylo nalezeno žádné předešelé hodnocení. Vytvořte prosím nové sezení.</string>

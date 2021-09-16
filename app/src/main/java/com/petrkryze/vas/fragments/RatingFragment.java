@@ -234,7 +234,7 @@ public class RatingFragment extends VASFragment {
                                 .setIcon(applyTintFilter(
                                         ContextCompat.getDrawable(RatingFragment.this.requireContext(), R.drawable.ic_error),
                                         RatingFragment.this.requireContext().getColor(R.color.errorColor)))
-                                .setPositiveButton(R.string.dialog_internal_error_quit, (dialog, which) -> RatingFragment.this.requireActivity().finish())
+                                .setPositiveButton(R.string.dialog_internal_error_return, (dialog, which) -> RatingFragment.this.fireSessionCreationCancelled())
                                 .setCancelable(false).show();
                     } else { // Returned path seems ok, start the checks
                         state = State.PREPARING;
