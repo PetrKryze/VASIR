@@ -174,23 +174,24 @@
     <!-- Welcome Fragment -->
     <string name="welcome_title">Welcome!</string>
     <string name="welcome_message">
-        \t<i><b>VASIR</b></i> is an application that utilizes visual analog scales for subjective speech intelligibility rating.\n
+        \t<i><b>VASIR</b></i> is an application that utilizes a visual analog scale for subjective speech intelligibility rating.\n
         \tIf you\'re already familiar with this application, feel free to continue below and start rating.
-        To find out more info about how to use this app, scroll down in this panel.
+        To find out more info about how to use this app, scroll down on this screen for a quick reference.
+        Every screen in the app has a contextual help that can be displayed using the dropdown menu in the top-right corner.
     </string>
     <string name="welcome_scroll_hint_description">Down facing arrow suggesting scrolling</string>
     <string name="welcome_message_further_info">
-        \tAfter proceeding, the app will ask you to select a directory containing the audio files of speech recordings to be rated.
+        \tAfter proceeding, you will be asked to select a directory containing the audio files of speech recordings to be rated.
         The location of the files is arbitrary, but we <i>recommend</i> saving them to a standard directory
         on your phone\'s internal storage (e.g. the <i>Documents</i> folder).\n\n
         \tAfterwards, the app performs a randomization on the found audio files and prepares them for rating. You can browse through
-        the available files using the build-in player, listen to their contents through headphones,
-        and finally, rate them on the continuous analog scale located to the bottom of the rating screen.
+        the available files using the built-in player, listen to their content through headphones,
+        and finally, rate them on the scale located to the bottom of the rating screen.
         When all available files have been rated, a double checkmark icon will appear.
         The current session is saved automatically on app exit, but can be also saved manually using the dropdown menu in the top-right corner.
-        This menu also allows you to see the saved recordings and share them via Cloud, email, etc.
+        This menu also allows you to see the saved recordings and share them via cloud, email, etc.
         \n\n
-        This application was developed for use in research and development in the department of circuit theory, faculty of electrotechnics, CTU in Prague.\n
+        This application was developed for use in research and development at the department of circuit theory, faculty of electrotechnics, CTU in Prague.\n
     </string>
     <string name="welcome_checkbox_do_not_show_again">Do not show this screen again</string>
     <string name="welcome_button_continue_label">Continue to rating</string>

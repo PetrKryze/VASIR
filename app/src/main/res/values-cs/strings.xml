@@ -2,10 +2,10 @@
     <!-- Fragment Headers -->
     <string name="fragment_header_rating">Hodnocení</string>
     <string name="fragment_header_help">Nápověda</string>
-    <string name="fragment_header_current_session_info">Aktuální Sezení</string>
+    <string name="fragment_header_current_session_info">Aktuální sezení</string>
     <string name="fragment_header_saved_ratings">Uložená hodnocení</string>
     <string name="fragment_header_rating_detail">Detail hodnocení</string>
-    <string name="fragment_header_group_control_fragment">Kontrola Skupin</string>
+    <string name="fragment_header_group_control_fragment">Kontrola skupin</string>
     <string name="fragment_header_settings_fragment">Nastavení</string>
 
     <!-- Menu Actions -->
@@ -25,9 +25,9 @@
     <string name="button_previous_label">Předchozí</string>
     <string name="button_share_label">Sdílet</string>
     <string name="button_share_all_label">Sdílet vše</string>
-    <string name="button_confirm_label">V Pořádku</string>
-    <string name="button_share_as_text_label">Share as plain text</string>
-    <string name="button_share_as_excel_label">Share as excel file</string>
+    <string name="button_confirm_label">V pořádku</string>
+    <string name="button_share_as_text_label">Sdílet jako prostý text</string>
+    <string name="button_share_as_excel_label">Sdílet jako Excelový soubor</string>
 
     <!-- Dialogs -->
     <string name="dialog_make_new_session_title">Opustit současné sezení?</string>
@@ -48,7 +48,7 @@
     <string name="dialog_internal_error_return">Zpět</string>
 
     <string name="dialog_no_session_found_title">Nenalezeno žádné sezení</string>
-    <string name="dialog_no_session_found_message">Nebylo nalezeno žádné předešelé hodnocení. Vytvořte prosím nové sezení.</string>
+    <string name="dialog_no_session_found_message">Nebylo nalezeno žádné předešlé hodnocení. Vytvořte prosím nové sezení.</string>
     <string name="dialog_no_session_corrupted_session_quit">Odejít</string>
     <string name="dialog_no_session_corrupted_session_create_new_session">Vytvořit nové sezení</string>
     <string name="dialog_corrupted_session_title">Sezení poškozeno</string>
@@ -83,7 +83,7 @@
     <!-- Snackbars -->
     <string name="snackbar_result_deleted_success">Záznam úspěšně odstraněn.</string>
     <string name="snackbar_result_deleted_failure">Záznam nemohl být odstraněn.\nPříčina: %s</string>
-    <string name="snackbar_results_select_hint">Podobné info o sezení zobrazíte výběrem ze seznamu.</string>
+    <string name="snackbar_results_select_hint">Podobné informace o sezení zobrazíte výběrem ze seznamu.</string>
     <string name="snackbar_directory_selection_canceled">Tvorba nového sezení zrušena - nebyl vybrán žádný adresář.</string>
     <string name="snackbar_directory_check_canceled">Tvorba nového sezení zrušena - kontrola skupin přerušena.</string>
     <string name="snackbar_save_success">Uložení úspěšné!</string>
@@ -125,9 +125,10 @@
     <!-- Welcome Fragment -->
     <string name="welcome_title">Vítejte!</string>
     <string name="welcome_message">
-        <i><b>VASIR</b></i> je aplikace, která používá <i>visual analog scales</i> (analogové obrazové stupnice) pro subjektivní hodnocení srozumitelnosti řeči.\n
+        <i><b>VASIR</b></i> je aplikace, která používá <i>visual analog scale</i> (analogovou obrazovou stupnici) pro subjektivní hodnocení srozumitelnosti řeči.\n
         \tPokud již umíte s aplikací pracovat, pokračujte k hodnocení stiskem tlačítka.
-        Pro více informací o této aplikaci a jejím použití prosím sjeďte dolů na tomto panelu.
+        Pro více informací o této aplikaci a jejím použití prosím sjeďte níže na této obrazovce pro rychlou nápovědu.
+        Na jakékoliv obrazovce v aplikaci si lze také zobrazit kontextovou nápovědu pomocí rozbalovací nabídky v pravém horním rohu.
     </string>
     <string name="welcome_scroll_hint_description">Dolů mířící šipka vybízející ke scrollování</string>
     <string name="welcome_message_further_info">
@@ -135,10 +136,10 @@
         Místo uložení souborů je libovolné, nicméně <i>doporučujeme</i> umístit soubory do standardního adresáře v interní paměti telefonu (např. adresář <i>Documents</i>).\n\n
         \tAplikace dále provede automatickou randomizaci nalezených souborů a připraví je k hodnocení.
         Použitím vestavěného přehrávače můžete procházet nalezené soubory a přehrávat jejich obsah za pomocí sluchátek.
-        Ve spodní části obrazovky se pak nachází spojitá analogová lišta pro hodnocení.\n\n
+        Ve spodní části obrazovky se pak nachází posuvník pro hodnocení.\n\n
         \tPoté, co byly všechny nahrávky ohodnoceny, se zobrazí ikonka dvojité zelené fajfky.
-        Aktuální sezení bude vždy automaticky ukládáno při odchodu z aplikace a může být také uloženo manuálně ve vysouvací nabídce v pravém horním rohu.
-        Tato nabídka také umožňuje zobrazit si uložená sezení a sdílet je pomocí Cloudu, emailu, atd.
+        Aktuální sezení bude vždy automaticky uloženo při odchodu z aplikace a může být také uloženo manuálně prostřednictvím vysouvací nabídky v pravém horním rohu.
+        Tato nabídka také umožňuje zobrazit si uložená sezení a sdílet je pomocí cloudu, emailu, atd.
         \n\n
         <i>Tato aplikace byla vyvinuta pro potřeby výzkumu a vývoje na katedře teorie obvodů, Fakultě elektrotechnické, ČVUT v Praze.</i>
     </string>
@@ -160,7 +161,7 @@
     <string name="player_error_malformed">Bitstream nepodléhá příslušnému kódovému standardu nebo souborové specifikaci</string>
 
     <!-- Results Fragment -->
-    <string name="results_fragment_no_results">Zatím tu nejsou žádná uložená hodnocení! Sezení můžete manuálně uložit odpovídající volbou ve vysouvací nabídce.</string>
+    <string name="results_fragment_no_results">Zatím tu nejsou žádná uložená hodnocení! Sezení můžete manuálně uložit příslušnou volbou ve vysouvací nabídce.</string>
     <string name="results_list_row_sessionID">Sezení %d</string>
 
     <!-- Sharing -->
