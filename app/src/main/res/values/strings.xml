@@ -351,7 +351,7 @@
     </string>
 
     <!-- Help Image Descriptions -->
-    <string name="help_tag_description_content_description">Image showing screenshot of application content relatex to the context of the help being displayed.</string>
+    <string name="help_tag_description_content_description">Image showing screenshot of application content related to the context of the help being displayed.</string>
 
     <string-array name="help_tag_description_rating_fragment">
         <item>Current position in the list of all recordings.</item>
@@ -371,7 +371,7 @@
     </string-array>
 
     <string-array name="help_tag_description_results_fragment">
-        <item>List of saved sessions, sorted chronologically with the lastest saved session on top. List items can be clicked on to display detailed session info. Long-press enables to delete the save.</item>
+        <item>List of saved sessions, sorted chronologically with the latest saved session on top. List items can be clicked on to display detailed session info. Long-press enables to delete the save.</item>
         <item>Session\'s date and time of saving.</item>
         <item>Message hinting at the option to click on list items to see detailed info. Automatically disappears after a while.</item>
         <item>Share all saved sessions button. A share mode (plain text/excel file) and a share target can be selected after pressing.</item>
@@ -380,7 +380,7 @@
     <string-array name="help_tag_description_result_detail_fragment">
         <item>Session name.</item>
         <item>Session info: Save date, randomization seed, creation date. Values can be copied.</item>
-        <item>List of all recordings in the session. List can be sorted both ascendingly or descendingly by pressing on the column headers.</item>
+        <item>List of all recordings in the session. List can be sorted both in ascending or descending order by pressing on the column headers.</item>
         <item>List items: Recording\'s ID, group name, randomization index, set recording\'s rating.</item>
         <item>Session share button. A share mode (plain text/excel file) and a share target can be selected after pressing.</item>
     </string-array>
@@ -396,7 +396,7 @@
     <string-array name="help_tag_description_current_session_info_fragment">
         <item>Current session\'s name.</item>
         <item>Current session info: Randomization seed, creation date. Values can be copied.</item>
-        <item>List of all recordings in the current session. List can be sorted both ascendingly or descendingly by pressing on the column headers.</item>
+        <item>List of all recordings in the current session. List can be sorted both in ascending or descending order by pressing on the column headers.</item>
         <item>List items: Recording\'s ID, group name, randomization index, set recording\'s rating.</item>
         <item>Current session share button. A share mode (plain text/excel file) and a share target can be selected after pressing.</item>
     </string-array>
