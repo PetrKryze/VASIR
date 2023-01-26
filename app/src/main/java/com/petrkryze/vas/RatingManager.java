@@ -344,7 +344,7 @@ public class RatingManager {
             loadedSession.resortLists(); // Just to be sure
             loadedSession.validateSession();
 
-            Log.d(TAG, "loadSession: Loaded Session >\n" + loadedSession.toString());
+            Log.d(TAG, "loadSession: Loaded Session >\n" + loadedSession);
             return Pair.create(LoadResult.OK, loadedSession);
         } catch (Exception e) {
             e.printStackTrace();
@@ -366,7 +366,7 @@ public class RatingManager {
                 }
             } else {
                 throw new IOException("checkResultsDirectory: Results directory <" + path +
-                        "> check failed.\n" + "Reason: " + checkResult.second.toString());
+                        "> check failed.\n" + "Reason: " + checkResult.second);
             }
         }
     }
