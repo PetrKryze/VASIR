@@ -6,6 +6,7 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
+import android.os.VibratorManager;
 import android.view.LayoutInflater;
 import android.view.SoundEffectConstants;
 import android.view.View;
@@ -34,6 +35,7 @@ public class RecordingsRecyclerViewAdapter extends RecyclerView.Adapter<ViewHold
     private final Context context;
     private final List<Recording> recordings;
 
+    private final Vibrator vibrator;
     private final int VIBRATE_LIST_ITEM_SELECT;
 
     public RecordingsRecyclerViewAdapter(Context context, List<Recording> recordings) {
@@ -41,6 +43,13 @@ public class RecordingsRecyclerViewAdapter extends RecyclerView.Adapter<ViewHold
         this.recordings = recordings;
 
         VIBRATE_LIST_ITEM_SELECT = context.getResources().getInteger(R.integer.VIBRATE_LONG_CLICK_MS);
+
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
+            VibratorManager vibratorManager = (VibratorManager) context.getSystemService(Context.VIBRATOR_MANAGER_SERVICE);
+            vibrator = vibratorManager.getDefaultVibrator();
+        } else {
+            vibrator = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
+        }
     }
 
     @NonNull
@@ -70,8 +79,7 @@ public class RecordingsRecyclerViewAdapter extends RecyclerView.Adapter<ViewHold
         holder.mView.setOnLongClickListener(v -> {
             holder.mView.requestFocus();
             holder.mView.playSoundEffect(SoundEffectConstants.CLICK);
-            ((Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE)).
-                    vibrate(VibrationEffect.createOneShot(VIBRATE_LIST_ITEM_SELECT, VibrationEffect.DEFAULT_AMPLITUDE));
+            vibrator.vibrate(VibrationEffect.createOneShot(VIBRATE_LIST_ITEM_SELECT, VibrationEffect.DEFAULT_AMPLITUDE));
 
             ClipboardManager clipboardManager = context.getSystemService(ClipboardManager.class);
             ClipData clip = ClipData.newPlainText("Recording data",
