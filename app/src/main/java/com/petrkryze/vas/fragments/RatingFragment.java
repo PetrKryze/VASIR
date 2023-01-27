@@ -17,6 +17,7 @@ import android.util.Pair;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.SoundEffectConstants;
@@ -52,7 +53,10 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
+import androidx.core.view.MenuHost;
+import androidx.core.view.MenuProvider;
 import androidx.core.widget.TextViewCompat;
+import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavDirections;
 import androidx.navigation.fragment.NavHostFragment;
@@ -343,6 +347,7 @@ public class RatingFragment extends VASFragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        setupMenu();
 
         model = new ViewModelProvider(this).get(RatingModel.class);
 
@@ -772,57 +777,66 @@ public class RatingFragment extends VASFragment {
         vibrator = null;
     }
 
-    @Override
-    public void onPrepareOptionsMenu(@NonNull @NotNull Menu menu) {
-        super.onPrepareOptionsMenu(menu);
-        int[] toEnable = {R.id.action_menu_help, R.id.action_menu_save,
-                R.id.action_menu_show_session_info, R.id.action_menu_new_session,
-                R.id.action_menu_show_saved_results, R.id.action_menu_quit, R.id.action_menu_settings};
+    private void setupMenu() {
+        MenuHost menuHost = requireActivity();
+        menuHost.addMenuProvider(new MenuProvider() {
+            @Override
+            public void onPrepareMenu(@NonNull Menu menu) {
+                MenuProvider.super.onPrepareMenu(menu);
 
-        for (int item : toEnable) MainActivity.enableMenuItem(menu, item);
-    }
+                int[] toEnable = {R.id.action_menu_help, R.id.action_menu_save,
+                        R.id.action_menu_show_session_info, R.id.action_menu_new_session,
+                        R.id.action_menu_show_saved_results, R.id.action_menu_quit, R.id.action_menu_settings};
 
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        int itemID = item.getItemId();
-        if (itemID == R.id.action_menu_help && state == State.PREPARED) {
-            onShowHelp();
-            return true;
-        } else if (itemID == R.id.action_menu_save && state == State.PREPARED) {
-            model.saveResults(requireContext(), new SaveResultsCallback() {
-                @Override
-                public void onSuccess() {
-                    Snackbar.make(requireActivity().findViewById(R.id.coordinator),
-                            getString(R.string.snackbar_save_success),
-                            BaseTransientBottomBar.LENGTH_SHORT)
-                            .setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE).show();
+                for (int item : toEnable) MainActivity.enableMenuItem(menu, item);
+            }
+
+            @Override
+            public void onCreateMenu(@NonNull Menu menu, @NonNull MenuInflater menuInflater) {}
+
+            @Override
+            public boolean onMenuItemSelected(@NonNull MenuItem menuItem) {
+                int itemID = menuItem.getItemId();
+                if (itemID == R.id.action_menu_help && state == State.PREPARED) {
+                    onShowHelp();
+                    return true;
+                } else if (itemID == R.id.action_menu_save && state == State.PREPARED) {
+                    model.saveResults(requireContext(), new SaveResultsCallback() {
+                        @Override
+                        public void onSuccess() {
+                            Snackbar.make(requireActivity().findViewById(R.id.coordinator),
+                                            getString(R.string.snackbar_save_success),
+                                            BaseTransientBottomBar.LENGTH_SHORT)
+                                    .setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE).show();
+                        }
+
+                        @Override
+                        public void onError(String errorMessage) {
+                            onSaveFailed(errorMessage);
+                        }
+                    });
+                    return true;
+                } else if (itemID == R.id.action_menu_show_saved_results && state == State.PREPARED) {
+                    onShowSavedResults(results -> {
+                        NavDirections directions =
+                                RatingFragmentDirections.actionRatingFragmentToResultFragment(results);
+                        NavHostFragment.findNavController(RatingFragment.this).navigate(directions);
+                    });
+                    return true;
+                } else if (itemID == R.id.action_menu_show_session_info && state == State.PREPARED) {
+                    onShowSessionInfo(session -> {
+                        NavDirections directions = RatingFragmentDirections
+                                .actionRatingFragmentToCurrentSessionInfoFragment(session);
+                        NavHostFragment.findNavController(RatingFragment.this).navigate(directions);
+                    });
+                    return true;
+                } else if (itemID == R.id.action_menu_new_session && state == State.PREPARED) {
+                    onNewSession();
+                    return true;
                 }
-
-                @Override
-                public void onError(String errorMessage) {
-                    onSaveFailed(errorMessage);
-                }
-            });
-            return true;
-        } else if (itemID == R.id.action_menu_show_saved_results && state == State.PREPARED) {
-            onShowSavedResults(results -> {
-                NavDirections directions =
-                        RatingFragmentDirections.actionRatingFragmentToResultFragment(results);
-                NavHostFragment.findNavController(this).navigate(directions);
-            });
-            return true;
-        } else if (itemID == R.id.action_menu_show_session_info && state == State.PREPARED) {
-            onShowSessionInfo(session -> {
-                NavDirections directions = RatingFragmentDirections
-                        .actionRatingFragmentToCurrentSessionInfoFragment(session);
-                NavHostFragment.findNavController(RatingFragment.this).navigate(directions);
-            });
-            return true;
-        } else if (itemID == R.id.action_menu_new_session && state == State.PREPARED) {
-            onNewSession();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
+                return false;
+            }
+        }, getViewLifecycleOwner(), Lifecycle.State.RESUMED);
     }
 
     private void onShowHelp() {

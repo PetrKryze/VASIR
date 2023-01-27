@@ -13,6 +13,7 @@ import android.text.InputType;
 import android.text.Spanned;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
@@ -26,13 +27,14 @@ import com.petrkryze.vas.RatingManager;
 import com.petrkryze.vas.RatingResult;
 import com.petrkryze.vas.Session;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.util.ArrayList;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
+import androidx.core.view.MenuHost;
+import androidx.core.view.MenuProvider;
+import androidx.lifecycle.Lifecycle;
 import androidx.navigation.NavDirections;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.preference.EditTextPreference;
@@ -68,8 +70,8 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setHasOptionsMenu(true);
         context = requireContext();
+        setupMenu();
     }
 
     @Override
@@ -148,33 +150,41 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         return true;
     }
 
-    @Override
-    public void onPrepareOptionsMenu(@NonNull Menu menu) {
-        super.onPrepareOptionsMenu(menu);
-        int[] toDisable = {R.id.action_menu_save, R.id.action_menu_settings,
-                R.id.action_menu_new_session};
-        int[] toEnable = {R.id.action_menu_help, R.id.action_menu_show_saved_results,
-                R.id.action_menu_quit, R.id.action_menu_show_session_info};
+    private void setupMenu() {
+        MenuHost menuHost = requireActivity();
+        menuHost.addMenuProvider(new MenuProvider() {
+            @Override
+            public void onPrepareMenu(@NonNull Menu menu) {
+                MenuProvider.super.onPrepareMenu(menu);
+                int[] toDisable = {R.id.action_menu_save, R.id.action_menu_settings,
+                        R.id.action_menu_new_session};
+                int[] toEnable = {R.id.action_menu_help, R.id.action_menu_show_saved_results,
+                        R.id.action_menu_quit, R.id.action_menu_show_session_info};
 
-        for (int item : toDisable) MainActivity.disableMenuItem(menu, item);
-        for (int item : toEnable) MainActivity.enableMenuItem(menu, item);
-    }
+                for (int item : toDisable) MainActivity.disableMenuItem(menu, item);
+                for (int item : toEnable) MainActivity.enableMenuItem(menu, item);
+            }
 
-    @Override
-    public boolean onOptionsItemSelected(@NonNull @NotNull MenuItem item) {
-        int itemID = item.getItemId();
-        if (itemID == R.id.action_menu_help) {
-            onShowHelp();
-            return true;
-        }
-        if (itemID == R.id.action_menu_show_saved_results) {
-            onShowSavedResults();
-            return true;
-        } else if (itemID == R.id.action_menu_show_session_info) {
-            onShowSessionInfo();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
+            @Override
+            public void onCreateMenu(@NonNull Menu menu, @NonNull MenuInflater menuInflater) {}
+
+            @Override
+            public boolean onMenuItemSelected(@NonNull MenuItem menuItem) {
+                int itemID = menuItem.getItemId();
+                if (itemID == R.id.action_menu_help) {
+                    onShowHelp();
+                    return true;
+                }
+                if (itemID == R.id.action_menu_show_saved_results) {
+                    onShowSavedResults();
+                    return true;
+                } else if (itemID == R.id.action_menu_show_session_info) {
+                    onShowSessionInfo();
+                    return true;
+                }
+                return false;
+            }
+        }, getViewLifecycleOwner(), Lifecycle.State.RESUMED);
     }
 
     private void onShowHelp() {

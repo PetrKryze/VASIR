@@ -7,6 +7,7 @@ import android.util.Log;
 import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,6 +26,9 @@ import java.util.ArrayList;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.view.MenuHost;
+import androidx.core.view.MenuProvider;
+import androidx.lifecycle.Lifecycle;
 import androidx.navigation.NavDirections;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.DividerItemDecoration;
@@ -146,6 +150,7 @@ public class GroupControlFragment extends VASFragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         Context context = requireContext();
+        setupMenu();
 
         binding.groupControlFoundFolders.setText(getResources().
                 getQuantityString(R.plurals.group_control_found_folders_headline,
@@ -222,26 +227,33 @@ public class GroupControlFragment extends VASFragment {
         return new Pair<>(checkOK, selectedFolders);
     }
 
-    @Override
-    public void onPrepareOptionsMenu(@NonNull @NotNull Menu menu) {
-        super.onPrepareOptionsMenu(menu);
-        int[] toDisable = { R.id.action_menu_save, R.id.action_menu_show_saved_results,
-                R.id.action_menu_new_session, R.id.action_menu_show_session_info};
-        int[] toEnable = {R.id.action_menu_help, R.id.action_menu_quit, R.id.action_menu_settings};
+    private void setupMenu(){
+        MenuHost menuHost = requireActivity();
+        menuHost.addMenuProvider(new MenuProvider() {
+            @Override
+            public void onPrepareMenu(@NonNull Menu menu) {
+                MenuProvider.super.onPrepareMenu(menu);
+                int[] toDisable = { R.id.action_menu_save, R.id.action_menu_show_saved_results,
+                        R.id.action_menu_new_session, R.id.action_menu_show_session_info};
+                int[] toEnable = {R.id.action_menu_help, R.id.action_menu_quit, R.id.action_menu_settings};
 
-        for (int item : toDisable) MainActivity.disableMenuItem(menu, item);
-        for (int item : toEnable) MainActivity.enableMenuItem(menu, item);
-    }
+                for (int item : toDisable) MainActivity.disableMenuItem(menu, item);
+                for (int item : toEnable) MainActivity.enableMenuItem(menu, item);
+            }
 
-    @Override
-    public boolean onOptionsItemSelected(@NonNull @NotNull MenuItem item) {
-        int itemID = item.getItemId();
-        if (itemID == R.id.action_menu_help) {
-            onShowHelp();
-            return true;
-        }
+            @Override
+            public void onCreateMenu(@NonNull Menu menu, @NonNull MenuInflater menuInflater) {}
 
-        return super.onOptionsItemSelected(item);
+            @Override
+            public boolean onMenuItemSelected(@NonNull MenuItem menuItem) {
+                int itemID = menuItem.getItemId();
+                if (itemID == R.id.action_menu_help) {
+                    onShowHelp();
+                    return true;
+                }
+                return false;
+            }
+        }, getViewLifecycleOwner(), Lifecycle.State.RESUMED);
     }
 
     private void onShowHelp() {

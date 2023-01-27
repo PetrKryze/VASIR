@@ -56,7 +56,7 @@ public class VASFragment extends Fragment {
         } else {
             vibrator = (Vibrator) requireContext().getSystemService(Context.VIBRATOR_SERVICE);
         }
-        
+
         VIBRATE_BUTTON_MS = getResources().getInteger(R.integer.VIBRATE_BUTTON_MS);
         VIBRATE_BUTTON_LONG_MS = getResources().getInteger(R.integer.VIBRATE_LONG_CLICK_MS);
         VIBRATE_RATING_START_MS = getResources().getInteger(R.integer.VIBRATE_RATING_BAR_START_MS);
@@ -66,7 +66,6 @@ public class VASFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        setHasOptionsMenu(true);
         loadingVisibility(true);
         return super.onCreateView(inflater, container, savedInstanceState);
     }

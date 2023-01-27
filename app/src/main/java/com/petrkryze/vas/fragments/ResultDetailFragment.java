@@ -8,6 +8,7 @@ import android.os.VibrationEffect;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -38,7 +39,10 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.FileProvider;
+import androidx.core.view.MenuHost;
+import androidx.core.view.MenuProvider;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Lifecycle;
 import androidx.navigation.NavDirections;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.DividerItemDecoration;
@@ -233,6 +237,7 @@ public class ResultDetailFragment extends VASFragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         Context context = view.getContext();
+        setupMenu();
 
         buttonBar = binding.resultDetailShareButtonBar;
         buttonShare = binding.resultDetailButtonShare;
@@ -283,36 +288,44 @@ public class ResultDetailFragment extends VASFragment {
         return split[0].replace("-", ".") + " " + split[1];
     }
 
-    @Override
-    public void onPrepareOptionsMenu(@NonNull @NotNull Menu menu) {
-        super.onPrepareOptionsMenu(menu);
-        int[] toDisable = { R.id.action_menu_save, R.id.action_menu_new_session};
-        int[] toEnable = {R.id.action_menu_help, R.id.action_menu_show_session_info,
-                R.id.action_menu_quit, R.id.action_menu_show_saved_results, R.id.action_menu_settings};
+    private void setupMenu(){
+        MenuHost menuHost = requireActivity();
+        menuHost.addMenuProvider(new MenuProvider() {
+            @Override
+            public void onPrepareMenu(@NonNull Menu menu) {
+                MenuProvider.super.onPrepareMenu(menu);
 
-        for (int item : toDisable) MainActivity.disableMenuItem(menu, item);
-        for (int item : toEnable) MainActivity.enableMenuItem(menu, item);
-    }
+                int[] toDisable = { R.id.action_menu_save, R.id.action_menu_new_session};
+                int[] toEnable = {R.id.action_menu_help, R.id.action_menu_show_session_info,
+                        R.id.action_menu_quit, R.id.action_menu_show_saved_results, R.id.action_menu_settings};
 
-    @Override
-    public boolean onOptionsItemSelected(@NonNull @NotNull MenuItem item) {
-        int itemID = item.getItemId();
-        if (itemID == R.id.action_menu_help) {
-            onShowHelp();
-            return true;
-        } else if (itemID == R.id.action_menu_show_saved_results) {
-            NavHostFragment.findNavController(this).navigateUp();
-            return true;
-        } else if (itemID == R.id.action_menu_show_session_info) {
-            onShowSessionInfo(session -> {
-                NavDirections directions = ResultDetailFragmentDirections
-                        .actionResultDetailFragmentToCurrentSessionInfoFragment(session);
-                NavHostFragment.findNavController(ResultDetailFragment.this).navigate(directions);
-            });
-            return true;
-        }
+                for (int item : toDisable) MainActivity.disableMenuItem(menu, item);
+                for (int item : toEnable) MainActivity.enableMenuItem(menu, item);
+            }
 
-        return super.onOptionsItemSelected(item);
+            @Override
+            public void onCreateMenu(@NonNull Menu menu, @NonNull MenuInflater menuInflater) {}
+
+            @Override
+            public boolean onMenuItemSelected(@NonNull MenuItem menuItem) {
+                int itemID = menuItem.getItemId();
+                if (itemID == R.id.action_menu_help) {
+                    onShowHelp();
+                    return true;
+                } else if (itemID == R.id.action_menu_show_saved_results) {
+                    NavHostFragment.findNavController(ResultDetailFragment.this).navigateUp();
+                    return true;
+                } else if (itemID == R.id.action_menu_show_session_info) {
+                    onShowSessionInfo(session -> {
+                        NavDirections directions = ResultDetailFragmentDirections
+                                .actionResultDetailFragmentToCurrentSessionInfoFragment(session);
+                        NavHostFragment.findNavController(ResultDetailFragment.this).navigate(directions);
+                    });
+                    return true;
+                }
+                return false;
+            }
+        }, getViewLifecycleOwner(), Lifecycle.State.RESUMED);
     }
 
     private void onShowHelp() {

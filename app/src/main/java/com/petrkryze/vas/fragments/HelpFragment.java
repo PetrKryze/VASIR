@@ -1,6 +1,5 @@
 package com.petrkryze.vas.fragments;
 
-import android.annotation.SuppressLint;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.text.SpannableStringBuilder;
@@ -10,6 +9,7 @@ import android.text.style.LeadingMarginSpan;
 import android.text.style.StyleSpan;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,6 +27,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.res.ResourcesCompat;
+import androidx.core.view.MenuHost;
+import androidx.core.view.MenuProvider;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavDirections;
 import androidx.navigation.fragment.NavHostFragment;
@@ -92,6 +94,7 @@ public class HelpFragment extends VASFragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        setupMenu();
         binding.helpTitleTextview.setText(helpTitle);
 
         RecyclerView list = binding.helpImageviewDescriptions;
@@ -139,39 +142,46 @@ public class HelpFragment extends VASFragment {
         return sb;
     }
 
-    @Override
-    public void onPrepareOptionsMenu(@NonNull Menu menu) {
-        super.onPrepareOptionsMenu(menu);
-        int[] toDisable = {R.id.action_menu_help, R.id.action_menu_save,
-                R.id.action_menu_new_session};
-        int[] toEnable = {R.id.action_menu_show_saved_results, R.id.action_menu_quit,
-                R.id.action_menu_show_session_info, R.id.action_menu_settings};
+    private void setupMenu(){
+        MenuHost menuHost = requireActivity();
+        menuHost.addMenuProvider(new MenuProvider() {
+            @Override
+            public void onPrepareMenu(@NonNull Menu menu) {
+                MenuProvider.super.onPrepareMenu(menu);
 
-        for (int item : toDisable) disableMenuItem(menu, item);
-        for (int item : toEnable) enableMenuItem(menu, item);
-    }
+                int[] toDisable = {R.id.action_menu_help, R.id.action_menu_save,
+                        R.id.action_menu_new_session};
+                int[] toEnable = {R.id.action_menu_show_saved_results, R.id.action_menu_quit,
+                        R.id.action_menu_show_session_info, R.id.action_menu_settings};
 
-    @SuppressLint("ShowToast")
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        int itemID = item.getItemId();
-        if (itemID == R.id.action_menu_show_saved_results) {
-            onShowSavedResults(results -> {
-                NavDirections directions =
-                        HelpFragmentDirections.actionHelpFragmentToResultFragment(results);
-                NavHostFragment.findNavController(this).navigate(directions);
-            });
-            return true;
-        } else if (itemID == R.id.action_menu_show_session_info) {
-            onShowSessionInfo(session -> {
-                NavDirections directions = HelpFragmentDirections
-                        .actionHelpFragmentToCurrentSessionInfoFragment(session);
-                NavHostFragment.findNavController(HelpFragment.this).navigate(directions);
-            });
-            return true;
-        }
+                for (int item : toDisable) disableMenuItem(menu, item);
+                for (int item : toEnable) enableMenuItem(menu, item);
+            }
 
-        return super.onOptionsItemSelected(item);
+            @Override
+            public void onCreateMenu(@NonNull Menu menu, @NonNull MenuInflater menuInflater) {}
+
+            @Override
+            public boolean onMenuItemSelected(@NonNull MenuItem menuItem) {
+                int itemID = menuItem.getItemId();
+                if (itemID == R.id.action_menu_show_saved_results) {
+                    onShowSavedResults(results -> {
+                        NavDirections directions =
+                                HelpFragmentDirections.actionHelpFragmentToResultFragment(results);
+                        NavHostFragment.findNavController(HelpFragment.this).navigate(directions);
+                    });
+                    return true;
+                } else if (itemID == R.id.action_menu_show_session_info) {
+                    onShowSessionInfo(session -> {
+                        NavDirections directions = HelpFragmentDirections
+                                .actionHelpFragmentToCurrentSessionInfoFragment(session);
+                        NavHostFragment.findNavController(HelpFragment.this).navigate(directions);
+                    });
+                    return true;
+                }
+                return false;
+            }
+        });
     }
 
 }
