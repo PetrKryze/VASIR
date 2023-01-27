@@ -16,6 +16,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -30,6 +31,7 @@ import com.petrkryze.vas.Session;
 import java.util.ArrayList;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.MenuHost;
@@ -71,7 +73,13 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         context = requireContext();
+    }
+
+    @NonNull
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         setupMenu();
+        return super.onCreateView(inflater, container, savedInstanceState);
     }
 
     @Override
@@ -108,7 +116,14 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             });
             versionInfoPreference.setIcon(tintIcon(versionInfoPreference.getIcon()));
 
-            versionInfoPreference.setOnPreferenceClickListener(preference -> showVersionInfoDialog((String) preference.getSummary()));
+            versionInfoPreference.setOnPreferenceClickListener(preference -> {
+                String versionInfoString = (String) preference.getSummary();
+                if (versionInfoString != null) {
+                    return showVersionInfoDialog(versionInfoString);
+                } else {
+                    return false;
+                }
+            });
         }
 
         Preference feedbackPreference = findPreference(getString(R.string.SETTING_KEY_FEEDBACK));
