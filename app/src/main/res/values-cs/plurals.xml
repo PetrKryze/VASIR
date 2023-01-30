@@ -3,11 +3,13 @@
     <plurals name="group_control_found_folders_headline">
         <item quantity="one">Nalezen %d adresář obsahující vhodné audio soubory.</item>
         <item quantity="few">Nalezeny %d adresáře obsahující vhodné audio soubory.</item>
+        <item quantity="many">Nalezeno %d adresářů obsahující vhodné audio soubory.</item>
         <item quantity="other">Nalezeno %d adresářů obsahující vhodné audio soubory.</item>
     </plurals>
     <plurals name="group_control_group_folder_list_row_found_audio_files">
         <item quantity="one">Obsahuje %d vhodný audio soubor.</item>
         <item quantity="few">Obsahuje %d vhodné audio soubory.</item>
+        <item quantity="many">Obsahuje %d vhodných audio souborů.</item>
         <item quantity="other">Obsahuje %d vhodných audio souborů.</item>
     </plurals>
 </resources>
