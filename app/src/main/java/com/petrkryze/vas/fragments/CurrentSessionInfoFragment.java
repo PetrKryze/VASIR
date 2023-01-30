@@ -385,6 +385,7 @@ public class CurrentSessionInfoFragment extends VASFragment {
             this.sortBy = sortBy;
         }
 
+        @SuppressLint("NotifyDataSetChanged")
         @Override
         public void onClick(View v) {
             Log.d(TAG, "onClick: COLUMN SORT BY " + sortBy + " BUTTON CLICKED");
@@ -408,6 +409,7 @@ public class CurrentSessionInfoFragment extends VASFragment {
                 CurrentSessionInfoFragment.this.currentSort = sortBy;
             }
 
+            // The list is being sorted and needs to be redrawn whole
             recyclerViewAdapter.notifyDataSetChanged();
         }
     }
