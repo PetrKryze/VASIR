@@ -14,7 +14,6 @@ import androidx.lifecycle.LifecycleObserver;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
-import androidx.lifecycle.OnLifecycleEvent;
 import androidx.lifecycle.ViewModel;
 
 import static androidx.lifecycle.Lifecycle.State.DESTROYED;
@@ -59,7 +58,7 @@ import static androidx.lifecycle.Lifecycle.State.STARTED;
  * @param <T> The type of data held by this instance
  * @see ViewModel
  */
-@SuppressWarnings({"rawtypes", "unchecked", "TypeParameterHidesVisibleType", "unused"})
+@SuppressWarnings({"rawtypes", "unchecked", "TypeParameterHidesVisibleType", "unused", "ConstantConditions"})
 public  class EventLiveData<T> extends LiveData<T> {
 
     private final HashMap<Observer<? super T>, EventObserverWrapper> observers= new HashMap<>();
@@ -361,7 +360,6 @@ public  class EventLiveData<T> extends LiveData<T> {
             return state.isAtLeast(MINIMUM_STATE_FOR_SENDING_EVENT);
         }
 
-        @OnLifecycleEvent(Lifecycle.Event.ON_ANY)
         public void onStateChanged(LifecycleOwner source, Lifecycle.Event event) {
             if (mOwner.getLifecycle().getCurrentState() == DESTROYED||(MAXIMUM_EVENT_FOR_REMOVING_EVENT!=null&&MAXIMUM_EVENT_FOR_REMOVING_EVENT==event)) {
                 removeObserver(mObserver);
