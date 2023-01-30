@@ -224,7 +224,7 @@ public class ResultsFragment extends VASFragment {
                             assert resultsListView != null;
                             assert resultsListView.getAdapter() != null;
                             ratingResults.remove(selectedResult);
-                            resultsListView.getAdapter().notifyDataSetChanged();
+                            resultsListView.getAdapter().notifyItemRemoved(position);
 
                             if (ratingResults.isEmpty()) {
                                 buttonShareAll.setEnabled(false);
