@@ -7,6 +7,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.InputFilter;
 import android.text.InputType;
@@ -109,7 +110,12 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             versionInfoPreference.setCopyingEnabled(true);
             versionInfoPreference.setSummaryProvider(preference -> {
                 try {
-                    PackageInfo packageInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
+                    PackageInfo packageInfo;
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) { // API Level 33
+                        packageInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), PackageManager.PackageInfoFlags.of(0));
+                    } else { // API Level < 33
+                        packageInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
+                    }
                     return getString(R.string.setting_version_info_summary, packageInfo.versionName);
                 } catch (PackageManager.NameNotFoundException e) {
                     e.printStackTrace();
