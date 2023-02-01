@@ -247,6 +247,14 @@ public class Player {
         for (AudioDeviceInfo deviceInfo : audioDevices){
             if (deviceInfo.getType()==AudioDeviceInfo.TYPE_WIRED_HEADPHONES
                     || deviceInfo.getType()==AudioDeviceInfo.TYPE_WIRED_HEADSET){
+                Log.i(TAG, "isHeadphonesIn: Wired headphones detected.");
+                return true;
+            } else if (deviceInfo.getType()==AudioDeviceInfo.TYPE_BLE_HEADSET) {
+                Log.i(TAG, "isHeadphonesIn: Bluetooth Low Energy (BLE) headphones detected.");
+                return true;
+            } else if (deviceInfo.getType()==AudioDeviceInfo.TYPE_BLUETOOTH_A2DP
+                    || deviceInfo.getType()==AudioDeviceInfo.TYPE_BLUETOOTH_SCO) {
+                Log.i(TAG, "isHeadphonesIn: Bluetooth headphones (A2DP/SCO) detected.");
                 return true;
             }
         }
