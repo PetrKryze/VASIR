@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.os.VibratorManager;
@@ -23,6 +24,7 @@ import com.petrkryze.vas.RatingManager;
 import com.petrkryze.vas.RatingResult;
 import com.petrkryze.vas.Session;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 import androidx.annotation.NonNull;
@@ -33,6 +35,7 @@ import androidx.fragment.app.Fragment;
 
 import static com.petrkryze.vas.MainActivity.applyTintFilter;
 import static com.petrkryze.vas.MainActivity.html;
+import static com.petrkryze.vas.RatingManager.GET_SESSION_INFO_LOAD_RESULT_KEY;
 import static com.petrkryze.vas.RatingManager.SESSION_INFO_LOADED_SESSION;
 
 /**
@@ -156,11 +159,12 @@ public class VASFragment extends Fragment {
             String title = "";
             Drawable icon = null;
 
-            switch ((RatingManager.LoadResult) bundle.getSerializable(RatingManager.GET_SESSION_INFO_LOAD_RESULT_KEY)) {
+            switch (getSerializable(bundle, GET_SESSION_INFO_LOAD_RESULT_KEY, RatingManager.LoadResult.class)) {
                 case OK:
                     requireActivity().runOnUiThread(() -> {
                         loadingVisibility(false);
-                        callback.onNavigateToSessionInfo((Session) bundle.getSerializable(SESSION_INFO_LOADED_SESSION));
+                        Session ssn = getSerializable(bundle, SESSION_INFO_LOADED_SESSION, Session.class);
+                        callback.onNavigateToSessionInfo(ssn);
                     });
                     return;
                 case NO_SESSION:
@@ -209,5 +213,21 @@ public class VASFragment extends Fragment {
         if (dialog != null && dialog.isShowing()) {
             dialog.dismiss();
         }
+    }
+
+    @SuppressWarnings({"unchecked","deprecation"})
+    public static <T extends Serializable> T getSerializable(
+            @Nullable Bundle bundle, @Nullable String key, @NonNull Class<T> clazz) {
+        if (bundle != null) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) { // API 33
+                return bundle.getSerializable(key, clazz);
+            } else { // For API < 33, deprecated
+                try {
+                    return (T) bundle.getSerializable(key);
+                } catch (Throwable ignored) {
+                }
+            }
+        }
+        return null;
     }
 }

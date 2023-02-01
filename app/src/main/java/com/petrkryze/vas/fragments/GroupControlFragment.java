@@ -126,7 +126,7 @@ public class GroupControlFragment extends VASFragment {
 
         ArrayList<String> labels = null;
         if (savedInstanceState != null) {
-            labels = (ArrayList<String>) savedInstanceState.getSerializable(LABELS_KEY);
+            labels = getSerializable(savedInstanceState, LABELS_KEY, ArrayList.class);
         }
         adapter = new GroupDirectoryRecyclerViewAdapter(requireContext(), groupFolders, adapterListener, labels);
 

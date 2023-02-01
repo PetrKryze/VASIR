@@ -46,7 +46,9 @@ import androidx.preference.SwitchPreferenceCompat;
 
 import static com.petrkryze.vas.MainActivity.applyTintFilter;
 import static com.petrkryze.vas.MainActivity.html;
+import static com.petrkryze.vas.RatingManager.GET_SESSION_INFO_LOAD_RESULT_KEY;
 import static com.petrkryze.vas.RatingManager.SESSION_INFO_LOADED_SESSION;
+import static com.petrkryze.vas.fragments.VASFragment.getSerializable;
 
 /**
  * Created by Petr on 04.08.2021. Yay!
@@ -250,11 +252,11 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             String title = "";
             Drawable icon = null;
 
-            switch ((RatingManager.LoadResult) bundle.getSerializable(RatingManager.GET_SESSION_INFO_LOAD_RESULT_KEY)) {
+            switch (getSerializable(bundle, GET_SESSION_INFO_LOAD_RESULT_KEY, RatingManager.LoadResult.class)) {
                 case OK:
                     requireActivity().runOnUiThread(() -> {
                         loadingVisibility(false);
-                        Session session = (Session) bundle.getSerializable(SESSION_INFO_LOADED_SESSION);
+                        Session session = getSerializable(bundle, SESSION_INFO_LOADED_SESSION, Session.class);
                         NavDirections directions =
                                 SettingsFragmentDirections
                                         .actionActionMenuSettingsToCurrentSessionInfoFragment(session);

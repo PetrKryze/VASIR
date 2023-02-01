@@ -275,7 +275,7 @@ public class RatingFragment extends VASFragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (savedInstanceState != null) {
-            State savedState = (State) savedInstanceState.getSerializable(StateKey);
+            State savedState = getSerializable(savedInstanceState, StateKey, State.class);
             if (savedState != null) state = savedState;
 
             creatingNewSession = savedInstanceState.getBoolean(NewSessionFlagKey);
@@ -486,12 +486,10 @@ public class RatingFragment extends VASFragment {
                     if (requestKey.equals(GROUP_CHECK_RESULT_REQUEST_KEY)) {
                         // The GroupCheck was confirmed, we can make a new session
                         if (result.getBoolean(GroupControlFragment.GroupControlConfirmedKey)) {
-                            URI resultURI = (URI) result.getSerializable(GroupControlFragment.GroupControlSourceRootURI);
+                            URI resultURI = getSerializable(result,GroupControlFragment.GroupControlSourceRootURI,URI.class);
                             Uri sourceRootUri = Uri.parse(resultURI.toString());
                             ArrayList<GroupFolder> validGroupFolders =
-                                    (ArrayList<GroupFolder>) result.getSerializable(
-                                            GroupControlFragment.GroupFolderListSerializedKey);
-
+                                    getSerializable(result, GroupControlFragment.GroupFolderListSerializedKey, ArrayList.class);
                             Log.d(TAG, "groupCheckFinished: Group check exited via confirmation -" +
                                     " Rating initiation complete!");
                             // Go make new session from these groups
