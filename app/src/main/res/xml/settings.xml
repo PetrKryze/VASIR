@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <SwitchPreferenceCompat
         app:key="@string/SETTING_KEY_SHOW_WELCOME_SCREEN"
@@ -32,5 +33,42 @@
         app:title="@string/setting_feedback_title"
         app:summary="@string/setting_feedback_summary"
         app:icon="@drawable/ic_setting_feedback" />
+
+    <com.petrkryze.vas.LongSummaryPreferenceCategory
+        app:title="@string/setting_category_rating_labels"
+        app:summary="@string/setting_category_rating_labels_summary"
+
+        app:icon="@drawable/ic_setting_labels">
+
+        <EditTextPreference
+            app:key="@string/SETTING_KEY_RATING_TITLE_LABEL"
+            app:title="@string/setting_rating_title_label_title"
+            app:defaultValue="@string/rating_title_label_default"
+            app:icon="@drawable/ic_setting_rating_title_label"
+
+            app:useSimpleSummaryProvider="true"
+            android:selectAllOnFocus="true"
+            app:persistent="true" />
+
+        <EditTextPreference
+            app:key="@string/SETTING_KEY_RATING_LOWEST_LABEL"
+            app:title="@string/setting_rating_lowest_label_title"
+            app:defaultValue="@string/rating_lowest_label_default"
+            app:icon="@drawable/ic_setting_lowest_label"
+
+            app:useSimpleSummaryProvider="true"
+            android:selectAllOnFocus="true"
+            app:persistent="true"  />
+
+        <EditTextPreference
+            app:key="@string/SETTING_KEY_RATING_HIGHEST_LABEL"
+            app:title="@string/setting_rating_highest_label_title"
+            app:defaultValue="@string/rating_highest_label_default"
+            app:icon="@drawable/ic_setting_highest_label"
+
+            app:useSimpleSummaryProvider="true"
+            android:selectAllOnFocus="true"
+            app:persistent="true" />
+    </com.petrkryze.vas.LongSummaryPreferenceCategory>
 
 </PreferenceScreen>

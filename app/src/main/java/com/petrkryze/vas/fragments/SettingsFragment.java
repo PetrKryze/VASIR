@@ -139,6 +139,42 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             feedbackPreference.setIntent(getEmailIntent());
             feedbackPreference.setIcon(tintIcon(feedbackPreference.getIcon()));
         }
+
+        EditTextPreference ratingTitleLabelPreference = findPreference(getString(R.string.SETTING_KEY_RATING_TITLE_LABEL));
+        if (ratingTitleLabelPreference != null) {
+            ratingTitleLabelPreference.setOnPreferenceChangeListener((preference, newValue) -> {
+                if (newValue.toString().isEmpty()) {
+                    ratingTitleLabelPreference.setText(getString(R.string.rating_title_label_default));
+                    return false;
+                }
+                return true;
+            });
+            ratingTitleLabelPreference.setIcon(tintIcon(ratingTitleLabelPreference.getIcon()));
+        }
+
+        EditTextPreference ratingLowestLabelPreference = findPreference(getString(R.string.SETTING_KEY_RATING_LOWEST_LABEL));
+        if (ratingLowestLabelPreference != null) {
+            ratingLowestLabelPreference.setOnPreferenceChangeListener((preference, newValue) -> {
+                if (newValue.toString().isEmpty()) {
+                    ratingLowestLabelPreference.setText(getString(R.string.rating_lowest_label_default));
+                    return false;
+                }
+                return true;
+            });
+            ratingLowestLabelPreference.setIcon(tintIcon(ratingLowestLabelPreference.getIcon()));
+        }
+
+        EditTextPreference ratingHighestLabelPreference = findPreference(getString(R.string.SETTING_KEY_RATING_HIGHEST_LABEL));
+        if (ratingHighestLabelPreference != null) {
+            ratingHighestLabelPreference.setOnPreferenceChangeListener((preference, newValue) -> {
+                if (newValue.toString().isEmpty()) {
+                    ratingHighestLabelPreference.setText(getString(R.string.rating_highest_label_default));
+                    return false;
+                }
+                return true;
+            });
+            ratingHighestLabelPreference.setIcon(tintIcon(ratingHighestLabelPreference.getIcon()));
+        }
     }
 
     private Drawable tintIcon(Drawable icon) {

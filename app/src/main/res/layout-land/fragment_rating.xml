@@ -23,14 +23,14 @@
             android:layout_height="match_parent">
 
             <TextView
-                android:id="@+id/rating_fragment_header_text"
+                android:id="@+id/rating_title_label"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
 
                 android:layout_margin="10dp"
                 android:gravity="center"
 
-                android:text="@string/rating_title_placeholder"
+                android:text="@string/rating_title_label_default"
                 android:textAlignment="center"
                 android:textColor="@color/textPrimaryOnSurface"
                 style="@style/TextAppearance.MdcTypographyStyles.Headline4"
@@ -51,7 +51,7 @@
 
                 android:visibility="invisible"
 
-                app:layout_constraintTop_toBottomOf="@id/rating_fragment_header_text"
+                app:layout_constraintTop_toBottomOf="@id/rating_title_label"
                 app:layout_constraintBottom_toTopOf="@id/rating_fragment_player_track_time"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"/>
@@ -192,7 +192,7 @@
                 app:layout_constraintEnd_toEndOf="parent">
 
                 <TextView
-                    android:id="@+id/rating_label_lowest"
+                    android:id="@+id/rating_lowest_label"
                     style="@style/TextAppearance.MdcTypographyStyles.Body2"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -200,16 +200,16 @@
 
                     android:gravity="start"
                     android:minLines="2"
-                    android:text="@string/rating_label_lowest"
+                    android:text="@string/rating_lowest_label_default"
                     android:textAlignment="viewStart"
                     android:textColor="?attr/colorOnPrimarySurface"
 
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintEnd_toStartOf="@id/rating_label_highest"/>
+                    app:layout_constraintEnd_toStartOf="@id/rating_highest_label"/>
 
                 <TextView
-                    android:id="@+id/rating_label_highest"
+                    android:id="@+id/rating_highest_label"
                     style="@style/TextAppearance.MdcTypographyStyles.Body2"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -217,13 +217,13 @@
 
                     android:gravity="end"
                     android:minLines="2"
-                    android:text="@string/rating_label_highest"
+                    android:text="@string/rating_highest_label_default"
                     android:textAlignment="viewEnd"
                     android:textColor="?attr/colorOnPrimarySurface"
 
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintStart_toEndOf="@id/rating_label_lowest"/>
+                    app:layout_constraintStart_toEndOf="@id/rating_lowest_label"/>
 
                 <androidx.constraintlayout.widget.Barrier
                     android:id="@+id/barrier3"
@@ -231,7 +231,7 @@
                     android:layout_height="wrap_content"
                     app:barrierDirection="bottom"
 
-                    app:constraint_referenced_ids="rating_label_lowest,rating_label_highest" />
+                    app:constraint_referenced_ids="rating_lowest_label,rating_highest_label" />
 
                 <SeekBar
                     android:id="@+id/rating_fragment_rating_bar"

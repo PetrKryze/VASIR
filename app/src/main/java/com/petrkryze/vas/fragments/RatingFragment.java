@@ -5,6 +5,7 @@ import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.graphics.drawable.Drawable;
 import android.media.MediaPlayer;
@@ -60,6 +61,7 @@ import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavDirections;
 import androidx.navigation.fragment.NavHostFragment;
+import androidx.preference.PreferenceManager;
 
 import static com.petrkryze.vas.MainActivity.applyTintFilter;
 import static com.petrkryze.vas.MainActivity.html;
@@ -309,9 +311,10 @@ public class RatingFragment extends VASFragment {
                              @Nullable Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
         binding = FragmentRatingBinding.inflate(inflater, container, false);
+        Context context = requireContext();
 
         // UI Elements setup
-        headerText = binding.ratingFragmentHeaderText;
+        headerText = binding.ratingTitleLabel;
         playerTimeTracker = binding.ratingFragmentPlayerTrackTime;
         playerTimeTotal = binding.ratingFragmentPlayerTotalTime;
         buttonPlayPause = binding.ratingFragmentPlayerButtonPlayPause;
@@ -320,10 +323,18 @@ public class RatingFragment extends VASFragment {
         playerProgressBar = binding.ratingFragmentPlayerProgressBar;
         checkMarkIcon = binding.ratingFragmentCheckMarkIcon;
         VASratingBar = binding.ratingFragmentRatingBar;
+        TextView ratingLowestLabel = binding.ratingLowestLabel;
+        TextView ratingHighestLabel = binding.ratingHighestLabel;
+
+        // Set the rating labels from settings
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        headerText.setText(preferences.getString(context.getString(R.string.SETTING_KEY_RATING_TITLE_LABEL), context.getString(R.string.rating_title_label_default)));
+        ratingLowestLabel.setText(preferences.getString(context.getString(R.string.SETTING_KEY_RATING_LOWEST_LABEL), context.getString(R.string.rating_lowest_label_default)));
+        ratingHighestLabel.setText(preferences.getString(context.getString(R.string.SETTING_KEY_RATING_HIGHEST_LABEL), context.getString(R.string.rating_highest_label_default)));
 
         // Prepare play/pause icons
-        playIcon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_play_sized);
-        pauseIcon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_pause_sized);
+        playIcon = ContextCompat.getDrawable(context, R.drawable.ic_play_sized);
+        pauseIcon = ContextCompat.getDrawable(context, R.drawable.ic_pause_sized);
 
         // Assign listeners to all buttons
         buttonPlayPause.setOnClickListener(playListener);

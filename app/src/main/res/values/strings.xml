@@ -21,6 +21,9 @@
     <string name="SETTING_KEY_BACKUPS_NUMBER" translatable="false">setting_number_of_backups</string>
     <string name="SETTING_KEY_VERSION_INFO" translatable="false">setting_version_info</string>
     <string name="SETTING_KEY_FEEDBACK" translatable="false">setting_feedback</string>
+    <string name="SETTING_KEY_RATING_TITLE_LABEL" translatable="false">setting_rating_title_label</string>
+    <string name="SETTING_KEY_RATING_LOWEST_LABEL" translatable="false">setting_rating_lowest_label</string>
+    <string name="SETTING_KEY_RATING_HIGHEST_LABEL" translatable="false">setting_rating_highest_label</string>
 
     <!-- Placeholders -->
     <string name="placeholder" translatable="false">placeholder</string>
@@ -170,6 +173,11 @@
     <string name="setting_version_info_summary">Current version: %s</string>
     <string name="setting_version_info_unknown_version">Unknown version</string>
     <string name="setting_number_of_backups_summary">Maximum number of backups: %s</string>
+    <string name="setting_category_rating_labels">Rating labels</string>
+    <string name="setting_category_rating_labels_summary">Input an empty string to return to defaults.</string>
+    <string name="setting_rating_title_label_title">Rating title label</string>
+    <string name="setting_rating_lowest_label_title">Lowest rating label</string>
+    <string name="setting_rating_highest_label_title">Highest rating label</string>
 
     <!-- Welcome Fragment -->
     <string name="welcome_title">Welcome!</string>
@@ -202,9 +210,9 @@
     <!-- Rating Fragment -->
     <string name="checkmark">Checkmark</string>
     <string name="track">Recording</string>
-    <string name="rating_title_placeholder">Intelligibility</string>
-    <string name="rating_label_highest">Perfectly\nintelligible</string>
-    <string name="rating_label_lowest">Completely\nunintelligible</string>
+    <string name="rating_title_label_default">Intelligibility</string>
+    <string name="rating_highest_label_default">Perfectly intelligible</string>
+    <string name="rating_lowest_label_default">Completely unintelligible</string>
     <string name="player_error_unknown">Unknown error</string>
     <string name="player_error_server_died">Server death error</string>
     <string name="player_error_timeout">Player timeout</string>

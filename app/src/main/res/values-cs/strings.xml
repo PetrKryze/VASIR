@@ -121,6 +121,11 @@
     <string name="setting_version_info_summary">Aktuální verze aplikace: %s</string>
     <string name="setting_version_info_unknown_version">Neznámá verze</string>
     <string name="setting_number_of_backups_summary">Maximální počet záloh: %s</string>
+    <string name="setting_category_rating_labels">Popisky hodnocení</string>
+    <string name="setting_category_rating_labels_summary">Pro návrat k původním hodnotám zadejte prázdný řetězec.</string>
+    <string name="setting_rating_title_label_title">Popisek názvu hodnocení</string>
+    <string name="setting_rating_lowest_label_title">Popisek nejnižšího hodnocení</string>
+    <string name="setting_rating_highest_label_title">Popisek nejvyššího hodnocení</string>
 
     <!-- Welcome Fragment -->
     <string name="welcome_title">Vítejte!</string>
@@ -152,9 +157,9 @@
     <!-- Rating Fragment -->
     <string name="checkmark">Fajfka</string>
     <string name="track">Nahrávka</string>
-    <string name="rating_title_placeholder">Srozumitelnost</string>
-    <string name="rating_label_highest">Dokonale\nsrozumitelné</string>
-    <string name="rating_label_lowest">Zcela\nnesrozumitelné</string>
+    <string name="rating_title_label_default">Srozumitelnost</string>
+    <string name="rating_highest_label_default">Dokonale\nsrozumitelné</string>
+    <string name="rating_lowest_label_default">Zcela\nnesrozumitelné</string>
     <string name="player_error_unknown">Neznámá chyba</string>
     <string name="player_error_server_died">Serverová smrt</string>
     <string name="player_error_timeout">Timeout přehrávače</string>
