@@ -15,9 +15,9 @@
         <action
             android:id="@+id/action_rating_fragment_to_result_fragment"
             app:destination="@id/result_fragment"
-            app:enterAnim="@anim/slide_in_from_right"
-            app:exitAnim="@anim/fade_out_medium"
-            app:popEnterAnim="@anim/fade_in_medium"
+            app:enterAnim="@anim/slide_in_from_left"
+            app:exitAnim="@anim/slide_out_to_right"
+            app:popEnterAnim="@anim/slide_in_from_left"
             app:popExitAnim="@anim/slide_out_to_right" />
         <action
             android:id="@+id/action_rating_fragment_to_helpFragment"
@@ -29,9 +29,9 @@
         <action
             android:id="@+id/action_rating_fragment_to_currentSessionInfoFragment"
             app:destination="@id/currentSessionInfoFragment"
-            app:enterAnim="@anim/slide_in_from_right"
-            app:exitAnim="@anim/fade_out_medium"
-            app:popEnterAnim="@anim/fade_in_medium"
+            app:enterAnim="@anim/slide_in_from_left"
+            app:exitAnim="@anim/slide_out_to_right"
+            app:popEnterAnim="@anim/slide_in_from_left"
             app:popExitAnim="@anim/slide_out_to_right" />
         <action
             android:id="@+id/action_rating_fragment_to_groupControlFragment"
@@ -54,8 +54,8 @@
         <action
             android:id="@+id/action_result_fragment_to_resultDetailFragment"
             app:destination="@id/result_detail_fragment"
-            app:enterAnim="@anim/slide_in_from_right"
-            app:exitAnim="@anim/slide_out_to_left"
+            app:enterAnim="@anim/slide_in_from_left"
+            app:exitAnim="@anim/slide_out_to_right"
             app:popEnterAnim="@anim/slide_in_from_left"
             app:popExitAnim="@anim/slide_out_to_right" />
         <action
@@ -68,8 +68,8 @@
         <action
             android:id="@+id/action_result_fragment_to_currentSessionInfoFragment"
             app:destination="@id/currentSessionInfoFragment"
-            app:enterAnim="@anim/slide_in_from_right"
-            app:exitAnim="@anim/slide_out_to_left"
+            app:enterAnim="@anim/slide_in_from_left"
+            app:exitAnim="@anim/slide_out_to_right"
             app:popEnterAnim="@anim/slide_in_from_left"
             app:popExitAnim="@anim/slide_out_to_right"/>
     </fragment>
@@ -93,8 +93,8 @@
         <action
             android:id="@+id/action_result_detail_fragment_to_currentSessionInfoFragment"
             app:destination="@id/currentSessionInfoFragment"
-            app:enterAnim="@anim/slide_in_from_right"
-            app:exitAnim="@anim/slide_out_to_left"
+            app:enterAnim="@anim/slide_in_from_left"
+            app:exitAnim="@anim/slide_out_to_right"
             app:popEnterAnim="@anim/slide_in_from_left"
             app:popExitAnim="@anim/slide_out_to_right"/>
 
@@ -185,10 +185,10 @@
         <action
             android:id="@+id/action_currentSessionInfoFragment_to_result_fragment"
             app:destination="@id/result_fragment"
-            app:enterAnim="@anim/slide_out_to_right"
-            app:exitAnim="@anim/slide_in_from_right"
-            app:popEnterAnim="@anim/slide_out_to_right"
-            app:popExitAnim="@anim/slide_in_from_right"/>
+            app:enterAnim="@anim/slide_in_from_left"
+            app:exitAnim="@anim/slide_out_to_right"
+            app:popEnterAnim="@anim/slide_in_from_left"
+            app:popExitAnim="@anim/slide_out_to_right"/>
     </fragment>
 
     <fragment
