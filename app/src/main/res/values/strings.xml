@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name" translatable="false">VASIR</string>
-    <string name="dialog_version_info_subtitle" translatable="false">Release 02/2023\n© 2023 Petr Krýže</string>
+    <string name="dialog_version_info_subtitle" translatable="false">Release 06/2024\n© 2024 Petr Krýže</string>
     <string name="feedback_email_address" translatable="false">kryzepet@fel.cvut.cz</string>
     <string name="feedback_email_subject" translatable="false">VASIR App Feedback</string>
 
