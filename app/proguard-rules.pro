@@ -43,10 +43,14 @@
     java.lang.Object readResolve();
 }
 
+# --------------------- Proguard config for poishadow.all library -----------------------
+# Config found at: https://stackoverflow.com/questions/44323942/android-proguard-apache-poi
+
 #-injars libs/poishadow-all.jar
 -keep class com.fasterxml.aalto.** { *; }
--keep class com.microsoft.schemas.** { *; }
+#-keep class com.microsoft.schemas.** { *; }
 -keep class org.apache.commons.collections4.** { *; }
+-keep class org.apache.commons.compress.archivers.** { *; }
 -keep class org.apache.poi.** { *; }
 -keep class org.apache.xmlbeans.** { *; }
 -keep class org.codehaus.stax2.** { *; }
@@ -54,6 +58,32 @@
 -keep class org.openxmlformats.schemas.** { *; }
 -keep class org.w3.x2000.x09.xmldsig.** { *; }
 -keep class schemaorg_apache_xmlbeans.** { *; }
+
+-dontwarn org.apache.**
+-dontwarn org.openxmlformats.schemas.**
+-dontwarn org.etsi.**
+-dontwarn org.w3.**
+-dontwarn com.microsoft.schemas.**
+-dontwarn com.graphbuilder.**
+-dontnote org.apache.**
+-dontnote org.openxmlformats.schemas.**
+-dontnote org.etsi.**
+-dontnote org.w3.**
+-dontnote com.microsoft.schemas.**
+-dontnote com.graphbuilder.**
+
+-keeppackagenames org.apache.poi.ss.formula.function
+
+-keep class com.microsoft.schemas.office.office.impl.CTIdMapImpl { *; }
+-keep class com.microsoft.schemas.office.office.impl.CTShapeLayoutImpl { *; }
+-keep class com.microsoft.schemas.vml.impl.CTShadowImpl { *; }
+-keep class com.microsoft.schemas.vml.impl.CTFillImpl { *; }
+-keep class com.microsoft.schemas.vml.impl.CTPathImpl { *; }
+-keep class com.microsoft.schemas.vml.impl.CTShapeImpl { *; }
+-keep class com.microsoft.schemas.vml.impl.CTShapetypeImpl { *; }
+-keep class com.microsoft.schemas.vml.impl.CTStrokeImpl { *; }
+-keep class com.microsoft.schemas.vml.impl.CTTextboxImpl { *; }
+-keep class com.microsoft.schemas.office.excel.impl.CTClientDataImpl { *; }
 
 ##---------------Begin: proguard configuration for Gson  ----------
 # Gson uses generic type information stored in a class file when working with fields. Proguard
