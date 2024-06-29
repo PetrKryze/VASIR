@@ -7,6 +7,11 @@ import android.os.Bundle;
 import android.util.Log;
 import android.util.Pair;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.lifecycle.AndroidViewModel;
+import androidx.lifecycle.LiveData;
+
 import com.petrkryze.vas.RatingManager.DirectoryCheckCallback;
 import com.petrkryze.vas.RatingManager.DirectoryCheckError;
 import com.petrkryze.vas.RatingManager.LoadResult;
@@ -16,11 +21,6 @@ import com.petrkryze.vas.livedata.MutableEventLiveData;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.lifecycle.AndroidViewModel;
-import androidx.lifecycle.LiveData;
 
 /**
  * Created by Petr on 06.08.2021. Yay!
@@ -180,7 +180,7 @@ public class RatingModel extends AndroidViewModel {
             sessionPrepared.postValue(true);
             loadingFinished.postValue(true);
         } catch (URISyntaxException e) {
-            e.printStackTrace();
+            Log.e(TAG,"New session creation failed - failed URI creation in Session object.",e);
         }
     }
 
@@ -200,7 +200,7 @@ public class RatingModel extends AndroidViewModel {
                     callback.onSuccess();
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                Log.e(TAG,"Results saving failed.",e);
                 if (callback != null) {
                     callback.onError(e.getMessage());
                 }
@@ -288,7 +288,7 @@ public class RatingModel extends AndroidViewModel {
                 playerPreparedBundle.putInt(PLAYER_TRACK_RATING, selectedRecording.getRating());
                 // PlayerPreparedBundle gets sent in the onTrackPrepared method in the listener
             } catch (IOException e) {
-                e.printStackTrace();
+                Log.e(TAG,"Could not set current track in the player object.",e);
                 Bundle out = new Bundle();
                 out.putBoolean(PLAYER_PREPARED_SUCCESS, false);
                 playerPrepared.postValue(out);

@@ -128,7 +128,7 @@ public class ExcelUtils {
 
         int cnt = 0;
         File[] fileArray = tempDir.listFiles();
-        if (fileArray == null || fileArray.length <= 0) {
+        if (fileArray == null || fileArray.length == 0) {
             Log.d(TAG, "dumpTempFolder: No temporary files to dump.");
         } else {
             for (File file : fileArray) {

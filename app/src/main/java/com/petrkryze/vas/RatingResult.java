@@ -1,6 +1,10 @@
 package com.petrkryze.vas;
 
+import static com.petrkryze.vas.Recording.DEFAULT_UNSET_RATING;
+
 import android.annotation.SuppressLint;
+
+import androidx.annotation.NonNull;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -13,10 +17,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
-
-import androidx.annotation.NonNull;
-
-import static com.petrkryze.vas.Recording.DEFAULT_UNSET_RATING;
 
 /**
  * Created by Petr on 27.05.2021. Yay!
@@ -69,7 +69,7 @@ public class RatingResult implements Serializable {
         BufferedReader br = new BufferedReader(new FileReader(resultsTextFile));
         String line;
 
-        while ((line = br.readLine()) != null && line.length() > 0) {
+        while ((line = br.readLine()) != null && !line.isEmpty()) {
             sb.append(line).append("\n");
             String[] split = line.split(String.valueOf(RatingManager.separator));
             if (line.charAt(0) == RatingManager.headerTag) { // Header row
@@ -117,7 +117,7 @@ public class RatingResult implements Serializable {
 
     @SuppressLint("SimpleDateFormat")
     public String getSaveDate() {
-        if (saveDate == null || saveDate.equals("")) {
+        if (saveDate == null || saveDate.isEmpty()) {
             Date currentDateTime = new Date(System.currentTimeMillis());
             SimpleDateFormat dateFormatText = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
             return dateFormatText.format(currentDateTime);

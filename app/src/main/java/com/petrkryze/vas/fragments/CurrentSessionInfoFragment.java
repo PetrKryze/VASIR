@@ -1,5 +1,7 @@
 package com.petrkryze.vas.fragments;
 
+import static com.petrkryze.vas.fragments.ResultDetailFragment.RecordingListSortBy;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.net.Uri;
@@ -15,6 +17,19 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckedTextView;
 import android.widget.ProgressBar;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.content.FileProvider;
+import androidx.core.view.MenuHost;
+import androidx.core.view.MenuProvider;
+import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Lifecycle;
+import androidx.navigation.NavDirections;
+import androidx.navigation.fragment.NavHostFragment;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
@@ -35,21 +50,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.core.content.FileProvider;
-import androidx.core.view.MenuHost;
-import androidx.core.view.MenuProvider;
-import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Lifecycle;
-import androidx.navigation.NavDirections;
-import androidx.navigation.fragment.NavHostFragment;
-import androidx.recyclerview.widget.DividerItemDecoration;
-import androidx.recyclerview.widget.LinearLayoutManager;
-
-import static com.petrkryze.vas.fragments.ResultDetailFragment.RecordingListSortBy;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -124,10 +124,8 @@ public class CurrentSessionInfoFragment extends VASFragment {
                                 context,"com.petrkryze.vas.fileprovider", resultFile);
                     } catch (IllegalArgumentException e ) {
                         Log.e(TAG, "URI could not be retrieved for this result.", e);
-                        e.printStackTrace();
                     } catch (Exception e) {
                         Log.e(TAG, "onClick: Result could not be saved temporarily.", e);
-                        e.printStackTrace();
                     }
 
                     if (!Thread.currentThread().isInterrupted() || getActivity() != null) {
@@ -176,10 +174,8 @@ public class CurrentSessionInfoFragment extends VASFragment {
                                 context,"com.petrkryze.vas.fileprovider", excelFile);
                     } catch (IllegalArgumentException e) {
                         Log.e(TAG, "URI could not be retrieved for this result.", e);
-                        e.printStackTrace();
                     } catch (IOException e) {
                         Log.e(TAG, "makeExcelFile: Excel file for current session could not be created!", e);
-                        e.printStackTrace();
                     }
 
                     if (!Thread.currentThread().isInterrupted() || getActivity() != null) {

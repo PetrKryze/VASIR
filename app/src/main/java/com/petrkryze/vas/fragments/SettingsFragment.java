@@ -1,5 +1,11 @@
 package com.petrkryze.vas.fragments;
 
+import static com.petrkryze.vas.MainActivity.applyTintFilter;
+import static com.petrkryze.vas.MainActivity.html;
+import static com.petrkryze.vas.RatingManager.GET_SESSION_INFO_LOAD_RESULT_KEY;
+import static com.petrkryze.vas.RatingManager.SESSION_INFO_LOADED_SESSION;
+import static com.petrkryze.vas.fragments.VASFragment.getSerializable;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
@@ -12,6 +18,7 @@ import android.os.Bundle;
 import android.text.InputFilter;
 import android.text.InputType;
 import android.text.Spanned;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -19,17 +26,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.google.android.material.snackbar.BaseTransientBottomBar;
-import com.google.android.material.snackbar.Snackbar;
-import com.petrkryze.vas.MainActivity;
-import com.petrkryze.vas.R;
-import com.petrkryze.vas.RatingManager;
-import com.petrkryze.vas.RatingResult;
-import com.petrkryze.vas.Session;
-
-import java.util.ArrayList;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -45,11 +41,16 @@ import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.SwitchPreferenceCompat;
 
-import static com.petrkryze.vas.MainActivity.applyTintFilter;
-import static com.petrkryze.vas.MainActivity.html;
-import static com.petrkryze.vas.RatingManager.GET_SESSION_INFO_LOAD_RESULT_KEY;
-import static com.petrkryze.vas.RatingManager.SESSION_INFO_LOADED_SESSION;
-import static com.petrkryze.vas.fragments.VASFragment.getSerializable;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.snackbar.BaseTransientBottomBar;
+import com.google.android.material.snackbar.Snackbar;
+import com.petrkryze.vas.MainActivity;
+import com.petrkryze.vas.R;
+import com.petrkryze.vas.RatingManager;
+import com.petrkryze.vas.RatingResult;
+import com.petrkryze.vas.Session;
+
+import java.util.ArrayList;
 
 /**
  * Created by Petr on 04.08.2021. Yay!
@@ -118,7 +119,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                     }
                     return getString(R.string.setting_version_info_summary, packageInfo.versionName);
                 } catch (PackageManager.NameNotFoundException e) {
-                    e.printStackTrace();
+                    Log.e("SettingsFragment","Unknown version of Android.",e);
                     return getString(R.string.setting_version_info_unknown_version);
                 }
             });
@@ -271,7 +272,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                     NavHostFragment.findNavController(this).navigate(directions);
                 });
             } catch (Exception e) {
-                e.printStackTrace();
+                Log.e("SettingsFragment","Error while attempting to show saved results.",e);
 
                 requireActivity().runOnUiThread(() -> {
                     loadingVisibility(false);

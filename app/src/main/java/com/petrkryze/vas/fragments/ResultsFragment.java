@@ -1,5 +1,7 @@
 package com.petrkryze.vas.fragments;
 
+import static com.petrkryze.vas.MainActivity.applyTintFilter;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.net.Uri;
@@ -19,6 +21,20 @@ import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
+import androidx.core.view.MenuHost;
+import androidx.core.view.MenuProvider;
+import androidx.lifecycle.Lifecycle;
+import androidx.navigation.NavDirections;
+import androidx.navigation.fragment.NavHostFragment;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
@@ -35,22 +51,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.core.content.ContextCompat;
-import androidx.core.content.FileProvider;
-import androidx.core.view.MenuHost;
-import androidx.core.view.MenuProvider;
-import androidx.lifecycle.Lifecycle;
-import androidx.navigation.NavDirections;
-import androidx.navigation.fragment.NavHostFragment;
-import androidx.recyclerview.widget.DividerItemDecoration;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
-import static com.petrkryze.vas.MainActivity.applyTintFilter;
 
 /**
  * A fragment representing a list of Items.
@@ -114,8 +114,7 @@ public class ResultsFragment extends VASFragment {
                                     context,"com.petrkryze.vas.fileprovider", resultFile));
                         } catch (IllegalArgumentException e) {
                             Log.e("File Selector",
-                                    "The selected file can't be shared: " + resultFile);
-                            e.printStackTrace();
+                                    "The selected file can't be shared: " + resultFile,e);
                         }
                     }
 
@@ -163,12 +162,10 @@ public class ResultsFragment extends VASFragment {
                                     context,"com.petrkryze.vas.fileprovider", excelFile));
                         } catch (IllegalArgumentException e) {
                             Log.e("File Selector",
-                                    "Selected file can't be shared: " + result.getPath());
-                            e.printStackTrace();
+                                    "Selected file can't be shared: " + result.getPath(),e);
                         } catch (IOException e) {
                             Log.e(TAG, "makeExcelFile: Excel file " + result.getPath() +
                                     " could not be created!", e);
-                            e.printStackTrace();
                         }
                     }
 
@@ -325,7 +322,7 @@ public class ResultsFragment extends VASFragment {
         try {
             Files.delete(new File(toDelete.getPath()).toPath());
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.e(TAG,"IO exception during file deletion.",e);
             return Pair.create(false, getString(R.string.snackbar_result_deleted_failure, e.getMessage()));
         }
 

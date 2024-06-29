@@ -1,5 +1,12 @@
 package com.petrkryze.vas;
 
+import static com.petrkryze.vas.RatingResult.LABEL_GENERATOR_MESSAGE;
+import static com.petrkryze.vas.RatingResult.LABEL_SAVE_DATE;
+import static com.petrkryze.vas.RatingResult.LABEL_SEED;
+import static com.petrkryze.vas.RatingResult.LABEL_SESSION_ID;
+import static com.petrkryze.vas.Session.State.STATE_IDLE;
+import static com.petrkryze.vas.Session.State.STATE_IN_PROGRESS;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -8,6 +15,11 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.Pair;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.documentfile.provider.DocumentFile;
+import androidx.preference.PreferenceManager;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -24,18 +36,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.documentfile.provider.DocumentFile;
-import androidx.preference.PreferenceManager;
-
-import static com.petrkryze.vas.RatingResult.LABEL_GENERATOR_MESSAGE;
-import static com.petrkryze.vas.RatingResult.LABEL_SAVE_DATE;
-import static com.petrkryze.vas.RatingResult.LABEL_SEED;
-import static com.petrkryze.vas.RatingResult.LABEL_SESSION_ID;
-import static com.petrkryze.vas.Session.State.STATE_IDLE;
-import static com.petrkryze.vas.Session.State.STATE_IN_PROGRESS;
 
 /**
  * Created by Petr on 09.02.2020. Yay!
@@ -203,26 +203,24 @@ public class RatingManager {
         ArrayList<GroupFolder> foundFolders = new ArrayList<>();
 
         DocumentFile[] files = root.listFiles();
-        if (files.length > 0) { // Check for empty root directory
-            for (DocumentFile potentialGroupFolder : files) {
-                Pair<Boolean, FileCheckError> folderCheck = existsIsDirCanRead(potentialGroupFolder);
+        for (DocumentFile potentialGroupFolder : files) {
+            Pair<Boolean, FileCheckError> folderCheck = existsIsDirCanRead(potentialGroupFolder);
 
-                if (folderCheck.first) { // That's what we want
-                    // Goes in depth and looks if there are any usable files in this directory
-                    ArrayList<DocumentFile> foundAudioFiles = getFileList(potentialGroupFolder);
+            if (folderCheck.first) { // That's what we want
+                // Goes in depth and looks if there are any usable files in this directory
+                ArrayList<DocumentFile> foundAudioFiles = getFileList(potentialGroupFolder);
 
-                    if (!foundAudioFiles.isEmpty()) { // Some audio was found!
-                        ArrayList<Uri> foundAudioUris = fileListToUriList(foundAudioFiles);
-                        Collections.sort(foundAudioUris);
-                        foundFolders.add(new GroupFolder(potentialGroupFolder.getUri(), foundAudioUris));
-                    } // else ignore this folder and move on
-                } else {
-                    Log.d(TAG, "getGroupFolderList: File: " +
-                            potentialGroupFolder.getUri() + ", Message: " +
-                            folderCheck.second.toString());
-                }
+                if (!foundAudioFiles.isEmpty()) { // Some audio was found!
+                    ArrayList<Uri> foundAudioUris = fileListToUriList(foundAudioFiles);
+                    Collections.sort(foundAudioUris);
+                    foundFolders.add(new GroupFolder(potentialGroupFolder.getUri(), foundAudioUris));
+                } // else ignore this folder and move on
+            } else {
+                Log.d(TAG, "getGroupFolderList: File: " +
+                        potentialGroupFolder.getUri() + ", Message: " +
+                        folderCheck.second.toString());
             }
-        } // else Empty root
+        }
         return foundFolders;
     }
 
@@ -235,19 +233,17 @@ public class RatingManager {
         ArrayList<DocumentFile> foundFiles = new ArrayList<>();
 
         DocumentFile[] files = path.listFiles();
-        if (files.length > 0) {
-            for (DocumentFile file : files) {
-                if (file.isDirectory() && goDeep) { // File is directory
-                    foundFiles.addAll(getFileList(file));
-                } else { // File is file (lol)
-                    ArrayList<String> ext = new ArrayList<>(Arrays.asList(SUPPORTED_EXTENSIONS));
+        for (DocumentFile file : files) {
+            if (file.isDirectory() && goDeep) { // File is directory
+                foundFiles.addAll(getFileList(file));
+            } else { // File is file (lol)
+                ArrayList<String> ext = new ArrayList<>(Arrays.asList(SUPPORTED_EXTENSIONS));
 
-                    assert file.getName() != null;
-                    if (ext.contains(FilenameUtils.getExtension(file.getName()).toLowerCase())) {
-                        foundFiles.add(file);
-                    } else {
-                        Log.w(TAG, "getFilelist: " + file.getName() + " - unsupported extension.");
-                    }
+                assert file.getName() != null;
+                if (ext.contains(FilenameUtils.getExtension(file.getName()).toLowerCase())) {
+                    foundFiles.add(file);
+                } else {
+                    Log.w(TAG, "getFilelist: " + file.getName() + " - unsupported extension.");
                 }
             }
         }
@@ -283,7 +279,7 @@ public class RatingManager {
 
         // Load last saved session - returns LoadResult.NO_SESSION when no previous session is in memory
         String json = preferences.getString(KEY_PREFERENCES_CURRENT_SESSION, "");
-        if (json.equals("")) {
+        if (json.isEmpty()) {
             Log.w(TAG, "loadSession: No session found in preferences.");
             out.putSerializable(GET_SESSION_INFO_LOAD_RESULT_KEY, LoadResult.NO_SESSION);
             return out;
@@ -295,7 +291,7 @@ public class RatingManager {
             out.putSerializable(SESSION_INFO_LOADED_SESSION, loadedSession);
             out.putSerializable(GET_SESSION_INFO_LOAD_RESULT_KEY, LoadResult.OK);
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.e(TAG,"Session loading from JSON file was not successful.",e);
             out.putSerializable(GET_SESSION_INFO_LOAD_RESULT_KEY, LoadResult.CORRUPTED_SESSION);
             return out;
         }
@@ -305,7 +301,7 @@ public class RatingManager {
 
     private int getNewSessionID() {
         String json = preferences.getString(KEY_PREFERENCES_CURRENT_SESSION, "");
-        if (json.equals("")) {
+        if (json.isEmpty()) {
             Log.w(TAG, "loadSession: No session found in preferences.");
             return 1;
         } else {
@@ -333,7 +329,7 @@ public class RatingManager {
     public Pair<LoadResult, Session> loadSession() {
         // Load last saved session - returns LoadResult.NO_SESSION when no previous session is in memory
         String json = preferences.getString(KEY_PREFERENCES_CURRENT_SESSION, "");
-        if (json.equals("")) {
+        if (json.isEmpty()) {
             Log.w(TAG, "loadSession: No session found in preferences.");
             return Pair.create(LoadResult.NO_SESSION, null);
         }
@@ -347,7 +343,7 @@ public class RatingManager {
             Log.d(TAG, "loadSession: Loaded Session >\n" + loadedSession);
             return Pair.create(LoadResult.OK, loadedSession);
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.e(TAG,"Session loading from JSON file was not successful.",e);
             return Pair.create(LoadResult.CORRUPTED_SESSION, null);
         }
     }

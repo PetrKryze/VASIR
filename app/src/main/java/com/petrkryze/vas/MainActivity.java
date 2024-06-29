@@ -12,9 +12,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.petrkryze.vas.databinding.ActivityMainBinding;
-
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
@@ -29,6 +26,9 @@ import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 import androidx.preference.PreferenceManager;
+
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.petrkryze.vas.databinding.ActivityMainBinding;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -101,7 +101,9 @@ public class MainActivity extends AppCompatActivity {
             if (item != null) {
                 Drawable icon = item.getIcon();
                 applyTintFilter(icon, getColor(R.color.textPrimaryOnSurface));
-                icon.setAlpha(128);
+                if (icon != null) {
+                    icon.setAlpha(128);
+                }
             }
         }
 
@@ -136,11 +138,25 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public static void disableMenuItem(final Menu menu, final int itemID) {
-        menu.findItem(itemID).setEnabled(false).getIcon().setAlpha(alphaDisabled);
+        MenuItem item = menu.findItem(itemID);
+        if (item != null) {
+            item.setEnabled(false);
+            Drawable icon = item.getIcon();
+            if (icon != null) {
+                icon.setAlpha(alphaDisabled);
+            }
+        }
     }
 
     public static void enableMenuItem(final Menu menu, final int itemID) {
-        menu.findItem(itemID).setEnabled(true).getIcon().setAlpha(alphaEnabled);
+        MenuItem item = menu.findItem(itemID);
+        if (item != null) {
+            item.setEnabled(false);
+            Drawable icon = item.getIcon();
+            if (icon != null) {
+                icon.setAlpha(alphaEnabled);
+            }
+        }
     }
 
     public static Spanned html(String string) {

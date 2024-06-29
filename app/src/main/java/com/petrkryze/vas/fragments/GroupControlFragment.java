@@ -1,5 +1,8 @@
 package com.petrkryze.vas.fragments;
 
+import static com.petrkryze.vas.adapters.GroupDirectoryRecyclerViewAdapter.AdapterListener;
+import static com.petrkryze.vas.fragments.RatingFragment.GROUP_CHECK_RESULT_REQUEST_KEY;
+
 import android.content.Context;
 import android.os.Bundle;
 import android.os.VibrationEffect;
@@ -13,17 +16,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
-import com.petrkryze.vas.GroupFolder;
-import com.petrkryze.vas.MainActivity;
-import com.petrkryze.vas.R;
-import com.petrkryze.vas.adapters.GroupDirectoryRecyclerViewAdapter;
-import com.petrkryze.vas.databinding.FragmentGroupControlBinding;
-
-import org.jetbrains.annotations.NotNull;
-
-import java.net.URI;
-import java.util.ArrayList;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.view.MenuHost;
@@ -35,8 +27,16 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import static com.petrkryze.vas.adapters.GroupDirectoryRecyclerViewAdapter.AdapterListener;
-import static com.petrkryze.vas.fragments.RatingFragment.GROUP_CHECK_RESULT_REQUEST_KEY;
+import com.petrkryze.vas.GroupFolder;
+import com.petrkryze.vas.MainActivity;
+import com.petrkryze.vas.R;
+import com.petrkryze.vas.adapters.GroupDirectoryRecyclerViewAdapter;
+import com.petrkryze.vas.databinding.FragmentGroupControlBinding;
+
+import org.jetbrains.annotations.NotNull;
+
+import java.net.URI;
+import java.util.ArrayList;
 
 /**
  * A fragment representing a list of Items.
@@ -84,7 +84,7 @@ public class GroupControlFragment extends VASFragment {
                                 .navigateUp();
                     }
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    Log.e(TAG,"Error during folder confirmation and fragment leaving.",e);
                 }
             }
         }

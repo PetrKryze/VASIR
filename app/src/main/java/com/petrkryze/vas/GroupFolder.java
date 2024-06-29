@@ -1,6 +1,7 @@
 package com.petrkryze.vas;
 
 import android.net.Uri;
+import android.util.Log;
 
 import org.apache.commons.io.FilenameUtils;
 import org.jetbrains.annotations.NotNull;
@@ -29,7 +30,7 @@ public class GroupFolder implements Serializable {
 
             for (Uri u : uriList) this.fileList.add(new URI(u.toString()));
         } catch (URISyntaxException e) {
-            e.printStackTrace();
+            Log.e("GroupFolder","Error during conversion from uri to URI.",e);
         }
         this.label = this.getFolderName();
     }

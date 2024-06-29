@@ -1,5 +1,15 @@
 package com.petrkryze.vas.fragments;
 
+import static com.petrkryze.vas.MainActivity.applyTintFilter;
+import static com.petrkryze.vas.MainActivity.html;
+import static com.petrkryze.vas.RatingModel.PLAYER_CURRENT_OUT_OF;
+import static com.petrkryze.vas.RatingModel.PLAYER_LIST_ON_END;
+import static com.petrkryze.vas.RatingModel.PLAYER_LIST_ON_START;
+import static com.petrkryze.vas.RatingModel.PLAYER_PREPARED_SUCCESS;
+import static com.petrkryze.vas.RatingModel.PLAYER_SAVED_PLAY_PROGRESS;
+import static com.petrkryze.vas.RatingModel.PLAYER_TRACK_DURATION;
+import static com.petrkryze.vas.RatingModel.PLAYER_TRACK_RATING;
+
 import android.animation.ArgbEvaluator;
 import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
@@ -29,6 +39,20 @@ import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
+import androidx.core.view.MenuHost;
+import androidx.core.view.MenuProvider;
+import androidx.core.widget.TextViewCompat;
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavDirections;
+import androidx.navigation.fragment.NavHostFragment;
+import androidx.preference.PreferenceManager;
+
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
@@ -48,30 +72,6 @@ import org.jetbrains.annotations.NotNull;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.core.content.ContextCompat;
-import androidx.core.view.MenuHost;
-import androidx.core.view.MenuProvider;
-import androidx.core.widget.TextViewCompat;
-import androidx.lifecycle.Lifecycle;
-import androidx.lifecycle.ViewModelProvider;
-import androidx.navigation.NavDirections;
-import androidx.navigation.fragment.NavHostFragment;
-import androidx.preference.PreferenceManager;
-
-import static com.petrkryze.vas.MainActivity.applyTintFilter;
-import static com.petrkryze.vas.MainActivity.html;
-import static com.petrkryze.vas.RatingModel.PLAYER_CURRENT_OUT_OF;
-import static com.petrkryze.vas.RatingModel.PLAYER_LIST_ON_END;
-import static com.petrkryze.vas.RatingModel.PLAYER_LIST_ON_START;
-import static com.petrkryze.vas.RatingModel.PLAYER_PREPARED_SUCCESS;
-import static com.petrkryze.vas.RatingModel.PLAYER_SAVED_PLAY_PROGRESS;
-import static com.petrkryze.vas.RatingModel.PLAYER_TRACK_DURATION;
-import static com.petrkryze.vas.RatingModel.PLAYER_TRACK_RATING;
 
 /**
  * Created by Petr on 04.05.2021. Yay!
@@ -233,7 +233,7 @@ public class RatingFragment extends VASFragment {
             resultUri -> {
                 if (resultUri != null) {
                     String fullPath = resultUri.getPath();
-                    if (fullPath == null || fullPath.equals("")) { // Bad returned path somehow
+                    if (fullPath == null || fullPath.isEmpty()) { // Bad returned path somehow
                         state = State.ERROR;
                         creatingNewSession = false;
                         dialog = new MaterialAlertDialogBuilder(RatingFragment.this.requireContext())
@@ -484,7 +484,7 @@ public class RatingFragment extends VASFragment {
                             groupFoldersToCheck, outUri);
             NavHostFragment.findNavController(RatingFragment.this).navigate(directions);
         } catch (URISyntaxException e) {
-            e.printStackTrace();
+            Log.e(TAG,"Error during uri to URI transcription.",e);
         }
     }
 

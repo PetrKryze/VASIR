@@ -1,10 +1,9 @@
 package com.petrkryze.vas.livedata;
 
-import android.os.Looper;
+import static androidx.lifecycle.Lifecycle.State.DESTROYED;
+import static androidx.lifecycle.Lifecycle.State.STARTED;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import android.os.Looper;
 
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
@@ -16,8 +15,9 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModel;
 
-import static androidx.lifecycle.Lifecycle.State.DESTROYED;
-import static androidx.lifecycle.Lifecycle.State.STARTED;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * DESIGNED TO SUPPORT  PROPAGATION OF  "ONE TIME" EVENTS ONLY WHEN THEY HAPPEN. UNLIKE REGULAR {@link LiveData} IT WILL NOT PROPAGATE "OLD" EVENTS TO SUBSCRIBERS THAT JUST BECOME ACTIVE.(BUTTON CLICK FROM OLD FRAGMENT  WILL NOT REACT IN NEW FRAGMENT  IF SUBSCRIBING TO SAME LIVE DATA)
@@ -317,7 +317,7 @@ public  class EventLiveData<T> extends LiveData<T> {
      */
     @SuppressWarnings("WeakerAccess")
     public boolean hasObservers() {
-        return observers.size() > 0;
+        return !observers.isEmpty();
     }
 
     /**

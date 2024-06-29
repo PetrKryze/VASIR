@@ -1,5 +1,11 @@
 package com.petrkryze.vas;
 
+import static com.petrkryze.vas.RatingResult.LABEL_GENERATOR_MESSAGE;
+import static com.petrkryze.vas.RatingResult.LABEL_SAVE_DATE;
+import static com.petrkryze.vas.RatingResult.LABEL_SEED;
+import static com.petrkryze.vas.RatingResult.LABEL_SESSION_ID;
+import static com.petrkryze.vas.Recording.DEFAULT_UNSET_RATING;
+
 import android.annotation.SuppressLint;
 import android.net.Uri;
 import android.util.Log;
@@ -16,12 +22,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
-
-import static com.petrkryze.vas.RatingResult.LABEL_GENERATOR_MESSAGE;
-import static com.petrkryze.vas.RatingResult.LABEL_SAVE_DATE;
-import static com.petrkryze.vas.RatingResult.LABEL_SEED;
-import static com.petrkryze.vas.RatingResult.LABEL_SESSION_ID;
-import static com.petrkryze.vas.Recording.DEFAULT_UNSET_RATING;
 
 /**
  * Created by Petr on 06.08.2021. Yay!
@@ -101,7 +101,7 @@ public class Session implements Serializable {
             throw new InvalidObjectException("Invalid session ID");
         } else if (this.seed <= 0) {
             throw new InvalidObjectException("Invalid session seed");
-        } else if (this.generatorMessage == null || this.generatorMessage.equals("")) {
+        } else if (this.generatorMessage == null || this.generatorMessage.isEmpty()) {
             throw new InvalidObjectException("Invalid session generation date");
         } else if (this.recordingList == null) {
             throw new InvalidObjectException("Invalid session recording list");

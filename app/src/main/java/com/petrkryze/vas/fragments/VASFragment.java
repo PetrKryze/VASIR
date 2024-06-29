@@ -1,5 +1,10 @@
 package com.petrkryze.vas.fragments;
 
+import static com.petrkryze.vas.MainActivity.applyTintFilter;
+import static com.petrkryze.vas.MainActivity.html;
+import static com.petrkryze.vas.RatingManager.GET_SESSION_INFO_LOAD_RESULT_KEY;
+import static com.petrkryze.vas.RatingManager.SESSION_INFO_LOADED_SESSION;
+
 import android.annotation.SuppressLint;
 import android.content.ClipData;
 import android.content.ClipDescription;
@@ -12,9 +17,16 @@ import android.os.Bundle;
 import android.os.Vibrator;
 import android.os.VibratorManager;
 import android.text.Spanned;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
@@ -26,17 +38,6 @@ import com.petrkryze.vas.Session;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
-import androidx.core.content.ContextCompat;
-import androidx.fragment.app.Fragment;
-
-import static com.petrkryze.vas.MainActivity.applyTintFilter;
-import static com.petrkryze.vas.MainActivity.html;
-import static com.petrkryze.vas.RatingManager.GET_SESSION_INFO_LOAD_RESULT_KEY;
-import static com.petrkryze.vas.RatingManager.SESSION_INFO_LOADED_SESSION;
 
 /**
  * Created by Petr on 20.08.2021. Yay!
@@ -135,7 +136,7 @@ public class VASFragment extends Fragment {
                     callback.onNavigateToSavedResults(results);
                 });
             } catch (Exception e) {
-                e.printStackTrace();
+                Log.e("VASFragment","Error while attempting to show saved results.",e);
 
                 requireActivity().runOnUiThread(() -> {
                     loadingVisibility(false);

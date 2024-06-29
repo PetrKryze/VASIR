@@ -3,14 +3,14 @@ package com.petrkryze.vas;
 import android.net.Uri;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+
 import org.apache.commons.io.FilenameUtils;
 
 import java.io.Serializable;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Comparator;
-
-import androidx.annotation.NonNull;
 
 /**
  * Created by Petr on 07.02.2020. Yay!
@@ -108,7 +108,7 @@ public class Recording implements Serializable {
         try {
             this.uri = new URI(uri.toString());
         } catch (URISyntaxException e) {
-            e.printStackTrace();
+            Log.e(TAG,"URI creation failed during Recording object creation.",e);
         }
         this.randomIndex = randomIndex;
         this.ID = FilenameUtils.getBaseName(uri.getPath());
