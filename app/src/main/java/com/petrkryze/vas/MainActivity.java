@@ -151,7 +151,7 @@ public class MainActivity extends AppCompatActivity {
     public static void enableMenuItem(final Menu menu, final int itemID) {
         MenuItem item = menu.findItem(itemID);
         if (item != null) {
-            item.setEnabled(false);
+            item.setEnabled(true);
             Drawable icon = item.getIcon();
             if (icon != null) {
                 icon.setAlpha(alphaEnabled);
