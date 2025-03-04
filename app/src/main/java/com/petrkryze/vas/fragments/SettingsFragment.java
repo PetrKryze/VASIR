@@ -11,7 +11,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.TransitionDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -23,8 +25,10 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -192,10 +196,37 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         return intent;
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     private boolean showVersionInfoDialog(String versionString) {
         View content = LayoutInflater.from(getContext()).inflate(R.layout.version_info_content,
                 null, false);
 
+        // Setting the logo to show a gradient animation on press
+        ImageView logo = content.findViewById(R.id.version_info_content_logo);
+
+        ColorDrawable primaryCD = new ColorDrawable(
+                ContextCompat.getColor(logo.getContext(),R.color.primaryColor));
+        ColorDrawable secondaryCD = new ColorDrawable(
+                ContextCompat.getColor(logo.getContext(),R.color.secondaryColor));
+
+        TransitionDrawable transitionDrawable = new TransitionDrawable(
+                new Drawable[] {primaryCD,secondaryCD,primaryCD});
+
+        logo.setBackground(transitionDrawable);
+
+        logo.setOnTouchListener((v, event) -> {
+            if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                transitionDrawable.startTransition(250);
+                return true;
+            } else if (event.getAction() == MotionEvent.ACTION_UP ||
+                event.getAction() == MotionEvent.ACTION_CANCEL) {
+                transitionDrawable.reverseTransition(250);
+                return true;
+            }
+            return false;
+        });
+
+        // Setting the content for text views showing version information
         TextView contentText1 = content.findViewById(R.id.version_info_content_text1);
         TextView contentText2 = content.findViewById(R.id.version_info_content_text2);
 
