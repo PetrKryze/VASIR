@@ -256,6 +256,11 @@ public class Player {
                     || deviceInfo.getType()==AudioDeviceInfo.TYPE_BLUETOOTH_SCO) {
                 Log.i(TAG, "isHeadphonesIn: Bluetooth headphones (A2DP/SCO) detected.");
                 return true;
+            } else if (deviceInfo.getType()==AudioDeviceInfo.TYPE_USB_HEADSET
+                    || deviceInfo.getType()==AudioDeviceInfo.TYPE_USB_DEVICE
+                    || deviceInfo.getType()==AudioDeviceInfo.TYPE_USB_ACCESSORY) {
+                Log.i(TAG,"isHeadphonesIn: USB audio device detected.");
+                return true;
             }
         }
         listener.onHeadphonesMissing();
