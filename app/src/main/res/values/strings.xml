@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name" translatable="false">VASIR</string>
-    <string name="dialog_version_info_subtitle" translatable="false">Release 06/2024\n© 2024 Petr Krýže</string>
+    <string name="dialog_version_info_subtitle" translatable="false">Release 03/2025\n© 2025 Petr Krýže</string>
     <string name="feedback_email_address" translatable="false">kryzepet@fel.cvut.cz</string>
     <string name="feedback_email_subject" translatable="false">VASIR App Feedback</string>
 
@@ -19,6 +19,7 @@
     <!-- Settings Keys -->
     <string name="SETTING_KEY_SHOW_WELCOME_SCREEN" translatable="false">setting_show_welcome_screen</string>
     <string name="SETTING_KEY_BACKUPS_NUMBER" translatable="false">setting_number_of_backups</string>
+    <string name="SETTING_KEY_REQUIRE_HEADPHONES" translatable="false">setting_require_headphones</string>
     <string name="SETTING_KEY_VERSION_INFO" translatable="false">setting_version_info</string>
     <string name="SETTING_KEY_FEEDBACK" translatable="false">setting_feedback</string>
     <string name="SETTING_KEY_RATING_TITLE_LABEL" translatable="false">setting_rating_title_label</string>
@@ -167,6 +168,9 @@
     <string name="setting_show_welcome_screen_summary_on">App will show the welcome screen on startup</string>
     <string name="setting_show_welcome_screen_summary_off">App will show the rating screen on startup</string>
     <string name="setting_number_of_backups_title">Number of backup result save files</string>
+    <string name="setting_require_headphones_title">Require headphones for playback</string>
+    <string name="setting_require_headphones_summary_on">Headphones (wired, Bluetooth, USB) are required for playback</string>
+    <string name="setting_require_headphones_summary_off">Audio playback is not restricted</string>
     <string name="setting_feedback_title">Send feedback</string>
     <string name="setting_feedback_summary">Report technical issues or suggest new features</string>
     <string name="setting_version_info_title">Show version information</string>

@@ -6,22 +6,26 @@
 
     <ImageView
         android:id="@+id/version_info_content_logo"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/vas_app_welcome_icon"
-        android:adjustViewBounds="true"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:src="@drawable/vas_app_welcome_icon_no_background"
+        android:adjustViewBounds="false"
         android:background="@color/primaryColor"
         android:contentDescription="@string/welcome_title_image_desc"
 
-        android:layout_marginHorizontal="30dp"
+        android:clickable="true"
+
+        app:layout_constraintDimensionRatio="1:1"
+
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
 
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintBottom_toTopOf="@id/version_info_content_text1"/>
 
     <TextView
         android:id="@+id/version_info_content_text1"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="@string/dialog_version_info_text1_placeholder"
 
@@ -29,14 +33,18 @@
         android:textAppearance="@style/TextAppearance.MdcTypographyStyles.Headline4"
 
         android:layout_marginVertical="20dp"
+        android:layout_marginHorizontal="10dp"
+
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
 
         app:layout_constraintTop_toBottomOf="@id/version_info_content_logo"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintBottom_toTopOf="@id/version_info_content_text2"
+        />
 
     <TextView
         android:id="@+id/version_info_content_text2"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="@string/dialog_version_info_text2_placeholder"
 
@@ -44,11 +52,14 @@
 
         android:layout_marginTop="5dp"
         android:layout_marginBottom="20dp"
+        android:layout_marginHorizontal="10dp"
+
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
 
         app:layout_constraintTop_toBottomOf="@id/version_info_content_text1"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
