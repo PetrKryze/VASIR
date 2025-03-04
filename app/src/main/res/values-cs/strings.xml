@@ -115,6 +115,9 @@
     <string name="setting_show_welcome_screen_summary_on">Aplikace po spuštení zobrazí úvodní obrazovku</string>
     <string name="setting_show_welcome_screen_summary_off">Aplikace po spuštění zobrazí obrazovku s hodnocením</string>
     <string name="setting_number_of_backups_title">Počet záložních souborů s výsledky</string>
+    <string name="setting_require_headphones_title">Vyžadovat sluchátka pro poslech</string>
+    <string name="setting_require_headphones_summary_on">Pro poslech jsou vyžadována sluchátka (drátová, Bluetooth, USB)</string>
+    <string name="setting_require_headphones_summary_off">Audio lze poslouchat jakýmkoli způsobem</string>
     <string name="setting_feedback_title">Poslat zpětnou vazbu</string>
     <string name="setting_feedback_summary">Nahlaste problémy s aplikací nebo dejte tipy na nové funkce</string>
     <string name="setting_version_info_title">Zobrazit informace o verzi</string>

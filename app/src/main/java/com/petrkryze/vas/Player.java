@@ -70,6 +70,7 @@ public class Player {
         void onTimeTick(int tick_ms);
         void onUpdateProgress(int current_ms);
         void onError(int what, int extra);
+        boolean areHeadphonesRequired();
     }
 
     public Player(Context context, final PlayerListener listener) {
@@ -243,28 +244,33 @@ public class Player {
     }
 
     private boolean isHeadphonesIn() {
-        AudioDeviceInfo[] audioDevices = audioManager.getDevices(AudioManager.GET_DEVICES_OUTPUTS);
-        for (AudioDeviceInfo deviceInfo : audioDevices){
-            if (deviceInfo.getType()==AudioDeviceInfo.TYPE_WIRED_HEADPHONES
-                    || deviceInfo.getType()==AudioDeviceInfo.TYPE_WIRED_HEADSET){
-                Log.i(TAG, "isHeadphonesIn: Wired headphones detected.");
-                return true;
-            } else if (deviceInfo.getType()==AudioDeviceInfo.TYPE_BLE_HEADSET) {
-                Log.i(TAG, "isHeadphonesIn: Bluetooth Low Energy (BLE) headphones detected.");
-                return true;
-            } else if (deviceInfo.getType()==AudioDeviceInfo.TYPE_BLUETOOTH_A2DP
-                    || deviceInfo.getType()==AudioDeviceInfo.TYPE_BLUETOOTH_SCO) {
-                Log.i(TAG, "isHeadphonesIn: Bluetooth headphones (A2DP/SCO) detected.");
-                return true;
-            } else if (deviceInfo.getType()==AudioDeviceInfo.TYPE_USB_HEADSET
-                    || deviceInfo.getType()==AudioDeviceInfo.TYPE_USB_DEVICE
-                    || deviceInfo.getType()==AudioDeviceInfo.TYPE_USB_ACCESSORY) {
-                Log.i(TAG,"isHeadphonesIn: USB audio device detected.");
-                return true;
+        boolean requireHeadphones = listener.areHeadphonesRequired();
+        if (requireHeadphones) {
+            AudioDeviceInfo[] audioDevices = audioManager.getDevices(AudioManager.GET_DEVICES_OUTPUTS);
+            for (AudioDeviceInfo deviceInfo : audioDevices) {
+                if (deviceInfo.getType() == AudioDeviceInfo.TYPE_WIRED_HEADPHONES
+                        || deviceInfo.getType() == AudioDeviceInfo.TYPE_WIRED_HEADSET) {
+                    Log.i(TAG, "isHeadphonesIn: Wired headphones detected.");
+                    return true;
+                } else if (deviceInfo.getType() == AudioDeviceInfo.TYPE_BLE_HEADSET) {
+                    Log.i(TAG, "isHeadphonesIn: Bluetooth Low Energy (BLE) headphones detected.");
+                    return true;
+                } else if (deviceInfo.getType() == AudioDeviceInfo.TYPE_BLUETOOTH_A2DP
+                        || deviceInfo.getType() == AudioDeviceInfo.TYPE_BLUETOOTH_SCO) {
+                    Log.i(TAG, "isHeadphonesIn: Bluetooth headphones (A2DP/SCO) detected.");
+                    return true;
+                } else if (deviceInfo.getType() == AudioDeviceInfo.TYPE_USB_HEADSET
+                        || deviceInfo.getType() == AudioDeviceInfo.TYPE_USB_DEVICE
+                        || deviceInfo.getType() == AudioDeviceInfo.TYPE_USB_ACCESSORY) {
+                    Log.i(TAG, "isHeadphonesIn: USB audio device detected.");
+                    return true;
+                }
             }
+            listener.onHeadphonesMissing();
+            return false;
+        } else {
+            return true;
         }
-        listener.onHeadphonesMissing();
-        return false;
     }
 
     private boolean isStateAnyOf(State... states) {

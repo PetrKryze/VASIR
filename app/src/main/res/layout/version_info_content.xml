@@ -8,10 +8,12 @@
         android:id="@+id/version_info_content_logo"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:src="@drawable/vas_app_welcome_icon"
+        android:src="@drawable/vas_app_welcome_icon_no_background"
         android:adjustViewBounds="false"
         android:background="@color/primaryColor"
         android:contentDescription="@string/welcome_title_image_desc"
+
+        android:clickable="true"
 
         app:layout_constraintDimensionRatio="1:1"
 

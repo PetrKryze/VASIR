@@ -22,6 +22,17 @@
         app:defaultValue="@integer/SAVE_FILE_BACKUPS_NUMBER_DEFAULT"
         app:persistent="true"/>
 
+    <SwitchPreferenceCompat
+        app:key="@string/SETTING_KEY_REQUIRE_HEADPHONES"
+        app:title="@string/setting_require_headphones_title"
+        app:summaryOn="@string/setting_require_headphones_summary_on"
+        app:summaryOff="@string/setting_require_headphones_summary_off"
+        app:icon="@drawable/ic_headphones"
+
+        app:defaultValue="@bool/setting_require_headphones_default"
+        app:singleLineTitle="false"
+        app:persistent="true"/>
+
     <Preference
         app:key="@string/SETTING_KEY_VERSION_INFO"
         app:title="@string/setting_version_info_title"

@@ -2,6 +2,7 @@ package com.petrkryze.vas;
 
 import android.app.Application;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -9,8 +10,10 @@ import android.util.Pair;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
+import androidx.preference.PreferenceManager;
 
 import com.petrkryze.vas.RatingManager.DirectoryCheckCallback;
 import com.petrkryze.vas.RatingManager.DirectoryCheckError;
@@ -29,6 +32,7 @@ public class RatingModel extends AndroidViewModel {
     private static final String TAG = "RatingModel";
 
     private Player player;
+    private final SharedPreferences preferences;
     private final RatingManager ratingManager;
 
     private final MutableEventLiveData<Boolean> loadingFinished = new MutableEventLiveData<>();
@@ -55,6 +59,8 @@ public class RatingModel extends AndroidViewModel {
 
     public RatingModel(@NonNull Application application) {
         super(application);
+        // Get the shared preferences for headphones requirement setting
+        this.preferences = PreferenceManager.getDefaultSharedPreferences(application);
 
         // Initialize the audio player and rating manager
         player = new Player(application, getPlayerListener());
@@ -389,6 +395,11 @@ public class RatingModel extends AndroidViewModel {
             @Override
             public void onError(int what, int extra) {
                 playerError.postValue(Pair.create(what, extra));
+            }
+
+            @Override
+            public boolean areHeadphonesRequired() {
+                return preferences.getBoolean(ContextCompat.getString(getApplication(),R.string.SETTING_KEY_REQUIRE_HEADPHONES), true);
             }
         };
     }

@@ -110,6 +110,11 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             backupNumberPreference.setIcon(tintIcon(backupNumberPreference.getIcon()));
         }
 
+        SwitchPreferenceCompat requireHeadphonesPreference = findPreference(getString(R.string.SETTING_KEY_REQUIRE_HEADPHONES));
+        if (requireHeadphonesPreference != null) {
+            requireHeadphonesPreference.setIcon(tintIcon(requireHeadphonesPreference.getIcon()));
+        }
+
         Preference versionInfoPreference = findPreference(getString(R.string.SETTING_KEY_VERSION_INFO));
         if (versionInfoPreference != null) {
             versionInfoPreference.setCopyingEnabled(true);
