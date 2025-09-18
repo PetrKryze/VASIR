@@ -38,6 +38,7 @@ import com.petrkryze.vas.Session;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 
 /**
  * Created by Petr on 20.08.2021. Yay!
@@ -83,12 +84,12 @@ public class VASFragment extends Fragment {
 
         // Note possible duplicate mimetype and data declaration, maybe fix when ClipData framework
         // is not a complete joke
-        Intent sharingIntent = new Intent(Intent.ACTION_SEND);
+        Intent sharingIntent = new Intent(Intent.ACTION_SEND_MULTIPLE);
         sharingIntent.setClipData(clipData);
         sharingIntent.setType(mimeType)
                 .addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
                 .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                .putExtra(Intent.EXTRA_STREAM, uri)
+                .putParcelableArrayListExtra(Intent.EXTRA_STREAM, new ArrayList<>(Collections.singletonList(uri)))
                 .putExtra(Intent.EXTRA_TITLE, description)
                 .putExtra(Intent.EXTRA_SUBJECT, description);
 

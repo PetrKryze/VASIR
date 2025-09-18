@@ -132,26 +132,22 @@
 
     <!-- Welcome Fragment -->
     <string name="welcome_title">Vítejte!</string>
-    <string name="welcome_message1">
-        <b>VASIR</b> je aplikace, která používá <i>visual analog scale</i> (analogovou obrazovou stupnici) pro subjektivní hodnocení srozumitelnosti řeči.
+    <string name="welcome_message1"><b>VASIR</b> je aplikace, která používá <i>visual analog scale</i> (analogovou obrazovou stupnici) pro subjektivní hodnocení srozumitelnosti řeči.
     </string>
-    <string name="welcome_message2">
-        Pro více informací o této aplikaci a jejím použití prosím sjeďte níže na této obrazovce pro rychlou nápovědu.\n
-        Na jakékoliv obrazovce v aplikaci si lze také zobrazit kontextovou nápovědu pomocí rozbalovací nabídky v pravém horním rohu.
+    <string name="welcome_message2">Pro více informací o této aplikaci a jejím použití prosím sjeďte níže na této obrazovce pro rychlou nápovědu.
+        \nNa jakékoliv obrazovce v aplikaci si lze také zobrazit kontextovou nápovědu pomocí rozbalovací nabídky v pravém horním rohu.
     </string>
     <string name="welcome_scroll_hint_description">Dolů mířící šipka vybízející ke scrollování</string>
     <string name="welcome_message_further_info_header">Rychlá nápověda</string>
-    <string name="welcome_message_further_info">
-        \tPři pokračování dále vás aplikace vyzve k vybrání adresáře s uloženými audio soubory obsahující řeč k zhodnocení.
-        Místo uložení souborů je libovolné, nicméně <i>doporučujeme</i> umístit soubory do standardního adresáře v interní paměti telefonu (např. adresář <i>Documents</i>).\n\n
-        \tAplikace dále provede automatickou randomizaci nalezených souborů a připraví je k hodnocení.
+    <string name="welcome_message_further_info">Při pokračování dále vás aplikace vyzve k vybrání adresáře s uloženými audio soubory obsahující řeč k zhodnocení.
+        Místo uložení souborů je libovolné, nicméně <i>doporučujeme</i> umístit soubory do standardního adresáře v interní paměti telefonu (např. adresář <i>Documents</i>).
+        \n\nAplikace dále provede automatickou randomizaci nalezených souborů a připraví je k hodnocení.
         Použitím vestavěného přehrávače můžete procházet nalezené soubory a přehrávat jejich obsah za pomocí sluchátek.
-        Ve spodní části obrazovky se pak nachází posuvník pro hodnocení.\n\n
-        \tPoté, co byly všechny nahrávky ohodnoceny, se zobrazí ikonka dvojité zelené fajfky.
+        Ve spodní části obrazovky se pak nachází posuvník pro hodnocení.
+        \n\nPoté, co byly všechny nahrávky ohodnoceny, se zobrazí ikonka dvojité zelené fajfky.
         Aktuální sezení bude vždy automaticky uloženo při odchodu z aplikace a může být také uloženo manuálně prostřednictvím vysouvací nabídky v pravém horním rohu.
         Tato nabídka také umožňuje zobrazit si uložená sezení a sdílet je pomocí cloudu, emailu, atd.
-        \n\n
-        <i>Tato aplikace byla vyvinuta pro potřeby výzkumu a vývoje na katedře teorie obvodů, Fakultě elektrotechnické, ČVUT v Praze.</i>
+        \n\n<i>Tato aplikace byla vyvinuta pro potřeby výzkumu a vývoje na katedře teorie obvodů, Fakultě elektrotechnické, ČVUT v Praze.</i>
     </string>
     <string name="welcome_checkbox_do_not_show_again">Tuto obrazovku již nezobrazovat</string>
     <string name="welcome_button_continue_label">Pokračovat k hodnocení</string>
@@ -209,8 +205,7 @@
     <string name="help_context_title_group_control_fragment">Nápověda: Kontrola skupin</string>
     <string name="help_context_title_settings_fragment">Nápověda: Nastavení</string>
 
-    <string name="help_context_body_rating_fragment">
-        Tato obrazovka slouží k hodnocení audio nahrávek v rámci hodnotitelského sezení.\n\n;
+    <string name="help_context_body_rating_fragment">Tato obrazovka slouží k hodnocení audio nahrávek v rámci hodnotitelského sezení.\n\n;
 
         Při prvním startu aplikace vyzve k vytvoření nového hodnotitelského sezení. Pomocí
         výběrového menu zvolíte adresář, kde jsou uloženy audio soubory s nahrávkami, které si přejete hodnotit.\n\n;
@@ -235,8 +230,7 @@
         ze sekce "Uložená hodnocení", do které se lze dostat prostřednictvím rozbalovací nabídky.
     </string>
 
-    <string name="help_context_body_results_fragment">
-        V této aktivitě můžete prohlížet a sdílet výsledky vašich uložených sezení.\n\n;
+    <string name="help_context_body_results_fragment">V této aktivitě můžete prohlížet a sdílet výsledky vašich uložených sezení.\n\n;
 
         Každé sezení v seznamu lze rozkliknout a zobrazit tak náhled s podrobnějšími informacemi.
         Sezení jsou řazena chronologicky od nejnovějšího.\n\n;
@@ -251,8 +245,7 @@
         souborů s výsledky pro aktivní sezení lze změnit v nastavení.
     </string>
 
-    <string name="help_context_body_result_detail_fragment">
-        Tato obrazovka obsahuje detailní náhled vybraného sezení včetně seznamu jednotlivých nahrávek, jejich hodnocení a tlačítkem pro sdílení výsledků.\n\n;
+    <string name="help_context_body_result_detail_fragment">Tato obrazovka obsahuje detailní náhled vybraného sezení včetně seznamu jednotlivých nahrávek, jejich hodnocení a tlačítkem pro sdílení výsledků.\n\n;
 
         Informace o sezení v hlavičce lze dotykem zkopírovat do schránky.\n\n;
 
@@ -264,8 +257,7 @@
         další zpracování v programech typu Matlab apod., soubor .txt) nebo ve formátu Microsoft® Excel® (soubor .xlsx).
     </string>
 
-    <string name="help_context_body_current_session_info_fragment">
-        Tato obrazovka obsahuje detailní náhled aktuálního sezení včetně seznamu jednotlivých nahrávek, jejich hodnocení a tlačítkem pro sdílení výsledků.\n\n;
+    <string name="help_context_body_current_session_info_fragment">Tato obrazovka obsahuje detailní náhled aktuálního sezení včetně seznamu jednotlivých nahrávek, jejich hodnocení a tlačítkem pro sdílení výsledků.\n\n;
 
         Informace o aktuálním sezení v hlavičce lze dotykem zkopírovat do schránky.\n\n;
 
@@ -277,8 +269,7 @@
         další zpracování v programech typu Matlab apod., soubor .txt) nebo ve formátu Microsoft® Excel® (soubor .xlsx).
     </string>
 
-    <string name="help_context_body_group_control_fragment">
-        Na této obrazovce lze zkontrolovat soubory a skupiny, které budete chtít použít pro nově vytvářené sezení.\n\n;
+    <string name="help_context_body_group_control_fragment">Na této obrazovce lze zkontrolovat soubory a skupiny, které budete chtít použít pro nově vytvářené sezení.\n\n;
 
         Hlavička ukazuje počet individuálních adresářů, ve kterých byly nalezeny použitelné audio soubory.\n\n;
 
@@ -293,8 +284,7 @@
         Pomocí zaškrtávacího pole v pravé části lze vybírat, zda-li bude daný adresář/skupina použit v právě vytvářeném sezení.
     </string>
 
-    <string name="help_context_body_settings_fragment">
-        Zde lze měnit nastavení aplikace.\n\n;
+    <string name="help_context_body_settings_fragment">Zde lze měnit nastavení aplikace.\n\n;
 
         Při změně počtu záložních souborů s výsledky se přebytek nad tento limit smaže vždy pouze pro
         aktuální sezení v momentě, kdy budou výsledky sezení ukládány.\n\n;

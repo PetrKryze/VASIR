@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name" translatable="false">VASIR</string>
-    <string name="dialog_version_info_subtitle" translatable="false">Release 03/2025\n© 2025 Petr Krýže</string>
+    <string name="dialog_version_info_subtitle" translatable="false">Release 09/2025\n© 2025 Petr Krýže</string>
     <string name="feedback_email_address" translatable="false">kryzepet@fel.cvut.cz</string>
     <string name="feedback_email_subject" translatable="false">VASIR App Feedback</string>
 
@@ -185,27 +185,23 @@
 
     <!-- Welcome Fragment -->
     <string name="welcome_title">Welcome!</string>
-    <string name="welcome_message1">
-        <b>VASIR</b> is an application that utilizes a <i>visual analog scale</i> for subjective speech intelligibility rating.
+    <string name="welcome_message1"><b>VASIR</b> is an application that utilizes a <i>visual analog scale</i> for subjective speech intelligibility rating.
     </string>
-    <string name="welcome_message2">
-        To find out more info about how to use this app, scroll down on this screen for a quick reference.\n
-        Every screen in the app has a contextual help that can be displayed using the dropdown menu in the top-right corner.
+    <string name="welcome_message2">To find out more info about how to use this app, scroll down on this screen for a quick reference.
+        \nEvery screen in the app has a contextual help that can be displayed using the dropdown menu in the top-right corner.
     </string>
     <string name="welcome_scroll_hint_description">Down facing arrow suggesting scrolling</string>
     <string name="welcome_message_further_info_header">Quick reference</string>
-    <string name="welcome_message_further_info">
-        \tAfter proceeding, you will be asked to select a directory containing the audio files of speech recordings to be rated.
+    <string name="welcome_message_further_info">After proceeding, you will be asked to select a directory containing the audio files of speech recordings to be rated.
         The location of the files is arbitrary, but we <i>recommend</i> saving them to a standard directory
-        on your phone\'s internal storage (e.g. the <i>Documents</i> folder).\n\n
-        \tAfterwards, the app performs a randomization on the found audio files and prepares them for rating. You can browse through
+        on your phone\'s internal storage (e.g. the <i>Documents</i> folder).
+        \n\nAfterwards, the app performs a randomization on the found audio files and prepares them for rating. You can browse through
         the available files using the built-in player, listen to their content through headphones,
         and finally, rate them on the scale located to the bottom of the rating screen.
         When all available files have been rated, a double checkmark icon will appear.
         The current session is saved automatically on app exit, but can be also saved manually using the dropdown menu in the top-right corner.
         This menu also allows you to see the saved recordings and share them via cloud, email, etc.
-        \n\n
-        This application was developed for use in research and development at the department of circuit theory, faculty of electrotechnics, CTU in Prague.\n
+        \n\nThis application was developed for use in research and development at the department of circuit theory, faculty of electrotechnics, CTU in Prague.\n
     </string>
     <string name="welcome_checkbox_do_not_show_again">Do not show this screen again</string>
     <string name="welcome_button_continue_label">Continue to rating</string>
@@ -263,8 +259,7 @@
     <string name="help_context_title_group_control_fragment">Help: Group check</string>
     <string name="help_context_title_settings_fragment">Help: Settings</string>
 
-    <string name="help_context_body_rating_fragment">
-        Use this screen to rate audio recordings that are part of a rating session.\n\n;
+    <string name="help_context_body_rating_fragment">Use this screen to rate audio recordings that are part of a rating session.\n\n;
 
         The first time you start the application, you will be prompted to create a new rating session.
         Select the directory containing the audio recordings to be rated using the selection screen.\n\n;
@@ -289,8 +284,7 @@
         from the "Saved Ratings" section, which can be accessed via the drop-down menu.
     </string>
 
-    <string name="help_context_body_results_fragment">
-        You can view and share your saved session results in this activity.\n\n;
+    <string name="help_context_body_results_fragment">You can view and share your saved session results in this activity.\n\n;
 
         Each session in the list can be clicked to display a screen containing detailed information
         about the selected session. Sessions are sorted chronologically with the most recent one on top.\n\n;
@@ -305,8 +299,7 @@
         of backup session result files for the active session can be changed in the app\'s settings.
     </string>
 
-    <string name="help_context_body_result_detail_fragment">
-        This screen displays a detailed preview of the selected session, including a list of all
+    <string name="help_context_body_result_detail_fragment">This screen displays a detailed preview of the selected session, including a list of all
         individual recordings, their ratings, and a button to share the session results.\n\n;
 
         The session information in the header can be copied to the clipboard by touching on it.\n\n;
@@ -320,8 +313,7 @@
         processing in programs such as Matlab, etc.) or as a Microsoft® Excel® file (.xlsx).
     </string>
 
-    <string name="help_context_body_current_session_info_fragment">
-        This screen displays a detailed preview of the current session, including a list of all
+    <string name="help_context_body_current_session_info_fragment">This screen displays a detailed preview of the current session, including a list of all
         individual recordings, their ratings, and a button to share the session results.\n\n;
 
         The session information in the header can be copied to the clipboard by touching on it.\n\n;
@@ -335,8 +327,7 @@
         processing in programs such as Matlab, etc.) or as a Microsoft® Excel® file (.xlsx).
     </string>
 
-    <string name="help_context_body_group_control_fragment">
-        From this screen, you can check the audio files and groups you want to use in the newly created session.\n\n;
+    <string name="help_context_body_group_control_fragment">From this screen, you can check the audio files and groups you want to use in the newly created session.\n\n;
 
         The header shows the number of individual directories in which usable audio files were found.\n\n;
 
@@ -353,8 +344,7 @@
         Use the check box on the right to select whether the directory/group will be used in the session you are creating.
     </string>
 
-    <string name="help_context_body_settings_fragment">
-        Here you can change the application settings.\n\n;
+    <string name="help_context_body_settings_fragment">Here you can change the application settings.\n\n;
 
         When changing the number of session\'s result backup files, the excess above this limit will be
         deleted only for the current session upon it\'s results saving.\n\n;
