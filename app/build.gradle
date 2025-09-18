@@ -12,35 +12,35 @@ android {
     }
     defaultConfig {
         applicationId "com.petrkryze.vas"
-        compileSdk 35
+        compileSdk = 35
         minSdkVersion 26
-        targetSdkVersion 35
+        targetSdk 35
         versionCode 23
         versionName "1.5.1"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        multiDexEnabled true
-        signingConfig signingConfigs.release
+        multiDexEnabled = true
+        signingConfig = signingConfigs.release
     }
     buildTypes {
         release {
-            shrinkResources true
+            shrinkResources = true
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'),
                     'proguard-rules.pro'
             debuggable false
-            multiDexEnabled false
+            multiDexEnabled = false
         }
         debug {
-            multiDexEnabled false
+            multiDexEnabled = false
         }
     }
     buildFeatures {
-        viewBinding true
+        viewBinding = true
     }
     lint {
-        checkReleaseBuilds false
+        checkReleaseBuilds = false
     }
-    namespace 'com.petrkryze.vas'
+    namespace = 'com.petrkryze.vas'
 }
 
 allprojects {
@@ -55,19 +55,19 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     // Multidex needed for the poishadow-all.jar excel library repackage
     implementation 'com.android.support:multidex:1.0.3'
-    implementation 'androidx.appcompat:appcompat:1.7.0'
+    implementation 'androidx.appcompat:appcompat:1.7.1'
     implementation 'androidx.constraintlayout:constraintlayout:2.2.1'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'androidx.recyclerview:recyclerview:1.4.0'
     implementation files('libs/poishadow-all.jar')
     testImplementation 'junit:junit:4.13.2'
-    androidTestImplementation 'androidx.test.ext:junit:1.2.1'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.6.1'
-    implementation 'com.google.android.material:material:1.12.0'
+    androidTestImplementation 'androidx.test.ext:junit:1.3.0'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.7.0'
+    implementation 'com.google.android.material:material:1.13.0'
 
-    implementation 'com.google.code.gson:gson:2.11.0'
+    implementation 'com.google.code.gson:gson:2.13.2'
 
-    def nav_version = "2.8.8"
+    def nav_version = "2.9.4"
     implementation "androidx.navigation:navigation-fragment:$nav_version"
     implementation "androidx.navigation:navigation-ui:$nav_version"
     // Feature module Support
@@ -77,13 +77,13 @@ dependencies {
     androidTestImplementation "androidx.navigation:navigation-testing:$nav_version"
 
     // Jetpack Compose Integration
-    implementation 'androidx.navigation:navigation-compose:2.8.8'
+    implementation 'androidx.navigation:navigation-compose:2.9.4'
     implementation 'androidx.preference:preference:1.2.1'
 
     implementation 'com.google.android.play:feature-delivery:2.1.0'
 
     // Kotlin Serialization
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
 }
 
 java {

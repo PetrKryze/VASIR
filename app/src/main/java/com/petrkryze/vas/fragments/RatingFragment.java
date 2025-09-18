@@ -676,25 +676,19 @@ public class RatingFragment extends VASFragment {
     private void onDirectoryCheckError(DirectoryCheckError errorInfo) {
         state = State.ERROR;
         creatingNewSession = false;
-        Spanned message = null;
         String dirname = errorInfo.dirName;
 
-        switch (errorInfo.errorType) {
-            case NOT_EXIST:
-                message = html(getString(R.string.dialog_invalid_directory_not_exist, dirname)); break;
-            case NOT_DIRECTORY:
-                message = html(getString(R.string.dialog_invalid_directory_not_directory, dirname)); break;
-            case NOT_READABLE:
-                message = html(getString(R.string.dialog_invalid_directory_not_readable, dirname)); break;
-            case NO_FILES:
-                message = html(getString(R.string.dialog_invalid_directory_no_files, dirname)); break;
-            case MISSING_FILES:
-                message = html(getString(R.string.dialog_invalid_directory_missing_files,
-                        errorInfo.missingCnt, dirname, errorInfo.missingList));
-                break;
-        }
-
-        Spanned finalMessage = message;
+        Spanned finalMessage = switch (errorInfo.errorType) {
+            case NOT_EXIST -> html(getString(R.string.dialog_invalid_directory_not_exist, dirname));
+            case NOT_DIRECTORY ->
+                    html(getString(R.string.dialog_invalid_directory_not_directory, dirname));
+            case NOT_READABLE ->
+                    html(getString(R.string.dialog_invalid_directory_not_readable, dirname));
+            case NO_FILES -> html(getString(R.string.dialog_invalid_directory_no_files, dirname));
+            case MISSING_FILES -> html(getString(R.string.dialog_invalid_directory_missing_files,
+                    errorInfo.missingCnt, dirname, errorInfo.missingList));
+            default -> null;
+        };
         dialog = new MaterialAlertDialogBuilder(requireContext())
                 .setTitle(getString(R.string.dialog_invalid_directory_title))
                 .setMessage(finalMessage)

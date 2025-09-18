@@ -90,8 +90,7 @@ public class MainActivity extends AppCompatActivity {
         menuInflater.inflate(R.menu.toolbar_menu, menu);
 
         // Show icons in the overflow menu - restrictedAPi is an Android bug
-        if (menu instanceof MenuBuilder) {
-            MenuBuilder menuBuilder = (MenuBuilder) menu;
+        if (menu instanceof MenuBuilder menuBuilder) {
             menuBuilder.setOptionalIconsVisible(true);
         }
 

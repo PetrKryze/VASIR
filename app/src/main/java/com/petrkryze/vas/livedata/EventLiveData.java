@@ -276,8 +276,7 @@ public  class EventLiveData<T> extends LiveData<T> {
         assertMainThread("removeObservers");
         assertNotNull(owner, "owner");
         for (Map.Entry<Observer<? super T>, EventObserverWrapper> entry : EventLiveData.this.observers.entrySet()) {
-            if (entry.getValue() instanceof EventLiveData.EventLifecycleBoundEventObserver) {
-                EventLifecycleBoundEventObserver eventLifecycleBoundObserver = (EventLifecycleBoundEventObserver) entry.getValue();
+            if (entry.getValue() instanceof EventLiveData<?>.EventLifecycleBoundEventObserver eventLifecycleBoundObserver) {
                 if (eventLifecycleBoundObserver.isAttachedTo(owner))
                     this.observers.remove(entry.getKey());
             }
