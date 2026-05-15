@@ -143,7 +143,7 @@ public class CurrentSessionInfoFragment extends VASFragment {
                     }
                 });
 
-                // Show loading circle over the excel button and start the work
+                // Show loading circle over the Excel button and start the work
                 buttonShareAsText.setTextColor(context.getColor(R.color.invisible));
                 buttonShareAsText.setClickable(false);
 
@@ -193,7 +193,7 @@ public class CurrentSessionInfoFragment extends VASFragment {
                     }
                 });
 
-                // Show loading circle over the excel button and start the work
+                // Show loading circle over the Excel button and start the work
                 buttonShareAsExcel.setTextColor(context.getColor(R.color.invisible));
                 buttonShareAsExcel.setClickable(false);
 

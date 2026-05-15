@@ -65,9 +65,12 @@
 
     <View
         android:id="@+id/navigation_bar_background"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_gravity="bottom"
-        android:background="@color/primaryDarkColor"/>
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="end"
+        android:background="@color/primaryDarkColor"
+        android:elevation="50dp"
+        android:clickable="false"
+        android:focusable="false"/>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

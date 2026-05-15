@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name" translatable="false">VASIR</string>
-    <string name="dialog_version_info_subtitle" translatable="false">Release 09/2025\n© 2025 Petr Krýže</string>
+    <string name="dialog_version_info_subtitle" translatable="false">Release 05/2026\n© 2026 Petr Krýže</string>
     <string name="feedback_email_address" translatable="false">kryzepet@fel.cvut.cz</string>
     <string name="feedback_email_subject" translatable="false">VASIR App Feedback</string>
 
@@ -79,7 +79,7 @@
     <string name="button_share_all_label">Share all</string>
     <string name="button_confirm_label">Confirm</string>
     <string name="button_share_as_text_label">Share as plain text</string>
-    <string name="button_share_as_excel_label">Share as excel file</string>
+    <string name="button_share_as_excel_label">Share as Excel file</string>
 
     <!-- Dialogs -->
     <string name="dialog_make_new_session_title">Leave current session?</string>
@@ -136,8 +136,8 @@
     <string name="snackbar_result_deleted_success">Result deleted successfully.</string>
     <string name="snackbar_result_deleted_failure">Result could not be deleted.\nReason: %s</string>
     <string name="snackbar_results_select_hint">Select result from the list to view detailed info.</string>
-    <string name="snackbar_directory_selection_canceled">New session creation cancelled - no directory selected.</string>
-    <string name="snackbar_directory_check_canceled">New session creation cancelled - group check cancelled.</string>
+    <string name="snackbar_directory_selection_canceled">New session creation canceled - no directory selected.</string>
+    <string name="snackbar_directory_check_canceled">New session creation canceled - group check canceled.</string>
     <string name="snackbar_save_success">Saving successful!</string>
     <string name="snackbar_save_failed">Saving failed!&lt;\br>&lt;b>Reason: &lt;i>%s&lt;/i>&lt;/b></string>
     <string name="snackbar_save_failed_error_unknown">Unknown</string>
@@ -362,7 +362,7 @@
         <item>Total playback time of the current recording.</item>
         <item>Horizontal bar enabling seeking over the whole recording.</item>
         <item>Player control buttons. Long-press on the previous/next button takes you to the first/last recording in the list.</item>
-        <item>Rating bar. Values furthest to the right typically represent best performance, furthest to the left represent the worst performance.</item>
+        <item>Rating bar. Values furthest to the left and right typically represent the worst and best performance, respectively.</item>
     </string-array>
 
     <string-array name="help_tag_description_settings_fragment">
@@ -376,7 +376,7 @@
         <item>List of saved sessions, sorted chronologically with the latest saved session on top. List items can be clicked on to display detailed session info. Long-press enables to delete the save.</item>
         <item>Session\'s date and time of saving.</item>
         <item>Message hinting at the option to click on list items to see detailed info. Automatically disappears after a while.</item>
-        <item>Share all saved sessions button. A share mode (plain text/excel file) and a share target can be selected after pressing.</item>
+        <item>Share all saved sessions button. A share mode (plain text/Excel file) and a share target can be selected after pressing.</item>
     </string-array>
 
     <string-array name="help_tag_description_result_detail_fragment">
@@ -384,7 +384,7 @@
         <item>Session info: Save date, randomization seed, creation date. Values can be copied.</item>
         <item>List of all recordings in the session. List can be sorted both in ascending or descending order by pressing on the column headers.</item>
         <item>List items: Recording\'s ID, group name, randomization index, set recording\'s rating.</item>
-        <item>Session share button. A share mode (plain text/excel file) and a share target can be selected after pressing.</item>
+        <item>Session share button. A share mode (plain text/Excel file) and a share target can be selected after pressing.</item>
     </string-array>
 
     <string-array name="help_tag_description_group_control_fragment">
@@ -400,6 +400,6 @@
         <item>Current session info: Randomization seed, creation date. Values can be copied.</item>
         <item>List of all recordings in the current session. List can be sorted both in ascending or descending order by pressing on the column headers.</item>
         <item>List items: Recording\'s ID, group name, randomization index, set recording\'s rating.</item>
-        <item>Current session share button. A share mode (plain text/excel file) and a share target can be selected after pressing.</item>
+        <item>Current session share button. A share mode (plain text/Excel file) and a share target can be selected after pressing.</item>
     </string-array>
 </resources>

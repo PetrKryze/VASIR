@@ -217,7 +217,7 @@ public class GroupControlFragment extends VASFragment {
                 } else { // Input is OK
                     this.groupFolders.get(i).setLabel(inputText);
 
-                    // Put the selected folder with it's name user defined into output, so we don't
+                    // Put the selected folder with its name user defined into output, so we don't
                     // change the original found group folders (for safety)
                     selectedFolders.add(this.groupFolders.get(i));
                 }

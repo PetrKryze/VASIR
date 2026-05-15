@@ -82,7 +82,7 @@ public class Session implements Serializable {
                 counter++;
             }
         }
-        assert (Nrec == counter); // Sanity check, I hope this works jesus christ
+        assert (Nrec == counter); // Sanity check, I hope this works Jesus Christ
 
         // Sorts using the random index (basically randomizing the files) for easy player access
         joinedRecordingsList.sort(Recording.sortByRandomIndex);

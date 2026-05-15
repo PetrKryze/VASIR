@@ -8,16 +8,24 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.text.Html;
 import android.text.Spanned;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.view.menu.MenuBuilder;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.content.ContextCompat;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.navigation.NavController;
 import androidx.navigation.NavGraph;
 import androidx.navigation.NavInflater;
@@ -37,7 +45,7 @@ public class MainActivity extends AppCompatActivity {
 
     private AlertDialog dialog;
 
-    // This stuff needs to be here to make the excel creation work
+    // This stuff needs to be here to make the Excel creation work
     static {
         System.setProperty(
                 "org.apache.poi.javax.xml.stream.XMLInputFactory",
@@ -56,8 +64,13 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        WindowCompat.enableEdgeToEdge(getWindow());
+
         ActivityMainBinding binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
+        setupWindowInsets(binding);
 
         // Toolbar setup
         setSupportActionBar(binding.toolbar);
@@ -72,6 +85,7 @@ public class MainActivity extends AppCompatActivity {
         NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.nav_host_fragment);
         assert navHostFragment != null;
+
         NavController navController = navHostFragment.getNavController();
         NavInflater navInflater = navController.getNavInflater();
         NavGraph navGraph = navInflater.inflate(R.navigation.nav_graph);
@@ -160,6 +174,69 @@ public class MainActivity extends AppCompatActivity {
 
     public static Spanned html(String string) {
         return Html.fromHtml(string, Html.FROM_HTML_MODE_LEGACY);
+    }
+
+    private void setupWindowInsets(ActivityMainBinding binding) {
+        ViewCompat.setOnApplyWindowInsetsListener(binding.coordinator, (view, windowInsets) -> {
+            Insets safeInsets = windowInsets.getInsets(
+                    WindowInsetsCompat.Type.systemBars()
+                    | WindowInsetsCompat.Type.displayCutout()
+            );
+
+            binding.toolbarContainer.setPadding(
+                    safeInsets.left,
+                    safeInsets.top,
+                    safeInsets.right,
+                    0
+            );
+
+            binding.navHostFragment.setPadding(
+                    safeInsets.left,
+                    0,
+                    safeInsets.right,
+                    safeInsets.bottom
+            );
+
+            binding.loadingOverlay.setPadding(
+                    safeInsets.left,
+                    safeInsets.top,
+                    safeInsets.right,
+                    safeInsets.bottom
+            );
+
+            updateNavigationBarBackground(binding, safeInsets);
+
+            return windowInsets;
+        });
+    }
+
+    @SuppressWarnings("DataFlowIssue")
+    private void updateNavigationBarBackground(ActivityMainBinding binding, Insets safeInsets) {
+        View navBarBackground = binding.navigationBarBackground;
+
+        CoordinatorLayout.LayoutParams params =
+                (CoordinatorLayout.LayoutParams) navBarBackground.getLayoutParams();
+
+        boolean landscapeSideStrip = params.height == ViewGroup.LayoutParams.MATCH_PARENT;
+        boolean portraitBottomStrip = params.width == ViewGroup.LayoutParams.MATCH_PARENT;
+
+        if (landscapeSideStrip) {
+            params.height = ViewGroup.LayoutParams.MATCH_PARENT;
+
+            if (safeInsets.left > safeInsets.right) {
+                params.gravity = Gravity.LEFT;
+                params.width = safeInsets.left;
+            } else {
+                params.gravity = Gravity.RIGHT;
+                params.width = safeInsets.right;
+            }
+        } else if (portraitBottomStrip) {
+            params.width = ViewGroup.LayoutParams.MATCH_PARENT;
+            params.gravity = Gravity.BOTTOM;
+            params.height = safeInsets.bottom;
+        }
+
+        navBarBackground.setLayoutParams(params);
     }
 
     @Override

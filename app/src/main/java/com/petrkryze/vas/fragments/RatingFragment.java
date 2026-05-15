@@ -464,7 +464,7 @@ public class RatingFragment extends VASFragment {
                         .setMessage(finalMessage)
                         .setIcon(finalIcon)
                         .setPositiveButton(R.string.dialog_no_session_corrupted_session_create_new_session,
-                                // Go select directory and check it afterwards
+                                // Go select directory and check it afterward
                                 (dialog, which) -> fireSelectDirectory())
                         .setNegativeButton(R.string.dialog_no_session_corrupted_session_quit,
                                 (dialog, which) -> requireActivity().finish())
@@ -676,9 +676,9 @@ public class RatingFragment extends VASFragment {
     private void onDirectoryCheckError(DirectoryCheckError errorInfo) {
         state = State.ERROR;
         creatingNewSession = false;
-        String dirname = errorInfo.dirName;
+        String dirname = errorInfo.dirName();
 
-        Spanned finalMessage = switch (errorInfo.errorType) {
+        Spanned finalMessage = switch (errorInfo.errorType()) {
             case NOT_EXIST -> html(getString(R.string.dialog_invalid_directory_not_exist, dirname));
             case NOT_DIRECTORY ->
                     html(getString(R.string.dialog_invalid_directory_not_directory, dirname));
@@ -686,7 +686,7 @@ public class RatingFragment extends VASFragment {
                     html(getString(R.string.dialog_invalid_directory_not_readable, dirname));
             case NO_FILES -> html(getString(R.string.dialog_invalid_directory_no_files, dirname));
             case MISSING_FILES -> html(getString(R.string.dialog_invalid_directory_missing_files,
-                    errorInfo.missingCnt, dirname, errorInfo.missingList));
+                    errorInfo.missingCnt(), dirname, errorInfo.missingList()));
             default -> null;
         };
         dialog = new MaterialAlertDialogBuilder(requireContext())

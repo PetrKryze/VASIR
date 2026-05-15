@@ -104,7 +104,7 @@ public class ExcelUtils {
             }
         }
 
-        // Create the new excel file
+        // Create the new Excel file
         if (!newExcelFile.createNewFile()) {
             Log.e(TAG, "makeExcelFile: File creation failed!");
             throw new FileSystemException("Failed to create excel file!");

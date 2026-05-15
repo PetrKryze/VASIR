@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="primaryColor">#2196f3</color>
+    <color name="primaryColor">#353535</color>
     <color name="primaryLightColor">#202020</color>
     <color name="primaryDarkColor">#202020</color>
 
@@ -12,7 +12,7 @@
     <color name="textPrimaryOnPrimary">#000000</color>
     <color name="textPrimaryOnSecondary">#DD000000</color>
     <color name="textPrimaryOnError">#000000</color>
-    <color name="textPrimaryOnBackground">#DFFFFFFF</color>
+    <color name="textPrimaryOnBackground">#DDFFFFFF</color>
 
     <color name="backgroundColor">#121212</color>
     <color name="surfaceColor">#353535</color>
